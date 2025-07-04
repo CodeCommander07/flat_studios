@@ -84,7 +84,7 @@ useEffect(() => {
     },
     {
       name: 'Admin',
-      role: 'High Rank',
+      role: 'High-Rank',
       items: [
         { label: 'Admin', href: '/admin/' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
@@ -93,7 +93,7 @@ useEffect(() => {
     },
     {
       name: 'Hub+',
-      role: 'Community Director',
+      role: 'Community-Director',
       items: [
         { label: 'Hub+', href: '/hub+/' },
         { label: 'Hiring', href: '/hub+/hiring' },
@@ -108,7 +108,7 @@ useEffect(() => {
     },
     {
       name: 'Developer',
-      role: 'Developer',
+      role: 'Web-Developer',
       items: [
         { label: 'Dev Hub', href: '/dev/' },
         { label: 'Bot Status', href: '/dev/bot' },
