@@ -8,7 +8,6 @@ export default function Document() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
         <link rel="icon" href="/logo.png" />
-        <link rel="stylesheet" href="/styles/globals.css" />
         <meta name="description" content="FS Staff Hub - Your one-stop solution for managing staff activities and resources." />
         <meta name="theme-color" content="#283335" />
         <meta name="keywords" content="FS, Staff, Hub, Management, Community, Roblox" />
