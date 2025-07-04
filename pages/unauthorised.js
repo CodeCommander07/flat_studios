@@ -1,0 +1,14 @@
+'use client'; // if in /app directory
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+
+export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/auth/login'); // redirect to /dashboard
+  }, [router]);
+
+  return null; // or a loading spinner
+}
