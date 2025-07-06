@@ -1,9 +1,9 @@
 // utils/permissions.js
 export function hasAccessTo(page, role) {
   const accessMap = {
-    hub: ['Staff', 'Community-Director', 'High-Rank', "Operations-Manager", "Developer", 'Web-Developer'],
-    hubPlus: ['Community-Director', 'High-Rank', 'Web-Developer'],
-    admin: ['High-Rank', 'Web-Developer'],
+    hub: ['Staff', 'Community-Director', 'Human-Resources', "Operations-Manager", "Developer", 'Web-Developer', 'Owner'],
+    hubPlus: ['Community-Director', 'Human-Resources', 'Web-Developer', 'Owner'],
+    admin: ['Human-Resources', 'Web-Developer', 'Owner'],
   };
 
   return accessMap[page]?.includes(role);

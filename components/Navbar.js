@@ -61,7 +61,7 @@ useEffect(() => {
       ],
     },
     {
-      name: 'Operations Hub',
+      name: 'Operators Hub',
       role: 'User',
       items: [
         { label: 'Operators', href: '/operators/' },
@@ -85,7 +85,7 @@ useEffect(() => {
     },
     {
       name: 'Admin',
-      role: 'High-Rank',
+      role: 'Human-Resources',
       items: [
         { label: 'Admin', href: '/admin/' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
@@ -98,7 +98,8 @@ useEffect(() => {
       items: [
         { label: 'Hub+', href: '/hub+/' },
         { label: 'Hiring', href: '/hub+/hiring' },
-        { label: 'Contact', href: '/hub+/contact' },
+        { label: 'Contact Forms', href: '/hub+/contact/forms' },
+        { label: 'Contact Emails', href: '/hub+/contact/emails' },
         { label: 'Leave Requests', href: '/hub+/leave' },
         { label: 'Dev Assets', href: '/hub+/dev' },
         { label: 'Activity', href: '/hub+/activity' },
@@ -109,27 +110,30 @@ useEffect(() => {
     },
     {
       name: 'Developer',
-      role: 'Web-Developer',
+      role: 'Developer',
       items: [
         { label: 'Dev Hub', href: '/dev/' },
-        { label: 'Bot Status', href: '/dev/bot' },
+        { label: 'Leave', href: '/dev/leave' },
+        { label: 'Assets', href: '/dev/assets' },
+        { label: 'Tasks', href: '/dev/tasks' },
+        { label: 'Sumbit Tasks', href: '/dev/submit' },
       ],
     },
   ];
 
   const hasAccess = (requiredRole) => {
-    const roles = ['User', 'Staff', 'High-Rank', 'Community-Director', 'Operations-Manager', 'Developer', 'Web-Developer'];
+    const roles = ['User', 'Staff', 'Human-Resources', 'Community-Director', 'Operations-Manager', 'Developer', 'Web-Developer', 'Owner'];
     return roles.indexOf(role) >= roles.indexOf(requiredRole);
   };
 
   return (
-    <nav className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 rounded-b-2xl relative z-50">
+    <nav className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 relative z-50">
       <div className="max-w-8xl mx-auto flex justify-between items-center">
         {/* Brand */}
         <div className="flex items-center gap-4">
           <a href='/'><Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-md" /></a>
           <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold">Yapton & District Staff Hub</span>
+            <span className="text-xl md:text-2xl font-bold">Yapton & District</span>
             <span className="text-sm text-gray-300">{players ?? '–'} currently playing</span>
           </div>
         </div>
@@ -145,31 +149,46 @@ useEffect(() => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          {dropdowns.map((dropdown, idx) =>
-            hasAccess(dropdown.role) ? (
-              <div key={idx} className="relative">
-                <button
-                  onClick={() => setOpenDropdown(openDropdown === idx ? null : idx)}
-                  className="hover:bg-black/20 px-3 py-2 rounded transition"
-                >
-                  {dropdown.name}
-                </button>
-                {openDropdown === idx && (
-                  <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
-                    {dropdown.items.map((item, i) => (
-                      <Link
-                        key={i}
-                        href={item.href}
-                        className="block px-4 py-2 hover:bg-black/20 transition"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : null
-          )}
+{dropdowns.map((dropdown, idx) => {
+  // Skip Public and Operators if user is logged in
+  if (user && (dropdown.name === 'Public' )) return null;
+
+  return hasAccess(dropdown.role) ? (
+    <div key={idx} className="relative">
+      <button
+        onClick={() => setOpenDropdown(openDropdown === idx ? null : idx)}
+        className="hover:bg-black/20 px-3 py-2 rounded transition"
+      >
+        {dropdown.name}
+      </button>
+      {openDropdown === idx && (
+        <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
+          {dropdown.items
+  .filter((item) => {
+    // Restrict /operators/request to Staff+
+    if (
+      item.href === '/operators/request' &&
+      (!user || !['Staff', 'Human-Resources', 'Community-Director', 'Developer', 'Operations-Manager', "Web-Developer",'Owner'].includes(user.role))
+    ) {
+      return false;
+    }
+    return true;
+  })
+  .map((item, i) => (
+    <Link
+      key={i}
+      href={item.href}
+      className="block px-4 py-2 hover:bg-black/20 transition"
+    >
+      {item.label}
+    </Link>
+))}
+        </div>
+      )}
+    </div>
+  ) : null;
+})}
+
 
           {/* User Avatar */}
           {user ? (
@@ -180,7 +199,7 @@ useEffect(() => {
               >
                 <span className="md:inline">{user?.username}</span>
                 <Image
-  src={user?.discordAvatar || '/logo.png'}
+  src={user?.discordAvatar || '/4.png'}
   alt="Avatar"
   width={30}
   height={30}
@@ -205,24 +224,37 @@ useEffect(() => {
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4">
-          {dropdowns.map((dropdown, idx) =>
-            hasAccess(dropdown.role) ? (
-              <div key={idx}>
-                <p className="font-semibold">{dropdown.name}</p>
-                <div className="ml-2 space-y-1">
-                  {dropdown.items.map((item, i) => (
-                    <Link
-                      key={i}
-                      href={item.href}
-                      className="block text-sm hover:text-blue-400 transition"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ) : null
-          )}
+          {dropdowns.map((dropdown, idx) => {
+  if (user && (dropdown.name === 'Public')) return null;
+
+  return hasAccess(dropdown.role) ? (
+    <div key={idx}>
+      <p className="font-semibold">{dropdown.name}</p>
+      <div className="ml-2 space-y-1">
+       {dropdown.items
+  .filter((item) => {
+    if (
+      item.href === '/operators/request' &&
+      (!user || !['Staff', 'Human-Resources', 'Community-Director', 'Developer', 'Operations-Manager', "Web-Developer", 'Owner'].includes(user.role))
+    ) {
+      return false;
+    }
+    return true;
+  })
+  .map((item, i) => (
+    <Link
+      key={i}
+      href={item.href}
+      className="block text-sm hover:text-blue-400 transition"
+    >
+      {item.label}
+    </Link>
+))}
+
+      </div>
+    </div>
+  ) : null;
+})}
 
           <div>
             {user ? (

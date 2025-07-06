@@ -206,7 +206,7 @@ export default function AccountsPage() {
                     <option className="bg-black text-white" value="Staff">Staff</option>
                     <option className="bg-black text-white" value="User">User</option>
                     <option className="bg-black text-white" value="Community-Director">Community Director</option>
-                    <option className="bg-black text-white" value="High-Rank">High Rank</option>
+                    <option className="bg-black text-white" value="Human-Resources">Human Resources</option>
                     <option className="bg-black text-white" value="Operations-Manager">Operations Manager</option>
                     <option className="bg-black text-white" value="Developer">Developer</option>
                     <option className="bg-black text-white" value="Web-Developer">Web Developer</option>
@@ -277,7 +277,7 @@ export default function AccountsPage() {
                     <option className="bg-black text-white" value="Staff">Staff</option>
                     <option className="bg-black text-white" value="User">User</option>
                     <option className="bg-black text-white" value="Community-Director">Community Director</option>
-                    <option className="bg-black text-white" value="High-Rank">High Rank</option>
+                    <option className="bg-black text-white" value="Human-Resources">Human Resources</option>
                     <option className="bg-black text-white" value="Operations-Manager">Operations Manager</option>
                     <option className="bg-black text-white" value="Developer">Developer</option>
                     <option className="bg-black text-white" value="Web-Developer">Web Developer</option>

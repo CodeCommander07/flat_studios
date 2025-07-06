@@ -10,6 +10,8 @@ const mailHub = nodemailer.createTransport({
 });
 
 export const sendMail = async (to, subject, html) => {
+
+
     try {
         const mailOptions = {
             from: "<Flat Studios> <noreply@flatstudios.net>",

@@ -160,6 +160,7 @@ export default function Dashboard() {
             </div>
           </div>
 
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 w-full">
             {/* Shift Activity */}
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
