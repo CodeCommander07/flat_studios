@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const params = useSearchParams();
   const email = params.get('email') || '';
   const role = params.get('role') || 'User';
+  const code = params.get('code') || '';
 
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -15,10 +16,10 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch('/api/auth/staff/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, username, role, password }),
+      body: JSON.stringify({ email, username, role, code, password }),
     });
 
     const data = await res.json();
@@ -38,14 +39,12 @@ export default function RegisterPage() {
       >
         <h1 className="text-3xl font-bold">Register</h1>
         <div>
-          <label className="block text-sm text-white/70 mb-1">Role (Not Editable)</label>
-          <input value="User" disabled className="w-full bg-white/10 p-2 rounded" />
+          <label className="block text-sm text-white/70 mb-1">Email (Not Editable)</label>
+          <input value={email} disabled className="w-full bg-white/10 p-2 rounded" />
         </div>
         <div>
-          <label className="block text-sm text-white/70 mb-1">Email</label>
-          <input type="email" placeholder="Set an email" 
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-white/10 p-2 rounded" />
+          <label className="block text-sm text-white/70 mb-1">Role (Not Editable)</label>
+          <input value={role} disabled className="w-full bg-white/10 p-2 rounded" />
         </div>
         <div>
           <label className="block text-sm text-white/70 mb-1">Username</label>
@@ -64,7 +63,7 @@ export default function RegisterPage() {
           required
         />
         </div>
-        <div className="flex items-center mb-4">
+                <div className="flex items-center mb-4">
           <input
             type="checkbox"
             id="newsletter"

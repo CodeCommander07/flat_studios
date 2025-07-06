@@ -20,6 +20,8 @@ const UserSchema = new mongoose.Schema({
 
   // Metadata
   createdAt: { type: Date, default: Date.now },
+
+  newsletter: { type: Boolean, default: true }, // Opt-in for newsletters
 });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

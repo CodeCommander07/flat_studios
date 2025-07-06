@@ -30,11 +30,20 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center text-center">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white/10 backdrop-blur-md rounded-2xl p-10 max-w-sm w-full shadow-lg border border-white/20 text-white space-y-6"
-      >
-        <h1 className="text-3xl font-bold">🔐 Staff Hub Login</h1>
+<form
+  onSubmit={handleLogin}
+  className="bg-white/10 backdrop-blur-md rounded-2xl p-10 max-w-sm w-full shadow-lg border border-white/20 text-white space-y-6"
+>
+  <button
+    type="button"
+    onClick={() => window.history.back()}
+    className="text-sm text-blue-400 hover:underline mb-2"
+  >
+    ← Go Back
+  </button>
+
+  <h1 className="text-3xl font-bold">🔐 Hub Login</h1>
+
 
         <div className="text-left w-full space-y-2">
           <label className="block font-medium">Email</label>
@@ -66,8 +75,22 @@ export default function Home() {
         >
           Login
         </button>
+<div className="flex justify-center gap mt-4">
+  <a
+    href="/auth/reset-password"
+    className="px-4 py-2 rounded-l text-sm text-white bg-red-500 hover:bg-red-600 transition"
+  >
+    Forgot Password?
+  </a>
+  <a
+    href="/auth/register"
+    className="px-4 py-2 rounded-r text-sm text-white bg-blue-500 hover:bg-blue-600 transition"
+  >
+    Create an Account
+  </a>
+</div>
 
-        <p className="text-sm text-white/60">Only authorized staff may log in.</p>
+
       </form>
     </main>
   );

@@ -304,12 +304,32 @@ export default function AccountsPage() {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded text-white font-semibold"
-                >
-                  Save Changes
-                </button>
+                <div className="flex flex-col gap-4 md:flex-row md:justify-between mt-6">
+                  <button
+                    type="submit"
+                    className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded text-white font-semibold"
+                  >
+                    Save Changes
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const confirmed = confirm(`Reset password for ${editForm.username}?`);
+                      if (!confirmed) return;
+                      try {
+                        const res = await axios.post(`/api/admin/users/${editingUserId}?action=resetPas`);
+                        alert(res.data.message || 'Password reset successfully.');
+                      } catch (err) {
+                        alert('Failed to reset password.');
+                      }
+                    }}
+                    className="w-full md:w-auto bg-yellow-600 hover:bg-yellow-700 py-2 px-4 rounded text-white font-semibold"
+                  >
+                    Reset Password
+                  </button>
+                </div>
+
               </form>
             </div>
           </div>

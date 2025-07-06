@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Menu, X } from 'lucide-react'; // optional icons, or use your own
+import LogoutButton from './LogoutButton';
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -189,7 +190,7 @@ useEffect(() => {
               {openDropdown === 'user' && (
                 <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
                   <Link href="/me" className="block px-4 py-2 hover:bg-black/20">Profile</Link>
-                  <Link href="/auth/logout" className="block px-4 py-2 hover:bg-black/20">Logout</Link>
+                                  <LogoutButton />
                 </div>
               )}
             </div>
@@ -227,7 +228,7 @@ useEffect(() => {
             {user ? (
               <div className="mt-4 border-t border-white/20 pt-4 space-y-1">
                 <Link href="/me" className="block text-sm hover:text-blue-400">Profile</Link>
-                <Link href="/auth/logout" className="block text-sm hover:text-blue-400">Logout</Link>
+                <LogoutButton />
               </div>
             ) : (
               <Link href="/auth/login" className="block text-sm bg-blue-600 hover:bg-blue-700 text-center rounded py-2">

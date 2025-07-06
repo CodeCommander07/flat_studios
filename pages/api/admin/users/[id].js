@@ -1,10 +1,11 @@
 import dbConnect from '@/utils/db';
 import User from '@/models/User';
+import { generateRandomPassword, hashPassword } from '@/utils/auth';
+import { sendMail } from '@/utils/mailHub'; 
 
 export default async function handler(req, res) {
   await dbConnect();
-
-  const { id } = req.query;
+  const { id, action } = req.query;
 
   if (!id) {
     return res.status(400).json({ message: 'User ID is required' });
@@ -13,11 +14,8 @@ export default async function handler(req, res) {
   switch (req.method) {
     case 'GET':
       try {
-        // Exclude password field
         const user = await User.findById(id).select('-password');
-        if (!user) {
-          return res.status(404).json({ message: 'User not found' });
-        }
+        if (!user) return res.status(404).json({ message: 'User not found' });
         return res.status(200).json(user);
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -26,17 +24,13 @@ export default async function handler(req, res) {
 
     case 'PUT':
       try {
-        // Only allow updating email, username, role
         const { email, username, role } = req.body;
         const updateData = { email, username, role };
-
-        // Validate required fields here if you want (optional)
-
-        const updatedUser = await User.findByIdAndUpdate(
-          id,
-          updateData,
-          { new: true, runValidators: true, context: 'query' }
-        ).select('-password');
+        const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+          new: true,
+          runValidators: true,
+          context: 'query',
+        }).select('-password');
 
         if (!updatedUser) {
           return res.status(404).json({ message: 'User not found' });
@@ -60,8 +54,47 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Error deleting user', error: error.message });
       }
 
+    case 'POST':
+      if (action === 'resetPas') {
+        try {
+          const newPassword = generateRandomPassword(12);
+          const hashed = await hashPassword(newPassword);
+
+          const updated = await User.findByIdAndUpdate(id, {
+            password: hashed,
+          });
+
+          if (!updated) {
+            return res.status(404).json({ message: 'User not found' });
+          }
+
+          // Send email notification
+          const user = await User.findById(id).select('email username');
+          if (user && user.email) {
+            const mailContent = `
+              <h1>Password Reset Notification</h1>
+              <p>Dear ${user.username},</p>
+              <p>Your password has been reset successfully. Your new password is: <strong>${newPassword}</strong></p>
+              <p>Please log in and change your password immediately.</p>
+              <p>Thank you!</p>
+            `;
+            await sendMail(user.email, 'Password Reset Confirmation', mailContent);
+          }
+
+          return res.status(200).json({
+            message: 'Password reset successfully',
+            password: newPassword,
+          });
+        } catch (error) {
+          console.error('Error resetting password:', error);
+          return res.status(500).json({ message: 'Failed to reset password', error: error.message });
+        }
+      } else {
+        return res.status(400).json({ message: 'Invalid action' });
+      }
+
     default:
-      res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
+      res.setHeader('Allow', ['GET', 'PUT', 'DELETE', 'POST']);
       return res.status(405).json({ message: `Method ${req.method} not allowed` });
   }
 }

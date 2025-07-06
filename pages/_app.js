@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }) {
    const router = useRouter();
-     const hideNavbarRoutes = ["/auth/login", "/auth/register"];
+     const hideNavbarRoutes = ["/auth", "/auth/login", "/auth/register", "/auth/reset-password", "/auth/staff/register"];
   const [user, setUser] = useState(null);
 
   useEffect(() => {
