@@ -1,6 +1,9 @@
 import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 
+import DeletedEmailModel from '@/models/DeletedEmail';
+import dbConnect from '@/utils/db';
+
 function normalizeSubject(subject) {
   if (!subject) return '';
   return subject.replace(/^(Re:\s*)+/i, '').trim();
@@ -80,7 +83,7 @@ function fetchRecentEmails() {
               return acc;
             }, {});
 
-            // Sort messages in each group by date ascending
+            // Sort each group by date ascending
             for (const key in grouped) {
               grouped[key].sort((a, b) => new Date(a.date) - new Date(b.date));
             }
@@ -99,11 +102,42 @@ function fetchRecentEmails() {
 }
 
 export default async function handler(req, res) {
+  await dbConnect();
+
   try {
+    // Fetch all email statuses from DB
+    const statuses = await DeletedEmailModel.find({});
+    const statusMap = new Map();
+    for (const status of statuses) {
+      statusMap.set(status.messageId, {
+        deleted: status.deleted || false,
+        flagged: status.flagged || false,
+        flags: status.flags || [],
+        tags: status.tags || [],
+      });
+    }
+
+    // Fetch recent emails from IMAP
     const groupedEmails = await fetchRecentEmails();
+
+    // Merge statuses + filter out deleted
+    for (const subject in groupedEmails) {
+      groupedEmails[subject] = groupedEmails[subject]
+        .map(email => {
+          const status = statusMap.get(email.messageId) || {};
+          return { ...email, ...status };
+        })
+        .filter(email => !email.deleted); // Exclude deleted ones
+
+      // Remove empty groups
+      if (groupedEmails[subject].length === 0) {
+        delete groupedEmails[subject];
+      }
+    }
+
     res.status(200).json({ conversations: groupedEmails });
   } catch (error) {
-    console.error(error);
+    console.error('Fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch emails' });
   }
 }
