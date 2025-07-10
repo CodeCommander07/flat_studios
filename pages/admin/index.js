@@ -29,7 +29,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <AuthWrapper requiredPage="admin">
+    <AuthWrapper requiredRole="admin">
       <main className="text-white px-6 py-12 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-10">
 

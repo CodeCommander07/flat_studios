@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/router";
+import axios from 'axios';
 
 export default function App({ Component, pageProps }) {
    const router = useRouter();
@@ -18,6 +19,10 @@ export default function App({ Component, pageProps }) {
       setUser(JSON.parse(storedUser));
     }
   }, []);
+
+  useEffect(() => {
+  axios.get('/api/start/activity')
+}, []);
 
   const segments = router.pathname.split('/').filter(Boolean);
   const lastSegment = segments.length === 0 ? 'Home' : segments[segments.length - 1];

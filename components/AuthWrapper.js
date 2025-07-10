@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { hasAccessTo } from '@/utils/permissions';
 
-export default function AuthWrapper({ children, requiredPage = null }) {
+export default function AuthWrapper({ children, requiredRole = null }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,15 +14,15 @@ export default function AuthWrapper({ children, requiredPage = null }) {
     if (!storedUser) {
       router.replace('/auth/login');
     } else if (
-      requiredPage &&
-      !hasAccessTo(requiredPage, storedUser.role)
+      requiredRole &&
+      !hasAccessTo(requiredRole, storedUser.role)
     ) {
       router.replace('/unauthorised');
     } else {
       setUser(storedUser);
       setLoading(false);
     }
-  }, [requiredPage]);
+  }, [requiredRole]);
 
   if (loading) return <p>Loading...</p>;
 

@@ -105,7 +105,6 @@ useEffect(() => {
         { label: 'Activity', href: '/hub+/activity' },
         { label: 'Infract', href: '/hub+/infract' },
         { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
-        { label: 'Accounts', href: '/hub+/accounts' },
       ],
     },
     {

@@ -152,7 +152,7 @@ export default function UserActivityLogs() {
             <th className="p-4">Time Left</th>
             <th className="p-4">Duration</th>
             <th className="p-4">Description</th>
-            <th className="p-4">Notable</th>
+            <th className="p-4">Shift</th>
             <th className="p-4">Host</th>
             <th className="p-4">Attendees</th>
             <th className="p-4">Actions</th>

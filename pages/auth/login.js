@@ -82,12 +82,6 @@ export default function Home() {
   >
     Forgot Password?
   </a>
-  <a
-    href="/auth/register"
-    className="px-4 py-2 rounded-r text-sm text-white bg-blue-500 hover:bg-blue-600 transition"
-  >
-    Create an Account
-  </a>
 </div>
 
 

@@ -11,12 +11,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Aggregate users who have logs + counts
-    const usersWithCounts = await ActivityLog.aggregate([
+    const usersWithActivity = await ActivityLog.aggregate([
       {
         $group: {
           _id: '$userId',
-          totalLogs: { $sum: 1 }
+          totalActivity: { $sum: 1 },
+          totalShifts: {
+            $sum: {
+              $cond: [
+                { $eq: ['$host', 'Yes'] },
+                1,
+                0
+              ]
+            }
+          }
         }
       },
       {
@@ -32,18 +40,19 @@ export default async function handler(req, res) {
         $project: {
           _id: 0,
           userId: '$_id',
-          totalLogs: 1,
+          totalActivity: 1,
+          totalShifts: 1,
           username: '$user.username',
           email: '$user.email',
           role: '$user.role',
-          profilePicture: '$user.discordAvatar' // or whatever field you use
+          profilePicture: '$user.discordAvatar'
         }
       }
     ]);
 
-    res.status(200).json(usersWithCounts);
+    res.status(200).json(usersWithActivity);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to fetch users with activity logs' });
+    res.status(500).json({ error: 'Failed to fetch activity log data' });
   }
 }
