@@ -10,17 +10,14 @@ const mailHub = nodemailer.createTransport({
 });
 
 export const sendMail = async (to, subject, html) => {
-
-
     try {
         const mailOptions = {
-            from: "<Flat Studios> <noreply@flatstudios.net>",
-            replyTo: "<Support> <help@flatstudios.net>",
+            from: "Flat Studios <noreply@flatstudios.net>",
+            replyTo: "Support <help@flatstudios.net>",
             to,
             subject,
             html,
         };
-
         await mailHub.sendMail(mailOptions);
         console.log('Email sent successfully');
     } catch (error) {

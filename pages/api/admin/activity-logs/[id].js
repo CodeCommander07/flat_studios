@@ -14,39 +14,37 @@ const mailHub = nodemailer.createTransport({
 
 export default async function handler(req, res) {
   await dbConnect();
-
   const { id } = req.query;
-  const userId = req.headers['x-user-id'];
-  if (!userId) return res.status(401).json({ error: 'Missing user ID' });
 
-  const user = await User.findById(userId);
-  if (!user || !user.email) return res.status(403).json({ error: 'User not found or missing email' });
+  if (!id || Array.isArray(id)) {
+    return res.status(400).json({ error: 'Invalid or missing activity ID' });
+  }
 
   if (req.method === 'PUT') {
     const {
       date,
       timeJoined,
       timeLeft,
-      duration,
       description,
+          duration,
       notable,
       host,
       participants,
     } = req.body;
 
-    if (!date || !timeJoined || !timeLeft || duration == null || !description) {
+    if (!date || !timeJoined || !timeLeft || !description) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
-      const updated = await ActivityLog.findOneAndUpdate(
-        { _id: id, userId },
+      const updated = await ActivityLog.findByIdAndUpdate(
+        id,
         {
           date,
           timeJoined,
           timeLeft,
-          duration,
           description,
+          duration,
           notable: notable || 'No',
           host: notable === 'Yes' ? host : '',
           participants: notable === 'Yes' ? participants : '',
@@ -54,42 +52,49 @@ export default async function handler(req, res) {
         { new: true }
       );
 
-      if (!updated) return res.status(404).json({ error: 'Log not found' });
+      if (!updated) return res.status(404).json({ error: 'Activity not found' });
 
-      await sendActivityEmail({
-        user,
-        activity: updated,
-        subject: 'Activity Log Edited',
-        type: 'edit',
-      });
+      const user = await User.findById(updated.userId);
+      if (user && user.email) {
+        await sendActivityEmail({
+          user,
+          activity: updated,
+          subject: 'Activity Log Edited',
+          type: 'edit',
+        });
+      }
 
-      res.status(200).json(updated);
+      return res.status(200).json(updated);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update log' });
+      console.error(error);
+      return res.status(500).json({ error: 'Failed to update activity' });
     }
-
-  } else if (req.method === 'DELETE') {
-    try {
-      const deleted = await ActivityLog.findOneAndDelete({ _id: id, userId });
-
-      if (!deleted) return res.status(404).json({ error: 'Log not found' });
-
-      await sendActivityEmail({
-        user,
-        activity: deleted,
-        subject: 'Activity Log Deleted',
-        type: 'delete',
-      });
-
-      res.status(200).json({ message: 'Deleted successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to delete log' });
-    }
-
-  } else {
-    res.setHeader('Allow', ['PUT', 'DELETE']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
+
+  if (req.method === 'DELETE') {
+    try {
+      const deleted = await ActivityLog.findByIdAndDelete(id);
+      if (!deleted) return res.status(404).json({ error: 'Activity not found' });
+
+      const user = await User.findById(deleted.userId);
+      if (user && user.email) {
+        await sendActivityEmail({
+          user,
+          activity: deleted,
+          subject: 'Activity Log Deleted',
+          type: 'delete',
+        });
+      }
+
+      return res.status(200).json({ message: 'Deleted successfully' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Failed to delete activity' });
+    }
+  }
+
+  res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
+  return res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
 async function sendActivityEmail({ user, activity, subject, type }) {
@@ -124,8 +129,8 @@ async function sendActivityEmail({ user, activity, subject, type }) {
             <tr><td><strong>Date</strong></td><td>${new Date(activity.date).toLocaleDateString()}</td></tr>
             <tr><td><strong>Time Joined</strong></td><td>${activity.timeJoined}</td></tr>
             <tr><td><strong>Time Left</strong></td><td>${activity.timeLeft}</td></tr>
-            <tr><td><strong>Duration</strong></td><td>${activity.duration}</td></tr>
-            <tr><td><strong>Description</strong></td><td>${activity.description}</td></tr>
+            <tr><td><strong>Description</strong></td><td>${activity.duration}</td></tr>
+            <tr><td><strong>Duration</strong></td><td>${activity.duration || 'N/A'}</td></tr>
             <tr><td><strong>Notable</strong></td><td>${activity.notable === 'Yes' ? 'Yes' : 'No'}</td></tr>
             <tr><td><strong>Last Modified</strong></td><td>${new Date().toLocaleString()}</td></tr>
           </table>

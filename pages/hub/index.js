@@ -59,7 +59,7 @@ export default function Dashboard() {
       setLoadingLeaves(true);
       try {
         if (!userData?._id) return;
-        const res = await axios.get(`/api/leave/${userData._id}`);
+        const res = await axios.get(`/api/leave/history?userId=${userData._id}`);
         setLeaveRequests(res.data || []);
       } catch (err) {
         console.error('Failed to fetch leave requests:', err.message);

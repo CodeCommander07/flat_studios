@@ -1,394 +1,346 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import AuthWrapper from '@/components/AuthWrapper';
-import { Clock, PlusCircle, Pencil, Trash2, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+
+const formatDateForInput = (dateStr) => {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = (`0${date.getMonth() + 1}`).slice(-2);
+  const day = (`0${date.getDate()}`).slice(-2);
+  return `${year}-${month}-${day}`;
+};
+
+const formatTimeForInput = (timeStr) => {
+  const date = new Date(timeStr);
+  const h = `${date.getHours()}`.padStart(2, '0');
+  const m = `${date.getMinutes()}`.padStart(2, '0');
+  return `${h}:${m}`;
+};
+
+const calculateDuration = (startTime, endTime) => {
+  if (!startTime || !endTime) return '';
+
+  const [startH, startM] = startTime.split(':').map(Number);
+  const [endH, endM] = endTime.split(':').map(Number);
+
+  const start = new Date();
+  start.setHours(startH, startM, 0);
+
+  const end = new Date();
+  end.setHours(endH, endM, 0);
+
+  let diffMs = end - start;
+  if (diffMs < 0) {
+    end.setDate(end.getDate() + 1);
+    diffMs = end - start;
+  }
+
+  const diffMins = Math.floor(diffMs / 60000);
+  return {
+    hours: Math.floor(diffMins / 60),
+    minutes: diffMins % 60,
+  };
+};
 
 export default function ActivityPage() {
-  const [stats, setStats] = useState(null);
   const [user, setUser] = useState(null);
   const [logs, setLogs] = useState([]);
-  const [loadingLogs, setLoadingLogs] = useState(true);
-
-  // Form state for new activity log
   const [form, setForm] = useState({
-    date: '',
-    duration: '',
-    description: '',
+    date: '', timeJoined: '', timeLeft: '',
+    extraNotes: '', notable: 'No',
+    host: '', participants: '', robloxUsername: '',
   });
+  const [totalTime, setTotalTime] = useState(null);
+  const [editingLog, setEditingLog] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Edit modal state
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editLog, setEditLog] = useState(null); // the log being edited
-  const [editForm, setEditForm] = useState({
-    date: '',
-    duration: '',
-    description: '',
-  });
-  const [editSubmitting, setEditSubmitting] = useState(false);
-  const [editError, setEditError] = useState('');
-
-  // Axios instance with user ID header (auth)
-  const axiosInstance = axios.create({
-    headers: {
-      'x-user-id': user?._id || '',
-    },
-  });
-
-  // Fetch stats and user info
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('User'));
-    setUser(userData);
+    const stored = localStorage.getItem('User');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setUser(parsed);
+      setForm(prev => ({ ...prev, robloxUsername: parsed.robloxUsername || '' }));
+    }
+  }, []);
 
-    const fetchStats = async () => {
-      try {
-        const res = await axiosInstance.get('/api/roblox/stats');
-        setStats(res.data || {});
-      } catch (err) {
-        console.error('Failed to fetch stats:', err.message);
-      }
-    };
-
-    const fetchLogs = async () => {
-      setLoadingLogs(true);
-      try {
-        const res = await axiosInstance.get('/api/activity/logs');
-        setLogs(res.data || []);
-      } catch (err) {
-        console.error('Failed to fetch logs:', err.message);
-      } finally {
-        setLoadingLogs(false);
-      }
-    };
-
-    fetchStats();
-    fetchLogs();
-
-    const interval = setInterval(() => {
-      fetchStats();
-      fetchLogs();
-    }, 30000);
-
-    return () => clearInterval(interval);
+  useEffect(() => {
+    if (user?._id) fetchLogs();
   }, [user?._id]);
 
-  // Handle new activity input changes
-  const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const fetchLogs = async () => {
+    try {
+      const res = await axios.get('/api/activity/logs', {
+        headers: { 'x-user-id': user?._id || '' },
+      });
+      setLogs(res.data || []);
+    } catch {
+      console.error('Failed to load logs');
+    }
   };
 
-  // Handle new activity form submit
+  useEffect(() => {
+    if (form.timeJoined && form.timeLeft) {
+      setTotalTime(calculateDuration(form.timeJoined, form.timeLeft));
+    } else {
+      setTotalTime(null);
+    }
+  }, [form.timeJoined, form.timeLeft]);
+
+  const isInvalid = (field) => {
+    if (field === 'notable') return false;
+    return !form[field] && form[field] !== 'No' && form[field] !== 'Yes';
+  };
+
+  const handleChange = (field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setEditingLog(null);
+    setForm({
+      date: '', timeJoined: '', timeLeft: '',
+      extraNotes: '', notable: 'No',
+      host: '', participants: '', robloxUsername: user?.robloxUsername || '',
+    });
+    setTotalTime(null);
+    setError('');
+    setSuccessMsg('');
+  };
+
+  const startEditing = (log) => {
+    setEditingLog(log);
+    setForm({
+      date: formatDateForInput(log.date),
+      timeJoined: log.timeJoined,
+      timeLeft: log.timeLeft,
+      duration: `${totalTime.hours}h ${totalTime.minutes}m`,
+      extraNotes: log.description || log.extraNotes || '',
+      notable: log.notable || 'No',
+      host: log.host || '',
+      participants: log.participants || '',
+      robloxUsername: user?.robloxUsername || '',
+    });
+    setError('');
+    setSuccessMsg('');
+    console.log('Editing log:', log);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setError('');
     setSuccessMsg('');
 
-    if (!form.date || !form.duration || !form.description) {
-      setError('Please fill all fields.');
-      setSubmitting(false);
+    if (
+      isInvalid('date') || isInvalid('timeJoined') || isInvalid('timeLeft') || isInvalid('extraNotes') ||
+      (form.notable === 'Yes' && (isInvalid('host') || isInvalid('participants')))
+    ) {
+      setError('Please fill all required fields.');
       return;
     }
 
-    try {
-      await axiosInstance.post('/api/activity/logs', form);
-      setSuccessMsg('Activity logged successfully!');
-      setForm({ date: '', duration: '', description: '' });
-
-      const res = await axiosInstance.get('/api/activity/logs');
-      setLogs(res.data || []);
-    } catch {
-      setError('Failed to submit activity.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Delete a log by ID
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this activity log?')) return;
-
-    try {
-      await axiosInstance.delete(`/api/activity/logs/${id}`);
-      setLogs(logs.filter((log) => log._id !== id));
-    } catch {
-      alert('Failed to delete activity log.');
-    }
-  };
-
-  // Open edit modal with log data
-  const openEditModal = (log) => {
-    setEditLog(log);
-    setEditForm({
-      date: new Date(log.date).toISOString().slice(0, 10),
-      duration: log.duration.toString(),
-      description: log.description,
-    });
-    setEditError('');
-    setShowEditModal(true);
-  };
-
-  // Handle edit form input changes
-  const handleEditChange = (field, value) => {
-    setEditForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  // Submit edit form
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    setEditSubmitting(true);
-    setEditError('');
-
-    if (!editForm.date || !editForm.duration || !editForm.description) {
-      setEditError('Please fill all fields.');
-      setEditSubmitting(false);
+    if (!totalTime || totalTime.hours < 0 || totalTime.minutes < 0) {
+      setError('Invalid time range.');
       return;
     }
 
-    try {
-      await axiosInstance.put(`/api/activity/logs/${editLog._id}`, {
-        date: editForm.date,
-        duration: parseFloat(editForm.duration),
-        description: editForm.description,
-      });
+    const payload = {
+      date: form.date,
+      timeJoined: form.timeJoined,
+      timeLeft: form.timeLeft,
+      description: form.extraNotes,
+      notable: form.notable,
+      host: form.host,
+      participants: form.participants,
+      duration: `${totalTime.hours}h ${totalTime.minutes}m`,
+      userId: user?._id,
+    };
 
-      // Update log in UI
-      setLogs((prev) =>
-        prev.map((log) =>
-          log._id === editLog._id
-            ? { ...log, date: editForm.date, duration: parseFloat(editForm.duration), description: editForm.description }
-            : log
-        )
-      );
-      setShowEditModal(false);
-      setEditLog(null);
+    setSubmitting(true);
+
+    try {
+      if (editingLog) {
+        await axios.put(`/api/activity/logs/${editingLog._id}`, payload, {
+          headers: { 'x-user-id': user?._id || '' },
+        });
+        setSuccessMsg('Log updated!');
+      } else {
+        await axios.post('/api/activity/logs', payload, {
+          headers: { 'x-user-id': user?._id || '' },
+        });
+        setSuccessMsg('Log created!');
+      }
+      fetchLogs();
+      resetForm();
     } catch {
-      setEditError('Failed to update activity log.');
+      setError('Something went wrong.');
     } finally {
-      setEditSubmitting(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <AuthWrapper requiredRole="hub">
-      <main className="text-white px-6 py-6 max-w-7xl mx-auto">
-        <div className="text-center bg-white/10 border mb-6 border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
-          <h1 className="text-3xl font-bold">Activity Dashboard</h1>
+    <main className="p-6 text-white">
+      <div className="flex justify-between mb-4 bg-white/10 border border-white/20 backdrop-blur-md p-3 rounded-2xl shadow-xl">
+        <h2 className="text-xl font-semibold">{editingLog ? 'Edit Activity Log' : 'Activity Logs'}</h2>
+        <button
+          onClick={resetForm}
+          className="text-md border border-white/20 px-3 py-1 rounded hover:bg-white/20"
+        >
+          {editingLog ? 'New Entry' : 'Reset'}
+        </button>
+      </div>
+
+     <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+        {/* Logs */}
+        <div className="order-2 lg:order-none">
+          <ul className="md:col-span-1 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
+            {logs.map(log => (
+              <li key={log._id} className="p-4 mb-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl shadow transition">
+                <div>
+                  <p className="font-semibold">{log.date}: {log.timeJoined} - {log.timeLeft}</p>
+                  <p className="text-white/60">{log.duration} hrs</p>
+                  <p className="italic text-white/50">{log.description}</p>
+                </div>
+                <div className="text-right space-y-1">
+                  <button onClick={() => startEditing(log)} className="text-white hover:bg-blue-800 text-sm mx-4 p-2 bg-blue-600 rounded">Edit</button>
+                  <button
+                    onClick={async () => {
+                      if (confirm('Delete this log?')) {
+                        await axios.delete(`/api/activity/logs/${log._id}`, {
+                          headers: { 'x-user-id': user?._id || '' },
+                        });
+                        fetchLogs();
+                        if (editingLog?._id === log._id) resetForm();
+                      }
+                    }}
+                    className="text-white hover:bg-red-800 text-sm p-2 bg-red-600 rounded"
+                  >Delete</button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Left side: Activity logs summary (1/3) */}
-          <section className="md:col-span-1 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl overflow-y-auto max-h-[70vh]">
-            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-              <Clock className="w-6 h-6 text-yellow-300" /> Your Activity Logs
-            </h2>
+        {/* Form */}
+        <div className="lg:col-span-2 order-1 lg:order-none bg-white/10 border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label>Email</label>
+                <input value={user?.email || ''} disabled className="w-full p-2 rounded-xl bg-gray-500/5 text-white" />
+              </div>
+              <div>
+                <label>Roblox Username</label>
+                <input value={form.robloxUsername} disabled className="w-full p-2 rounded-xl bg-gray-500/5 text-white" />
+              </div>
+            </div>
 
-            {loadingLogs ? (
-              <p className="text-white/60">Loading logs...</p>
-            ) : logs.length === 0 ? (
-              <p className="text-white/60">No activity logs found.</p>
-            ) : (
-              <ul className="space-y-4 text-white/90 text-sm">
-                {logs.map((log) => (
-                  <li
-                    key={log._id}
-                    className="bg-white/5 p-3 rounded border border-white/10 flex flex-col gap-1"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="font-semibold">{new Date(log.date).toLocaleDateString()}</div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => openEditModal(log)}
-                          className="text-blue-400 hover:underline flex items-center gap-1"
-                          aria-label="Edit activity log"
-                          type="button"
-                        >
-                          <Pencil size={16} /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(log._id)}
-                          className="text-red-400 hover:underline flex items-center gap-1"
-                          aria-label="Delete activity log"
-                          type="button"
-                        >
-                          <Trash2 size={16} /> Delete
-                        </button>
-                      </div>
-                    </div>
-                    <div>{log.duration} hour long shift</div>
-                    <div className="italic text-white/70">{log.description}</div>
-                  </li>
-                ))}
-              </ul>
+            <div>
+              <label>Date <span className="text-red-500">*</span></label>
+              <input type="date" value={form.date} onChange={(e) => handleChange('date', e.target.value)}
+                className={`w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white`} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label>Time Joined <span className="text-red-500">*</span></label>
+                <input type="time" value={form.timeJoined} onChange={(e) => handleChange('timeJoined', e.target.value)}
+                  className={`w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white`} />
+              </div>
+              <div>
+                <label>Time Left <span className="text-red-500">*</span></label>
+                <input type="time" value={form.timeLeft} onChange={(e) => handleChange('timeLeft', e.target.value)}
+                  className={`w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white`} />
+              </div>
+            </div>
+
+            {totalTime && (
+              <p className="text-sm text-white/60">
+                ⏱ Total: <span className='text-green-600'>{totalTime.hours}h {totalTime.minutes}m</span>
+              </p>
             )}
 
-            {/* Summary stats */}
-            <div className="mt-8 border-t border-white/20 pt-6 text-white/70 text-sm">
-              <p>
-                Total Shifts: <span className="font-semibold">{logs.length}</span>
-              </p>
-              <p>
-                Total Time:{' '}
-                <span className="font-semibold">
-                  {logs.reduce((acc, log) => acc + parseFloat(log.duration || 0), 0)}h
-                </span>
-              </p>
+            <div>
+              <label>Notes<span className="text-red-500">*</span></label>
+              <textarea
+                rows={3}
+                value={form.extraNotes}
+                required
+                onChange={(e) => handleChange('extraNotes', e.target.value)}
+                className={`w-full p-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition`}
+                placeholder="Write anything notable..."
+              />
             </div>
-          </section>
 
-          {/* Right side: Form to add new activity (2/3) */}
-          <section className="md:col-span-2 bg-white/10 border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
-            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-              <PlusCircle className="w-6 h-6 text-green-400" /> Log New Activity
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-6 text-white">
-              <div>
-                <label htmlFor="date" className="block mb-1 text-white/80 font-semibold">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  value={form.date}
-                  onChange={(e) => handleChange('date', e.target.value)}
-                  className="w-full rounded bg-white/20 px-4 py-2 border border-white/30 text-white"
+            <div>
+              <label>Was this a shift?<span className="text-red-500">*</span></label>
+              <select value={form.notable} onChange={(e) => handleChange('notable', e.target.value)}
+                className="w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white">
                   required
-                />
-              </div>
+                <option value="No" className="text-black">No</option>
+                <option value="Yes" className="text-black">Yes</option>
+              </select>
+            </div>
 
-              <div>
-                <label htmlFor="duration" className="block mb-1 text-white/80 font-semibold">
-                  Duration (hours)
-                </label>
-                <input
-                  type="number"
-                  id="duration"
-                  min="0"
-                  step="0.25"
-                  value={form.duration}
-                  onChange={(e) => handleChange('duration', e.target.value)}
-                  className="w-full rounded bg-white/20 px-4 py-2 border border-white/30 text-white"
-                  placeholder="e.g. 2 or 1.5"
-                  required
-                />
-              </div>
+            {form.notable === 'Yes' && (
+              <>
+                <div>
+                  <label>Did you host? <span className="text-red-500">*</span></label>
+                  <select value={form.host} onChange={(e) => handleChange('host', e.target.value)}
+                    className={`w-full p-2 rounded-xl bg-white/10 border text-white`}>
+                    <option value="">Select</option>
+                    <option value="Yes" className="text-black">Yes</option>
+                    <option value="No" className="text-black">No</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Estimated Participants <span className="text-red-500">*</span></label>
+                  <input type="text" value={form.participants} onChange={(e) => handleChange('participants', e.target.value)}
+                    className={`w-full p-2 rounded-xl bg-white/10 border text-white`} />
+                </div>
+              </>
+            )}
 
-              <div>
-                <label htmlFor="description" className="block mb-1 text-white/80 font-semibold">
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  rows={4}
-                  value={form.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  className="w-full rounded bg-white/20 px-4 py-2 border border-white/30 text-white resize-none"
-                  placeholder="Brief description of the activity"
-                  required
-                />
-              </div>
+            {error && <p className="text-red-400">{error}</p>}
+            {successMsg && <p className="text-green-400">{successMsg}</p>}
 
-              {error && <p className="text-red-500">{error}</p>}
-              {successMsg && <p className="text-green-400">{successMsg}</p>}
+            <div className="flex gap-4">
+              {editingLog ? (
+                <>
+                  <div className="flex w-full">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 py-3 bg-green-600 hover:bg-green-900 font-semibold text-white rounded-l-xl transition duration-200 shadow-md"
+                    >
+                      {submitting ? 'Saving...' : 'Edit'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      disabled={submitting}
+                      className="flex-1 py-3 bg-red-600 hover:bg-red-900 font-semibold text-white rounded-r-xl transition duration-200 shadow-md"
+                    >
+                      Discard
+                    </button>
+                  </div>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="bg-green-600 hover:bg-green-700 disabled:opacity-50 px-6 py-3 rounded font-semibold transition"
-              >
-                {submitting ? 'Submitting...' : 'Log Activity'}
-              </button>
-            </form>
-          </section>
+                </>
+              ) : (
+                <button type="submit" disabled={submitting}
+                  className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-900 font-semibold">
+                  {submitting ? 'Submitting...' : 'Submit Activity'}
+                </button>
+              )}
+            </div>
+          </form>
         </div>
-
-        {/* Edit Modal */}
-        {showEditModal && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-            onClick={() => setShowEditModal(false)}
-          >
-            <div
-              className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
-              onClick={(e) => e.stopPropagation()} // prevent closing modal on inner click
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Edit Activity Log</h3>
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="text-white hover:text-red-400"
-                  aria-label="Close edit modal"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-
-              <form onSubmit={handleEditSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="edit-date" className="block mb-1 text-white/80 font-semibold">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    id="edit-date"
-                    value={editForm.date}
-                    onChange={(e) => handleEditChange('date', e.target.value)}
-                    className="w-full rounded bg-white/20 px-4 py-2 border border-white/30 text-white"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="edit-duration" className="block mb-1 text-white/80 font-semibold">
-                    Duration (hours)
-                  </label>
-                  <input
-                    type="number"
-                    id="edit-duration"
-                    min="0"
-                    step="0.25"
-                    value={editForm.duration}
-                    onChange={(e) => handleEditChange('duration', e.target.value)}
-                    className="w-full rounded bg-white/20 px-4 py-2 border border-white/30 text-white"
-                    placeholder="e.g. 2 or 1.5"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="edit-description" className="block mb-1 text-white/80 font-semibold">
-                    Description
-                  </label>
-                  <textarea
-                    id="edit-description"
-                    rows={4}
-                    value={editForm.description}
-                    onChange={(e) => handleEditChange('description', e.target.value)}
-                    className="w-full rounded bg-white/20 px-4 py-2 border border-white/30 text-white resize-none"
-                    placeholder="Brief description of the activity"
-                    required
-                  />
-                </div>
-
-                {editError && <p className="text-red-500">{editError}</p>}
-
-                <button
-                  type="submit"
-                  disabled={editSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-6 py-3 rounded font-semibold transition"
-                >
-                  {editSubmitting ? 'Saving...' : 'Save Changes'}
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-      </main>
-    </AuthWrapper>
+      </div>
+    </main>
   );
 }
