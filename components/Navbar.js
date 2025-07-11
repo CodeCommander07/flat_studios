@@ -121,7 +121,7 @@ useEffect(() => {
   ];
 
   const hasAccess = (requiredRole) => {
-    const roles = ['User', 'Staff', 'Human-Resources', 'Community-Director', 'Operations-Manager', 'Developer', 'Web-Developer', 'Owner'];
+    const roles = ['User', 'Staff', 'Developer', 'Operations-Manager', 'Human-Resources', 'Community-Director', 'Web-Developer', 'Owner'];
     return roles.indexOf(role) >= roles.indexOf(requiredRole);
   };
 
