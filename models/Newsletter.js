@@ -1,8 +1,10 @@
+// models/Newsletter.js
 import mongoose from 'mongoose';
 
 const NewsletterSchema = new mongoose.Schema({
-    email: { type: String, required: true },
-    username: { type: String, required: true },
+  username: String,
+  email: { type: String, unique: true },
+  subscribedAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.models.Newsletter || mongoose.model('Newsletter', NewsletterSchema);
