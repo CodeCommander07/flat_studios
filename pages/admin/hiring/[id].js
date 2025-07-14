@@ -3,13 +3,15 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 
-export const dynamic = 'force-dynamic';
-
 export default function EditForm() {
   const params = useParams();
-  if (!params?.id) return <div>Loading...</div>; // safe check
+
+  if (!params || !params.id) {
+    return <p className="text-center text-white">Loading...</p>;
+  }
 
   const { id } = params;
+
   const [form, setForm] = useState(null);
   const [qLabel, setQLabel] = useState('');
   const [qType, setQType] = useState('short');
