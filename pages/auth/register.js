@@ -99,7 +99,7 @@ export default function RegisterPage() {
 
           <div>
             <label>Username</label>
-            <input value={username} className="w-full bg-white/10 p-2 rounded mt-1" />
+            <input type="text" className="w-full bg-white/10 p-2 rounded mt-1" />
 
             <label className="mt-4 block">Password</label>
             <input
