@@ -123,12 +123,8 @@ export default function Navbar() {
   ];
 
   const hasAccess = (requiredRole) => {
-<<<<<<< HEAD
-    const roles = ['User', 'Staff', 'Operations-Manager', 'Developer', 'Community-Director',  'Human-Resources', 'Web-Developer', 'Owner'];
-=======
-    const roles = ['User', 'Staff', 'Developer', 'Operations-Manager', 'Human-Resources', 'Community-Director', 'Web-Developer', 'Owner'];
->>>>>>> 2f97160ad8e38f5b21f0499130bc7cd495548406
-    return roles.indexOf(role) >= roles.indexOf(requiredRole);
+const roles = ['User', 'Staff', 'Operations-Manager', 'Developer', 'Community-Director', 'Human-Resources', 'Web-Developer', 'Owner'];
+return roles.indexOf(role) >= roles.indexOf(requiredRole);
   };
 
   return (
