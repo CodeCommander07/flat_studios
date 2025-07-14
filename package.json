@@ -24,7 +24,7 @@
     "mongoose": "^8.16.1",
     "next": "15.3.4",
     "node-cron": "^4.2.1",
-    "nodemailer": "^7.0.4",
+    "nodemailer": "^7.0.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "uuid": "^11.1.0",

@@ -14,6 +14,7 @@ export default function AccountsPage() {
     email: '',
     username: '',
     role: 'staff',
+    createdBy: ''
   });
   const [inviteLink, setInviteLink] = useState('');
   const [editingUserId, setEditingUserId] = useState(null);
@@ -49,11 +50,14 @@ export default function AccountsPage() {
   const handleInviteSubmit = async (e) => {
     e.preventDefault();
     try {
+      const user = JSON.parse(localStorage.getItem('User'));
+      form.createdBy = user.username
       const res = await axios.post('/api/admin/invite', form);
       setInviteLink(res.data.inviteUrl || '');
-      setForm({ email: '', username: '', role: 'staff' });
+      setForm({ email: '', username: '', role: 'staff', createdBy });
       fetchUsers();
     } catch (err) {
+      console.log(err)
       alert('Failed to create user.');
     }
   };
