@@ -3,9 +3,13 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 
+export const dynamic = 'force-dynamic';
+
 export default function EditForm() {
-    const params = useParams();
- const { id } = params;
+  const params = useParams();
+  if (!params?.id) return <div>Loading...</div>; // safe check
+
+  const { id } = params;
   const [form, setForm] = useState(null);
   const [qLabel, setQLabel] = useState('');
   const [qType, setQType] = useState('short');
@@ -62,9 +66,8 @@ export default function EditForm() {
         <div className="flex gap-4 items-center">
           <span className="font-semibold text-white/70">Status:</span>
           <span
-            className={`text-xs px-2 py-1 rounded-full font-medium cursor-default select-none ${
-              form.open ? 'bg-green-600' : 'bg-red-600'
-            }`}
+            className={`text-xs px-2 py-1 rounded-full font-medium cursor-default select-none ${form.open ? 'bg-green-600' : 'bg-red-600'
+              }`}
           >
             {form.open ? 'Open' : 'Closed'}
           </span>
