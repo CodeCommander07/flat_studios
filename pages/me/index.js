@@ -21,8 +21,8 @@ export default function ProfilePage() {
   const user = JSON.parse(localStorage.getItem('User'));
   const userId = user?._id;
 
-  const DISCORD_CLIENT_ID = "874668646616694824";
-  const REDIRECT_URI = "http://localhost:3000/api/user/discord/callback";
+  const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID
+  const REDIRECT_URI = DISCORD_REDIRECT_URI
   const scopes = encodeURIComponent('identify');
 
   // Redirect to Discord OAuth
