@@ -146,6 +146,7 @@ export default function RegisterPage() {
 
         <button
           type="submit"
+          onSubmit={handleSubmit()}
           className="w-full mt-6 bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold"
         >
           Create Account
