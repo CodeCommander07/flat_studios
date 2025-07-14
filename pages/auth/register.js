@@ -6,11 +6,11 @@ import { useState, useEffect } from 'react';
 export default function RegisterPage() {
   const params = useSearchParams();
   const email = params.get('email') || '';
-  const username = params.get('username') || '';
   const role = params.get('role') || 'User';
   const code = params.get('code') || '';
 
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
@@ -99,7 +99,8 @@ export default function RegisterPage() {
 
           <div>
             <label>Username</label>
-            <input type="text" className="w-full bg-white/10 p-2 rounded mt-1" />
+            <input type="text" value={username}
+              onChange={(e) => setUsername(e.target.value)} placeholder="Set a username" className="w-full bg-white/10 p-2 rounded mt-1" />
 
             <label className="mt-4 block">Password</label>
             <input
@@ -128,13 +129,12 @@ export default function RegisterPage() {
                 <p>
                   Strength:{' '}
                   <span
-                    className={`font-bold ${
-                      passwordStrength === 'Weak'
-                        ? 'text-red-400'
-                        : passwordStrength === 'Medium'
+                    className={`font-bold ${passwordStrength === 'Weak'
+                      ? 'text-red-400'
+                      : passwordStrength === 'Medium'
                         ? 'text-yellow-400'
                         : 'text-green-400'
-                    }`}
+                      }`}
                   >
                     {passwordStrength}
                   </span>
@@ -146,7 +146,6 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          onSubmit={handleSubmit()}
           className="w-full mt-6 bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold"
         >
           Create Account
