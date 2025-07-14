@@ -1,10 +1,11 @@
 'use client';
-import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import axios from 'axios';
 
 export default function EditForm() {
-  const { id } = useParams();
+    const params = useParams();
+ const { id } = params;
   const [form, setForm] = useState(null);
   const [qLabel, setQLabel] = useState('');
   const [qType, setQType] = useState('short');
