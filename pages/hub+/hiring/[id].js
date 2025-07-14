@@ -23,7 +23,13 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function ReviewApp() {
-  const { id } = useParams();
+  const params = useParams();
+
+  if (!params || !params.id) {
+    return <p className="text-center text-white">Loading...</p>;
+  }
+
+  const { id } = params;
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);

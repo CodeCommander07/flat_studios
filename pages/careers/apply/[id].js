@@ -1,10 +1,16 @@
 'use client';
-import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import axios from 'axios';
 
-export default function Apply() {
-    const { id } = useParams();
+export default function EditForm() {
+  const params = useParams();
+
+  if (!params || !params.id) {
+    return <p className="text-center text-white">Loading...</p>;
+  }
+
+  const { id } = params;
     const [form, setForm] = useState(null);
     const [answers, setAnswers] = useState({});
     const [email, setEmail] = useState('');
