@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
 import { Users, Pencil, Trash2, PlusCircle, X } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AccountsPage() {
   const [users, setUsers] = useState([]);
@@ -102,7 +103,7 @@ export default function AccountsPage() {
   return (
     <AuthWrapper requiredRole="admin">
       <main className="text-white px-6 py-12 flex flex-col items-center">
-        <div className="max-w-6xl w-full space-y-10">
+        <div className="max-w-7xl w-full space-y-10">
           <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
             <div className="flex items-center gap-3 mb-6">
               <Users className="text-blue-300" />
@@ -116,7 +117,7 @@ export default function AccountsPage() {
                 <table className="w-full table-auto text-sm text-white/90 border-collapse">
                   <thead>
                     <tr className="bg-white/5 text-white/60 border-b border-white/10">
-                      <th className="text-left p-2">Username</th>
+                      <th className="text-left p-2">User</th>
                       <th className="text-left p-2">Email</th>
                       <th className="text-left p-2">Role</th>
                       <th className="text-left p-2">Discord ID</th>
@@ -127,7 +128,18 @@ export default function AccountsPage() {
                   <tbody>
                     {users.map((user) => (
                       <tr key={user._id} className="border-b border-white/10 hover:bg-white/5">
-                        <td className="p-2 font-medium">{user.username}</td>
+                        <td className="p-2 font-medium">
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src={user.defaultAvatar || '/colour_logo.png'}
+                              alt="User Avatar"
+                              width={20}
+                              height={20}
+                              className="rounded-full"
+                            />
+                            {user.username}
+                          </div>
+                        </td>
                         <td className="p-2">{user.email}</td>
                         <td className="p-2">{user.role}</td>
                         <td className="p-2">{user.discordId || '—'}</td>

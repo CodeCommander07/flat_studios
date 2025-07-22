@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
-import { Users, CalendarMinus, Clock } from 'lucide-react';
+import { Users, CalendarMinus, Clock, Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -36,7 +36,7 @@ export default function Dashboard() {
           {/* Page Header */}
           <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
             <h1 className="text-3xl font-bold"> 
-                         Welcome, {user?.username || 'Staff'} <span className='text-sm text-white/60'>({user?.email})</span> </h1>
+                         Welcome, {user?.username || 'Staff'}</h1>
             <p className="text-sm text-white/60">View system-wide staff metrics below.</p>
           </div>
 
@@ -60,6 +60,22 @@ export default function Dashboard() {
               </div>
               <p className="text-4xl font-bold text-yellow-300">{stats?.appeals || 0}</p>
               <p className="text-sm text-white/50">Appeals to be read</p>
+            </div>
+            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl">
+              <div className="flex items-center gap-4 mb-4">
+                <a href='/admin/leave'><Clock className="w-6 h-6 text-green-300" /></a>
+                <h2 className="text-xl font-semibold">Leave Requests</h2>
+              </div>
+              <p className="text-4xl font-bold text-green-300">{stats?.requests || 0}</p>
+              <p className="text-sm text-white/50">Requests to be read</p>
+            </div>
+            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl">
+              <div className="flex items-center gap-4 mb-4">
+                <a href='/admin/appeals'><Sparkles className="w-6 h-6 text-red-300" /></a>
+                <h2 className="text-xl font-semibold">Applications</h2>
+              </div>
+              <p className="text-4xl font-bold text-red-300">{stats?.applications || 0}</p>
+              <p className="text-sm text-white/50">Applications to be read</p>
             </div>
 
           </div>

@@ -5,6 +5,7 @@ import axios from 'axios';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [status, setStatus] = useState('');
 
@@ -15,12 +16,14 @@ export default function ResetPasswordPage() {
     try {
       const res = await axios.post('/api/auth/reset-password', {
         email,
+        code,
         newPassword,
       });
+
       setStatus(res.data.message || 'Password reset successfully');
-        setTimeout(() => {
-            window.location.href = '/auth/login'; // Redirect to login after success
-        }, 1500);
+      setTimeout(() => {
+        window.location.href = '/auth/login';
+      }, 1500);
     } catch (err) {
       setStatus(err.response?.data?.message || 'Failed to reset password');
     }
@@ -39,6 +42,17 @@ export default function ResetPasswordPage() {
               className="w-full px-4 py-2 rounded bg-white/20 text-white border border-white/30"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-white/70 mb-1">Reset Code</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 rounded bg-white/20 text-white border border-white/30"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
               required
             />
           </div>

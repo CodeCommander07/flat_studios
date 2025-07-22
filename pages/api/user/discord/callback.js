@@ -36,9 +36,6 @@ export default async function handler(req, res) {
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
     // 4. Save to localStorage via redirect with data in query
-
-console.log(discordUser)
-
  const userId = req.query.state;
 await axios.post(`${process.env.BASE_URL}/api/user/discord/update`, {
   userId,

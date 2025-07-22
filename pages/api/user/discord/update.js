@@ -14,18 +14,23 @@ export default async function handler(req, res) {
   await dbConnect();
 
   try {
+    let defaultAvatar
+    const userAvatar = await User.findById(userId);
+    if(userAvatar.defaultAvatar === 'https://flat-studios.vercel.app/cdn/image/colour_logo.png') {
+      defaultAvatar = discordAvatar
+    }
     const updated = await User.findByIdAndUpdate(
       {_id: userId},
       {
         discordId,
         discordUsername,
         discordAvatar,
+        defaultAvatar
       },
       { new: true }
     );
 
     if (!updated) return res.status(404).json({ message: 'User not found' });
-    console.log('Discord updated:', updated);
     res.status(200).json({ message: 'Discord connected', user: updated });
   } catch (err) {
     console.error('[DISCORD UPDATE ERROR]', err);

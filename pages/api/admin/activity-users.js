@@ -45,7 +45,7 @@ export default async function handler(req, res) {
           username: '$user.username',
           email: '$user.email',
           role: '$user.role',
-          profilePicture: '$user.discordAvatar'
+          profilePicture: '$user.defaultAvatar'
         }
       }
     ]);

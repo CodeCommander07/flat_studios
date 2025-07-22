@@ -29,12 +29,19 @@ export default async function handler(req, res) {
 
     const robloxAvatar = avatarRes.data.data[0]?.imageUrl;
 
+        let defaultAvatar
+        const userAvatar = await User.findById(userId);
+        if(userAvatar.defaultAvatar === 'https://flat-studios.vercel.app/cdn/image/colour_logo.png') {
+          defaultAvatar = robloxAvatar
+        }
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         robloxId: robloxUser.id,
         robloxUsername: robloxUser.name,
         robloxAvatar,
+        defaultAvatar
       },
       { new: true }
     );

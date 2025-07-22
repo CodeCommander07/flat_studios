@@ -46,10 +46,11 @@ export default function BanAppealsPage() {
   }
 
   return (
-    <main className="py-10 px-4 flex justify-center text-white">
+    <main className="px-4 flex justify-center text-white">
       <form
         onSubmit={handleSubmit}
         className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-2xl shadow-lg max-w-3xl w-full space-y-6"
+        
       >
         <h1 className="text-3xl font-bold text-center">🛑 Ban Appeal Form</h1>
 

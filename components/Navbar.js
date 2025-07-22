@@ -153,6 +153,7 @@ return roles.indexOf(role) >= roles.indexOf(requiredRole);
           {dropdowns.map((dropdown, idx) => {
             // Skip Public and Operators if user is logged in
             if (user && (dropdown.name === 'Public')) return null;
+            if (user && (dropdown.name === 'Operators Hub')) return null;
 
             return hasAccess(dropdown.role) ? (
               <div key={idx} className="relative">
@@ -200,7 +201,7 @@ return roles.indexOf(role) >= roles.indexOf(requiredRole);
               >
                 <span className="md:inline">{user?.username}</span>
                 <Image
-                  src={user?.discordAvatar || '/4.png'}
+                  src={user?.defaultAvatar || '/logo.png'}
                   alt="Avatar"
                   width={30}
                   height={30}

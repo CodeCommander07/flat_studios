@@ -1,6 +1,5 @@
 import dbConnect from '@/utils/db';
 import User from '@/models/User';
-import PasswordReset from '@/models/PasswordReset';
 import { hashPassword } from '@/utils/auth';
 
 export default async function handler(req, res) {
@@ -10,23 +9,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { email, code, newPassword } = req.body;
+  const { email, newPassword } = req.body;
 
-  if (!email || !code || !newPassword) {
+  if (!email || !newPassword) {
     return res.status(400).json({ message: 'Email, code, and new password are required' });
   }
 
   try {
-    const passReset = await PasswordReset.findOne({ email, code });
-
-    if (!passReset) {
-      return res.status(400).json({ message: 'Invalid reset code' });
-    }
-
-    // Check if the reset code has expired
-    if (new Date() > passReset.expiresAt) {
-      return res.status(400).json({ message: 'Reset code has expired' });
-    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -36,9 +25,6 @@ export default async function handler(req, res) {
     const hashed = await hashPassword(newPassword);
     user.password = hashed;
     await user.save();
-
-    // Optionally delete the reset code after successful reset
-    await PasswordReset.deleteOne({ _id: passReset._id });
 
     return res.status(200).json({ message: 'Password reset successfully' });
   } catch (err) {

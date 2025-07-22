@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Check, XCircle, SortAsc, SortDesc } from 'lucide-react';
+import Image from 'next/image';
 
 const StatusBadge = ({ status }) => {
   const colors = {
@@ -35,15 +36,39 @@ export default function AdminLeaveDashboard() {
     const fetchLeaves = async () => {
       try {
         const res = await axios.get('/api/leave/all');
-        setLeaves(res.data || []);
+        const rawLeaves = res.data || [];
+
+        // Fetch avatars for all unique users
+        const avatarMap = {};
+        for (const leave of rawLeaves) {
+          const userId = leave.userId?._id;
+          if (userId && !avatarMap[userId]) {
+            try {
+              const userRes = await axios.get(`/api/user/me?id=${userId}`);
+              avatarMap[userId] = userRes.data.defaultAvatar || '/colour_logo.png';
+            } catch {
+              avatarMap[userId] = '/colour_logo.png';
+            }
+          }
+        }
+
+        // Attach avatar to each leave
+        const enrichedLeaves = rawLeaves.map((leave) => ({
+          ...leave,
+          userAvatar: avatarMap[leave.userId?._id] || '/colour_logo.png',
+        }));
+
+        setLeaves(enrichedLeaves);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchLeaves();
   }, []);
+
 
   const updateStatus = async (id, status) => {
     try {
@@ -85,9 +110,8 @@ export default function AdminLeaveDashboard() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`whitespace-nowrap px-4 py-2 rounded text-sm ${
-                  filter === f ? 'bg-blue-600' : 'bg-white/10 hover:bg-white/20'
-                }`}
+                className={`whitespace-nowrap px-4 py-2 rounded text-sm ${filter === f ? 'bg-blue-600' : 'bg-white/10 hover:bg-white/20'
+                  }`}
               >
                 {f}
               </button>
@@ -118,9 +142,18 @@ export default function AdminLeaveDashboard() {
                   className="bg-black/80 p-4 rounded-xl border border-white/10 space-y-2"
                 >
                   <div className="flex justify-between">
-                    <h3 className="text-lg font-semibold">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Image
+                        src={leave.userAvatar || '/colour_logo.png'}
+                        alt="User Avatar"
+                        width={24}
+                        height={24}
+                        className="rounded-full"
+                      />
+
                       {leave.userId?.username || leave.userId}
                     </h3>
+
                     <StatusBadge status={leave.status} />
                   </div>
                   <p className="text-sm text-white/70">
