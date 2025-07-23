@@ -149,8 +149,8 @@ export default function ScenariosPage() {
             href={`?guideId=${tab.id}`}
             scroll={false}
             className={`block p-2 rounded-lg border transition ${selectedId === tab.id
-                ? 'bg-blue-500 border-blue-400 text-white'
-                : 'border-blue-300/20 hover:bg-blue-400/20 text-white/80'
+              ? 'bg-blue-500 border-blue-400 text-white'
+              : 'border-blue-300/20 hover:bg-blue-400/20 text-white/80'
               }`}
           >
             {tab.title}
@@ -183,9 +183,12 @@ export default function ScenariosPage() {
                 scroll={false}
                 onClick={() => setSidebarOpen(false)}
                 className={`block p-3 m-2 rounded-lg border transition ${selectedId === tab.id
-                    ? 'bg-blue-500 border-blue-400 text-white'
-                    : 'border-blue-300/20 hover:bg-blue-400/20 text-white/80'
+                  ? 'bg-blue-500 border-blue-400 text-white'
+                  : 'border-blue-300/20 hover:bg-blue-400/20 text-white/80'
                   }`}
+                style={{
+                  width: `${100 / inTabs.length}%`,
+                }}
               >
                 {tab.title}
               </Link>
