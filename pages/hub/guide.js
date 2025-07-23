@@ -186,9 +186,6 @@ export default function ScenariosPage() {
                   ? 'bg-blue-500 border-blue-400 text-white'
                   : 'border-blue-300/20 hover:bg-blue-400/20 text-white/80'
                   }`}
-                style={{
-                  width: `${100 / inTabs.length}%`,
-                }}
               >
                 {tab.title}
               </Link>
@@ -224,6 +221,9 @@ export default function ScenariosPage() {
                           ? 'rounded-lg bg-blue-900 text-white'
                           : 'text-white/70 hover:bg-blue-900 rounded-lg hover:text-white'
                         }`}
+                                        style={{
+                  width: `${100 / inTabs.length}%`,
+                }}
                     >
                       {subTab.title}
                     </Link>
