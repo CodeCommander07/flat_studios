@@ -16,7 +16,7 @@ const mailer = nodemailer.createTransport({
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { email, role, username, createdBy } = req.body;
+  const { email, role, username } = req.body;
 
   await dbConnect();
 
@@ -32,7 +32,6 @@ export default async function handler(req, res) {
       email,
       code,
       role: role || 'User',
-      createdBy,
       expiresAt,
     });
 

@@ -4,10 +4,10 @@ import Appeal from '@/models/Appeals';
 export default async function handler(req, res) {
     await dbConnect();
 
-    if (req.method === "DELETE") {
+    if (req.method === "POST") {
         const { id } = req.query;
         try {
-            const appeal = await Appeal.findByIdAndDelete(id);
+            const appeal = await Appeal.findById(id);
             if (!appeal) {
                 return res.status(404).json({ message: 'Appeal not found' });
             }

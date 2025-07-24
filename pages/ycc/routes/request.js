@@ -1,6 +1,6 @@
 'use client';
 import AuthWrapper from '@/components/AuthWrapper';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function MultiStepForm() {
     const [step, setStep] = useState(1);
@@ -16,6 +16,20 @@ export default function MultiStepForm() {
         P3Q5: '',         // finishingLocation
         P3Q6: null,       // uploadMap (file)
     });
+
+    const [user, setUser] = useState(null); // Assuming user data is fetched and set somewhere
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem('User'));
+        if (userData) {
+            setUser(userData);
+            setForm((prev) => ({
+                ...prev,
+                email: userData.email || '',
+                discordTag: userData.discordUsername || '',
+            }));
+        }
+    }, []);
 
     const totalSteps = 4;
 
