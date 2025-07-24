@@ -1,18 +1,17 @@
-import { NextResponse } from 'next/server';
-import dbConnect from '@/utils/db';
-import OperatorRequest from '@/models/OperatorRequest';
+import { IncomingForm } from 'formidable';
 import fs from 'fs/promises';
 import path from 'path';
-import { IncomingForm } from 'formidable-serverless';
+import dbConnect from '@/utils/db';
+import OperatorRequest from '@/models/OperatorRequest';
 import nodemailer from 'nodemailer';
 
+// Disable Next.js built-in body parsing
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-// Email setup
 const mailHub = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -21,21 +20,6 @@ const mailHub = nodemailer.createTransport({
   },
   secure: true,
 });
-
-// Form handler
-function parseForm(req) {
-  return new Promise((resolve, reject) => {
-    const form = new IncomingForm({
-      keepExtensions: true,
-      uploadDir: path.join(process.cwd(), 'storage/files/ycc/routes'),
-    });
-
-    form.parse(req, (err, fields, files) => {
-      if (err) return reject(err);
-      resolve({ fields, files });
-    });
-  });
-}
 
 const NEW_ROUTE_QUESTIONS = [
   'Route Number',
@@ -54,6 +38,23 @@ const CHANGE_ROUTE_QUESTIONS = [
   'Details of Change',
   'New Map',
 ];
+
+function parseForm(req) {
+  const uploadDir = path.join(process.cwd(), '/storage/ycc/routes');
+
+  return new Promise((resolve, reject) => {
+    const form = new IncomingForm({
+      keepExtensions: true,
+      uploadDir,
+      multiples: false,
+    });
+
+    form.parse(req, (err, fields, files) => {
+      if (err) reject(err);
+      else resolve({ fields, files });
+    });
+  });
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -76,9 +77,10 @@ export default async function handler(req, res) {
       P3Q5,
     } = fields;
 
-    const mapFileName = path.basename(files.mapFile[0].filepath); // ensure safe filename
+    const mapFile = files.mapFile;
+    const mapFileName = path.basename(mapFile?.filepath || '');
 
-    const newRequest = new OperatorRequest({
+    const request = {
       email,
       discordTag,
       selectedCompany,
@@ -89,27 +91,29 @@ export default async function handler(req, res) {
       P3Q4,
       P3Q5,
       mapFileName,
-    });
+    };
 
+    const newRequest = new OperatorRequest(request);
     await newRequest.save();
-      const html = (request, status) => {
-        // Determine if new or change for question set
-        const isNewRoute = request.routeSubmissionType === 'new';
-        const questions = isNewRoute ? NEW_ROUTE_QUESTIONS : CHANGE_ROUTE_QUESTIONS;
 
-        // Build question answers with special link for map file (last question)
-        const questionAnswers = questions.map((q, idx) => {
+    const html = (request) => {
+      const isNewRoute = request.routeSubmissionType === 'new';
+      const questions = isNewRoute ? NEW_ROUTE_QUESTIONS : CHANGE_ROUTE_QUESTIONS;
+
+      const questionAnswers = questions
+        .map((q, idx) => {
           if (idx === 5 && request.mapFileName) {
             return `
-        <strong>${q}</strong><br/>
-        <a href="${process.env.BASE_URL}/files/ycc/routes/${request.mapFileName}" target="_blank" rel="noopener noreferrer" style="color: #9900ff;">View Map Here</a>
-      `;
+              <strong>${q}</strong><br/>
+              <a href="${process.env.BASE_URL}/files/ycc/routes/${request.mapFileName}" target="_blank" rel="noopener noreferrer" style="color: #9900ff;">View Map Here</a>
+            `;
           }
           const answer = request[`P3Q${idx + 1}`] || '-';
           return `<strong>${q}</strong><br/>${answer}`;
-        }).join('<br/>');
+        })
+        .join('<br/>');
 
-        return `<!DOCTYPE html>
+      return `<!DOCTYPE html>
 <html>
   <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; color: #333;">
     <table align="center" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse; margin: 20px auto; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -131,9 +135,6 @@ export default async function handler(req, res) {
       <tr>
         <td style="padding: 20px;">
           <p style="font-size: 18px;">Hi <strong>${request.discordTag}</strong>,</p>
-          <p style="font-size: 16px; line-height: 1.6;">
-          </p>
-
           <p style="font-size: 16px; line-height: 1.6;">
             <strong>Email:</strong> ${request.email}<br>
             <strong>Discord:</strong> ${request.discordTag}<br>
@@ -163,22 +164,21 @@ export default async function handler(req, res) {
     </table>
   </body>
 </html>`;
-      };
+    };
 
-      const mailOptions = {
-        from: '"FlatStudios" <no-reply@flatstudios.net>',
-        to: 'admin@flatstudios.net',
-        bcc: email,
-        subject: `Route Requested for ${selectedCompany}`,
-        html: html(request),
-      };
+    const mailOptions = {
+      from: '"FlatStudios" <no-reply@flatstudios.net>',
+      to: 'admin@flatstudios.net',
+      bcc: email,
+      subject: `Route Requested for ${selectedCompany}`,
+      html: html(request),
+    };
 
-      await mailHub.sendMail(mailOptions);
+    await mailHub.sendMail(mailOptions);
 
-      return res.status(201).json({ message: 'Request saved successfully' });
-    } catch (error) {
-      console.error('Error:', error);
-      return res.status(500).json({ error: 'Server error' });
-    }
+    return res.status(201).json({ message: 'Request saved successfully' });
+  } catch (error) {
+    console.error('Error in /api/ycc:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
-
