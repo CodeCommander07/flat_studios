@@ -68,7 +68,6 @@ export default function Navbar() {
         { label: 'Stops', href: '/operators/stops' },
         { label: 'Timetables', href: '/operators/timetables' },
         { label: 'Routes', href: '/operators/routes' },
-        { label: 'Request Routes', href: '/operators/request' },
       ],
     },
     {
@@ -166,15 +165,14 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {dropdowns.map((dropdown, idx) => {
-            // Always show public and operators hub regardless of user
-            if (
-              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && user
-            ) {
-              return null; // hide if logged in
-            }
-            if (
-              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && !user
-            ) {
+            // Show Public & Operators Hub only if user is NOT logged in or user is operator
+            if (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') {
+              if (user) {
+                if (role.toLowerCase() !== 'operator') {
+                  return null; // hide for logged-in non-operators
+                }
+              }
+              // Show for operator or guest
               return (
                 <DropdownMenu
                   key={idx}
@@ -185,7 +183,7 @@ export default function Navbar() {
               );
             }
 
-            // For others, check if user is logged in and has access
+            // Other dropdowns: check role access as before
             if (!user) return null;
             if (!dropdown.roleKey) return null;
             if (!hasAccessTo(dropdown.roleKey, role)) return null;
@@ -245,18 +243,13 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4">
           {dropdowns.map((dropdown, idx) => {
-            // Always show public and operators hub on mobile
-if (
-              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && user
-            ) {
-              return null; // hide if logged in
-            }
-            if (
-              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && !user
-            ) {
-              return (
-                <MobileDropdownMenu key={idx} dropdown={dropdown} />
-              );
+            if (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') {
+              if (user) {
+                if (role.toLowerCase() !== 'operator') {
+                  return null; // hide for logged-in non-operators
+                }
+              }
+              return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
             }
 
             if (!user) return null;

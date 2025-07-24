@@ -1,7 +1,7 @@
 // utils/permissions.js
 export function hasAccessTo(page, role) {
   const accessMap = {
-    ycc:['Operators', 'Human-Resources', 'Web-Developer', 'Owner'],
+    ycc:['Operator', 'Human-Resources', 'Web-Developer', 'Owner'],
     hub: ['Staff', 'Community-Director', 'Human-Resources', "Operations-Manager", "Developer", 'Web-Developer', 'Owner'],
     hubPlus: ['Community-Director', 'Human-Resources', 'Web-Developer', 'Owner'],
     admin: ['Human-Resources', 'Web-Developer', 'Owner'],

@@ -161,10 +161,10 @@ export default function Dashboard() {
   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
   disabled={loadingSubmit}
 >
-  <option value="" className="bg-white/10 text-black">Select Option</option>
-  <option value="announcement" className="bg-white/10 text-black">Announcement</option>
-  <option value="update" className="bg-white/10 text-black">Update</option>
-  <option value="alert" className="bg-white/10 text-black">Alert</option>
+  <option value="" className="bg-black text-white">Select Option</option>
+  <option value="announcement" className="bg-black text-white">Announcement</option>
+  <option value="update" className="bg-black text-white">Update</option>
+  <option value="alert" className="bg-black text-white">Alert</option>
 </select>
 
 

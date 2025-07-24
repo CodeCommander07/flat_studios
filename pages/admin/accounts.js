@@ -220,7 +220,7 @@ export default function AccountsPage() {
                     required
                   >
                     <option className="bg-black text-white" value="Staff">Staff</option>
-                    <option className="bg-black text-white" value="User">User</option>
+                    <option className="bg-black text-white" value="Operator">Operator</option>
                     <option className="bg-black text-white" value="Community-Director">Community Director</option>
                     <option className="bg-black text-white" value="Human-Resources">Human Resources</option>
                     <option className="bg-black text-white" value="Operations-Manager">Operations Manager</option>
@@ -291,7 +291,7 @@ export default function AccountsPage() {
                     required
                   >
                     <option className="bg-black text-white" value="Staff">Staff</option>
-                    <option className="bg-black text-white" value="User">User</option>
+                    <option className="bg-black text-white" value="Operator">Operator</option>
                     <option className="bg-black text-white" value="Community-Director">Community Director</option>
                     <option className="bg-black text-white" value="Human-Resources">Human Resources</option>
                     <option className="bg-black text-white" value="Operations-Manager">Operations Manager</option>
