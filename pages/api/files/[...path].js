@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(400).send('File path required');
   }
 
-  const filePath = path.join(process.cwd(), 'storage', ...filePathArray);
+  const filePath = path.join(process.cwd(), 'tmp', ...filePathArray);
 
   // Check if file exists
   if (!fs.existsSync(filePath)) {

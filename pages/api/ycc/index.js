@@ -41,7 +41,7 @@ const CHANGE_ROUTE_QUESTIONS = [
 ];
 
 const parseForm = (req) => {
-  const uploadDir = path.join(process.cwd(), 'storage/ycc/routes');
+  const uploadDir = path.join('/tmp', 'ycc', 'routes');
 
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -60,6 +60,7 @@ const parseForm = (req) => {
     });
   });
 };
+
 
 const flattenFields = (fields) =>
   Object.fromEntries(Object.entries(fields).map(([key, val]) => [key, Array.isArray(val) ? val[0] : val]));
