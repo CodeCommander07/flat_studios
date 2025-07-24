@@ -67,92 +67,92 @@ function runMiddleware(req, res, fn) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
   try {
-    // Run multer middleware to handle file upload
-    await runMiddleware(req, res, upload.single('mapFile'));
-
-    await dbConnect();
-
-    // multer attaches text fields in req.body, file info in req.file
-    const {
-      email,
-      discordTag,
-      selectedCompany,
-      routeSubmissionType,
-      P3Q1,
-      P3Q2,
-      P3Q3,
-      P3Q4,
-      P3Q5,
-    } = req.body;
-    // Validate required fields
-    if (
-      !email ||
-      !discordTag ||
-      !selectedCompany ||
-      !routeSubmissionType ||
-      !P3Q1 ||
-      !P3Q2 ||
-      !P3Q4 ||
-      !P3Q5
-    ) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'Map file is required' });
-    }
+    try {
+      // Run multer middleware to handle file upload
+      await runMiddleware(req, res, upload.single('mapFile'));
 
-    const newRequest = new OperatorRequest({
-      email,
-      discordTag,
-      selectedCompany,
-      routeSubmissionType,
-      P3Q1,
-      P3Q2,
-      P3Q3,
-      P3Q4,
-      P3Q5,
-      mapFileName: req.file.filename,
-    });
+      await dbConnect();
 
-    const request = {
-      email,
-      discordTag,
-      selectedCompany,
-      routeSubmissionType,
-      P3Q1,
-      P3Q2,
-      P3Q3,
-      P3Q4,
-      P3Q5,
-      mapFileName: req.file.filename,
-    }
+      // multer attaches text fields in req.body, file info in req.file
+      const {
+        email,
+        discordTag,
+        selectedCompany,
+        routeSubmissionType,
+        P3Q1,
+        P3Q2,
+        P3Q3,
+        P3Q4,
+        P3Q5,
+      } = req.body;
+      // Validate required fields
+      if (
+        !email ||
+        !discordTag ||
+        !selectedCompany ||
+        !routeSubmissionType ||
+        !P3Q1 ||
+        !P3Q2 ||
+        !P3Q4 ||
+        !P3Q5
+      ) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
 
-    await newRequest.save();
-    const html = (request, status) => {
-      // Determine if new or change for question set
-      const isNewRoute = request.routeSubmissionType === 'new';
-      const questions = isNewRoute ? NEW_ROUTE_QUESTIONS : CHANGE_ROUTE_QUESTIONS;
+      if (!req.file) {
+        return res.status(400).json({ error: 'Map file is required' });
+      }
 
-      // Build question answers with special link for map file (last question)
-      const questionAnswers = questions.map((q, idx) => {
-        if (idx === 5 && request.mapFileName) {
-          return `
+      const newRequest = new OperatorRequest({
+        email,
+        discordTag,
+        selectedCompany,
+        routeSubmissionType,
+        P3Q1,
+        P3Q2,
+        P3Q3,
+        P3Q4,
+        P3Q5,
+        mapFileName: req.file.filename,
+      });
+
+      const request = {
+        email,
+        discordTag,
+        selectedCompany,
+        routeSubmissionType,
+        P3Q1,
+        P3Q2,
+        P3Q3,
+        P3Q4,
+        P3Q5,
+        mapFileName: req.file.filename,
+      }
+
+      await newRequest.save();
+      const html = (request, status) => {
+        // Determine if new or change for question set
+        const isNewRoute = request.routeSubmissionType === 'new';
+        const questions = isNewRoute ? NEW_ROUTE_QUESTIONS : CHANGE_ROUTE_QUESTIONS;
+
+        // Build question answers with special link for map file (last question)
+        const questionAnswers = questions.map((q, idx) => {
+          if (idx === 5 && request.mapFileName) {
+            return `
         <strong>${q}</strong><br/>
         <a href="${process.env.BASE_URL}/files/ycc/routes/${request.mapFileName}" target="_blank" rel="noopener noreferrer" style="color: #9900ff;">View Map Here</a>
       `;
-        }
-        const answer = request[`P3Q${idx + 1}`] || '-';
-        return `<strong>${q}</strong><br/>${answer}`;
-      }).join('<br/>');
+          }
+          const answer = request[`P3Q${idx + 1}`] || '-';
+          return `<strong>${q}</strong><br/>${answer}`;
+        }).join('<br/>');
 
-      return `<!DOCTYPE html>
+        return `<!DOCTYPE html>
 <html>
   <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; color: #333;">
     <table align="center" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse; margin: 20px auto; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -206,21 +206,25 @@ export default async function handler(req, res) {
     </table>
   </body>
 </html>`;
-    };
+      };
 
-    const mailOptions = {
-      from: '"FlatStudios" <no-reply@flatstudios.net>',
-      to: 'admin@flatstudios.net',
-      bcc: email,
-      subject: `Route Requested for ${selectedCompany}`,
-      html: html(request),
-    };
+      const mailOptions = {
+        from: '"FlatStudios" <no-reply@flatstudios.net>',
+        to: 'admin@flatstudios.net',
+        bcc: email,
+        subject: `Route Requested for ${selectedCompany}`,
+        html: html(request),
+      };
 
-    await mailHub.sendMail(mailOptions);
+      await mailHub.sendMail(mailOptions);
 
-    return res.status(201).json({ message: 'Request saved successfully' });
+      return res.status(201).json({ message: 'Request saved successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      return res.status(500).json({ error: 'Server error' });
+    }
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('API /api/ycc error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
