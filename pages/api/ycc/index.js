@@ -27,7 +27,7 @@ function parseForm(req) {
   return new Promise((resolve, reject) => {
     const form = new IncomingForm({
       keepExtensions: true,
-      uploadDir: path.join(process.cwd(), 'public/files/ycc/routes'),
+      uploadDir: path.join(process.cwd(), 'storage/files/ycc/routes'),
     });
 
     form.parse(req, (err, fields, files) => {
