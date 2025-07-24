@@ -1,6 +1,5 @@
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
-import fsp from 'fs/promises';
 import path from 'path';
 import dbConnect from '@/utils/db';
 import OperatorRequest from '@/models/OperatorRequest';
@@ -9,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // disable Next.js body parser
   },
 };
 
@@ -40,30 +39,22 @@ const CHANGE_ROUTE_QUESTIONS = [
   'New Map',
 ];
 
-const parseForm = (req) => {
-  const uploadDir = path.join('/tmp', 'ycc', 'routes');
-
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-
-  return new Promise((resolve, reject) => {
+const parseForm = (req) =>
+  new Promise((resolve, reject) => {
     const form = new IncomingForm({
       keepExtensions: true,
-      uploadDir,
       multiples: false,
     });
-
     form.parse(req, (err, fields, files) => {
       if (err) reject(err);
       else resolve({ fields, files });
     });
   });
-};
-
 
 const flattenFields = (fields) =>
-  Object.fromEntries(Object.entries(fields).map(([key, val]) => [key, Array.isArray(val) ? val[0] : val]));
+  Object.fromEntries(
+    Object.entries(fields).map(([key, val]) => [key, Array.isArray(val) ? val[0] : val])
+  );
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -88,24 +79,34 @@ export default async function handler(req, res) {
       P3Q5,
     } = flatFields;
 
-    let mapFileName = '';
+    // Prepare file data to store in DB
+    let mapFileData = null;
 
-    // Handle mapFile - support array or single object
     let mapFileObj = null;
     if (files?.mapFile) {
       mapFileObj = Array.isArray(files.mapFile) ? files.mapFile[0] : files.mapFile;
     }
 
     if (mapFileObj && mapFileObj.filepath) {
-      // Create a unique filename to avoid overwrites
-      const originalName = mapFileObj.originalFilename || path.basename(mapFileObj.filepath);
-      const uniqueName = `${Date.now()}-${uuidv4()}-${originalName}`;
-      const targetPath = path.join(process.cwd(), 'storage/ycc/routes', uniqueName);
+      // Read file buffer from temporary path
+      const fileBuffer = fs.readFileSync(mapFileObj.filepath);
+      const originalName = mapFileObj.originalFilename || 'uploaded-file';
 
-      await fsp.rename(mapFileObj.filepath, targetPath);
-      mapFileName = uniqueName;
+      mapFileData = {
+        data: fileBuffer,
+        contentType: mapFileObj.mimetype || 'application/octet-stream',
+        filename: `${Date.now()}-${uuidv4()}-${originalName}`,
+      };
+
+      // Optionally delete temp file after reading
+      try {
+        fs.unlinkSync(mapFileObj.filepath);
+      } catch (e) {
+        console.warn('Failed to delete temp upload file:', e);
+      }
     }
 
+    // Save all data including file buffer to DB
     const requestData = {
       email,
       discordTag,
@@ -116,10 +117,15 @@ export default async function handler(req, res) {
       P3Q3,
       P3Q4,
       P3Q5,
-      mapFileName,
+      mapFile: mapFileData, // Store file object in DB
     };
 
-    await OperatorRequest.create(requestData);
+    const newRequest = await OperatorRequest.create(requestData);
+
+    // For email, if file exists, create a link endpoint to download the file (you'll need to implement /api/download/[id])
+    const fileLink = mapFileData
+      ? `${process.env.BASE_URL}/api/ycc/routes/file?id=${newRequest._id}`
+      : null;
 
     const generateEmailHTML = (request) => {
       const isNewRoute = request.routeSubmissionType === 'new';
@@ -127,10 +133,10 @@ export default async function handler(req, res) {
 
       const questionAnswers = questions
         .map((q, idx) => {
-          if (idx === 5 && request.mapFileName) {
+          if (idx === 5 && fileLink) {
             return `
               <strong>${q}</strong><br/>
-              <a href="${process.env.BASE_URL}/files/ycc/routes/${request.mapFileName}" target="_blank" rel="noopener noreferrer" style="color: #9900ff;">View Map Here</a>
+              <a href="${fileLink}" target="_blank" rel="noopener noreferrer" style="color: #9900ff;">View Map Here</a>
             `;
           }
           const answer = request[`P3Q${idx + 1}`] || '-';
@@ -196,7 +202,7 @@ export default async function handler(req, res) {
       to: 'admin@flatstudios.net',
       bcc: email,
       subject: `Route Requested for ${selectedCompany}`,
-      html: generateEmailHTML(requestData),
+      html: generateEmailHTML(newRequest),
     };
 
     await mailHub.sendMail(mailOptions);

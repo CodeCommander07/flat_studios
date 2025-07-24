@@ -14,7 +14,11 @@ const OperatorRequestSchema = new mongoose.Schema({
   P3Q5: { type: String, required: true },
 
   // We will store the filename or URL for the uploaded map
-  mapFileName: { type: String },
+mapFile: {
+    data: Buffer,
+    contentType: String,
+    filename: String,
+  },
 
   status: {
     type: String,
