@@ -1,10 +1,18 @@
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/utils/db';
 import OperatorRequest from '@/models/OperatorRequest';
+import fs from 'fs/promises';
+import path from 'path';
+import { IncomingForm } from 'formidable-serverless';
 import nodemailer from 'nodemailer';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+// Email setup
 const mailHub = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -14,12 +22,20 @@ const mailHub = nodemailer.createTransport({
   secure: true,
 });
 
-// Disable Next.js default body parsing so multer can handle it
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Form handler
+function parseForm(req) {
+  return new Promise((resolve, reject) => {
+    const form = new IncomingForm({
+      keepExtensions: true,
+      uploadDir: path.join(process.cwd(), 'public/files/ycc/routes'),
+    });
+
+    form.parse(req, (err, fields, files) => {
+      if (err) return reject(err);
+      resolve({ fields, files });
+    });
+  });
+}
 
 const NEW_ROUTE_QUESTIONS = [
   'Route Number',
@@ -39,102 +55,43 @@ const CHANGE_ROUTE_QUESTIONS = [
   'New Map',
 ];
 
-// Setup multer storage
-const storageFolder = path.join(process.cwd(), 'storage/ycc/routes');
-fs.mkdirSync(storageFolder, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, storageFolder);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `map-${uniqueSuffix}${ext}`);
-  },
-});
-
-const upload = multer({ storage });
-
-// Utility to run multer middleware manually
-function runMiddleware(req, res, fn) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result) => {
-      if (result instanceof Error) reject(result);
-      else resolve(result);
-    });
-  });
-}
-
 export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
   try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+    const { fields, files } = await parseForm(req);
+    await dbConnect();
 
-    try {
-      // Run multer middleware to handle file upload
-      await runMiddleware(req, res, upload.single('mapFile'));
+    const {
+      email,
+      discordTag,
+      selectedCompany,
+      routeSubmissionType,
+      P3Q1,
+      P3Q2,
+      P3Q3,
+      P3Q4,
+      P3Q5,
+    } = fields;
 
-      await dbConnect();
+    const mapFileName = path.basename(files.mapFile[0].filepath); // ensure safe filename
 
-      // multer attaches text fields in req.body, file info in req.file
-      const {
-        email,
-        discordTag,
-        selectedCompany,
-        routeSubmissionType,
-        P3Q1,
-        P3Q2,
-        P3Q3,
-        P3Q4,
-        P3Q5,
-      } = req.body;
-      // Validate required fields
-      if (
-        !email ||
-        !discordTag ||
-        !selectedCompany ||
-        !routeSubmissionType ||
-        !P3Q1 ||
-        !P3Q2 ||
-        !P3Q4 ||
-        !P3Q5
-      ) {
-        return res.status(400).json({ error: 'Missing required fields' });
-      }
+    const newRequest = new OperatorRequest({
+      email,
+      discordTag,
+      selectedCompany,
+      routeSubmissionType,
+      P3Q1,
+      P3Q2,
+      P3Q3,
+      P3Q4,
+      P3Q5,
+      mapFileName,
+    });
 
-      if (!req.file) {
-        return res.status(400).json({ error: 'Map file is required' });
-      }
-
-      const newRequest = new OperatorRequest({
-        email,
-        discordTag,
-        selectedCompany,
-        routeSubmissionType,
-        P3Q1,
-        P3Q2,
-        P3Q3,
-        P3Q4,
-        P3Q5,
-        mapFileName: req.file.filename,
-      });
-
-      const request = {
-        email,
-        discordTag,
-        selectedCompany,
-        routeSubmissionType,
-        P3Q1,
-        P3Q2,
-        P3Q3,
-        P3Q4,
-        P3Q5,
-        mapFileName: req.file.filename,
-      }
-
-      await newRequest.save();
+    await newRequest.save();
       const html = (request, status) => {
         // Determine if new or change for question set
         const isNewRoute = request.routeSubmissionType === 'new';
@@ -223,8 +180,5 @@ export default async function handler(req, res) {
       console.error('Error:', error);
       return res.status(500).json({ error: 'Server error' });
     }
-  } catch (error) {
-    console.error('API /api/ycc error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 }
+
