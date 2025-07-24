@@ -3,8 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Menu, X } from 'lucide-react'; // optional icons, or use your own
+import { Menu, X } from 'lucide-react'; // icons
 import LogoutButton from './LogoutButton';
+import { hasAccessTo } from '@/utils/permissions'; // <-- import your permissions helper
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -12,7 +13,6 @@ export default function Navbar() {
   const [players, setPlayers] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,7 +22,7 @@ export default function Navbar() {
 
         const res = await axios.get(`/api/user/me?id=${localUser._id}`);
         setUser(res.data);
-        setRole(localUser.role || 'User'); // Set from local storage
+        setRole(localUser.role || 'User'); // from localStorage
       } catch (err) {
         console.error('Failed to fetch user:', err.message);
       }
@@ -44,10 +44,10 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, []);
 
+  // Add roleKey matching keys in utils/permissions.js accessMap
   const dropdowns = [
     {
       name: 'Public',
-      role: 'User',
       items: [
         { label: 'Home', href: '/' },
         { label: 'Disruptions', href: '/disruptions' },
@@ -62,7 +62,6 @@ export default function Navbar() {
     },
     {
       name: 'Operators Hub',
-      role: 'User',
       items: [
         { label: 'Operators', href: '/operators/' },
         { label: 'Travel', href: '/operators/travel' },
@@ -73,8 +72,17 @@ export default function Navbar() {
       ],
     },
     {
+      name: 'Yapton Community Council',
+      roleKey: 'ycc',
+      items: [
+        { label: 'YCC Home', href: '/ycc/' },
+        { label: 'Route Viewer', href: '/ycc/routes/view' },
+        { label: 'Route Editor', href: '/ycc/routes/request' },
+      ],
+    },
+    {
       name: 'Staff Hub',
-      role: 'Staff',
+      roleKey: 'hub',
       items: [
         { label: 'Hub', href: '/hub/' },
         { label: 'Moderation Guide', href: '/hub/guide' },
@@ -85,19 +93,18 @@ export default function Navbar() {
     },
     {
       name: 'Admin',
-      role: 'Human-Resources',
+      roleKey: 'admin',
       items: [
         { label: 'Admin', href: '/admin/' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
         { label: 'Ban Appeals', href: '/admin/appeals' },
         { label: 'Manage Forms', href: '/admin/hiring' },
         { label: 'Leave Requests', href: '/admin/leave' },
-
       ],
     },
     {
       name: 'Hub+',
-      role: 'Community-Director',
+      roleKey: 'hubPlus',
       items: [
         { label: 'Hub+', href: '/hub+/' },
         { label: 'Hiring', href: '/hub+/hiring' },
@@ -111,31 +118,38 @@ export default function Navbar() {
     },
     {
       name: 'Developer',
-      role: 'Developer',
+      roleKey: 'dev',
       items: [
         { label: 'Dev Hub', href: '/dev/' },
         { label: 'Leave', href: '/dev/leave' },
         { label: 'Assets', href: '/dev/assets' },
         { label: 'Tasks', href: '/dev/tasks' },
-        { label: 'Sumbit Tasks', href: '/dev/submit' },
+        { label: 'Submit Tasks', href: '/dev/submit' },
       ],
     },
   ];
-
-  const hasAccess = (requiredRole) => {
-const roles = ['User', 'Staff', 'Operations-Manager', 'Developer', 'Community-Director', 'Human-Resources', 'Web-Developer', 'Owner'];
-return roles.indexOf(role) >= roles.indexOf(requiredRole);
-  };
 
   return (
     <nav className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 relative z-50">
       <div className="max-w-8xl mx-auto flex justify-between items-center">
         {/* Brand */}
         <div className="flex items-center gap-4">
-          <a href='/'><Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-md" /></a>
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={40}
+              height={40}
+              className="rounded-md"
+            />
+          </Link>
           <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold">Yapton & District</span>
-            <span className="text-sm text-gray-300">{players ?? '–'} currently playing</span>
+            <span className="text-xl md:text-2xl font-bold">
+              Yapton & District
+            </span>
+            <span className="text-sm text-gray-300">
+              {players ?? '–'} currently playing
+            </span>
           </div>
         </div>
 
@@ -151,52 +165,47 @@ return roles.indexOf(role) >= roles.indexOf(requiredRole);
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {dropdowns.map((dropdown, idx) => {
-            // Skip Public and Operators if user is logged in
-            if (user && (dropdown.name === 'Public')) return null;
-            if (user && (dropdown.name === 'Operators Hub')) return null;
+            // Always show public and operators hub regardless of user
+            if (
+              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && user
+            ) {
+              return null; // hide if logged in
+            }
+            if (
+              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && !user
+            ) {
+              return (
+                <DropdownMenu
+                  key={idx}
+                  dropdown={dropdown}
+                  openDropdown={openDropdown}
+                  setOpenDropdown={setOpenDropdown}
+                />
+              );
+            }
 
-            return hasAccess(dropdown.role) ? (
-              <div key={idx} className="relative">
-                <button
-                  onClick={() => setOpenDropdown(openDropdown === idx ? null : idx)}
-                  className="hover:bg-black/20 px-3 py-2 rounded transition"
-                >
-                  {dropdown.name}
-                </button>
-                {openDropdown === idx && (
-                  <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
-                    {dropdown.items
-                      .filter((item) => {
-                        // Restrict /operators/request to Staff+
-                        if (
-                          item.href === '/operators/request' &&
-                          (!user || !['Staff', 'Human-Resources', 'Community-Director', 'Developer', 'Operations-Manager', "Web-Developer", 'Owner'].includes(user.role))
-                        ) {
-                          return false;
-                        }
-                        return true;
-                      })
-                      .map((item, i) => (
-                        <Link
-                          key={i}
-                          href={item.href}
-                          className="block px-4 py-2 hover:bg-black/20 transition"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                  </div>
-                )}
-              </div>
-            ) : null;
+            // For others, check if user is logged in and has access
+            if (!user) return null;
+            if (!dropdown.roleKey) return null;
+            if (!hasAccessTo(dropdown.roleKey, role)) return null;
+
+            return (
+              <DropdownMenu
+                key={idx}
+                dropdown={dropdown}
+                openDropdown={openDropdown}
+                setOpenDropdown={setOpenDropdown}
+              />
+            );
           })}
-
 
           {/* User Avatar */}
           {user ? (
             <div className="relative">
               <button
-                onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
+                onClick={() =>
+                  setOpenDropdown(openDropdown === 'user' ? null : 'user')
+                }
                 className="flex items-center gap-2 hover:bg-black/20 px-3 py-2 rounded transition"
               >
                 <span className="md:inline">{user?.username}</span>
@@ -210,13 +219,21 @@ return roles.indexOf(role) >= roles.indexOf(requiredRole);
               </button>
               {openDropdown === 'user' && (
                 <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
-                  <Link href="/me" className="block px-4 py-2 hover:bg-black/20">Profile</Link>
+                  <Link
+                    href="/me"
+                    className="block px-4 py-2 hover:bg-black/20"
+                  >
+                    Profile
+                  </Link>
                   <LogoutButton />
                 </div>
               )}
             </div>
           ) : (
-            <Link href="/auth/login" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition">
+            <Link
+              href="/auth/login"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition"
+            >
               Login
             </Link>
           )}
@@ -227,46 +244,43 @@ return roles.indexOf(role) >= roles.indexOf(requiredRole);
       {mobileOpen && (
         <div className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4">
           {dropdowns.map((dropdown, idx) => {
-            if (user && (dropdown.name === 'Public')) return null;
-            if (user && (dropdown.name === "Operators Hub")) return null;
+            // Always show public and operators hub on mobile
+if (
+              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && user
+            ) {
+              return null; // hide if logged in
+            }
+            if (
+              (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') && !user
+            ) {
+              return (
+                <MobileDropdownMenu key={idx} dropdown={dropdown} />
+              );
+            }
 
-            return hasAccess(dropdown.role) ? (
-              <div key={idx}>
-                <p className="font-semibold">{dropdown.name}</p>
-                <div className="ml-2 space-y-1">
-                  {dropdown.items
-                    .filter((item) => {
-                      if (
-                        item.href === '/operators/request' &&
-                        (!user || !['Community-Director', 'Operations-Manager', "Web-Developer", 'Owner'].includes(user.role))
-                      ) {
-                        return false;
-                      }
-                      return true;
-                    })
-                    .map((item, i) => (
-                      <Link
-                        key={i}
-                        href={item.href}
-                        className="block text-sm hover:text-blue-400 transition"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
+            if (!user) return null;
+            if (!dropdown.roleKey) return null;
+            if (!hasAccessTo(dropdown.roleKey, role)) return null;
 
-                </div>
-              </div>
-            ) : null;
+            return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
           })}
 
           <div>
             {user ? (
               <div className="mt-4 border-t border-white/20 pt-4 space-y-1">
-                <Link href="/me" className="block text-sm hover:text-blue-400">Profile</Link>
+                <Link
+                  href="/me"
+                  className="block text-sm hover:text-blue-400"
+                >
+                  Profile
+                </Link>
                 <LogoutButton />
               </div>
             ) : (
-              <Link href="/auth/login" className="block text-sm bg-blue-600 hover:bg-blue-700 text-center rounded py-2">
+              <Link
+                href="/auth/login"
+                className="block text-sm bg-blue-600 hover:bg-blue-700 text-center rounded py-2"
+              >
                 Login
               </Link>
             )}
@@ -274,5 +288,52 @@ return roles.indexOf(role) >= roles.indexOf(requiredRole);
         </div>
       )}
     </nav>
+  );
+}
+
+function DropdownMenu({ dropdown, openDropdown, setOpenDropdown }) {
+  return (
+    <div className="relative">
+      <button
+        onClick={() =>
+          setOpenDropdown(openDropdown === dropdown.name ? null : dropdown.name)
+        }
+        className="hover:bg-black/20 px-3 py-2 rounded transition"
+      >
+        {dropdown.name}
+      </button>
+      {openDropdown === dropdown.name && (
+        <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
+          {dropdown.items.map((item, i) => (
+            <Link
+              key={i}
+              href={item.href}
+              className="block px-4 py-2 hover:bg-black/20 transition"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileDropdownMenu({ dropdown }) {
+  return (
+    <div>
+      <p className="font-semibold">{dropdown.name}</p>
+      <div className="ml-2 space-y-1">
+        {dropdown.items.map((item, i) => (
+          <Link
+            key={i}
+            href={item.href}
+            className="block text-sm hover:text-blue-400 transition"
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }

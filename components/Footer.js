@@ -14,7 +14,7 @@ export default function Footer() {
         </div>
 
         {/* Right: Links */}
-        <div className="flex gap-6 text-sm">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-6 text-sm">
           <Link href="/" className="hover:underline hover:text-white/80 transition">Home</Link>
           <Link href="/terms" className="hover:underline hover:text-white/80 transition">Terms</Link>
           <Link href="/ban-appeal" className="hover:underline hover:text-white/80 transition">Ban Appeal</Link>

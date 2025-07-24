@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Check, XCircle, SortAsc, SortDesc } from 'lucide-react';
 import Image from 'next/image';
+import AuthWrapper from '@/components/AuthWrapper';
 
 const StatusBadge = ({ status }) => {
   const colors = {
@@ -99,6 +100,7 @@ export default function AdminLeaveDashboard() {
     });
 
   return (
+        <AuthWrapper requiredRole="admin">
     <div className="max-w-7xl mx-auto py-6 px-4 text-white">
       <h1 className="text-3xl font-bold mb-6 bg-black/80 p-4 rounded-xl">Admin Leave Dashboard</h1>
 
@@ -192,5 +194,6 @@ export default function AdminLeaveDashboard() {
         </div>
       </div>
     </div>
+    </AuthWrapper>
   );
 }

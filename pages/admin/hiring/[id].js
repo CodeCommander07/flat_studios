@@ -60,6 +60,7 @@ export default function EditForm() {
   if (!form) return <p className="text-center text-white">Loading...</p>;
 
   return (
+    <AuthWrapper requiredRole="admin">
     <main className="max-w-3xl mx-auto px-4 py-10 text-white">
       <div className="glass p-6 rounded-2xl shadow-lg space-y-6">
         <h1 className="text-3xl font-bold">Edit Role: {form.title}</h1>
@@ -181,5 +182,6 @@ export default function EditForm() {
         }
       `}</style>
     </main>
+    </AuthWrapper>
   );
 }

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { Pencil, Trash2 } from 'lucide-react';
+import AuthWrapper from '@/components/AuthWrapper';
 
 export default function ManageForms() {
   const [forms, setForms] = useState([]);
@@ -33,6 +34,8 @@ export default function ManageForms() {
   };
 
   return (
+         <AuthWrapper requiredRole="admin">
+          
     <main className="max-w-4xl mx-auto px-4 py-10 text-white">
       <div className="glass p-6 rounded-2xl shadow-lg space-y-6">
         <h1 className="text-3xl font-bold">Manage Applications</h1>
@@ -108,5 +111,6 @@ export default function ManageForms() {
         }
       `}</style>
     </main>
+    </AuthWrapper>
   );
 }

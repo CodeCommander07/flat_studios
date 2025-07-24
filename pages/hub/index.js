@@ -13,16 +13,18 @@ export default function Dashboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [loadingLeaves, setLoadingLeaves] = useState(true);
+  const [notices, setNotices] = useState([]);
+  const [loadingNotices, setLoadingNotices] = useState(true);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('User'));
     setUser(userData);
 
-      const axiosInstance = axios.create({
-    headers: {
-      'x-user-id': user?._id || '',
-    },
-  });
+    const axiosInstance = axios.create({
+      headers: {
+        'x-user-id': userData?._id || '',
+      },
+    });
 
     const fetchStats = async () => {
       try {
@@ -51,7 +53,6 @@ export default function Dashboard() {
         setLeaderboard(res.data || []);
       } catch (err) {
         console.error('Failed to fetch leaderboard:', err.message);
-        // fallback to static if you want
       }
     };
 
@@ -68,16 +69,30 @@ export default function Dashboard() {
       }
     };
 
+    const fetchNotices = async () => {
+      setLoadingNotices(true);
+      try {
+        const res = await axios.get('/api/admin/alerts/fetch');
+        setNotices(res.data.notices || []);
+      } catch (err) {
+        console.error('Failed to fetch staff notices:', err.message);
+      } finally {
+        setLoadingNotices(false);
+      }
+    };
+
     fetchStats();
     fetchActivityLogs();
     fetchLeaderboard();
     fetchLeaves();
+    fetchNotices();
 
     const interval = setInterval(() => {
       fetchStats();
       fetchActivityLogs();
       fetchLeaderboard();
       fetchLeaves();
+      fetchNotices();
     }, 30000);
 
     return () => clearInterval(interval);
@@ -108,13 +123,86 @@ export default function Dashboard() {
     }
   };
 
+  // Color classes by notice type
+  const noticeColorClass = (type) => {
+    switch (type.toLowerCase()) {
+      case 'announcement':
+        return 'border-blue-500 text-blue-300';
+      case 'update':
+        return 'border-yellow-500 text-yellow-300';
+      case 'alert':
+        return 'border-red-500 text-red-300';
+      default:
+        return 'border-gray-500 text-gray-300';
+    }
+  };
+
+  const iconColorClass = (type) => {
+    switch (type) {
+      case 'announcement':
+        return 'text-blue-500';
+      case 'update':
+        return 'text-yellow-500';
+      case 'alert':
+        return 'text-red-500';
+      default:
+        return 'text-blue-400';
+    }
+  };
+
   return (
     <AuthWrapper requiredRole="hub">
       <main className="text-white px-6 py-2 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-8">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 backdrop-blur-mdmd:grid-cols-2 lg:grid-cols-3 gap-6">
 
+          <div className="flex flex-col gap-4 mt-4">
+            <div>
+              {loadingNotices ? (
+                <p className="text-white/60">Loading notices...</p>
+              ) : notices.length === 0 ? (
+                <div className="border-l-4 border-r-4 rounded-md border-purple-500 space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                  <div className='bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 p-4'>
+                    <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
+                      <Info
+                        className={`w-6 h-6 text-purple-500`}
+                        aria-hidden="true"
+                      />
+                      No notices available
+                    </h5>
+                  </div>
+                </div>
+              ) : (
+                <ul className="space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                  {notices.map((notice) => (
+                    <li
+                      key={notice._id}
+                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 ${noticeColorClass(notice.type)}`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
+                          <Info
+                            className={`w-6 h-6 ${iconColorClass(notice.type)} ${notice.type === "alert" ? "animate-flash" : ""}`}
+                            aria-hidden="true"
+                          />
+                          {notice.title}
+                        </h5>
+                        <span className={`text-sm font-semibold ${iconColorClass(notice.type)} px-2 py-0.5 rounded-md select-none animate-flash`}>
+                          <strong>{new Date(notice.date).toLocaleDateString()}</strong>
+                        </span>
+                      </div>
+                      <p className="text-white/80 whitespace-pre-wrap">{notice.content}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+          {/* Stats Cards */}
+          <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
+            <h1 className="text-3xl font-bold">Welcome, {user?.username || 'Staff'}</h1>
+            <p className="text-sm text-white/60">View your staff metrics below.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-3">
             {/* Player Count */}
             <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
@@ -148,19 +236,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Notices Box */}
-          <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md flex items-start gap-4">
-            <Info className="w-6 h-6 text-blue-400 mt-1" />
-            <div>
-              <h3 className="text-xl font-semibold mb-1">Staff Notice</h3>
-              <p className="text-white/70">
-                Make sure to log all activity and check for updates to the moderation guide.
-                Leave requests will now require approval via the <span className="underline">Community Team</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3 w-full">
             {/* Shift Activity */}
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
               <h2 className="text-xl font-bold mb-4 text-green-300">🕒 Your Shifts</h2>
@@ -233,3 +309,4 @@ export default function Dashboard() {
     </AuthWrapper>
   );
 }
+

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import AuthWrapper from '@/components/AuthWrapper';
 
 export default function ReportsPage() {
   const [files, setFiles] = useState([]);
@@ -17,6 +18,7 @@ export default function ReportsPage() {
   }, []);
 
   return (
+        <AuthWrapper requiredRole="admin">
     <main className="p-8 min-h-screen bg-[#0f1117] text-white">
       <h1 className="text-3xl font-bold mb-6">📁 Weekly Activity Reports</h1>
 
@@ -41,5 +43,6 @@ export default function ReportsPage() {
         </ul>
       )}
     </main>
+    </AuthWrapper>
   );
 }
