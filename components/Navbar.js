@@ -100,6 +100,7 @@ export default function Navbar() {
         { label: 'Ban Appeals', href: '/admin/appeals' },
         { label: 'Manage Forms', href: '/admin/hiring' },
         { label: 'Leave Requests', href: '/admin/leave' },
+        { label: 'Manage Routes', href: '/admin/routes' },
       ],
     },
     {

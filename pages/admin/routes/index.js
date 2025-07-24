@@ -167,11 +167,11 @@ export default function RequestsPage() {
     ))}
   </ul>
 
-  {selectedRequest.mapFileName ? (
+  {selectedRequest.mapFile ? (
     <p>
       <strong>Map File:</strong>{' '}
       <a
-        href={`/files/ycc/routes/${selectedRequest.mapFileName}`}
+        href={`/api/ycc/routes/file?id=${selectedRequest._id}`}
         target="_blank"
         rel="noopener noreferrer"
         className="underline text-blue-400"

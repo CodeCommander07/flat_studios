@@ -36,7 +36,8 @@ const mailHub = nodemailer.createTransport({
 });
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST')
+    return res.status(405).json({ error: 'Method not allowed' });
 
   const { id, status } = req.body;
   if (!id || !['accepted', 'denied'].includes(status)) {
@@ -55,19 +56,23 @@ export default async function handler(req, res) {
     const isNewRoute = request.routeSubmissionType === 'new';
     const questions = isNewRoute ? NEW_ROUTE_QUESTIONS : CHANGE_ROUTE_QUESTIONS;
 
-    const questionAnswersHtml = questions.map((q, idx) => {
-      const answer =
-        idx === 5 && request.mapFileName
-          ? `<a href="${process.env.BASE_URL}/files/ycc/routes/${request.mapFileName}" target="_blank" rel="noopener noreferrer" style="color: #9900ff">View Map Here</a>`
-          : request[`P3Q${idx + 1}`] || '-';
+    const baseUrl = process.env.BASE_URL || ''; // fallback to empty string if undefined
 
-      return `
-        <tr>
-          <td style="padding: 8px 0;"><strong>${q}</strong></td>
-          <td style="padding: 8px 0;">${answer}</td>
-        </tr>
-      `;
-    }).join('');
+    const questionAnswersHtml = questions
+      .map((q, idx) => {
+        const answer =
+          idx === 5 && request.mapFile
+            ? `<a href="${baseUrl}/api/ycc/routes/file?id=${request._id}" target="_blank" rel="noopener noreferrer" style="color: #9900ff">View Map Here</a>`
+            : request[`P3Q${idx + 1}`] || '-';
+
+        return `
+          <tr>
+            <td style="padding: 8px 0;"><strong>${q}</strong></td>
+            <td style="padding: 8px 0;">${answer}</td>
+          </tr>
+        `;
+      })
+      .join('');
 
     const html = `<!DOCTYPE html>
 <html>
@@ -81,7 +86,9 @@ export default async function handler(req, res) {
                 <img src="https://flat-studios.vercel.app/cdn/image/logo.png" alt="Logo" style="width: 50px; height: auto;">
               </td>
               <td align="center">
-                <h1 style="margin: 0; font-size: 20px;">Route Request <strong style="color: ${status === 'accepted' ? '#28a745' : '#dc3545'}">${status.toUpperCase()} </strong></h1>
+                <h1 style="margin: 0; font-size: 20px;">Route Request <strong style="color: ${
+                  status === 'accepted' ? '#28a745' : '#dc3545'
+                }">${status.toUpperCase()} </strong></h1>
               </td>
               <td width="50"></td>
             </tr>
@@ -92,7 +99,9 @@ export default async function handler(req, res) {
         <td style="padding: 20px;">
           <p style="font-size: 16px;">Hello,</p>
           <p style="font-size: 16px; line-height: 1.5;">
-            The following route request has been <strong style="color: ${status === 'accepted' ? '#28a745' : '#dc3545'};">${status.toUpperCase()}</strong>.
+            The following route request has been <strong style="color: ${
+              status === 'accepted' ? '#28a745' : '#dc3545'
+            };">${status.toUpperCase()}</strong>.
           </p>
 
           <table style="width: 100%; font-size: 14px; margin-top: 20px;">
