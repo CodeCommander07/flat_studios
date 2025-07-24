@@ -1,11 +1,12 @@
 import { IncomingForm } from 'formidable';
-import fs from 'fs/promises';
+import fs from 'fs';
+import fsp from 'fs/promises';
 import path from 'path';
 import dbConnect from '@/utils/db';
 import OperatorRequest from '@/models/OperatorRequest';
 import nodemailer from 'nodemailer';
+import { v4 as uuidv4 } from 'uuid';
 
-// Disable Next.js built-in body parsing
 export const config = {
   api: {
     bodyParser: false,
@@ -39,8 +40,12 @@ const CHANGE_ROUTE_QUESTIONS = [
   'New Map',
 ];
 
-function parseForm(req) {
-  const uploadDir = path.join(process.cwd(), '/storage/ycc/routes');
+const parseForm = (req) => {
+  const uploadDir = path.join(process.cwd(), 'storage/ycc/routes');
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 
   return new Promise((resolve, reject) => {
     const form = new IncomingForm({
@@ -54,7 +59,10 @@ function parseForm(req) {
       else resolve({ fields, files });
     });
   });
-}
+};
+
+const flattenFields = (fields) =>
+  Object.fromEntries(Object.entries(fields).map(([key, val]) => [key, Array.isArray(val) ? val[0] : val]));
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -63,6 +71,8 @@ export default async function handler(req, res) {
 
   try {
     const { fields, files } = await parseForm(req);
+    const flatFields = flattenFields(fields);
+
     await dbConnect();
 
     const {
@@ -75,12 +85,27 @@ export default async function handler(req, res) {
       P3Q3,
       P3Q4,
       P3Q5,
-    } = fields;
+    } = flatFields;
 
-    const mapFile = files.mapFile;
-    const mapFileName = path.basename(mapFile?.filepath || '');
+    let mapFileName = '';
 
-    const request = {
+    // Handle mapFile - support array or single object
+    let mapFileObj = null;
+    if (files?.mapFile) {
+      mapFileObj = Array.isArray(files.mapFile) ? files.mapFile[0] : files.mapFile;
+    }
+
+    if (mapFileObj && mapFileObj.filepath) {
+      // Create a unique filename to avoid overwrites
+      const originalName = mapFileObj.originalFilename || path.basename(mapFileObj.filepath);
+      const uniqueName = `${Date.now()}-${uuidv4()}-${originalName}`;
+      const targetPath = path.join(process.cwd(), 'storage/ycc/routes', uniqueName);
+
+      await fsp.rename(mapFileObj.filepath, targetPath);
+      mapFileName = uniqueName;
+    }
+
+    const requestData = {
       email,
       discordTag,
       selectedCompany,
@@ -93,10 +118,9 @@ export default async function handler(req, res) {
       mapFileName,
     };
 
-    const newRequest = new OperatorRequest(request);
-    await newRequest.save();
+    await OperatorRequest.create(requestData);
 
-    const html = (request) => {
+    const generateEmailHTML = (request) => {
       const isNewRoute = request.routeSubmissionType === 'new';
       const questions = isNewRoute ? NEW_ROUTE_QUESTIONS : CHANGE_ROUTE_QUESTIONS;
 
@@ -122,7 +146,7 @@ export default async function handler(req, res) {
           <table border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td align="left" style="vertical-align: middle; width: 50px;">
-                <img src="https://flat-studios.vercel.app/cdn/image/logo.png" alt="Flat Studios Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
+                <img src="https://flat-studios.vercel.app/cdn/image/logo.png" alt="Flat Studios Logo" style="max-width: 50px; height: auto;">
               </td>
               <td align="center" style="vertical-align: middle;">
                 <h1 style="font-size: 24px; margin: 0; color: #ffffff;">Route Request</h1>
@@ -171,12 +195,12 @@ export default async function handler(req, res) {
       to: 'admin@flatstudios.net',
       bcc: email,
       subject: `Route Requested for ${selectedCompany}`,
-      html: html(request),
+      html: generateEmailHTML(requestData),
     };
 
     await mailHub.sendMail(mailOptions);
 
-    return res.status(201).json({ message: 'Request saved successfully' });
+    return res.status(201).json({ message: 'Request saved and email sent.' });
   } catch (error) {
     console.error('Error in /api/ycc:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
