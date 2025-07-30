@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
-import { Users, CalendarMinus, Clock, Sparkles } from 'lucide-react';
+import { Users, CalendarMinus, Clock, Sparkles, Info } from 'lucide-react';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -12,15 +12,10 @@ export default function Dashboard() {
     totalActivity: 0,
   });
   const [user, setUser] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [announcement, setAnnouncement] = useState({
-    title: '',
-    type: '',
-    content: '',
-  });
+  const [loadingNotices, setLoadingNotices] = useState(true);
+  const [notices, setNotices] = useState([]);
+
+
   useEffect(() => {
     const fetchAdminStats = async () => {
       try {
@@ -33,36 +28,52 @@ export default function Dashboard() {
 
     const userData = JSON.parse(localStorage.getItem('User'));
     setUser(userData);
+
+    const fetchNotices = async () => {
+      setLoadingNotices(true);
+      try {
+        const res = await axios.get('/api/admin/alerts/fetch');
+        setNotices(res.data.notices || []);
+      } catch (err) {
+        console.error('Failed to fetch staff notices:', err.message);
+      } finally {
+        setLoadingNotices(false);
+      }
+    };
+
     fetchAdminStats();
+    fetchNotices();
+
+    const interval = setInterval(() => {
+      fetchAdminStats();
+      fetchNotices();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
-
-    const handleEditChange = (field, value) => {
-    setAnnouncement((prev) => ({ ...prev, [field]: value }));
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // stop form reload
-
-    const { title, type, content } = announcement;
-
-    if (!title || !type || !content) {
-      setErrorMsg('Please fill in all fields.');
-      return;
+  const noticeColorClass = (type) => {
+    switch (type.toLowerCase()) {
+      case 'announcement':
+        return 'border-blue-500 text-blue-300';
+      case 'update':
+        return 'border-yellow-500 text-yellow-300';
+      case 'alert':
+        return 'border-red-500 text-red-300';
+      default:
+        return 'border-gray-500 text-gray-300';
     }
+  };
 
-    setErrorMsg('');
-    setLoadingSubmit(true);
-
-    try {
-      const response = await axios.post('/api/admin/alerts/set', announcement);
-      setSuccessMsg('Announcement posted successfully!');
-      setAnnouncement({ title: '', type: '', content: '' });
-      setShowModal(false);
-
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (error) {
-      setErrorMsg('Failed to post announcement. Please try again.');
-    } finally {
-      setLoadingSubmit(false);
+  const iconColorClass = (type) => {
+    switch (type) {
+      case 'announcement':
+        return 'text-blue-500';
+      case 'update':
+        return 'text-yellow-500';
+      case 'alert':
+        return 'text-red-500';
+      default:
+        return 'text-blue-400';
     }
   };
 
@@ -70,6 +81,48 @@ export default function Dashboard() {
     <AuthWrapper requiredRole="admin">
       <main className="text-white px-6 py-12 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-10">
+          <div className="flex flex-col gap-4">
+            <div>
+              {loadingNotices ? (
+                <p className="text-white/60">Loading notices...</p>
+              ) : notices.length === 0 ? (
+                <div className="border-l-4 border-r-4 rounded-md border-purple-500 space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                  <div className='bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 p-4'>
+                    <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
+                      <Info
+                        className={`w-6 h-6 text-purple-500`}
+                        aria-hidden="true"
+                      />
+                      No notices available
+                    </h5>
+                  </div>
+                </div>
+              ) : (
+                <ul className="space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                  {notices.map((notice) => (
+                    <li
+                      key={notice._id}
+                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 ${noticeColorClass(notice.type)}`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
+                          <Info
+                            className={`w-6 h-6 ${iconColorClass(notice.type)} ${notice.type === "alert" ? "animate-flash" : ""}`}
+                            aria-hidden="true"
+                          />
+                          {notice.title}
+                        </h5>
+                        <span className={`text-sm font-semibold ${iconColorClass(notice.type)} px-2 py-0.5 rounded-md select-none animate-flash`}>
+                          <strong>{new Date(notice.date).toLocaleDateString()}</strong>
+                        </span>
+                      </div>
+                      <p className="text-white/80 whitespace-pre-wrap">{notice.content}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
           {/* Page Header */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl text-center sm:text-left sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -81,16 +134,14 @@ export default function Dashboard() {
                   View system-wide staff metrics below.
                 </p>
               </div>
-              <button
-                onClick={() => setShowModal(true)}
+              <a
+                href="/admin/announcements"
                 className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
               >
-                Make Announcement
-              </button>
+                Manage Announcements
+              </a>
             </div>
           </div>
-
-
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -131,79 +182,8 @@ export default function Dashboard() {
               <p className="text-sm text-white/50">Applications to be read</p>
             </div>
           </div>
+
         </div>
-
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-            <div className="bg-zinc-900 border border-white/20 rounded-2xl p-8 w-full max-w-lg space-y-6 shadow-2xl">
-              <h2 className="text-2xl font-bold">New Announcement</h2>
-
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    name="title"
-                    placeholder="Title"
-                    value={announcement.title}
-                    onChange={(e) =>     handleEditChange('title', e.target.value)
-}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40"
-                    disabled={loadingSubmit}
-                  />
-<select
-  name="type"
-  value={announcement.type}
-  onChange={(e) => {
-    handleEditChange('type', e.target.value)
-    console.log('Selected type:', e.target.value);
-  }}
-  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-  disabled={loadingSubmit}
->
-  <option value="" className="bg-black text-white">Select Option</option>
-  <option value="announcement" className="bg-black text-white">Announcement</option>
-  <option value="update" className="bg-black text-white">Update</option>
-  <option value="alert" className="bg-black text-white">Alert</option>
-</select>
-
-
-
-                  <textarea
-                    name="content"
-                    rows={4}
-                    placeholder="Write your announcement..."
-                    value={announcement.content}
-                    onChange={(e) =>     handleEditChange('content', e.target.value)
-}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 resize-none"
-                    disabled={loadingSubmit}
-                  />
-                </div>
-
-                <div className="flex justify-end gap-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg"
-                    disabled={loadingSubmit}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loadingSubmit}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-                  >
-                    {loadingSubmit ? 'Posting...' : 'Post Announcement'}
-                  </button>
-
-                </div>
-              </form>
-            </div>
-
-          </div>
-        )}
       </main>
     </AuthWrapper>
   );

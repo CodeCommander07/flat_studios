@@ -7,6 +7,7 @@ import { Sparkles, Users, Clock, Info, Trophy } from 'lucide-react';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
+  const [staffCount, setStaffCount] = useState(0);
   const [user, setUser] = useState(null);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(true);
@@ -34,6 +35,15 @@ export default function Dashboard() {
         console.error('Failed to fetch stats:', err.message);
       }
     };
+
+    const fetchStaffCount = async () => {
+      try {
+        const res = await axios.get('/api/admin/stats');
+        setStaffCount(res.data.staffCount || 0);
+      } catch (err) {
+        console.error('Failed to fetch staff count:', err.message);
+      }
+    }
 
     const fetchActivityLogs = async () => {
       setLoadingActivity(true);
@@ -86,6 +96,7 @@ export default function Dashboard() {
     fetchLeaderboard();
     fetchLeaves();
     fetchNotices();
+    fetchStaffCount();
 
     const interval = setInterval(() => {
       fetchStats();
@@ -93,6 +104,7 @@ export default function Dashboard() {
       fetchLeaderboard();
       fetchLeaves();
       fetchNotices();
+      fetchStaffCount();
     }, 30000);
 
     return () => clearInterval(interval);
@@ -219,7 +231,7 @@ export default function Dashboard() {
                 <Users className="w-6 h-6 text-cyan-300" />
                 <h2 className="text-xl font-semibold">Staff Online</h2>
               </div>
-              <p className="text-4xl font-bold text-cyan-300">3</p>
+              <p className="text-4xl font-bold text-cyan-300">{staffCount}</p>
               <p className="text-sm text-white/50">verified accounts</p>
             </div>
 

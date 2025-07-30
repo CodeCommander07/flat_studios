@@ -13,7 +13,7 @@ const nextConfig = {
     ];
   },
   images: {
-    domains: ['cdn.discordapp.com', 'www.roblox.com', 'tr.rbxcdn.com'],
+    domains: ['cdn.discordapp.com', 'www.roblox.com', 'tr.rbxcdn.com' ,'flat-studios.vercel.app'],
   },
 };
 

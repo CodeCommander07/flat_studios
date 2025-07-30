@@ -224,6 +224,12 @@ export default function Navbar() {
                   >
                     Profile
                   </Link>
+                  <Link
+                    href="/me/cdn"
+                    className="block px-4 py-2 hover:bg-black/20"
+                  >
+                    File Sharer
+                  </Link>
                   <LogoutButton />
                 </div>
               )}
@@ -267,6 +273,12 @@ export default function Navbar() {
                   className="block text-sm hover:text-blue-400"
                 >
                   Profile
+                </Link>
+                                <Link
+                  href="/me/cdn"
+                  className="block text-sm hover:text-blue-400"
+                >
+                  Fire Sharer
                 </Link>
                 <LogoutButton />
               </div>

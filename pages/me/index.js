@@ -34,11 +34,25 @@ export default function ProfilePage() {
     window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=http://localhost:3000/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
   };
 
-  const handleRobloxConnect = () => {
-    const localUser = JSON.parse(localStorage.getItem('User'));
-    const userId = localUser?._id;
-    window.location.href = "/me/roblox"
-  }
+const handleRobloxConnect = () => {
+  const localUser = JSON.parse(localStorage.getItem('User'));
+  const userId = localUser?._id;
+  const base = process.env.BASE_URL; // Make sure you define NEXT_PUBLIC_BASE_URL in .env.local
+
+  // URL-encode redirect_uri
+  const redirectUri = encodeURIComponent(`${base}/api/user/roblox/callback`);
+
+  const url = `https://authorize.roblox.com/?client_id=4368704140483715858` +
+    `&response_type=code` +
+    `&redirect_uri=${redirectUri}` +
+    `&scope=openid+profile+group:read` +
+    `&state=${userId}` +  // dynamically passing userId as state
+    `&nonce=R7KqddEXQHMXfizjoDADm66PrIWdPis0fCphXd205aU`;
+
+  window.location.href = url;
+};
+
+
 
   const handleProfileSave = async () => {
     const localUser = JSON.parse(localStorage.getItem('User'));

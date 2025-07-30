@@ -45,9 +45,18 @@ const calculateDuration = (startTime, endTime) => {
   };
 };
 
+const getStartOfWeek = () => {
+  const now = new Date();
+  const day = now.getDay(); // 0 (Sun) to 6 (Sat)
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // adjust if Sunday is 0
+  return new Date(now.setDate(diff));
+};
+
+
 export default function ActivityPage() {
   const [user, setUser] = useState(null);
   const [logs, setLogs] = useState([]);
+  const [weeklySummary, setWeeklySummary] = useState({ hours: 0, minutes: 0 });
   const [form, setForm] = useState({
     date: '', timeJoined: '', timeLeft: '',
     extraNotes: '', notable: 'No',
@@ -58,6 +67,16 @@ export default function ActivityPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [fallbackDuration, setFallbackDuration] = useState('');
+
+  useEffect(() => {
+    if (form.timeJoined && form.timeLeft) {
+      setTotalTime(calculateDuration(form.timeJoined, form.timeLeft));
+      setFallbackDuration('');
+    } else {
+      setTotalTime(null);
+    }
+  }, [form.timeJoined, form.timeLeft]);
 
   useEffect(() => {
     const stored = localStorage.getItem('User');
@@ -113,22 +132,24 @@ export default function ActivityPage() {
   };
 
   const startEditing = (log) => {
+    const calculatedDuration = calculateDuration(log.timeJoined, log.timeLeft);
     setEditingLog(log);
     setForm({
       date: formatDateForInput(log.date),
       timeJoined: log.timeJoined,
       timeLeft: log.timeLeft,
-      duration: `${totalTime.hours}h ${totalTime.minutes}m`,
       extraNotes: log.description || log.extraNotes || '',
       notable: log.notable || 'No',
       host: log.host || '',
       participants: log.participants || '',
       robloxUsername: user?.robloxUsername || '',
     });
+    setFallbackDuration(log.duration || '');
     setError('');
     setSuccessMsg('');
     console.log('Editing log:', log);
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -183,6 +204,27 @@ export default function ActivityPage() {
     }
   };
 
+  useEffect(() => {
+    if (logs.length > 0) {
+      const weekStart = getStartOfWeek();
+      let totalMinutes = 0;
+
+      logs.forEach(log => {
+        const logDate = new Date(log.date);
+        if (logDate >= weekStart) {
+          const [h, m] = log.duration.split('h').map(s => s.replace('m', '').trim());
+          totalMinutes += parseInt(h) * 60 + parseInt(m);
+        }
+      });
+
+      setWeeklySummary({
+        hours: Math.floor(totalMinutes / 60),
+        minutes: totalMinutes % 60,
+      });
+    }
+  }, [logs]);
+
+
   return (
     <main className="p-6 text-white">
       <div className="flex justify-between mb-4 bg-white/10 border border-white/20 backdrop-blur-md p-3 rounded-2xl shadow-xl">
@@ -191,14 +233,19 @@ export default function ActivityPage() {
           onClick={resetForm}
           className="text-md border border-white/20 px-3 py-1 rounded hover:bg-white/20"
         >
-          {editingLog ? 'New Entry' : 'Reset'}
+          {editingLog ? 'Reset' : 'New Entry'}
         </button>
       </div>
 
-     <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+      <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
         {/* Logs */}
         <div className="order-2 lg:order-none">
           <ul className="md:col-span-1 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
+            <div className="p-4 mb-2 bg-black/95 hover:bg-black/90 border border-white/20 rounded-2xl shadow transition">
+              <p className="text-lg font-medium">
+                🗓️ Your Weekly Activity: <span className="text-green-400">{weeklySummary.hours}h {weeklySummary.minutes}m</span>
+              </p>
+            </div>
             {logs.map(log => (
               <li key={log._id} className="p-4 mb-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl shadow transition">
                 <div>
@@ -259,9 +306,13 @@ export default function ActivityPage() {
               </div>
             </div>
 
-            {totalTime && (
+            {(totalTime || fallbackDuration) && (
               <p className="text-sm text-white/60">
-                ⏱ Total: <span className='text-green-600'>{totalTime.hours}h {totalTime.minutes}m</span>
+                ⏱ Total: <span className='text-green-600'>
+                  {totalTime
+                    ? `${totalTime.hours}h ${totalTime.minutes}m`
+                    : fallbackDuration}
+                </span>
               </p>
             )}
 
@@ -281,7 +332,7 @@ export default function ActivityPage() {
               <label>Was this a shift?<span className="text-red-500">*</span></label>
               <select value={form.notable} onChange={(e) => handleChange('notable', e.target.value)}
                 className="w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white">
-                  required
+                required
                 <option value="No" className="text-black">No</option>
                 <option value="Yes" className="text-black">Yes</option>
               </select>

@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
 
   // System Role
   role: { type: String, default: 'User' },
+  operator: { type: String, default: false, enum:["South West Buses", "IRVING Coaches", "West Coast Motors", "Cowie"] }, // Is the user an operator?
 
   // Connections
   robloxId: { type: String }, // Numeric ID from Roblox

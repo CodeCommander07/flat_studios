@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
+import AuthWrapper from '@/components/AuthWrapper';
 
 export default function EditForm() {
   const params = useParams();

@@ -4,25 +4,47 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
 import { Sparkles, Users, Clock, Info, Trophy } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [user, setUser] = useState(null);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(true);
-  const [leaderboard, setLeaderboard] = useState([]);
+  const [tasksCount, setTasksCount] = useState(0);
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [loadingLeaves, setLoadingLeaves] = useState(true);
+  const [staffCount, setStaffCount] = useState(0);
+  const [loadingNotices, setLoadingNotices] = useState(true);
+  const [notices, setNotices] = useState([]);
+
+  const fetchStaffCount = async () => {
+    try {
+      const res = await axios.get('/api/admin/stats');
+      setStaffCount(res.data.staffCount || 0);
+    } catch (err) {
+      console.error('Failed to fetch staff count:', err.message);
+    }
+  }
+
+  const fetchTaskCount = async () => {
+    try {
+      const res = await axios.get('/api/developers/tasks');
+      setTasksCount(res.data.incompleteCount || 0);
+    } catch (err) {
+      console.error('Failed to fetch task count:', err.message);
+    }
+  }
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('User'));
     setUser(userData);
 
-      const axiosInstance = axios.create({
-    headers: {
-      'x-user-id': user?._id || '',
-    },
-  });
+    const axiosInstance = axios.create({
+      headers: {
+        'x-user-id': user?._id || '',
+      },
+    });
 
     const fetchStats = async () => {
       try {
@@ -68,20 +90,66 @@ export default function Dashboard() {
       }
     };
 
+    const fetchNotices = async () => {
+      setLoadingNotices(true);
+      try {
+        const res = await axios.get('/api/admin/alerts/fetch');
+        setNotices(res.data.notices || []);
+      } catch (err) {
+        console.error('Failed to fetch staff notices:', err.message);
+      } finally {
+        setLoadingNotices(false);
+      }
+    };
+
     fetchStats();
     fetchActivityLogs();
     fetchLeaderboard();
     fetchLeaves();
+    fetchStaffCount();
+    fetchTaskCount();
+      fetchNotices();
+
 
     const interval = setInterval(() => {
       fetchStats();
       fetchActivityLogs();
       fetchLeaderboard();
       fetchLeaves();
+      fetchStaffCount();
+      fetchTaskCount();
+      fetchNotices();
+
     }, 30000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const noticeColorClass = (type) => {
+    switch (type.toLowerCase()) {
+      case 'announcement':
+        return 'border-blue-500 text-blue-300';
+      case 'update':
+        return 'border-yellow-500 text-yellow-300';
+      case 'alert':
+        return 'border-red-500 text-red-300';
+      default:
+        return 'border-gray-500 text-gray-300';
+    }
+  };
+
+  const iconColorClass = (type) => {
+    switch (type) {
+      case 'announcement':
+        return 'text-blue-500';
+      case 'update':
+        return 'text-yellow-500';
+      case 'alert':
+        return 'text-red-500';
+      default:
+        return 'text-blue-400';
+    }
+  };
 
   // Compute total shifts and total time in hours from activityLogs
   const totalShifts = activityLogs.length;
@@ -112,6 +180,48 @@ export default function Dashboard() {
     <AuthWrapper requiredRole="hub">
       <main className="text-white px-6 py-2 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-8">
+                    <div className="flex flex-col gap-4 mt-2">
+            <div>
+              {loadingNotices ? (
+                <p className="text-white/60">Loading notices...</p>
+              ) : notices.length === 0 ? (
+                <div className="border-l-4 border-r-4 rounded-md border-purple-500 space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                  <div className='bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 p-4'>
+                    <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
+                      <Info
+                        className={`w-6 h-6 text-purple-500`}
+                        aria-hidden="true"
+                      />
+                      No notices available
+                    </h5>
+                  </div>
+                </div>
+              ) : (
+                <ul className="space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                  {notices.map((notice) => (
+                    <li
+                      key={notice._id}
+                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 ${noticeColorClass(notice.type)}`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
+                          <Info
+                            className={`w-6 h-6 ${iconColorClass(notice.type)} ${notice.type === "alert" ? "animate-flash" : ""}`}
+                            aria-hidden="true"
+                          />
+                          {notice.title}
+                        </h5>
+                        <span className={`text-sm font-semibold ${iconColorClass(notice.type)} px-2 py-0.5 rounded-md select-none animate-flash`}>
+                          <strong>{new Date(notice.date).toLocaleDateString()}</strong>
+                        </span>
+                      </div>
+                      <p className="text-white/80 whitespace-pre-wrap">{notice.content}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
           {/* Stats Cards */}
           <div className="grid grid-cols-1 backdrop-blur-mdmd:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -131,68 +241,36 @@ export default function Dashboard() {
                 <Users className="w-6 h-6 text-cyan-300" />
                 <h2 className="text-xl font-semibold">Staff Online</h2>
               </div>
-              <p className="text-4xl font-bold text-cyan-300">3</p>
+              <p className="text-4xl font-bold text-cyan-300">{staffCount}</p>
               <p className="text-sm text-white/50">verified accounts</p>
             </div>
 
             {/* Activity Summary */}
             <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
-                <Clock className="w-6 h-6 text-yellow-300" />
-                <h2 className="text-xl font-semibold">Your Activity</h2>
+                <Link href="/dev/tasks" > <Trophy className="w-6 h-6 text-red-300" /></Link>
+                <h2 className="text-xl font-semibold">Tasks Outstanding</h2>
               </div>
-              <p className="text-2xl font-bold text-yellow-300">{totalShifts} Shift{totalShifts !== 1 ? 's' : ''}</p>
-              <p className="text-white/70">
-                Time in Game: <span className="font-mono">{formatTime(totalTimeHours)}</span>
+              <p className="text-4xl font-bold text-red-300">
+                {tasksCount ?? '—'}
               </p>
+              <p className="text-sm text-white/50">need your attention</p>
             </div>
-          </div>
 
-          {/* Notices Box */}
-          <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md flex items-start gap-4">
-            <Info className="w-6 h-6 text-blue-400 mt-1" />
-            <div>
-              <h3 className="text-xl font-semibold mb-1">Staff Notice</h3>
-              <p className="text-white/70">
-                Make sure to log all activity and check for updates to the moderation guide.
-                Leave requests will now require approval via the <span className="underline">Community Team</span>.
-              </p>
+            {/* Notices Box */}
+            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 col-span-2 rounded-2xl shadow-md flex items-start gap-4">
+              <Info className="w-6 h-6 text-blue-400 mt-1" />
+              <div>
+                <h3 className="text-xl font-semibold mb-1">Staff Notice</h3>
+                <p className="text-white/70">
+                  Make sure to log all activity and check for updates to the moderation guide.
+                  Leave requests will now require approval via the <span className="underline">Community Team</span>.
+                </p>
+              </div>
             </div>
-          </div>
 
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 w-full">
             {/* Shift Activity */}
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
-              <h2 className="text-xl font-bold mb-4 text-green-300">🕒 Your Shifts</h2>
 
-              {loadingActivity ? (
-                <p className="text-white/60">Loading activity...</p>
-              ) : activityLogs.length === 0 ? (
-                <p className="text-white/60">No shifts logged yet.</p>
-              ) : (
-                <ul className="space-y-3 text-white/90 text-sm max-h-64 overflow-y-auto">
-                  {activityLogs
-                    .slice() // clone array
-                    .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
-                    .map((log) => (
-                      <li key={log._id} className="flex justify-between items-center">
-                        <span>
-                          <span className="font-semibold">{new Date(log.date).toLocaleDateString()}:</span>{' '}
-                          {log.duration}h Shift ({log.description})
-                        </span>
-                        <span className="text-green-400 text-xs">✅ Logged</span>
-                      </li>
-                    ))}
-                </ul>
-              )}
-
-              <div className="mt-4 text-right">
-                <a href="/hub/activity" className="text-blue-400 hover:underline text-sm">
-                  View All Activity →
-                </a>
-              </div>
-            </div>
 
             {/* Leave Requests */}
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
@@ -229,6 +307,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
         </div>
       </main>
     </AuthWrapper>

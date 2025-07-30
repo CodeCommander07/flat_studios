@@ -3,7 +3,7 @@ import axios from 'axios';
 export default async function handler(req, res) {
   const code = req.query.code;
 
-  if (!code) return res.redirect('/dashboard');
+  if (!code) return res.redirect('/me/');
 
   try {
     // 1. Exchange code for access token
