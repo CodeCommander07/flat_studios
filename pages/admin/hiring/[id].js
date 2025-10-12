@@ -109,9 +109,9 @@ export default function EditForm() {
             onChange={(e) => setQType(e.target.value)}
             disabled={saving}
           >
-            <option value="short">Short Answer</option>
-            <option value="long">Long Answer</option>
-            <option value="radio">Multiple Choice (Radio)</option>
+            <option className="bg-black text-white" value="short">Short Answer</option>
+            <option className="bg-black text-white" value="long">Long Answer</option>
+            <option className="bg-black text-white" value="radio">Multiple Choice (Radio)</option>
           </select>
 
           {qType === 'radio' && (

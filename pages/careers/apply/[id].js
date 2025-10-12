@@ -4,17 +4,24 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 
 export default function EditForm() {
-  const params = useParams();
+    const params = useParams();
 
-  if (!params || !params.id) {
-    return <p className="text-center text-white">Loading...</p>;
-  }
+    if (!params || !params.id) {
+        return <p className="text-center text-white">Loading...</p>;
+    }
 
-  const { id } = params;
+    const { id } = params;
     const [form, setForm] = useState(null);
     const [answers, setAnswers] = useState({});
     const [email, setEmail] = useState('');
     const [msg, setMsg] = useState('');
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem('User'));
+
+        const id = userData?._id || userData?.id || '';
+        axios.get(`/api/user/me?id=${id}`).then((r) => setEmail(r.email));
+    })
 
     useEffect(() => {
         axios.get(`/api/careers/applications/${id}`).then((r) => setForm(r.data));

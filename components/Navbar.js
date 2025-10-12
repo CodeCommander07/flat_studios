@@ -3,9 +3,23 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Menu, X } from 'lucide-react'; // icons
+import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import LogoutButton from './LogoutButton';
-import { hasAccessTo } from '@/utils/permissions'; // <-- import your permissions helper
+import { hasAccessTo } from '@/utils/permissions';
+
+// Animation variants
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -10, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -10, scale: 0.95 },
+};
+
+const mobileMenuVariants = {
+  hidden: { opacity: 0, height: 0 },
+  visible: { opacity: 1, height: 'auto', transition: { duration: 0.3, ease: 'easeOut' } },
+  exit: { opacity: 0, height: 0, transition: { duration: 0.2, ease: 'easeIn' } },
+};
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -19,10 +33,9 @@ export default function Navbar() {
       try {
         const localUser = JSON.parse(localStorage.getItem('User'));
         if (!localUser?._id) return;
-
         const res = await axios.get(`/api/user/me?id=${localUser._id}`);
         setUser(res.data);
-        setRole(localUser.role || 'User'); // from localStorage
+        setRole(localUser.role || 'User');
       } catch (err) {
         console.error('Failed to fetch user:', err.message);
       }
@@ -39,12 +52,10 @@ export default function Navbar() {
 
     fetchUser();
     fetchPlayers();
-
     const interval = setInterval(fetchPlayers, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Add roleKey matching keys in utils/permissions.js accessMap
   const dropdowns = [
     {
       name: 'Public',
@@ -135,25 +146,15 @@ export default function Navbar() {
         {/* Brand */}
         <div className="flex items-center gap-4">
           <Link href="/">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={40}
-              height={40}
-              className="rounded-md"
-            />
+            <Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-md" />
           </Link>
           <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold">
-              Yapton & District
-            </span>
-            <span className="text-sm text-gray-300">
-              {players ?? '–'} currently playing
-            </span>
+            <span className="text-xl md:text-2xl font-bold">Yapton & District</span>
+            <span className="text-sm text-gray-300">{players ?? '–'} currently playing</span>
           </div>
         </div>
 
-        {/* Mobile toggle button */}
+        {/* Mobile toggle */}
         <button
           className="md:hidden p-2"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -165,14 +166,8 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {dropdowns.map((dropdown, idx) => {
-            // Show Public & Operators Hub only if user is NOT logged in or user is operator
             if (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') {
-              if (user) {
-                if (role.toLowerCase() !== 'operator') {
-                  return null; // hide for logged-in non-operators
-                }
-              }
-              // Show for operator or guest
+              if (user && role.toLowerCase() !== 'operator') return null;
               return (
                 <DropdownMenu
                   key={idx}
@@ -183,11 +178,7 @@ export default function Navbar() {
               );
             }
 
-            // Other dropdowns: check role access as before
-            if (!user) return null;
-            if (!dropdown.roleKey) return null;
-            if (!hasAccessTo(dropdown.roleKey, role)) return null;
-
+            if (!user || !dropdown.roleKey || !hasAccessTo(dropdown.roleKey, role)) return null;
             return (
               <DropdownMenu
                 key={idx}
@@ -198,7 +189,7 @@ export default function Navbar() {
             );
           })}
 
-          {/* User Avatar */}
+          {/* User dropdown */}
           {user ? (
             <div className="relative">
               <button
@@ -207,7 +198,7 @@ export default function Navbar() {
                 }
                 className="flex items-center gap-2 hover:bg-black/20 px-3 py-2 rounded transition"
               >
-                <span className="md:inline">{user?.username}</span>
+                <span>{user?.username}</span>
                 <Image
                   src={user?.defaultAvatar || '/logo.png'}
                   alt="Avatar"
@@ -216,29 +207,26 @@ export default function Navbar() {
                   className="rounded-full"
                 />
               </button>
-              {openDropdown === 'user' && (
-                <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
-                  <Link
-                    href="/me"
-                    className="block px-4 py-2 hover:bg-black/20"
+
+              <AnimatePresence>
+                {openDropdown === 'user' && (
+                  <motion.div
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50 overflow-hidden"
                   >
-                    Profile
-                  </Link>
-                  <Link
-                    href="/me/cdn"
-                    className="block px-4 py-2 hover:bg-black/20"
-                  >
-                    File Sharer
-                  </Link>
-                  <LogoutButton />
-                </div>
-              )}
+                    <Link href="/me" className="block px-4 py-2 hover:bg-black/20">Profile</Link>
+                    <Link href="/me/cdn" className="block px-4 py-2 hover:bg-black/20">File Sharer</Link>
+                    <LogoutButton />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
-            <Link
-              href="/auth/login"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition"
-            >
+            <Link href="/auth/login" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition">
               Login
             </Link>
           )}
@@ -246,57 +234,46 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4">
-          {dropdowns.map((dropdown, idx) => {
-            if (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') {
-              if (user) {
-                if (role.toLowerCase() !== 'operator') {
-                  return null; // hide for logged-in non-operators
-                }
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            variants={mobileMenuVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4 overflow-hidden"
+          >
+            {dropdowns.map((dropdown, idx) => {
+              if (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') {
+                if (user && role.toLowerCase() !== 'operator') return null;
+                return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
               }
+
+              if (!user || !dropdown.roleKey || !hasAccessTo(dropdown.roleKey, role)) return null;
               return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
-            }
+            })}
 
-            if (!user) return null;
-            if (!dropdown.roleKey) return null;
-            if (!hasAccessTo(dropdown.roleKey, role)) return null;
-
-            return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
-          })}
-
-          <div>
-            {user ? (
-              <div className="mt-4 border-t border-white/20 pt-4 space-y-1">
-                <Link
-                  href="/me"
-                  className="block text-sm hover:text-blue-400"
-                >
-                  Profile
+            <div>
+              {user ? (
+                <div className="mt-4 border-t border-white/20 pt-4 space-y-1">
+                  <Link href="/me" className="block text-sm hover:text-blue-400">Profile</Link>
+                  <Link href="/me/cdn" className="block text-sm hover:text-blue-400">File Sharer</Link>
+                  <LogoutButton />
+                </div>
+              ) : (
+                <Link href="/auth/login" className="block text-sm bg-blue-600 hover:bg-blue-700 text-center rounded py-2">
+                  Login
                 </Link>
-                                <Link
-                  href="/me/cdn"
-                  className="block text-sm hover:text-blue-400"
-                >
-                  Fire Sharer
-                </Link>
-                <LogoutButton />
-              </div>
-            ) : (
-              <Link
-                href="/auth/login"
-                className="block text-sm bg-blue-600 hover:bg-blue-700 text-center rounded py-2"
-              >
-                Login
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
 
+/* ========== DESKTOP DROPDOWN ========== */
 function DropdownMenu({ dropdown, openDropdown, setOpenDropdown }) {
   return (
     <div className="relative">
@@ -308,23 +285,34 @@ function DropdownMenu({ dropdown, openDropdown, setOpenDropdown }) {
       >
         {dropdown.name}
       </button>
-      {openDropdown === dropdown.name && (
-        <div className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50">
-          {dropdown.items.map((item, i) => (
-            <Link
-              key={i}
-              href={item.href}
-              className="block px-4 py-2 hover:bg-black/20 transition"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
+
+      <AnimatePresence>
+        {openDropdown === dropdown.name && (
+          <motion.div
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50 overflow-hidden"
+          >
+            {dropdown.items.map((item, i) => (
+              <Link
+                key={i}
+                href={item.href}
+                className="block px-4 py-2 hover:bg-black/20 transition"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
+/* ========== MOBILE DROPDOWN ========== */
 function MobileDropdownMenu({ dropdown }) {
   return (
     <div>

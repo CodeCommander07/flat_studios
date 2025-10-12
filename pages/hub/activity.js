@@ -247,7 +247,7 @@ export default function ActivityPage() {
               </p>
             </div>
             {logs.map(log => (
-              <li key={log._id} className="p-4 mb-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl shadow transition">
+              <li key={log._id} className="p-4 mb-2 bg-black/55 hover:bg-black/75 border border-white/20 rounded-2xl shadow transition">
                 <div>
                   <p className="font-semibold">{log.date}: {log.timeJoined} - {log.timeLeft}</p>
                   <p className="text-white/60">{log.duration} hrs</p>

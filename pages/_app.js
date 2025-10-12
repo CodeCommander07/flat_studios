@@ -20,10 +20,6 @@ export default function App({ Component, pageProps }) {
     }
   }, []);
 
-  useEffect(() => {
-  axios.get('/api/start/activity')
-}, []);
-
   const segments = router.pathname.split('/').filter(Boolean);
   const lastSegment = segments.length === 0 ? 'Home' : segments[segments.length - 1];
   const pageTitle = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1);
