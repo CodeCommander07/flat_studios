@@ -1,0 +1,91 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
+import AuthWrapper from '@/components/AuthWrapper';
+
+export default function RouteDetailPage() {
+  const router = useRouter();
+  const { id } = router.query; // <-- routeId from URL
+  const [route, setRoute] = useState(null);
+  const [stops, setStops] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchStops = async () => {
+    try {
+      const res = await axios.get('/api/ycc/stops');
+      setStops(res.data.stops || []);
+    } catch (err) {
+      console.error('Failed to fetch stops', err);
+    }
+  };
+
+  const fetchRoute = async () => {
+    if (!id) return; // wait for query to be available
+    try {
+      const res = await axios.get(`/api/ycc/routes/${id}`);
+      setRoute(res.data.route);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to fetch route.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStops();
+  }, []);
+
+  useEffect(() => {
+    fetchRoute();
+  }, [id]);
+
+  const getStopName = (stopId) => {
+    const stop = stops.find((s) => s.stopId === stopId);
+    return stop ? `${stop.name}${stop.town ? ', ' + stop.town : ''}` : stopId;
+  };
+
+  if (loading) return <p className="text-white">Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!route) return <p className="text-white">Route not found.</p>;
+
+  return (
+    <AuthWrapper requiredRole="admin">
+      <main className="text-white px-6 py-12 flex flex-col items-center">
+        <div className="max-w-4xl w-full bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
+          <h1 className="text-2xl font-bold mb-4">
+            Route Details: <span className="text-blue-400">{route.number}</span>
+          </h1>
+
+          <p><strong>Route ID:</strong> {route.routeId}</p>
+          <p><strong>Origin:</strong> {getStopName(route.origin)}</p>
+          <p><strong>Destination:</strong> {getStopName(route.destination)}</p>
+
+          <h2 className="mt-4 mb-2 text-lg font-semibold">Stops:</h2>
+          <ul className="list-disc list-inside ml-4">
+            {route.stops.map((stopId, idx) => (
+              <li key={idx}>{getStopName(stopId)}</li>
+            ))}
+          </ul>
+
+          {route.map?.filename && (
+            <p className="mt-4">
+              <strong>Map:</strong>{' '}
+              <a
+                href={`/api/ycc/routes/file?id=${route._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-400"
+              >
+                {route.map.filename}
+              </a>
+            </p>
+          )}
+        </div>
+      </main>
+    </AuthWrapper>
+  );
+}

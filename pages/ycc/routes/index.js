@@ -10,7 +10,7 @@ export default function RoutesView() {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const res = await fetch('/api/ycc/routes-summary');
+        const res = await fetch('/api/ycc/routes');
         if (!res.ok) throw new Error('Failed to fetch route data');
         const data = await res.json();
         setRoutes(data.routes || []);
@@ -39,14 +39,16 @@ export default function RoutesView() {
         {routes.map((route, index) => (
           <div
             key={index}
-            className="bg-white/10 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200"
+            className="bg-black/50 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200"
           >
-            <h2 className="text-xl font-semibold">{route.name || `Route ${index + 1}`}</h2>
+            <a href={`/ycc/routes/${route.routeId}`}>
+            <h2 className="text-xl font-semibold">{route.number || `Route ${index + 1}`}</h2>
             <p className="text-white/70">Origin: {route.origin}</p>
             <p className="text-white/70">Destination: {route.destination}</p>
             <p className="text-white/50 text-sm mt-2">
               Stops: {route.stops?.length ?? 0}
             </p>
+            </a>
           </div>
         ))}
       </div>

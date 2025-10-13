@@ -17,13 +17,6 @@ export default function EditForm() {
     const [msg, setMsg] = useState('');
 
     useEffect(() => {
-        const userData = JSON.parse(localStorage.getItem('User'));
-
-        const id = userData?._id || userData?.id || '';
-        axios.get(`/api/user/me?id=${id}`).then((r) => setEmail(r.email));
-    })
-
-    useEffect(() => {
         axios.get(`/api/careers/applications/${id}`).then((r) => setForm(r.data));
     }, [id]);
 

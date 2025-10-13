@@ -23,15 +23,9 @@ export default function Home() {
       url: 'https://discord.gg/3Snwhwu4rj3',
     },
     {
-      title: 'Stagecoach',
-      description: 'Part of the South West Group.',
-      logo: '/logos/stagecoach.png',
-      url: 'https://discord.gg/AN5eAnQ7gf',
-    },
-    {
-      title: 'Cowie',
+      title: 'Slowcoach',
       description: '',
-      logo: '/logos/stagecoach.png',
+      logo: '/logos/slowcoach.png',
       url: 'https://discord.gg/DANwX9bEd3',
     },
   ];

@@ -10,7 +10,8 @@ export default async function handler(req, res) {
   try {
     await dbConnect();
 
-    const requests = await OperatorRequest.find().sort({ createdAt: -1 }).lean();
+    // Exclude mapFile from the results to avoid huge JSON responses
+    const requests = await OperatorRequest.find({}, { mapFile: 0 }).sort({ createdAt: -1 }).lean();
 
     res.status(200).json({ requests });
   } catch (error) {

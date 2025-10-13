@@ -86,7 +86,8 @@ export default function Navbar() {
       roleKey: 'ycc',
       items: [
         { label: 'YCC Home', href: '/ycc/' },
-        { label: 'Route Viewer', href: '/ycc/routes/view' },
+        { label: 'Route Viewer', href: '/ycc/routes/' },
+        { label: 'Bus Stops', href: '/ycc/stops/' },
         { label: 'Route Editor', href: '/ycc/routes/request' },
       ],
     },
