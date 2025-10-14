@@ -9,13 +9,14 @@ export default function MultiStepForm() {
         discordTag: '',
         selectedCompany: '',
         routeSubmissionType: '',
-        P3Q1: '',         // routeNumber
-        P3Q2: '',         // allocatedVehicle
-        P3Q3: '',         // startingLocation
-        P3Q4: '',         // via
-        P3Q5: '',         // finishingLocation
+        P3Q1: '',         // routeNumber or routeId
+        P3Q2: '',         // allocatedVehicle or new start stop
+        P3Q3: '',         // startingLocation (for new route)
+        P3Q4: [],         // via stops (array!)
+        P3Q5: '',         // finishingLocation or details of change
         P3Q6: null,       // uploadMap (file)
     });
+
 
     const [user, setUser] = useState(null); // Assuming user data is fetched and set somewhere
 
@@ -149,10 +150,11 @@ export default function MultiStepForm() {
                 P3Q1: '',
                 P3Q2: '',
                 P3Q3: '',
-                P3Q4: '',
+                P3Q4: [],  // reset to empty array
                 P3Q5: '',
                 P3Q6: null,
             });
+
             setStep(1); // Reset to first step
         } else {
             const errorData = await res.json();
@@ -179,6 +181,22 @@ export default function MultiStepForm() {
         return route ? `Route ${route.number} | ${route.origin} → ${route.destination}` : routeId || '-';
     };
 
+    // Auto-fill route details when a route is selected (for editing)
+    useEffect(() => {
+        if (form.routeSubmissionType === 'change' && form.P3Q1 && routesList.length > 0) {
+            const selectedRoute = routesList.find(r => r.routeId === form.P3Q1);
+
+            if (selectedRoute) {
+                setForm(prev => ({
+                    ...prev,
+                    // Adjust these based on your real structure:
+                    P3Q2: selectedRoute.origin || selectedRoute.startStop || prev.P3Q2 || '',
+                    P3Q3: selectedRoute.viaStops || selectedRoute.stops?.slice(1, -1) || prev.P3Q3 || [],
+                    P3Q4: selectedRoute.destination || selectedRoute.endStop || prev.P3Q4 || '',
+                }));
+            }
+        }
+    }, [form.P3Q1, form.routeSubmissionType, routesList]);
 
     return (
         <AuthWrapper requiredRole="ycc">
@@ -332,12 +350,10 @@ export default function MultiStepForm() {
                                                 key={stop.stopId}
                                                 type="button"
                                                 onClick={() => {
-                                                    let updated;
-                                                    if (selected) {
-                                                        updated = form.P3Q4.filter((id) => id !== stop.stopId);
-                                                    } else {
-                                                        updated = [...(form.P3Q4 || []), stop.stopId];
-                                                    }
+                                                    const selected = form.P3Q4.includes(stop.stopId);
+                                                    const updated = selected
+                                                        ? form.P3Q4.filter(id => id !== stop.stopId)
+                                                        : [...form.P3Q4, stop.stopId];
                                                     setForm({ ...form, P3Q4: updated });
                                                 }}
                                                 className={`text-left px-4 py-2 rounded-lg transition-all border ${selected
@@ -413,10 +429,11 @@ export default function MultiStepForm() {
                                     <option value="">Select a route...</option>
                                     {routesList.map((r) => (
                                         <option className='bg-black text-white' key={r.routeId} value={r.routeId}>
-                                            Route {r.number} | {r.origin} → {r.destination}
+                                            Route {r.number} | {getStopName(r.startStop)} → {getStopName(r.endStop)}
                                         </option>
                                     ))}
                                 </select>
+
                             </div>
 
                             <div>
@@ -446,12 +463,10 @@ export default function MultiStepForm() {
                                                 key={stop.stopId}
                                                 type="button"
                                                 onClick={() => {
-                                                    let updated;
-                                                    if (selected) {
-                                                        updated = form.P3Q3.filter((id) => id !== stop.stopId);
-                                                    } else {
-                                                        updated = [...(form.P3Q3 || []), stop.stopId];
-                                                    }
+                                                    const selected = form.P3Q3.includes(stop.stopId);
+                                                    const updated = selected
+                                                        ? form.P3Q3.filter(id => id !== stop.stopId)
+                                                        : [...form.P3Q3, stop.stopId];
                                                     setForm({ ...form, P3Q3: updated });
                                                 }}
                                                 className={`text-left px-4 py-2 rounded-lg transition-all border ${selected
@@ -466,7 +481,6 @@ export default function MultiStepForm() {
                                     })}
                                 </div>
                             </div>
-
 
                             <div>
                                 <label className="block font-medium mb-1">New Finish Location</label>
@@ -485,7 +499,6 @@ export default function MultiStepForm() {
                                     ))}
                                 </select>
                             </div>
-
 
                             <div>
                                 <label className="block font-medium mb-1">Details of Change</label>

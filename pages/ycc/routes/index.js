@@ -4,16 +4,26 @@ import { useEffect, useState } from 'react';
 
 export default function RoutesView() {
   const [routes, setRoutes] = useState([]);
+  const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const res = await fetch('/api/ycc/routes');
-        if (!res.ok) throw new Error('Failed to fetch route data');
-        const data = await res.json();
-        setRoutes(data.routes || []);
+        const [resRoutes, resStops] = await Promise.all([
+          fetch('/api/ycc/routes'),
+          fetch('/api/ycc/stops'),
+        ]);
+
+        if (!resRoutes.ok) throw new Error('Failed to fetch route data');
+        if (!resStops.ok) throw new Error('Failed to fetch stop data');
+
+        const routesData = await resRoutes.json();
+        const stopsData = await resStops.json();
+
+        setStops(stopsData.stops || []);
+        setRoutes(routesData.routes || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -23,6 +33,11 @@ export default function RoutesView() {
 
     fetchRoutes();
   }, []);
+
+  const getStopName = (stopId) => {
+    const stop = stops.find((s) => s.stopId === stopId || s.id === stopId);
+    return stop ? stop.name : stopId; // fallback to ID if not found
+  };
 
   return (
     <main className="p-6 text-white">
@@ -42,12 +57,18 @@ export default function RoutesView() {
             className="bg-black/50 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200"
           >
             <a href={`/ycc/routes/${route.routeId}`}>
-            <h2 className="text-xl font-semibold">{route.number || `Route ${index + 1}`}</h2>
-            <p className="text-white/70">Origin: {route.origin}</p>
-            <p className="text-white/70">Destination: {route.destination}</p>
-            <p className="text-white/50 text-sm mt-2">
-              Stops: {route.stops?.length ?? 0}
-            </p>
+              <h2 className="text-xl font-semibold">
+                {route.number || `Route ${index + 1}`}
+              </h2>
+              <p className="text-white/70">
+                Origin: {getStopName(route.origin)}
+              </p>
+              <p className="text-white/70">
+                Destination: {getStopName(route.destination)}
+              </p>
+              <p className="text-white/50 text-sm mt-2">
+                Stops: {route.stops?.length ?? 0}
+              </p>
             </a>
           </div>
         ))}

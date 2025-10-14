@@ -1,18 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation'; // ✅ use this in App Router
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
 
 export default function RouteDetailPage() {
-  const router = useRouter();
-  const { id } = router.query; // <-- routeId from URL
+  const { id } = useParams(); // ✅ routeId from URL
   const [route, setRoute] = useState(null);
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch stops
   const fetchStops = async () => {
     try {
       const res = await axios.get('/api/ycc/stops');
@@ -22,8 +22,9 @@ export default function RouteDetailPage() {
     }
   };
 
+  // Fetch route
   const fetchRoute = async () => {
-    if (!id) return; // wait for query to be available
+    if (!id) return;
     try {
       const res = await axios.get(`/api/ycc/routes/${id}`);
       setRoute(res.data.route);
@@ -55,24 +56,36 @@ export default function RouteDetailPage() {
   return (
     <AuthWrapper requiredRole="admin">
       <main className="text-white px-6 py-12 flex flex-col items-center">
-        <div className="max-w-4xl w-full bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
+        <div className="max-w-5xl w-full bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
           <h1 className="text-2xl font-bold mb-4">
             Route Details: <span className="text-blue-400">{route.number}</span>
           </h1>
 
-          <p><strong>Route ID:</strong> {route.routeId}</p>
           <p><strong>Origin:</strong> {getStopName(route.origin)}</p>
           <p><strong>Destination:</strong> {getStopName(route.destination)}</p>
 
-          <h2 className="mt-4 mb-2 text-lg font-semibold">Stops:</h2>
-          <ul className="list-disc list-inside ml-4">
-            {route.stops.map((stopId, idx) => (
-              <li key={idx}>{getStopName(stopId)}</li>
-            ))}
-          </ul>
+          <div className="grid gap-8 md:grid-cols-2 mt-6">
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Stops (Forward):</h2>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                {route.stops.map((stopId, idx) => (
+                  <li key={idx}>{getStopName(stopId)}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Stops (In Reverse):</h2>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                {[...route.stops].reverse().map((stopId, idx) => (
+                  <li key={idx}>{getStopName(stopId)}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
           {route.map?.filename && (
-            <p className="mt-4">
+            <p className="mt-6">
               <strong>Map:</strong>{' '}
               <a
                 href={`/api/ycc/routes/file?id=${route._id}`}

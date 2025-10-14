@@ -9,6 +9,7 @@ export default function BanAppealsPage() {
     DiscordUsername: '',
     DiscordId: '',
     RobloxUsername: '',
+    RobloxId: '',
     banDate: '',
     banReason: '',
     staffMember: '',
@@ -76,6 +77,19 @@ export default function BanAppealsPage() {
               className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50"
               placeholder="RobloxUsername123"
               value={form.RobloxUsername}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-1 font-medium">Roblox Id</label>
+            <input
+              type="text"
+              name="RobloxId"
+              className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50"
+              placeholder="RobloxUsername123"
+              value={form.RobloxId}
               onChange={handleChange}
               required
             />

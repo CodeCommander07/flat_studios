@@ -134,7 +134,6 @@ export default function Navbar() {
       items: [
         { label: 'Dev Hub', href: '/dev/' },
         { label: 'Leave', href: '/dev/leave' },
-        { label: 'Assets', href: '/dev/assets' },
         { label: 'Tasks', href: '/dev/tasks' },
         { label: 'Submit Tasks', href: '/dev/submit' },
       ],
