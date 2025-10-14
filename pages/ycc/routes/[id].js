@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation'; // ✅ use this in App Router
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
 
 export default function RouteDetailPage() {
-  const { id } = useParams(); // ✅ routeId from URL
+  const router = useRouter();
+  const { id } = router.query; // stopId from URL
   const [route, setRoute] = useState(null);
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(true);
