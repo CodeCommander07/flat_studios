@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation'; // ✅ use this in App Router
 import axios from 'axios';
