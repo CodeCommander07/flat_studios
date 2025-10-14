@@ -26,15 +26,13 @@ export default async function handler(req, res) {
       if (status === 'Denied') appeal.denyReason = denyReason || 'N/A';
       await appeal.save(); // ensures actual write to DB
 
-      const user_restriction_id = 8299942691;
-
       if (status === 'Accepted') {
         try {
           const res = await axios.patch(
-            `https://apis.roblox.com/cloud/v2/universes/5883938795/user-restrictions/${user_restriction_id}?updateMask=gameJoinRestriction`,
+            `https://apis.roblox.com/cloud/v2/universes/2103484249/user-restrictions/${appeal.RobloxId}?updateMask=gameJoinRestriction`,
             {
               gameJoinRestriction: {
-                active: false
+                active: false,
               }
             },
             {
