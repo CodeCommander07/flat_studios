@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 const QuestionSchema = new mongoose.Schema({
   label: String,
-  type: { type: String, enum: ['short','long','radio'] },
+  type: { type: String, enum: ['short','long','radio', 'number'] },
   options: [String],
-}, { _id: false });
+}, { _id: true });
 const ApplicationFormSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,

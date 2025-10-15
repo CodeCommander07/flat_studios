@@ -16,11 +16,11 @@ export default function Footer() {
         {/* Right: Links */}
         <div className="flex flex-col md:flex-row gap-2 md:gap-6 text-sm">
           <Link href="/" className="hover:underline hover:text-white/80 transition">Home</Link>
-          <Link href="/terms" className="hover:underline hover:text-white/80 transition">Terms</Link>
+          <Link href="/careers" className="hover:underline hover:text-white/80 transition">Careers</Link>
           <Link href="/ban-appeal" className="hover:underline hover:text-white/80 transition">Ban Appeal</Link>
+          <Link href="/contact" className="hover:underline hover:text-white/80 transition">Contact</Link>
+          <Link href="/terms" className="hover:underline hover:text-white/80 transition">Terms</Link> 
           <Link href="/privacy" className="hover:underline hover:text-white/80 transition">Privacy</Link>
-          <Link href="mailto:support@flatstudios.net" className="hover:underline hover:text-white/80 transition">Contact</Link>
-          <Link href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District" className="hover:underline hover:text-blue-500/80 transition">Game</Link>
         </div>
       </div>
     </footer>

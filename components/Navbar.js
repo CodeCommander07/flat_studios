@@ -66,19 +66,8 @@ export default function Navbar() {
         { label: 'Community', href: '/community' },
         { label: 'Retailers', href: '/retailers' },
         { label: 'Guides', href: '/guides' },
-        { label: 'Games', href: '/games' },
         { label: 'Report', href: '/report' },
         { label: 'Advertising', href: '/advertisment' },
-      ],
-    },
-    {
-      name: 'Operators Hub',
-      items: [
-        { label: 'Operators', href: '/operators/' },
-        { label: 'Travel', href: '/operators/travel' },
-        { label: 'Stops', href: '/operators/stops' },
-        { label: 'Timetables', href: '/operators/timetables' },
-        { label: 'Routes', href: '/operators/routes' },
       ],
     },
     {
@@ -88,7 +77,7 @@ export default function Navbar() {
         { label: 'YCC Home', href: '/ycc/' },
         { label: 'Route Viewer', href: '/ycc/routes/' },
         { label: 'Bus Stops', href: '/ycc/stops/' },
-        { label: 'Route Editor', href: '/ycc/routes/request' },
+        { label: 'Route Editor', href: '/ycc/routes/request', roleKey: 'Operator' },
       ],
     },
     {
@@ -150,7 +139,7 @@ export default function Navbar() {
           </Link>
           <div className="flex flex-col">
             <span className="text-xl md:text-2xl font-bold">Yapton & District</span>
-            <span className="text-sm text-gray-300">{players ?? '–'} currently playing</span>
+            <span className="text-sm text-gray-300">{players ?? '–'} currently playing • <Link href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District" className='hover:text-blue-300'>Game Link</Link></span>
           </div>
         </div>
 
@@ -166,7 +155,7 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {dropdowns.map((dropdown, idx) => {
-            if (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') {
+            if (dropdown.name === 'Public') {
               if (user && role.toLowerCase() !== 'operator') return null;
               return (
                 <DropdownMenu
@@ -244,7 +233,7 @@ export default function Navbar() {
             className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4 overflow-hidden"
           >
             {dropdowns.map((dropdown, idx) => {
-              if (dropdown.name === 'Public' || dropdown.name === 'Operators Hub') {
+              if (dropdown.name === 'Public' ) {
                 if (user && role.toLowerCase() !== 'operator') return null;
                 return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
               }

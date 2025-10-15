@@ -172,7 +172,7 @@ export default function ContactEmailsPage() {
   return (
     <>
     <AuthWrapper requiredRole="devPhase">
-      <main className="flex h-[calc(95vh-7.3rem)] text-white">
+      <main className="flex h-[calc(95vh-7.25rem)] text-white">
         <aside className="w-80 bg-[#283335] border border-white/10 overflow-y-auto">
           <h2 className="text-lg font-bold px-4 py-3 border-b border-white/10 flex items-center justify-between">
             Email Conversations

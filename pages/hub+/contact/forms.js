@@ -24,7 +24,7 @@ export default function ContactFormsPage() {
   return (
     <AuthWrapper requiredRole="hubPlus">
 
-      <main className="flex h-[calc(95vh-7.5rem)] text-white">
+      <main className="flex h-[calc(95vh-7.25rem)] text-white">
         <aside className="w-72 bg-[#283335] border-r border-white/10 overflow-y-auto">
           <h2 className="text-lg font-bold px-4 py-3 border-b border-white/10">Contact Forms</h2>
           {data.requests.length === 0 ? (

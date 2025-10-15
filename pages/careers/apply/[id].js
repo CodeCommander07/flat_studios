@@ -72,10 +72,9 @@ export default function EditForm() {
                                     type="text"
                                     placeholder="Type your answer..."
                                     className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
-                                    value={answers[q.label] || ''}
-                                    onChange={(e) =>
-                                        setAnswers((prev) => ({ ...prev, [q.label]: e.target.value }))
-                                    }
+                                    value={answers[q.id] || ''}
+                                    onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+
                                 />
                             )}
 
@@ -83,10 +82,9 @@ export default function EditForm() {
                                 <textarea
                                     placeholder="Type your answer..."
                                     className="w-full p-3 rounded-md bg-white/10 placeholder-white/60 resize-none"
-                                    value={answers[q.label] || ''}
-                                    onChange={(e) =>
-                                        setAnswers((prev) => ({ ...prev, [q.label]: e.target.value }))
-                                    }
+                                    value={answers[q.id] || ''}
+                                    onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+
                                 />
                             )}
 
@@ -95,17 +93,17 @@ export default function EditForm() {
                                     {q.options.map((opt) => (
                                         <label
                                             key={opt}
-                                            className={`flex items-center gap-3 cursor-pointer text-white/90 ${answers[q.label] === opt ? 'bg-white/10 px-2 py-1 rounded' : ''
+                                            className={`flex items-center gap-3 cursor-pointer text-white/90 ${answers[q.id] === opt ? 'bg-white/10 px-2 py-1 rounded' : ''
                                                 }`}
                                         >
                                             <input
                                                 type="radio"
-                                                name={q.label}
+                                                name={q.id}  // use q.id, not q.label
                                                 value={opt}
                                                 className="accent-blue-500"
-                                                checked={answers[q.label] === opt}
+                                                checked={answers[q.id] === opt}
                                                 onChange={() =>
-                                                    setAnswers((prev) => ({ ...prev, [q.label]: opt }))
+                                                    setAnswers((prev) => ({ ...prev, [q.id]: opt }))
                                                 }
                                             />
                                             <span>{opt}</span>
@@ -114,6 +112,16 @@ export default function EditForm() {
                                 </div>
                             )}
 
+                            {q.type === 'number' && (
+                                <input
+                                    type="number"
+                                    placeholder="Type your answer..."
+                                    className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
+                                    value={answers[q.id] || ''}
+                                    onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+
+                                />
+                            )}
 
                         </div>
                     ))}
