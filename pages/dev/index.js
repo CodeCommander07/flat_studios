@@ -108,7 +108,7 @@ export default function Dashboard() {
     fetchLeaves();
     fetchStaffCount();
     fetchTaskCount();
-      fetchNotices();
+    fetchNotices();
 
 
     const interval = setInterval(() => {
@@ -180,7 +180,7 @@ export default function Dashboard() {
     <AuthWrapper requiredRole="hub">
       <main className="text-white px-6 py-2 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-8">
-                    <div className="flex flex-col gap-4 mt-2">
+          <div className="flex flex-col gap-4 mt-2">
             <div>
               {loadingNotices ? (
                 <p className="text-white/60">Loading notices...</p>
@@ -248,11 +248,11 @@ export default function Dashboard() {
             {/* Activity Summary */}
             <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
-                <Link href="/dev/tasks" > <Trophy className="w-6 h-6 text-red-300" /></Link>
+                <Link href={`/dev/tasks`} > <Trophy className="w-6 h-6 text-red-300" /></Link>
                 <h2 className="text-xl font-semibold">Tasks Outstanding</h2>
               </div>
               <p className="text-4xl font-bold text-red-300">
-                {tasksCount ?? '—'}
+                {tasksCount ?? '—'} {tasksCount > 1 || tasksCount === 0 ? 'tasks' : 'task'}
               </p>
               <p className="text-sm text-white/50">need your attention</p>
             </div>

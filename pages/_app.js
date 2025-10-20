@@ -9,8 +9,8 @@ import { useRouter } from "next/router";
 import axios from 'axios';
 
 export default function App({ Component, pageProps }) {
-   const router = useRouter();
-     const hideNavbarRoutes = ["/auth", "/auth/login", "/auth/register", "/auth/reset-password", "/auth/staff/register"];
+  const router = useRouter();
+  const hideNavbarRoutes = ["/auth", "/auth/login", "/auth/register", "/auth/reset-password", "/auth/staff/register"];
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -26,21 +26,29 @@ export default function App({ Component, pageProps }) {
 
   const title = `${pageTitle} | Flat Studios`;
 
-
   const shouldHideNavbar = hideNavbarRoutes.includes(router.pathname);
 
   return (<>
     <Head>
       <title>{title}</title>
     </Head>
-    <div className="flex flex-col min-h-screen bg-[url(/comet.png)] bg-cover bg-center text-white">
-      {!shouldHideNavbar ?  <Navbar role={user?.role} user={user?.username} /> : <div />}
-      <main className="flex-1">
-        <Component {...pageProps} />
-      </main>
-      {!shouldHideNavbar ?  <Footer /> : <div />}
+    <div className="relative flex flex-col min-h-screen text-white">
+      {/* Black overlay with blur */}
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-0"></div>
 
+      {/* Background image */}
+      <div className="fixed inset-0 bg-[url(/comet.png)] bg-cover bg-center z-[-1]"></div>
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {!shouldHideNavbar ? <Navbar role={user?.role} user={user?.username} /> : <div />}
+        <main className="flex-1">
+          <Component {...pageProps} />
+        </main>
+        {!shouldHideNavbar ? <Footer /> : <div />}
+      </div>
     </div>
-    </>
+
+  </>
   );
 }

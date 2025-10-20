@@ -109,11 +109,21 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, []);
+  // Compute total shifts and total time in hours from activityLogs (this week only)
+  const startOfWeek = new Date();
+  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Sunday start
 
-  // Compute total shifts and total time in hours from activityLogs
-  const totalShifts = activityLogs.length;
-  const totalTimeHours = activityLogs.reduce((acc, log) => acc + parseFloat(log.duration || 0), 0);
+  const logsThisWeek = activityLogs.filter((log) => {
+    const logDate = new Date(log.date);
+    return logDate >= startOfWeek;
+  });
 
+  const totalShifts = logsThisWeek.length;
+  const totalTimeHours = logsThisWeek.reduce(
+    (acc, log) => acc + parseFloat(log.duration || 0),
+    0
+  );
   // Format totalTimeHours into "Xh Ym" string
   const formatTime = (hoursFloat) => {
     const hours = Math.floor(hoursFloat);

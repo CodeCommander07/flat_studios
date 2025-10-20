@@ -74,7 +74,7 @@ export default function YCCIndex() {
           <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
             <h1 className="text-3xl font-bold">Want to be an operator?</h1>
             <p className="text-sm text-white/60 mt-2 mb-5">Apply to be an operator</p>
-             <a href="/operators/request" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
+             <a href="/ycc/operators/request" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
               >
                 Submit Operator
               </a>

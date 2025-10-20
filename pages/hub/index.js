@@ -119,21 +119,20 @@ export default function Dashboard() {
   }, []);
 
   // Calculate totals
-  const totalShifts = activityLogs.length;
-  const totalTimeHours = activityLogs.reduce((acc, log) => {
-    if (!log.duration) return acc;
-    const match = log.duration.match(/(\d+)h\s*(\d+)?m?/);
-    if (!match) return acc;
-    const hours = parseInt(match[1]) || 0;
-    const mins = parseInt(match[2]) || 0;
-    return acc + hours + mins / 60;
-  }, 0);
+  const startOfWeek = new Date();
+  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Sunday start
 
-  const formatTime = (hoursFloat) => {
-    const hours = Math.floor(hoursFloat);
-    const minutes = Math.round((hoursFloat - hours) * 60);
-    return `${hours}h ${minutes}m`;
-  };
+  const logsThisWeek = activityLogs.filter((log) => {
+    const logDate = new Date(log.date);
+    return logDate >= startOfWeek;
+  });
+
+  const totalShifts = logsThisWeek.length;
+  const totalTimeHours = logsThisWeek.reduce(
+    (acc, log) => acc + parseFloat(log.duration || 0),
+    0
+  );
 
   // 🟢 Weekly summary calculation
   useEffect(() => {

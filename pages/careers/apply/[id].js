@@ -28,7 +28,7 @@ export default function EditForm() {
                 applicantEmail: email,
                 answers: form.questions.map((q) => ({
                     questionLabel: q.label,
-                    answer: answers[q.label] || '',
+                    answer: answers[q._id] || '', // Changed to use _id here
                 })),
             });
             setMsg(res.status === 201 ? '✅ Submitted!' : '❌ Error');
@@ -63,68 +63,73 @@ export default function EditForm() {
                     </div>
 
                     {/* Dynamic questions */}
-                    {form.questions.map((q) => (
-                        <div key={q.label}>
-                            <label className="block mb-1 font-medium">{q.label}</label>
+                    {form.questions.map((q) => {
+                        const key = q._id; // Use _id as the key
+                        return (
+                            <div key={key}>
+                                <label className="block mb-1 font-medium">{q.label}</label>
 
-                            {q.type === 'short' && (
-                                <input
-                                    type="text"
-                                    placeholder="Type your answer..."
-                                    className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
-                                    value={answers[q.id] || ''}
-                                    onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                                {q.type === 'short' && (
+                                    <input
+                                        type="text"
+                                        placeholder="Type your answer..."
+                                        className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
+                                        value={answers[key] || ''}
+                                        onChange={(e) =>
+                                            setAnswers((prev) => ({ ...prev, [key]: e.target.value }))
+                                        }
+                                    />
+                                )}
 
-                                />
-                            )}
+                                {q.type === 'long' && (
+                                    <textarea
+                                        placeholder="Type your answer..."
+                                        className="w-full p-3 rounded-md bg-white/10 placeholder-white/60 resize-none"
+                                        value={answers[key] || ''}
+                                        onChange={(e) =>
+                                            setAnswers((prev) => ({ ...prev, [key]: e.target.value }))
+                                        }
+                                    />
+                                )}
 
-                            {q.type === 'long' && (
-                                <textarea
-                                    placeholder="Type your answer..."
-                                    className="w-full p-3 rounded-md bg-white/10 placeholder-white/60 resize-none"
-                                    value={answers[q.id] || ''}
-                                    onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                                {q.type === 'radio' && (
+                                    <div className="space-y-2 bg-white/5 p-3 rounded-md">
+                                        {q.options.map((opt) => (
+                                            <label
+                                                key={opt}
+                                                className={`flex items-center gap-3 cursor-pointer text-white/90 ${answers[key] === opt ? 'bg-white/10 px-2 py-1 rounded' : ''
+                                                    }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name={key}
+                                                    value={opt}
+                                                    className="accent-blue-500"
+                                                    checked={answers[key] === opt}
+                                                    onChange={() =>
+                                                        setAnswers((prev) => ({ ...prev, [key]: opt }))
+                                                    }
+                                                />
+                                                <span>{opt}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
 
-                                />
-                            )}
-
-                            {q.type === 'radio' && (
-                                <div className="space-y-2 bg-white/5 p-3 rounded-md">
-                                    {q.options.map((opt) => (
-                                        <label
-                                            key={opt}
-                                            className={`flex items-center gap-3 cursor-pointer text-white/90 ${answers[q.id] === opt ? 'bg-white/10 px-2 py-1 rounded' : ''
-                                                }`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name={q.id}  // use q.id, not q.label
-                                                value={opt}
-                                                className="accent-blue-500"
-                                                checked={answers[q.id] === opt}
-                                                onChange={() =>
-                                                    setAnswers((prev) => ({ ...prev, [q.id]: opt }))
-                                                }
-                                            />
-                                            <span>{opt}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            )}
-
-                            {q.type === 'number' && (
-                                <input
-                                    type="number"
-                                    placeholder="Type your answer..."
-                                    className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
-                                    value={answers[q.id] || ''}
-                                    onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
-
-                                />
-                            )}
-
-                        </div>
-                    ))}
+                                {q.type === 'number' && (
+                                    <input
+                                        type="number"
+                                        placeholder="Type your answer..."
+                                        className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
+                                        value={answers[key] || ''}
+                                        onChange={(e) =>
+                                            setAnswers((prev) => ({ ...prev, [key]: e.target.value }))
+                                        }
+                                    />
+                                )}
+                            </div>
+                        );
+                    })}
 
                     <button
                         type="submit"

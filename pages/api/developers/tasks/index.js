@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const { userId } = req.query;
   if (!userId) return res.status(400).json({ error: 'Missing userId' });
 
-  const data = await DeveloperTasks.findOne({ user: userId });
+  const data = await DeveloperTasks.find({ user: userId });
   if (!data) return res.status(404).json({ error: 'No tasks for user' });
 
   res.status(200).json(data.tasks);

@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,6 +27,7 @@ export default function Navbar() {
   const [players, setPlayers] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navRef = useRef(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -54,6 +55,21 @@ export default function Navbar() {
     fetchPlayers();
     const interval = setInterval(fetchPlayers, 30000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setOpenDropdown(null);
+        setMobileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const dropdowns = [
@@ -101,6 +117,8 @@ export default function Navbar() {
         { label: 'Manage Forms', href: '/admin/hiring' },
         { label: 'Leave Requests', href: '/admin/leave' },
         { label: 'Manage Routes', href: '/admin/routes' },
+        { label: 'Manage Operators', href: '/admin/operators' },
+        { label: 'Dev Tasks', href: '/admin/dev' },
       ],
     },
     {
@@ -111,7 +129,6 @@ export default function Navbar() {
         { label: 'Hiring', href: '/hub+/hiring' },
         { label: 'Contact Forms', href: '/hub+/contact/forms' },
         { label: 'Contact Emails', href: '/hub+/contact/emails' },
-        { label: 'Dev Assets', href: '/hub+/dev' },
         { label: 'Activity', href: '/hub+/activity' },
         { label: 'Infract', href: '/hub+/infract' },
         { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
@@ -130,7 +147,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 relative z-50">
+    <nav ref={navRef} className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 relative z-50">
       <div className="max-w-8xl mx-auto flex justify-between items-center">
         {/* Brand */}
         <div className="flex items-center gap-4">
@@ -290,6 +307,7 @@ function DropdownMenu({ dropdown, openDropdown, setOpenDropdown }) {
                 key={i}
                 href={item.href}
                 className="block px-4 py-2 hover:bg-black/20 transition"
+                onClick={() => setOpenDropdown(null)}
               >
                 {item.label}
               </Link>
