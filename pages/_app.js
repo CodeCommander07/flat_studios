@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/router";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function App({ Component, pageProps }) {
         {!shouldHideNavbar ? <Navbar role={user?.role} user={user?.username} /> : <div />}
         <main className="flex-1">
           <Component {...pageProps} />
+          <SpeedInsights/>
         </main>
         {!shouldHideNavbar ? <Footer /> : <div />}
       </div>

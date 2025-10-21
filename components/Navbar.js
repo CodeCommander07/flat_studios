@@ -25,6 +25,7 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState('User');
   const [players, setPlayers] = useState(null);
+  const [pages, setPages] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef(null);
@@ -51,8 +52,19 @@ export default function Navbar() {
       }
     };
 
+    const fetchPages = async () => {
+      try {
+        const res = await axios.get('/api/pages');
+        const publishedPages = res.data.filter(page => page.published);
+        setPages(publishedPages);
+      } catch (err) {
+        console.error('Failed to fetch pages:', err.message);
+      }
+    };
+
     fetchUser();
     fetchPlayers();
+    fetchPages();
     const interval = setInterval(fetchPlayers, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -77,13 +89,6 @@ export default function Navbar() {
       name: 'Public',
       items: [
         { label: 'Home', href: '/' },
-        { label: 'Disruptions', href: '/disruptions' },
-        { label: 'News', href: '/news' },
-        { label: 'Community', href: '/community' },
-        { label: 'Retailers', href: '/retailers' },
-        { label: 'Guides', href: '/guides' },
-        { label: 'Report', href: '/report' },
-        { label: 'Advertising', href: '/advertisment' },
       ],
     },
     {
@@ -120,7 +125,7 @@ export default function Navbar() {
         { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
       ],
     },
-        {
+    {
       name: 'Admin',
       roleKey: 'admin',
       items: [
@@ -132,6 +137,7 @@ export default function Navbar() {
         { label: 'Manage Routes', href: '/admin/routes' },
         { label: 'Manage Operators', href: '/admin/operators' },
         { label: 'Dev Tasks', href: '/admin/dev' },
+        { label: 'Page Editor', href: '/admin/pages' },
       ],
     },
     {
@@ -145,6 +151,23 @@ export default function Navbar() {
       ],
     },
   ];
+
+  // Add dynamic pages to Public dropdown
+  const publicDropdown = dropdowns.find(d => d.name === 'Public');
+  if (publicDropdown) {
+    // Add pages to public dropdown (avoid duplicates)
+    const existingLinks = new Set(publicDropdown.items.map(item => item.href));
+    pages.forEach(page => {
+      const pageHref = `/${page.slug}`;
+      if (!existingLinks.has(pageHref)) {
+        publicDropdown.items.push({
+          label: page.title,
+          href: pageHref
+        });
+        existingLinks.add(pageHref);
+      }
+    });
+  }
 
   return (
     <nav ref={navRef} className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 relative z-50">
@@ -173,7 +196,6 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-6">
           {dropdowns.map((dropdown, idx) => {
             if (dropdown.name === 'Public') {
-              if (user && role.toLowerCase() !== 'operator') return null;
               return (
                 <DropdownMenu
                   key={idx}
@@ -250,8 +272,7 @@ export default function Navbar() {
             className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4 overflow-hidden"
           >
             {dropdowns.map((dropdown, idx) => {
-              if (dropdown.name === 'Public' ) {
-                if (user && role.toLowerCase() !== 'operator') return null;
+              if (dropdown.name === 'Public') {
                 return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
               }
 

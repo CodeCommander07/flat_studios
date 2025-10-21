@@ -5,7 +5,7 @@ export default function YourComponent() {
 
   const handleLogout = () => {
     localStorage.removeItem('User');
-    router.push('/auth/login');
+    router.push('/');
   };
 
   return (
