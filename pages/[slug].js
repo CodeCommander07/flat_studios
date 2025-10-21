@@ -1,6 +1,7 @@
 // pages/pages/[slug].js
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ViewPage() {
   const router = useRouter()
@@ -67,6 +68,7 @@ export default function ViewPage() {
   return (
     <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-6 py-8">
+        <Breadcrumb />
         <article>
           <header className="mb-8">
             <h1 className="text-4xl font-bold text-white mb-4">

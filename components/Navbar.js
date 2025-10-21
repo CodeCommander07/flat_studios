@@ -89,6 +89,7 @@ export default function Navbar() {
       name: 'Public',
       items: [
         { label: 'Home', href: '/' },
+        { label: 'Blogs', href: '/blogs' },
       ],
     },
     {

@@ -175,7 +175,7 @@ export default function ScenariosPage() {
               <X className="w-6 h-6" />
             </button>
 
-            <h2 className="pt-2 md:pt-0 text-xl font-semibold mb-4">Moderation Guides</h2>
+            <h2 className="md:pt-0 text-xl font-semibold mb-4">Moderation Guides</h2>
             {tabs.map(tab => (
               <Link
                 key={tab.id}
@@ -193,13 +193,50 @@ export default function ScenariosPage() {
           </aside>
         </>
       )}
+      <section className="flex-1 p-6 md:pt-8 overflow-y-auto max-h-[calc(100vh-160px)] md:p-8">
+        {/* BREADCRUMB */}
+        <div className="mb-4">
+          <nav className="text-sm">
+            <div className="bg-white/5 border border-white/10 rounded-xl backdrop-blur-md px-4 py-2 text-gray-400 flex flex-wrap items-center gap-2">
+              <ol className="flex items-center flex-wrap gap-2">
+                <li>
+                  <Link href="/" className="text-blue-400 hover:text-blue-300 transition">
+                    Home
+                  </Link>
+                </li>
+                <span className="text-gray-500">/</span>
+                <li>
+                  <Link href="/guides" className="text-blue-400 hover:text-blue-300 transition">
+                    Guides
+                  </Link>
+                </li>
+                {selectedId && (
+                  <>
+                    <span className="text-gray-500">/</span>
+                    <li>
+                      <Link
+                        href={`?guideId=${selectedId}`}
+                        scroll={false}
+                        className="text-blue-400 hover:text-blue-300 transition"
+                      >
+                        {parentTab?.title || "Guide"}
+                      </Link>
+                    </li>
+                  </>
+                )}
+                {selectedTabId && (
+                  <>
+                    <span className="text-gray-500">/</span>
+                    <li className="text-white/80">
+                      {combinedTabs.find(t => t.id === selectedTabId)?.title || "Subsection"}
+                    </li>
+                  </>
+                )}
+              </ol>
+            </div>
+          </nav>
+        </div>
 
-      <section
-        className="
-          flex-1 p-6 pt-[72px] md:pt-8 overflow-y-auto max-h-[calc(100vh-160px)]
-          md:p-8
-        "
-      >
         {selectedId ? (
           <>
             {inTabs.length > 0 && parentTab && (
@@ -221,9 +258,9 @@ export default function ScenariosPage() {
                           ? 'rounded-lg bg-blue-900 text-white'
                           : 'text-white/70 hover:bg-blue-900 rounded-lg hover:text-white'
                         }`}
-                                        style={{
-                  width: `${100 / inTabs.length}%`,
-                }}
+                      style={{
+                        width: `${100 / inTabs.length}%`,
+                      }}
                     >
                       {subTab.title}
                     </Link>
