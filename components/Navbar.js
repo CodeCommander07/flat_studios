@@ -152,17 +152,19 @@ export default function Navbar() {
     },
   ];
 
-  // Add dynamic pages to Public dropdown
+  // Add dynamic pages to Public dropdown (excluding blog pages)
   const publicDropdown = dropdowns.find(d => d.name === 'Public');
   if (publicDropdown) {
-    // Add pages to public dropdown (avoid duplicates)
+    // Add pages to public dropdown (avoid duplicates and exclude blog pages)
     const existingLinks = new Set(publicDropdown.items.map(item => item.href));
     pages.forEach(page => {
       const pageHref = `/${page.slug}`;
-      if (!existingLinks.has(pageHref)) {
+      // Only add if not a blog page and not already in the dropdown
+      if (!page.isBlog && !existingLinks.has(pageHref)) {
         publicDropdown.items.push({
           label: page.title,
-          href: pageHref
+          href: pageHref,
+          blog: page.isBlog,
         });
         existingLinks.add(pageHref);
       }
