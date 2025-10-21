@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (req.method === 'PATCH') {
     const { status, denyReason } = req.body;
 
-    if (!['Denied', 'Accepted'].includes(status)) {
+    if (!['Denied', 'Accepted', 'Flagged'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status value.' });
     }
 
@@ -73,7 +73,18 @@ export default async function handler(req, res) {
           ? `<p style="margin-top:20px;font-size:14px;">Unfortunately, your appeal has been denied.<br>Reason:<br><div style="border: 1px solid black; padding: 8px; border-radius: 8px; margin-top: 8px;">
   ${denyReason || 'N/A'}
 </div></p>`
-          : (() => {
+          : status === 'Flagged'
+          ? `<p style="font-size: 16px; line-height: 1.5;">
+                    Unfortunately, your appeal has been flagged for further review by our staff team.
+                    <br><br>
+                    This means that we require additional time to thoroughly assess your appeal and make a final decision.
+                    <br><br>
+                    We appreciate your patience and understanding during this process. Our team is committed to ensuring that all appeals are handled fairly and with due diligence.
+                    <br><br>
+                    You will be notified of the final decision regarding your appeal as soon as possible.
+                    <br><br>
+                    Thank you for your cooperation.
+                  </p>` : (() => {
             // Create plain-text body with new lines encoded
             const mailBody = [
               'Hello,',
@@ -108,13 +119,13 @@ export default async function handler(req, res) {
   <table align="center" cellpadding="0" cellspacing="0" width="600" style="margin:20px auto;background-color:#ffffff;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1);overflow:hidden;">
     <tr>
       <td style="background-color:#283335;color:#fff;padding:20px;">
-        <h1 style="margin:0;font-size:20px;text-align:center;">Appeal Status <strong style="color:${status === 'Accepted' ? '#28a745' : '#dc3545'}">${status.toUpperCase()}</strong></h1>
+        <h1 style="margin:0;font-size:20px;text-align:center;">Appeal Status: <strong style="color:${status === 'Accepted' ? '#28a745' : status === 'Flagged' ? '#c97b32' : '#dc3545'}">${status.toUpperCase()}</strong></h1>
       </td>
     </tr>
     <tr>
       <td style="padding:20px;">
         <p style="font-size:16px;">Hello,</p>
-        <p style="font-size:16px;line-height:1.5;">Your appeal has been <strong style="color:${status === 'Accepted' ? '#28a745' : '#dc3545'};">${status.toUpperCase()}</strong>.</p>
+        <p style="font-size:16px;line-height:1.5;">Your appeal has been <strong style="color:${status === 'Accepted' ? '#28a745' : status === 'Flagged' ? '#c97b32' : '#dc3545'};">${status.toUpperCase()}</strong>.</p>
 
         <table style="width:100%;font-size:14px;margin-top:20px;margin-bottom:20px;">
           <tr ><td style="padding:8px 0;border-top:1px solid #eee;"><strong>Email:</strong></td><td style="padding:8px 0;border-top:1px solid #eee;"{appeal.email || '-'}</td></tr>

@@ -108,6 +108,19 @@ export default function Navbar() {
       ],
     },
     {
+      name: 'Hub+',
+      roleKey: 'hubPlus',
+      items: [
+        { label: 'Hub+', href: '/hub+/' },
+        { label: 'Hiring', href: '/hub+/hiring' },
+        { label: 'Contact Forms', href: '/hub+/contact/forms' },
+        { label: 'Contact Emails', href: '/hub+/contact/emails' },
+        { label: 'Activity', href: '/hub+/activity' },
+        { label: 'Infract', href: '/hub+/infract' },
+        { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
+      ],
+    },
+        {
       name: 'Admin',
       roleKey: 'admin',
       items: [
@@ -119,19 +132,6 @@ export default function Navbar() {
         { label: 'Manage Routes', href: '/admin/routes' },
         { label: 'Manage Operators', href: '/admin/operators' },
         { label: 'Dev Tasks', href: '/admin/dev' },
-      ],
-    },
-    {
-      name: 'Hub+',
-      roleKey: 'hubPlus',
-      items: [
-        { label: 'Hub+', href: '/hub+/' },
-        { label: 'Hiring', href: '/hub+/hiring' },
-        { label: 'Contact Forms', href: '/hub+/contact/forms' },
-        { label: 'Contact Emails', href: '/hub+/contact/emails' },
-        { label: 'Activity', href: '/hub+/activity' },
-        { label: 'Infract', href: '/hub+/infract' },
-        { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
       ],
     },
     {

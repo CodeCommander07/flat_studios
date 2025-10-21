@@ -7,26 +7,26 @@ import Link from 'next/link';
 export default function ViewApplication() {
     const params = useParams();
 
-    if (!params || !params.id) {
+    if (!params || !params.appId) {
         return <p className="text-center text-white">Loading...</p>;
     }
 
-    const { id } = params;
+    const { appId } = params;
   const [app, setApp] = useState(null);
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    if (!appId) return;
 
 
     const fetchData = async () => {
       try {
-        const appRes = await axios.get(`/api/careers/applications/?id=${id}`);
+        const appRes = await axios.get(`/api/careers/applications/?id=${appId}`);
         const subsRes = await axios.get('/api/careers/submissions');
 
         setApp(appRes.data);
-        setSubs(subsRes.data.filter((s) => s.applicationId?._id === id));
+        setSubs(subsRes.data.filter((s) => s.applicationId?._id === appId));
       } catch (err) {
         console.error('Error fetching application:', err);
       } finally {
@@ -129,7 +129,7 @@ export default function ViewApplication() {
                   </span>
 
                   <Link
-                    href={`/hub+/hiring/${id}/${s._id}`}
+                    href={`/hub+/hiring/${appId}/${s._id}`}
                     className="block text-center bg-white/10 hover:bg-white/20 transition text-sm font-medium py-2 rounded-md"
                   >
                     Manage

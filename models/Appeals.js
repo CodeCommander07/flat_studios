@@ -16,7 +16,7 @@ const AppealSchema = new mongoose.Schema({
   banReason: String,
   unbanReason: String,
   staffMember: String,
-  status: { type: String, enum: ['Pending', 'Accepted', 'Denied'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Accepted', 'Denied', 'Flagged'], default: 'Pending' },
   notes: [NoteSchema], // NEW: store notes here
   denyReason: String,
 });
