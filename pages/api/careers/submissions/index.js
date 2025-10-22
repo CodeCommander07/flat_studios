@@ -74,7 +74,7 @@ export default async function handler(req, res) {
       if (status === 'denied') {
         sub.notes.push({
           staffMember: '68f94e6aea94abc88941a751',
-          noteText: `Auto-denied on ${new Date().toLocaleString()} — ${deniedReason}`,
+          noteText: deniedReason,
           status: 'denied',
           system: true,
         });
