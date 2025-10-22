@@ -30,7 +30,7 @@ export default function ReturnedTasksPage() {
                   <h2 className="font-semibold text-lg">{task.taskName}</h2>
                   <p className="text-sm text-white/60">{task.taskDescription}</p>
                   <p className="text-xs mt-1">
-                    Assigned to <strong>{task.userName}</strong> • Returned on {new Date(task.updatedAt).toLocaleDateString()}
+                    Assigned to <strong>{task.userName}</strong> • Returned on {new Date(task.updatedAt).toLocaleDateString('en-UK')}
                   </p>
                 </div>
                 <a

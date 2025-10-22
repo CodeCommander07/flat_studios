@@ -113,7 +113,7 @@ export default function Dashboard() {
                           {notice.title}
                         </h5>
                         <span className={`text-sm font-semibold ${iconColorClass(notice.type)} px-2 py-0.5 rounded-md select-none animate-flash`}>
-                          <strong>{new Date(notice.date).toLocaleDateString()}</strong>
+                          <strong>{new Date(notice.date).toLocaleDateString('en-UK')}</strong>
                         </span>
                       </div>
                       <p className="text-white/80 whitespace-pre-wrap">{notice.content}</p>
@@ -175,7 +175,7 @@ export default function Dashboard() {
 
             <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl">
               <div className="flex items-center gap-4 mb-4">
-                <a href='/admin/appeals'><Sparkles className="w-6 h-6 text-red-300" /></a>
+                <a href='/admin/hiring'><Sparkles className="w-6 h-6 text-red-300" /></a>
                 <h2 className="text-xl font-semibold">Applications</h2>
               </div>
               <p className="text-4xl font-bold text-red-300">{stats?.applications || 0}</p>

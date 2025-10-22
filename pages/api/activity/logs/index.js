@@ -94,7 +94,7 @@ export default async function handler(req, res) {
             An activity log has been submitted with the following details:
           </p>
           <table cellpadding="6" cellspacing="0" width="100%" style="font-size: 16px; line-height: 1.6;">
-            <tr><td><strong>Date</strong></td><td>${new Date(newLog.date).toLocaleDateString()}</td></tr>
+            <tr><td><strong>Date</strong></td><td>${new Date(newLog.date).toLocaleDateString('en-UK')}</td></tr>
             <tr><td><strong>Time Joined</strong></td><td>${newLog.timeJoined}</td></tr>
             <tr><td><strong>Time Left</strong></td><td>${newLog.timeLeft}</td></tr>
             <tr><td><strong>Duration</strong></td><td>${newLog.duration}</td></tr>

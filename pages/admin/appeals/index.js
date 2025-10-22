@@ -58,7 +58,7 @@ export default function AppealsListPage() {
                         <td className="p-2">{a.email}</td>
                         <td className="p-2">{a.DiscordUsername}</td>
                         <td className="p-2">{a.RobloxUsername}</td>
-                        <td className="p-2">{new Date(a.banDate).toLocaleDateString()}</td>
+                        <td className="p-2">{new Date(a.banDate).toLocaleDateString('en-UK')}</td>
                         <td className="p-2">
                           <button
                             onClick={() => router.push(`/admin/appeals/${a._id}`)}

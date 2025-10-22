@@ -31,11 +31,15 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
     zIndex: isDragging ? 50 : 1,
   };
 
+  const handleAutoDenyChange = (field, value) => {
+    onChange(index, { ...question, [field]: value });
+  };
+
   return (
     <li
       ref={setNodeRef}
       style={style}
-      className="flex flex-col gap-2 p-3 rounded-lg cursor-default select-none"
+      className="flex flex-col gap-3 p-3 rounded-lg cursor-default select-none"
     >
       <div className="flex justify-between items-center">
         <div
@@ -54,12 +58,15 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
         </button>
       </div>
 
+      {/* Question Label */}
       <input
         value={question.label}
         onChange={(e) => onChange(index, { ...question, label: e.target.value })}
+        placeholder="Question Label"
         className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
       />
 
+      {/* Type Selector */}
       <select
         value={question.type}
         onChange={(e) =>
@@ -72,12 +79,13 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
         }
         className="w-full p-2 rounded-md bg-white/10 text-white"
       >
-        <option className='bg-black text-white' value="short">Short Answer</option>
-        <option className='bg-black text-white' value="long">Long Answer</option>
-        <option className='bg-black text-white' value="radio">Multiple Choice</option>
-        <option className='bg-black text-white' value="number">Number Option</option>
+        <option className="bg-black text-white" value="short">Short Answer</option>
+        <option className="bg-black text-white" value="long">Long Answer</option>
+        <option className="bg-black text-white" value="radio">Multiple Choice</option>
+        <option className="bg-black text-white" value="number">Number Option</option>
       </select>
 
+      {/* Multiple Choice Options */}
       {question.type === 'radio' && (
         <div className="space-y-1">
           {question.options?.map((opt, i) => (
@@ -106,9 +114,45 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
           </button>
         </div>
       )}
+
+      {/* ✅ Auto Deny Controls */}
+      <div className="mt-2 border-t border-white/10 pt-2 space-y-2">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={question.autoDeny || false}
+            onChange={(e) => handleAutoDenyChange('autoDeny', e.target.checked)}
+          />
+          <span className="text-sm text-white/80">Enable Auto Deny</span>
+        </label>
+
+        {question.autoDeny && (
+          <input
+            type="text"
+            value={
+              Array.isArray(question.acceptedAnswers)
+                ? question.acceptedAnswers.join(', ')
+                : (question.acceptedAnswers || '')
+            }
+            onChange={(e) =>
+              handleAutoDenyChange(
+                'acceptedAnswers',
+                e.target.value
+                  .split(',')
+                  .map((a) => a.trim())
+                  .filter(Boolean)
+              )
+            }
+            placeholder="Accepted answers (comma-separated)"
+            className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+          />
+        )}
+      </div>
+
     </li>
   );
 }
+
 
 export default function EditForm() {
   const params = useParams();

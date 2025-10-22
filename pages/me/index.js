@@ -170,7 +170,7 @@ const handleRobloxConnect = () => {
             </div>
             <div className="text-white/90">
               <span className="font-semibold">Joined:</span>{' '}
-              {new Date(user.createdAt).toLocaleDateString()}
+              {new Date(user.createdAt).toLocaleDateString('en-UK')}
             </div>
             <div className="text-white/90">
               <span className="font-semibold">Newsletter:</span>{' '}

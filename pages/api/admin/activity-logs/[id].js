@@ -126,7 +126,7 @@ async function sendActivityEmail({ user, activity, subject, type }) {
             An activity log ${actionText} with the following details:
           </p>
           <table cellpadding="6" cellspacing="0" width="100%" style="font-size: 16px; line-height: 1.6;">
-            <tr><td><strong>Date</strong></td><td>${new Date(activity.date).toLocaleDateString()}</td></tr>
+            <tr><td><strong>Date</strong></td><td>${new Date(activity.date).toLocaleDateString('en-UK')}</td></tr>
             <tr><td><strong>Time Joined</strong></td><td>${activity.timeJoined}</td></tr>
             <tr><td><strong>Time Left</strong></td><td>${activity.timeLeft}</td></tr>
             <tr><td><strong>Description</strong></td><td>${activity.duration}</td></tr>

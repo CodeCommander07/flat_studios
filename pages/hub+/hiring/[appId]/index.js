@@ -35,7 +35,7 @@ export default function ViewApplication() {
     };
 
     fetchData();
-  }, [id]);
+  }, [appId]);
 
   const getColorClasses = (status) => {
     switch (status) {

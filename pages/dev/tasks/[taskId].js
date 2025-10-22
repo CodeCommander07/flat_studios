@@ -104,7 +104,7 @@ export default function TaskDetailPage() {
             >
                 <div className="bg-white/10 border border-white/20 rounded-2xl px-4 py-2 shadow-md">
                     <span className="text-red-400 font-semibold text-sm">
-                        Due: {new Date(task.dueDate).toLocaleDateString()}
+                        Due: {new Date(task.dueDate).toLocaleDateString('en-UK')}
                     </span>
                 </div>
                 <h1 className="text-2xl font-bold text-blue-400">{task.taskName}</h1>
@@ -136,9 +136,9 @@ export default function TaskDetailPage() {
                         </p>
                         <div className="mt-4 flex flex-wrap gap-4 text-sm text-white/70">
                             <span>Priority: <span className="font-semibold text-white">{task.priority}</span></span>
-                            <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
+                            <span>Created: {new Date(task.createdAt).toLocaleDateString('en-UK')}</span>
                             {task.completedAt && (
-                                <span>Completed: {new Date(task.completedAt).toLocaleDateString()}</span>
+                                <span>Completed: {new Date(task.completedAt).toLocaleDateString('en-UK')}</span>
                             )}
                         </div>
                     </motion.div>

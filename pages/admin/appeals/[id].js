@@ -184,8 +184,8 @@ export default function AppealDetailPage() {
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
                             <p><strong>Staff Member:</strong> {appeal.staffMember}</p>
-                            <p><strong>Ban Date:</strong> {new Date(appeal.banDate).toLocaleDateString()}</p>
-                            <p><strong>Appeal Date:</strong> {new Date(appeal.createdAt).toLocaleDateString()}</p>
+                            <p><strong>Ban Date:</strong> {new Date(appeal.banDate).toLocaleDateString('en-UK')}</p>
+                            <p><strong>Appeal Date:</strong> {new Date(appeal.createdAt).toLocaleDateString('en-UK')}</p>
                         </div>
 
                         <div className="mt-4">

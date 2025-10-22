@@ -167,7 +167,7 @@ export default function AdminLeaveDashboard() {
                   {leave.approvedBy && (
                     <p className="text-xs text-white/50 italic">
                       Decided by: {leave.approvedBy} on{' '}
-                      {new Date(leave.decisionDate).toLocaleDateString()}
+                      {new Date(leave.decisionDate).toLocaleDateString('en-UK')}
                     </p>
                   )}
 

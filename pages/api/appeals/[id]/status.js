@@ -137,7 +137,7 @@ export default async function handler(req, res) {
         <h3 style="margin-top:30px;font-size:16px;">Ban Details:</h3>
         <table style="width:100%;font-size:14px;border-spacing:0;border-collapse:collapse;">
           <tr><td><strong>Ban Date:</strong></td></tr>
-          <tr><td>${new Date(appeal.banDate).toLocaleDateString()}</td></tr>
+          <tr><td>${new Date(appeal.banDate).toLocaleDateString('en-UK')}</td></tr>
           <tr><td><strong>Ban Reason:</strong></td></tr>
           <tr><td>${appeal.banReason || '-'}</td></tr>
           <tr><td style="padding:8px 0; border-top:1px solid #eee;"><strong>Unban Justification:</strong></td></tr>

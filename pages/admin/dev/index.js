@@ -161,7 +161,7 @@ export default function AdminDevTasks() {
                         className="border-t border-white/10 hover:bg-white/5 transition"
                       >
                         <td className="py-3 px-6">
-                          {new Date(task.dueDate).toLocaleDateString()}
+                          {new Date(task.dueDate).toLocaleDateString('en-UK')}
                         </td>
                         <td className="py-3 px-6 font-medium">
                           <a href={`/dev/tasks/${task.taskId}`} className="hover:underline">

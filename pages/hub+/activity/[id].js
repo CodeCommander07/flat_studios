@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 
 function formatDate(dateStr) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString(); // date only
+  return d.toLocaleDateString('en-UK'); // date only
 }
 
 function formatDuration(startTime, endTime) {

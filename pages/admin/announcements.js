@@ -142,7 +142,7 @@ export default function AnnouncementsPage() {
                                                 {notice.title}
                                             </h5>
                                             <span className={`text-sm font-semibold ${typeStyles[notice.type]?.color}`}>
-                                                {new Date(notice.date).toLocaleDateString()}
+                                                {new Date(notice.date).toLocaleDateString('en-UK')}
                                             </span>
                                         </div>
                                         <p className="text-white/80 whitespace-pre-wrap">{notice.content}</p>

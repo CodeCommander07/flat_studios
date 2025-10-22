@@ -226,7 +226,7 @@ export default function Dashboard() {
                           {notice.title}
                         </h5>
                         <span className="text-sm font-semibold text-white/70">
-                          {new Date(notice.date).toLocaleDateString()}
+                          {new Date(notice.date).toLocaleDateString('en-UK')}
                         </span>
                       </div>
                       <p className="text-white/80 whitespace-pre-wrap">{notice.content}</p>
@@ -296,7 +296,7 @@ export default function Dashboard() {
                     .map((log) => (
                       <li key={log._id} className="flex justify-between items-center">
                         <span>
-                          <span className="font-semibold">{new Date(log.date).toLocaleDateString()}:</span>{' '}
+                          <span className="font-semibold">{new Date(log.date).toLocaleDateString('en-UK')}:</span>{' '}
                           {log.duration}h Shift ({log.description})
                         </span>
                         <span className="text-green-400 text-xs">✅ Logged</span>
@@ -329,8 +329,8 @@ export default function Dashboard() {
                       <li key={leave._id} className="flex justify-between items-center">
                         <span>
                           <span className="font-semibold">
-                            {new Date(leave.startDate).toLocaleDateString()} –{' '}
-                            {new Date(leave.endDate).toLocaleDateString()}:
+                            {new Date(leave.startDate).toLocaleDateString('en-UK')} –{' '}
+                            {new Date(leave.endDate).toLocaleDateString('en-UK')}:
                           </span>{' '}
                           {leave.type}
                         </span>

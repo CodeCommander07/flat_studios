@@ -73,7 +73,7 @@ export default async function handler(req, res) {
           </p>
 
           <p style="font-size: 16px; line-height: 1.6;">
-            <strong>Leave period:</strong> ${new Date(leave.startDate).toLocaleDateString()} to ${new Date(leave.endDate).toLocaleDateString()}<br>
+            <strong>Leave period:</strong> ${new Date(leave.startDate).toLocaleDateString('en-UK')} to ${new Date(leave.endDate).toLocaleDateString('en-UK')}<br>
             <strong>Reason:</strong> ${leave.reason}
           </p>
 

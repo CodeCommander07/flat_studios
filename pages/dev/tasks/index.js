@@ -61,7 +61,7 @@ export default function AllTasksPage() {
                 </div>
                 <div className="text-sm text-white/70">
                   Assigned to: <span className="font-semibold">{task.userName}</span> ({task.userEmail})<br />
-                  Due: {new Date(task.dueDate).toLocaleDateString()}
+                  Due: {new Date(task.dueDate).toLocaleDateString('en-UK')}
                 </div>
               </div>
             </a>
