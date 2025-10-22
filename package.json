@@ -24,6 +24,7 @@
     "formidable-serverless": "^1.1.1",
     "framer-motion": "^12.23.0",
     "fs": "^0.0.1-security",
+    "googleapis": "^164.1.0",
     "imap": "^0.8.17",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.525.0",
