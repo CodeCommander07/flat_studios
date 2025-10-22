@@ -22,6 +22,16 @@ export default async function handler(req, res) {
         }));
       }
 
+      // --- 🧩 Normalize Requirements ---
+      if (typeof data.requirements === 'string') {
+        // Trim extra whitespace and normalize line breaks
+        data.requirements = data.requirements
+          .split('\n')
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0)
+          .join('\n');
+      }
+
       const updatedForm = await ApplicationForm.findByIdAndUpdate(
         id,
         data,

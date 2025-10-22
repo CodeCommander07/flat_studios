@@ -153,7 +153,6 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
   );
 }
 
-
 export default function EditForm() {
   const params = useParams();
   const { id } = params || {};
@@ -161,11 +160,34 @@ export default function EditForm() {
   const [form, setForm] = useState(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [requirements, setRequirements] = useState('');
   const [status, setStatus] = useState(true);
   const [qLabel, setQLabel] = useState('');
   const [qType, setQType] = useState('short');
   const [qOptions, setQOptions] = useState(['']);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false); const [showDescModal, setShowDescModal] = useState(false);
+  const [showReqModal, setShowReqModal] = useState(false);
+  const [tempDesc, setTempDesc] = useState('');
+  const [tempReq, setTempReq] = useState('');
+  const [appCount, setAppCount] = useState(null);
+
+  useEffect(() => {
+    if (showDescModal) setTempDesc(description);
+    if (showReqModal) setTempReq(requirements);
+  }, [showDescModal, showReqModal]);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await axios.get('/api/careers/submissions');
+        setAppCount(res.data.length || 0);
+      } catch (err) {
+        console.error('Failed to fetch applications count:', err);
+        setAppCount(0);
+      }
+    };
+    fetchCount();
+  }, []);
 
   // Load the form
   useEffect(() => {
@@ -180,6 +202,7 @@ export default function EditForm() {
       setForm(data);
       setTitle(data.title);
       setDescription(data.description);
+      setRequirements(data.requirements);
       setStatus(data.open);
     });
   }, [id]);
@@ -241,6 +264,10 @@ export default function EditForm() {
     const data = { ...form, description };
     await saveForm(data);
   };
+  const updateRequirements = async () => {
+    const data = { ...form, requirements };
+    await saveForm(data);
+  };
 
   // ✅ Drag and drop reorder handler
   const handleDragEnd = (event) => {
@@ -260,67 +287,79 @@ export default function EditForm() {
 
   return (
     <AuthWrapper requiredRole="admin">
-      <main className="max-w-6xl mx-auto px-4 py-10 text-white grid grid-cols-1 md:grid-cols-2 gap-6">
+      <main className="max-w-8xl mx-auto px-4 py-10 text-white grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* LEFT COLUMN */}
+        {/* MIDDLE COLUMN — Edit Role Info */}
         <div className="space-y-6">
-          <div className="glass p-6 rounded-2xl shadow-lg">
-            <h2 className="text-xl font-bold mb-2">Edit Role Title</h2>
+          {/* Title (still inline editable) */}
+          <div className="glass p-4 rounded-2xl shadow-lg flex items-center justify-between">
+            <h2 className="text-xl font-bold p-2">Title:</h2>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={updateTitle}
-              className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+              placeholder="Enter title..."
+              className="bg-white/10 rounded-md p-2 text-white w-[95%] focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>
 
-          <div className="glass p-6 rounded-2xl shadow-lg">
-            <h2 className="text-xl font-bold mb-2">Edit Role Description</h2>
-            <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onBlur={updateDescription}
-              className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
-            />
+
+          {/* Description (modal-based) */}
+          <div
+            className="glass p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-white/10 transition relative"
+            onClick={() => setShowDescModal(true)}
+          >
+            <h2 className="text-xl font-bold mb-2">Description</h2>
+            <p className="text-gray-300 truncate">{description || 'Click to add description...'}</p>
+          </div>
+
+          {/* Requirements (modal-based) */}
+          <div
+            className="glass p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-white/10 transition relative"
+            onClick={() => setShowReqModal(true)}
+          >
+            <h2 className="text-xl font-bold mb-2">Requirements</h2>
+            <p className="text-gray-300 truncate whitespace-nowrap overflow-hidden text-ellipsis">
+              {requirements || 'Click to add requirements...'}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Status Box */}
-            <div className="glass p-6 rounded-2xl shadow-lg flex flex-col justify-between">
-              <div>
-                <h2 className="text-xl font-bold mb-2">Status</h2>
-                <div className="flex gap-2 items-center">
-                  <button
-                    onClick={() => toggleStatus(true)}
-                    disabled={status}
-                    className="bg-green-700 hover:bg-green-800 px-7 py-4 rounded-md text-sm disabled:opacity-50"
-                  >
-                    {status ? 'Opened' : 'Open'}
-                  </button>
-                  <button
-                    onClick={() => toggleStatus(false)}
-                    disabled={!status}
-                    className="bg-red-700 hover:bg-red-800 px-8 py-4 rounded-md text-sm disabled:opacity-50"
-                  >
-                    {status ? 'Closed' : 'Close'}
-                  </button>
-                </div>
+            <div className="glass p-4 rounded-2xl shadow-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold">Status:</h2>
+                <span
+                  className={`font-semibold ${status ? 'text-green-400' : 'text-red-400'
+                    }`}
+                >
+                  {status ? 'Opened' : 'Closed'}
+                </span>
               </div>
-            </div>
 
-            {/* View Applications Box */}
-            <div className="glass p-6 rounded-2xl shadow-lg flex flex-col justify-between">
-              <h2 className="text-xl font-bold mb-4 text-center">Applications</h2>
               <button
-                onClick={() => window.open(`/hub+/hiring/`, '_blank')}
-                className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm transition"
+                onClick={() => toggleStatus(!status)}
+                disabled={saving}
+                className="text-blue-400 hover:text-blue-500 text-sm transition disabled:opacity-50"
               >
-                View Applications
+                {status ? 'Click to close' : 'Click to open'}
               </button>
             </div>
+
+
+            <div className="glass p-4 rounded-2xl shadow-lg flex items-center justify-between">
+              <h2 className="text-xl font-bold">Applications</h2>
+              <button
+                onClick={() => window.open(`/hub+/hiring/`, '_blank')}
+                className="text-blue-400 hover:text-blue-500 text-sm transition"
+              >
+                View {appCount ?? '...'} Applications
+              </button>
+            </div>
+
+
           </div>
 
-
-          {/* Add Question */}
+          {/* Add Question Section (unchanged) */}
           <div className="glass p-6 rounded-2xl shadow-lg space-y-2">
             <h2 className="text-xl font-bold mb-2">Add Question</h2>
             <input
@@ -336,10 +375,10 @@ export default function EditForm() {
               onChange={(e) => setQType(e.target.value)}
               disabled={saving}
             >
-              <option className='bg-black text-white' value="short">Short Answer</option>
-              <option className='bg-black text-white' value="long">Long Answer</option>
-              <option className='bg-black text-white' value="radio">Multiple Choice</option>
-              <option className='bg-black text-white' value="number">Number Option</option>
+              <option className="bg-black text-white" value="short">Short Answer</option>
+              <option className="bg-black text-white" value="long">Long Answer</option>
+              <option className="bg-black text-white" value="radio">Multiple Choice</option>
+              <option className="bg-black text-white" value="number">Number Option</option>
             </select>
 
             {qType === 'radio' && (
@@ -351,9 +390,7 @@ export default function EditForm() {
                     value={opt}
                     onChange={(e) =>
                       setQOptions((prev) =>
-                        prev.map((v, idx) =>
-                          idx === i ? e.target.value : v
-                        )
+                        prev.map((v, idx) => (idx === i ? e.target.value : v))
                       )
                     }
                     className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
@@ -378,7 +415,6 @@ export default function EditForm() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN - DnD */}
         <div className="glass p-6 rounded-2xl shadow-lg">
           <h2 className="text-xl font-bold mb-2">Questions</h2>
           <div className="max-h-[600px] overflow-y-auto overscroll-contain">
@@ -402,6 +438,70 @@ export default function EditForm() {
             </DndContext>
           </div>
         </div>
+
+        {showDescModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="glass p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
+              <h2 className="text-xl font-bold mb-4">Edit Description</h2>
+              <textarea
+                value={tempDesc}
+                onChange={(e) => setTempDesc(e.target.value)}
+                rows={6}
+                className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 mb-4"
+              ></textarea>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDescModal(false)}
+                  className="px-4 py-2 bg-gray-600 rounded-md hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setDescription(tempDesc);
+                    await updateDescription();
+                    setShowDescModal(false);
+                  }}
+                  className="px-4 py-2 bg-blue-600 rounded-md hover:bg-blue-700"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showReqModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="glass p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
+              <h2 className="text-xl font-bold mb-4">Edit Requirements</h2>
+              <textarea
+                value={tempReq}
+                onChange={(e) => setTempReq(e.target.value)}
+                rows={6}
+                className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 mb-4"
+              ></textarea>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowReqModal(false)}
+                  className="px-4 py-2 bg-gray-600 rounded-md hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setRequirements(tempReq);
+                    await updateRequirements();
+                    setShowReqModal(false);
+                  }}
+                  className="px-4 py-2 bg-blue-600 rounded-md hover:bg-blue-700"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <style jsx>{`
           .glass {

@@ -3,159 +3,178 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 
-export default function EditForm() {
+export default function ApplicationView() {
     const params = useParams();
+    const { id } = params || {};
 
-    if (!params || !params.id) {
-        return <p className="text-center text-white">Loading...</p>;
-    }
-
-    const { id } = params;
     const [form, setForm] = useState(null);
-    const [answers, setAnswers] = useState({});
-    const [email, setEmail] = useState('');
-    const [msg, setMsg] = useState('');
+    const [answers, setAnswers] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
-        axios.get(`/api/careers/applications/${id}`).then((r) => setForm(r.data));
+        if (!id) return;
+        axios.get(`/api/careers/applications/${id}`).then((res) => setForm(res.data));
     }, [id]);
 
-    const submit = async (e) => {
-        e.preventDefault();
+    const handleAnswerChange = (questionId, value) => {
+        setAnswers((prev) => {
+            const existing = prev.find((a) => a.questionId === questionId);
+            if (existing) {
+                return prev.map((a) =>
+                    a.questionId === questionId ? { ...a, answer: value } : a
+                );
+            }
+            return [...prev, { questionId, answer: value }];
+        });
+    };
+
+    const handleSubmit = async () => {
+        if (!form) return;
+        setSubmitting(true);
         try {
-            const res = await axios.post('/api/careers/submissions', {
-                applicationId: id,
-                applicantEmail: email,
-                answers: form.questions.map((q) => ({
-                    questionLabel: q.label,
-                    answer: answers[q._id] || '', // Changed to use _id here
-                })),
+            await axios.post('/api/careers/submissions', {
+                applicationId: form._id,
+                answers,
             });
-            setMsg(res.status === 201 ? '✅ Submitted!' : '❌ Error');
-            setAnswers({});
-            setEmail('');
+            alert('Application submitted!');
         } catch (err) {
-            console.error(err);
-            setMsg('❌ Submission failed.');
+            console.error('Submit failed:', err);
+            alert('Something went wrong while submitting.');
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    if (!form) return <p className="text-center text-white">Loading...</p>;
+    if (!form) return <p className="text-center text-white mt-10">Loading...</p>;
 
     return (
-        <main className="max-w-2xl mx-auto px-4 py-10 text-white">
-            <div className="glass p-6 rounded-2xl shadow-lg space-y-6">
-                <h1 className="text-3xl font-bold">{form.title}</h1>
-                <p className="text-white/70">{form.description}</p>
+        <main className="max-w-7xl mx-auto px-4 py-10 text-white grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-8 min-h-[700px]">
+            {/* LEFT — Details */}
+            <div className="glass p-6 rounded-2xl shadow-lg min-h-[700px] h-fit lg:sticky lg:top-8 space-y-4">
+                <h1 className="text-3xl font-bold mb-2">{form.title}</h1>
+                <p className="text-gray-300">{form.description}</p>
 
-                <form onSubmit={submit} className="space-y-6">
-                    {/* Email field */}
+                {form.requirements && (
                     <div>
-                        <label className="block text-sm mb-1">Your Email</label>
-                        <input
-                            type="email"
-                            required
-                            placeholder="you@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
-                        />
+                        <h2 className="text-lg font-semibold mt-4 mb-2">Requirements</h2>
+                        <ul className="list-disc list-inside text-gray-400 space-y-1">
+                            {form.requirements.split('\n').map((req, i) => (
+                                <li key={i}>{req}</li>
+                            ))}
+                        </ul>
                     </div>
+                )}
 
-                    {/* Dynamic questions */}
-                    {form.questions.map((q) => {
-                        const key = q._id; // Use _id as the key
-                        return (
-                            <div key={key}>
-                                <label className="block mb-1 font-medium">{q.label}</label>
+                <div className="pt-4 mt-6 border-t border-white/10 text-center">
+                    <span
+                        className={`inline-block px-3 py-1 rounded-md text-sm font-semibold ${form.open ? 'bg-green-700' : 'bg-red-700'
+                            }`}
+                    >
+                        {form.open ? 'Open for Applications' : 'Closed'}
+                    </span>
+                </div>
+            </div>
+
+            {/* RIGHT — Questions Panel */}
+            <div className="glass p-6 rounded-2xl shadow-lg flex flex-col relative min-h-[700px] max-h-[700px]">
+                <h2 className="text-xl font-bold mb-4">Application Form</h2>
+
+                {/* Scrollable Questions */}
+                <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+                    {form.questions && form.questions.length > 0 ? (
+                        form.questions.map((q) => (
+                            <div key={q.id || q._id} className="space-y-2">
+                                <label className="block mb-1 font-medium">
+                                    {q.label}{' '}
+                                    <span className="text-sm text-gray-400">
+                                        ({q.type})
+                                    </span>
+                                </label>
 
                                 {q.type === 'short' && (
                                     <input
                                         type="text"
-                                        placeholder="Type your answer..."
-                                        className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
-                                        value={answers[key] || ''}
                                         onChange={(e) =>
-                                            setAnswers((prev) => ({ ...prev, [key]: e.target.value }))
+                                            handleAnswerChange(q.id || q._id, e.target.value)
                                         }
+                                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                                        placeholder="Your answer"
                                     />
                                 )}
 
                                 {q.type === 'long' && (
                                     <textarea
-                                        placeholder="Type your answer..."
-                                        className="w-full p-3 rounded-md bg-white/10 placeholder-white/60 resize-none"
-                                        value={answers[key] || ''}
+                                        rows={3}
                                         onChange={(e) =>
-                                            setAnswers((prev) => ({ ...prev, [key]: e.target.value }))
+                                            handleAnswerChange(q.id || q._id, e.target.value)
                                         }
-                                    />
-                                )}
-
-                                {q.type === 'radio' && (
-                                    <div className="space-y-2 bg-white/5 p-3 rounded-md">
-                                        {q.options.map((opt) => (
-                                            <label
-                                                key={opt}
-                                                className={`flex items-center gap-3 cursor-pointer text-white/90 ${answers[key] === opt ? 'bg-white/10 px-2 py-1 rounded' : ''
-                                                    }`}
-                                            >
-                                                <input
-                                                    type="radio"
-                                                    name={key}
-                                                    value={opt}
-                                                    className="accent-blue-500"
-                                                    checked={answers[key] === opt}
-                                                    onChange={() =>
-                                                        setAnswers((prev) => ({ ...prev, [key]: opt }))
-                                                    }
-                                                />
-                                                <span>{opt}</span>
-                                            </label>
-                                        ))}
-                                    </div>
+                                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                                        placeholder="Your detailed answer"
+                                    ></textarea>
                                 )}
 
                                 {q.type === 'number' && (
                                     <input
                                         type="number"
-                                        placeholder="Type your answer..."
-                                        className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
-                                        value={answers[key] || ''}
                                         onChange={(e) =>
-                                            setAnswers((prev) => ({ ...prev, [key]: e.target.value }))
+                                            handleAnswerChange(q.id || q._id, e.target.value)
                                         }
+                                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                                        placeholder="Enter a number"
                                     />
                                 )}
+
+                                {q.type === 'radio' && (
+                                    <div className="space-y-1">
+                                        {q.options?.map((opt, i) => (
+                                            <label
+                                                key={i}
+                                                className="flex items-center gap-2 text-gray-300 cursor-pointer"
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name={q.id || q._id}
+                                                    value={opt}
+                                                    onChange={(e) =>
+                                                        handleAnswerChange(q.id || q._id, e.target.value)
+                                                    }
+                                                />
+                                                {opt}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        );
-                    })}
+                        ))
+                    ) : (
+                        <p className="text-gray-400">No questions have been added yet.</p>
+                    )}
+                </div>
 
+                {/* Fixed Submit Button */}
+                <div className="pt-4 sticky bottom-0 left-0 right-0 bg-black/30 backdrop-blur-md border-t border-white/10 mt-4">
                     <button
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-md font-semibold"
-                    >
-                        Submit Application
-                    </button>
-                </form>
-
-                {msg && (
-                    <p
-                        className={`mt-4 font-medium ${msg.startsWith('✅') ? 'text-green-400' : 'text-red-400'
+                        onClick={handleSubmit}
+                        disabled={submitting || !form.open}
+                        className={`w-full py-3 rounded-md font-semibold transition ${form.open
+                                ? 'bg-blue-600 hover:bg-blue-700'
+                                : 'bg-gray-600 cursor-not-allowed'
                             }`}
                     >
-                        {msg}
-                    </p>
-                )}
+                        {submitting ? 'Submitting...' : 'Submit Application'}
+                    </button>
+                </div>
             </div>
 
-            {/* Glassmorphism styling */}
             <style jsx>{`
         .glass {
           background: rgba(255, 255, 255, 0.05);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
         </main>
