@@ -163,7 +163,11 @@ export default function AdminDevTasks() {
                         <td className="py-3 px-6">
                           {new Date(task.dueDate).toLocaleDateString()}
                         </td>
-                        <td className="py-3 px-6 font-medium">{task.taskName}</td>
+                        <td className="py-3 px-6 font-medium">
+                          <a href={`/dev/tasks/${task.taskId}`} className="hover:underline">
+                            {task.taskName}
+                          </a>
+                        </td>
                         <td className="py-3 px-6">{task.userName}</td>
                         <td className={`py-3 px-6 font-semibold ${getStatusColor(task.taskStatus)}`}>
                           {task.taskStatus}

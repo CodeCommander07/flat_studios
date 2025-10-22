@@ -8,6 +8,14 @@ const FileSchema = new mongoose.Schema({
   uploadedAt: { type: Date, default: Date.now },
 });
 
+const NoteSchema = new mongoose.Schema({
+  staffMember: Object,  // same as in hiring system
+  noteText: String,
+  status: String,
+  system: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+}, { _id: false });
+
 const TaskSchema = new mongoose.Schema({
   taskId: { type: String, required: true },
   taskName: String,
@@ -19,6 +27,7 @@ const TaskSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
   completedAt: Date,
   files: [FileSchema],
+  notes: [NoteSchema],
 });
 
 const DeveloperTasksSchema = new mongoose.Schema({

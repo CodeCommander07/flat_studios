@@ -20,6 +20,35 @@ export default function App({ Component, pageProps }) {
     }
   }, []);
 
+  useEffect(() => {
+    const runWeeklyExport = async () => {
+      const lastRun = localStorage.getItem('weeklyExportLastRun');
+      const now = new Date();
+      const day = now.getDay(); // 0 = Sunday
+
+      if (day === 0) {
+        const lastDate = lastRun ? new Date(lastRun) : null;
+        const sameWeek =
+          lastDate &&
+          now.getFullYear() === lastDate.getFullYear() &&
+          now.getMonth() === lastDate.getMonth() &&
+          now.getDate() === lastDate.getDate();
+
+        if (!sameWeek) {
+          console.log('📤 Triggering weekly Google Sheet export...');
+          try {
+            await axios.get('/api/weekly/export');
+            localStorage.setItem('weeklyExportLastRun', now.toISOString());
+          } catch (err) {
+            console.error('❌ Weekly export failed:', err);
+          }
+        }
+      }
+    };
+
+    runWeeklyExport();
+  }, []);
+
   const title = `Yapton | Flat Studios`;
 
   const shouldHideNavbar = hideNavbarRoutes.includes(router.pathname);

@@ -52,19 +52,8 @@ export default function Navbar() {
       }
     };
 
-    const fetchPages = async () => {
-      try {
-        const res = await axios.get('/api/pages');
-        const publishedPages = res.data.filter(page => page.published);
-        setPages(publishedPages);
-      } catch (err) {
-        console.error('Failed to fetch pages:', err.message);
-      }
-    };
-
     fetchUser();
     fetchPlayers();
-    fetchPages();
     const interval = setInterval(fetchPlayers, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -89,7 +78,7 @@ export default function Navbar() {
       name: 'Public',
       items: [
         { label: 'Home', href: '/' },
-        { label: 'Blogs', href: '/blogs' },
+
       ],
     },
     {
@@ -138,7 +127,6 @@ export default function Navbar() {
         { label: 'Manage Routes', href: '/admin/routes' },
         { label: 'Manage Operators', href: '/admin/operators' },
         { label: 'Dev Tasks', href: '/admin/dev' },
-        { label: 'Page Editor', href: '/admin/pages' },
       ],
     },
     {
@@ -148,30 +136,11 @@ export default function Navbar() {
         { label: 'Dev Hub', href: '/dev/' },
         { label: 'Leave', href: '/dev/leave' },
         { label: 'Tasks', href: '/dev/tasks' },
-        { label: 'Submit Tasks', href: '/dev/submit' },
       ],
     },
   ];
 
   // Add dynamic pages to Public dropdown (excluding blog pages)
-  const publicDropdown = dropdowns.find(d => d.name === 'Public');
-  if (publicDropdown) {
-    // Add pages to public dropdown (avoid duplicates and exclude blog pages)
-    const existingLinks = new Set(publicDropdown.items.map(item => item.href));
-    pages.forEach(page => {
-      const pageHref = `/${page.slug}`;
-      // Only add if not a blog page and not already in the dropdown
-      if (!page.isBlog && !existingLinks.has(pageHref)) {
-        publicDropdown.items.push({
-          label: page.title,
-          href: pageHref,
-          blog: page.isBlog,
-        });
-        existingLinks.add(pageHref);
-      }
-    });
-  }
-
   return (
     <nav ref={navRef} className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 relative z-50">
       <div className="max-w-8xl mx-auto flex justify-between items-center">

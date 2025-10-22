@@ -107,9 +107,9 @@ export default function AppealDetailPage() {
             const systemNotePayload = {
                 staffMember: staffId,
                 noteText:
-          status === 'accepted'
+          status === 'Accepted'
             ? `System | ✅ Appeal was accepted by ${userData.username || 'Unknown'}`
-            : status === 'denied'
+            : status === 'Denied'
               ? `System | ❌ Appeal was denied by ${userData.username || 'Unknown'}`
               : `System | ⚠️ Appeal was flagged by ${userData.username || 'Unknown'}`,
                 status,
