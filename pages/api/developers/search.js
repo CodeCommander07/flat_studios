@@ -9,7 +9,6 @@ export default async function handler(req, res) {
   }
 
   const { q } = req.query;
-  console.log('Search query:', q);
 
   if (!q || q.length < 2) {
     return res.status(400).json({ message: 'Query too short' });
@@ -27,7 +26,6 @@ export default async function handler(req, res) {
       .select('discordUsername robloxUsername defaultAvatar userId')
       .limit(10);
 
-    console.log('Found users:', users.length);
     return res.status(200).json(users);
   } catch (err) {
     console.error('Search error:', err);

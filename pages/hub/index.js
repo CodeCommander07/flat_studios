@@ -271,10 +271,10 @@ export default function Dashboard() {
                 <h2 className="text-xl font-semibold">Your Activity</h2>
               </div>
               <p className="text-2xl font-bold text-yellow-300">
-                {totalShifts} Shift{totalShifts !== 1 ? 's' : ''}
+                {weeklySummary.hours}h {weeklySummary.minutes}m
               </p>
               <p className="text-white/60 mt-1">
-                Time This Week: <span className="text-green-400">{weeklySummary.hours}h {weeklySummary.minutes}m</span>
+                {totalShifts} activity logs.
               </p>
             </div>
           </div>

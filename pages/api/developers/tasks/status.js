@@ -15,37 +15,39 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required fields (taskId, taskStatus)' });
     }
 
-    // Make sure to match the schema enums (use dashes, not spaces)
-    const allowedStatuses = ['not-started', 'in-progress', 'completed', 'returned', 'under-review'];
+    // ✅ Allow all current frontend statuses
+    const allowedStatuses = ['not-started', 'developing', 'completed', 'reviewed', 'implemented'];
     if (!allowedStatuses.includes(taskStatus)) {
-      return res.status(400).json({ error: 'Invalid task status' });
+      console.warn('Invalid taskStatus received:', taskStatus);
+      return res.status(400).json({ error: `Invalid task status: ${taskStatus}` });
     }
 
-    // Build updates for the nested task
-    const updates = {
-      'tasks.$.taskStatus': taskStatus,
-      'tasks.$.updatedAt': new Date(),
-    };
-
-    if (taskStatus === 'completed') {
-      updates['tasks.$.completedAt'] = new Date();
-    } else {
-      updates['tasks.$.completedAt'] = null;
-    }
-
-    // Proper nested array update using positional operator ($)
+    // ✅ Update the nested task (atomic operation)
     const updatedTaskDoc = await DeveloperTasks.findOneAndUpdate(
       { 'tasks.taskId': taskId },
-      { $set: updates },
-      { new: true } // return the updated document
+      {
+        $set: {
+          'tasks.$.taskStatus': taskStatus,
+          'tasks.$.updatedAt': new Date(),
+          ...(taskStatus === 'completed'
+            ? { 'tasks.$.completedAt': new Date() }
+            : { 'tasks.$.completedAt': null }),
+        },
+      },
+      { new: true }
     );
 
-    // Add a system note when status changes
-    await DeveloperTasks.findOneAndUpdate(
-      { 'tasks.taskId': taskId },
+    if (!updatedTaskDoc) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    // ✅ Now safely add the system note using array filters (ensures note goes to correct subtask)
+    const parentTaskId = updatedTaskDoc._id;
+    await DeveloperTasks.updateOne(
+      { _id: parentTaskId },
       {
         $push: {
-          'tasks.$.notes': {
+          'tasks.$[t].notes': {
             staffMember: { name: 'System' },
             noteText: `System: Status changed to ${taskStatus}.`,
             status: taskStatus,
@@ -53,15 +55,14 @@ export default async function handler(req, res) {
             createdAt: new Date(),
           },
         },
+      },
+      {
+        arrayFilters: [{ 't.taskId': taskId }],
       }
     );
 
-    if (!updatedTaskDoc) {
-      return res.status(404).json({ error: 'Task not found' });
-    }
-
-    // Find the updated subtask for the response
-    const updatedTask = updatedTaskDoc.tasks.find(t => t.taskId === taskId);
+    // ✅ Return the updated subtask only
+    const updatedTask = updatedTaskDoc.tasks.find((t) => t.taskId === taskId);
 
     return res.status(200).json({
       message: 'Task status updated successfully',

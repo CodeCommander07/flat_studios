@@ -5,6 +5,7 @@ import axios from 'axios';
 export default function AllTasksPage() {
   const [tasks, setTasks] = useState([]);
   const [user, setUser] = useState(null);
+  const [developer, setDeveloper] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,6 +22,7 @@ export default function AllTasksPage() {
         const res = await axios.get(`/api/developers/tasks/${user._id}`);
         // Ensure the response has .tasks
         setTasks(res.data.tasks || []);
+        setDeveloper(res.data.user || null);
       } catch (err) {
         console.error('Failed to fetch tasks:', err.message);
         setTasks([]);
@@ -60,7 +62,7 @@ export default function AllTasksPage() {
                   </span>
                 </div>
                 <div className="text-sm text-white/70">
-                  Assigned to: <span className="font-semibold">{task.userName}</span> ({task.userEmail})<br />
+                  Assigned to: {developer}<br />
                   Due: {new Date(task.dueDate).toLocaleDateString('en-UK')}
                 </div>
               </div>

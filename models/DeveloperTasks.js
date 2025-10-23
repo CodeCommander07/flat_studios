@@ -20,7 +20,7 @@ const TaskSchema = new mongoose.Schema({
   taskId: { type: String, required: true },
   taskName: String,
   taskDescription: String,
-  taskStatus: { type: String, enum: ['not-started', 'in-progress', 'completed','returned', 'under-review'], default: 'not-started' },
+  taskStatus: { type: String, enum: ['not-started', 'developing', 'completed', 'reviewed', 'implemented'], default: 'not-started' },
   dueDate: Date,
   priority: { type: String, enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' },
   createdAt: { type: Date, default: Date.now },

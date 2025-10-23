@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import Image from 'next/image';
 
 export default function SetTaskPage() {
     const [form, setForm] = useState({
@@ -115,7 +116,7 @@ export default function SetTaskPage() {
                                     onClick={() => handleSelectUser(user)}
                                     className="flex items-center gap-3 p-3 hover:bg-white/10 cursor-pointer"
                                 >
-                                    <Image
+                                    <Image width={10} height={10}
                                         src={user.defaultAvatar || '/default-avatar.png'}
                                         alt={user.discordUsername}
                                         className="w-10 h-10 rounded-full"

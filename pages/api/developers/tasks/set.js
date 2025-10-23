@@ -11,8 +11,6 @@ export default async function handler(req, res) {
 
   const { taskName, taskDescription, userId, dueDate, priority } = req.body;
 
-  console.log('Creating task with data:', req.body);
-
   // Validate fields
   if (!taskName || !taskDescription || !userId || !dueDate) {
     return res.status(400).json({ error: 'Missing required fields.' });

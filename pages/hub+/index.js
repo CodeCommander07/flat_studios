@@ -251,9 +251,10 @@ export default function Dashboard() {
                 <Clock className="w-6 h-6 text-yellow-300" />
                 <h2 className="text-xl font-semibold">Your Activity</h2>
               </div>
-              <p className="text-2xl font-bold text-yellow-300">{totalShifts} Shift{totalShifts !== 1 ? 's' : ''}</p>
+              <p className="text-2xl font-bold text-yellow-300"><span className="font-mono">{formatTime(totalTimeHours)}</span>
+              </p>
               <p className="text-white/70">
-                Time in Game: <span className="font-mono">{formatTime(totalTimeHours)}</span>
+              {totalShifts} activity logs
               </p>
             </div>
           </div>
