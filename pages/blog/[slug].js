@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Tag, Share2 } from 'lucide-react';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function BlogPostPage() {
   const router = useRouter();
@@ -98,6 +99,7 @@ export default function BlogPostPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
+          <Breadcrumb />
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
           <p className="text-white/70 max-w-2xl mx-auto text-lg">{post.excerpt}</p>
 

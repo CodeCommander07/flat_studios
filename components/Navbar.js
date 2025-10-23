@@ -78,6 +78,7 @@ export default function Navbar() {
       name: 'Public',
       items: [
         { label: 'Home', href: '/' },
+        { label: 'Updates', href: '/blog' },
 
       ],
     },
