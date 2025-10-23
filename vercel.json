@@ -1,8 +1,10 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/talent-pool",
-      "schedule": "0 0 1 * *"
-    }
-  ]
+  "cron": {
+    "jobs": [
+      {
+        "path": "/api/internal/run-scheduler",
+        "schedule": "*/5 * * * *"
+      }
+    ]
+  }
 }
