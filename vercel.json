@@ -1,10 +1,8 @@
 {
-  "cron": {
-    "jobs": [
-      {
-        "path": "/api/internal/run-scheduler",
-        "schedule": "0 0 * * *"
-      }
-    ]
-  }
+  "crons": [
+    {
+      "path": "/api/internal/run-scheduler",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }
