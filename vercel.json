@@ -3,7 +3,7 @@
     "jobs": [
       {
         "path": "/api/internal/run-scheduler",
-        "schedule": "*/5 * * * *"
+        "schedule": "0 0 * * *"
       }
     ]
   }
