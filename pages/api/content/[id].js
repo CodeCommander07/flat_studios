@@ -16,22 +16,20 @@ export default async function handler(req, res) {
 
     if (req.method === 'PATCH') {
         try {
-            const updates = req.body;
+            const updates = { ...req.body };
 
-            // Always stamp updatedAt
+            // Prevent $set and $push from touching same field
+            delete updates.revisions;
+
             updates.updatedAt = new Date();
 
-            // Handle publishing logic
             if (updates.status === 'published' && !updates.publishedAt) {
                 updates.publishedAt = new Date();
             }
-
-            // If no longer scheduled, remove field
             if (updates.status !== 'scheduled') {
                 updates.scheduledFor = undefined;
             }
 
-            // Add revision info if provided
             const revision = {
                 editorId: req.user?._id,
                 editedAt: new Date(),
@@ -39,7 +37,6 @@ export default async function handler(req, res) {
                 diff: updates,
             };
 
-            // Update + push to revisions atomically
             const updated = await Content.findByIdAndUpdate(
                 id,
                 {
@@ -49,17 +46,14 @@ export default async function handler(req, res) {
                 { new: true, runValidators: true }
             );
 
-            if (!updated) {
-                return res.status(404).json({ error: 'Post not found' });
-            }
+            if (!updated) return res.status(404).json({ error: 'Post not found' });
 
             return res.status(200).json(updated);
         } catch (e) {
             console.error('PATCH error:', e);
-            return res.status(500).json({ error: 'Failed to update content' });
+            return res.status(500).json({ error: e.message });
         }
     }
-
 
     if (req.method === 'DELETE') {
         await Content.findByIdAndDelete(id);
