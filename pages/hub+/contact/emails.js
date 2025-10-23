@@ -120,7 +120,7 @@ export default function ContactEmailsPage() {
 <table style="margin-top: 2rem;">
   <tr>
     <td style="vertical-align: middle; padding-right: 10px;">
-      <img src="https://flat-studios.vercel.app/cdn/image/colour_logo.png" alt="Flat Studios Logo" width="40" height="40" style="border-radius: 8px; color:#000" />
+      <Image src="https://flat-studios.vercel.app/cdn/image/colour_logo.png" alt="Flat Studios Logo" width="40" height="40" style="border-radius: 8px; color:#000" />
     </td>
     <td style="vertical-align: middle; font-family: sans-serif; color: #000;">
       <p style="margin: 0;"><strong>${staffName}</strong></p>
@@ -139,7 +139,7 @@ export default function ContactEmailsPage() {
 <table style="margin-top: 2rem;">
   <tr>
     <td style="vertical-align: middle; padding-right: 10px;">
-      <img src="https://flat-studios.vercel.app/cdn/image/colour_logo.png" alt="Flat Studios Logo" width="40" height="40" style="border-radius: 8px; color:#000" />
+      <Image src="https://flat-studios.vercel.app/cdn/image/colour_logo.png" alt="Flat Studios Logo" width="40" height="40" style="border-radius: 8px; color:#000" />
     </td>
     <td style="vertical-align: middle; font-family: sans-serif; color: #000;">
       <p style="margin: 0;"><strong>${staffName}</strong></p>

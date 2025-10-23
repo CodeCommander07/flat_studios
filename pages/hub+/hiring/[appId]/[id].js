@@ -215,7 +215,7 @@ export default function SubmissionDetailPage() {
                     return (
                       <li key={idx} className={`p-3 rounded-md border ${bgColor} flex items-start gap-3`}>
                         {staff?.defaultAvatar ? (
-                          <img src={staff.defaultAvatar || "./default-avatar.png"} alt={staff.username} className="w-8 h-8 rounded-full" />
+                          <Image src={staff.defaultAvatar || "./default-avatar.png"} alt={staff.username} className="w-8 h-8 rounded-full" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-white/10" />
                         )}

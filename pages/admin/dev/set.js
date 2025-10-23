@@ -115,7 +115,7 @@ export default function SetTaskPage() {
                                     onClick={() => handleSelectUser(user)}
                                     className="flex items-center gap-3 p-3 hover:bg-white/10 cursor-pointer"
                                 >
-                                    <img
+                                    <Image
                                         src={user.defaultAvatar || '/default-avatar.png'}
                                         alt={user.discordUsername}
                                         className="w-10 h-10 rounded-full"

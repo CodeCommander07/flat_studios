@@ -128,7 +128,7 @@ export default function BlogPostPage() {
           <div className="flex items-center justify-center gap-3 mb-10">
             {post.author.avatar && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={post.author.avatar}
                 alt={post.author.name}
                 className="w-10 h-10 rounded-full border border-white/20"

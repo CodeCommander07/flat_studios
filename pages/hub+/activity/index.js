@@ -120,7 +120,7 @@ export default function ActivityUsersList() {
                 title={`Click to view ${user.username}'s logs`}
               >
                 <td className="p-4 flex items-center gap-4">
-                  <img
+                  <Image
                     src={user.profilePicture || '/default-avatar.png'}
                     alt={`${user.username} avatar`}
                     className="w-12 h-12 rounded-full object-cover border border-gray-600"

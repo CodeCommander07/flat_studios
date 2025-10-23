@@ -276,7 +276,7 @@ export default function AppealDetailPage() {
                                             return (
                                                 <li key={idx} className={`p-2 rounded-md flex items-center gap-3 border ${bgColor}`}>
                                                     {staff?.defaultAvatar ? (
-                                                        <img
+                                                        <Image
                                                             src={
                                                                 staff.defaultAvatar ||
                                                                 staff.robloxAvatar ||

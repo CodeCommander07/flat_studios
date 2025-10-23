@@ -97,7 +97,7 @@ export default function BlogIndex() {
                   <div>
                     {post.coverImage?.url && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={post.coverImage.url}
                         alt={post.coverImage.alt || post.title}
                         className="rounded-xl mb-3 w-full h-40 object-cover border border-white/10"
