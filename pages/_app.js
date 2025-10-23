@@ -14,6 +14,11 @@ export default function App({ Component, pageProps }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Try to run scheduler on page load (non-blocking)
+    fetch('/api/internal/run-scheduler').catch(() => {});
+  }, []);
+
+  useEffect(() => {
     const storedUser = localStorage.getItem('User');
     if (storedUser) {
       setUser(JSON.parse(storedUser));

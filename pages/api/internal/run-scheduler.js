@@ -1,8 +1,14 @@
 import dbConnect from '@/utils/db';
 import Content from '@/models/Content';
+import { shouldRunScheduler } from '@/utils/lastRun';
 
 export default async function handler(req, res) {
   try {
+    // Only run if it's been >5 minutes since last time
+    if (!shouldRunScheduler(5)) {
+      return res.status(200).json({ success: false, message: 'Scheduler recently ran' });
+    }
+
     await dbConnect();
 
     const now = new Date();
@@ -10,10 +16,6 @@ export default async function handler(req, res) {
       status: 'scheduled',
       scheduledFor: { $lte: now },
     });
-
-    if (!posts.length) {
-      return res.status(200).json({ success: true, message: 'No posts to publish' });
-    }
 
     let count = 0;
     for (const post of posts) {
@@ -24,9 +26,11 @@ export default async function handler(req, res) {
       count++;
     }
 
+    console.log(`🕒 Scheduler published ${count} post(s)`);
+
     return res.status(200).json({
       success: true,
-      publishedCount: count,
+      published: count,
       message: `Published ${count} post(s)`,
     });
   } catch (err) {
