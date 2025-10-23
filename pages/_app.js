@@ -7,6 +7,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/router";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import BreadCrumb from '@/components/Breadcrumb';
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -44,6 +45,7 @@ export default function App({ Component, pageProps }) {
       <div className="relative z-10 flex flex-col min-h-screen">
         {!shouldHideNavbar ? <Navbar role={user?.role} user={user?.username} /> : <div />}
         <main className="flex-1">
+        {/* <BreadCrumb /> */}
           <Component {...pageProps} />
           <SpeedInsights/>
         </main>
