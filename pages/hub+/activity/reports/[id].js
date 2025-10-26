@@ -45,7 +45,7 @@ export default function ReportViewer() {
   }
 
   // 👇 Build Google Docs Viewer URL
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+  const baseUrl = process.env.BASE_URL || '';
   const fileUrl = `${baseUrl}/api/reports/view/${report.id}`;
   const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(
     fileUrl
