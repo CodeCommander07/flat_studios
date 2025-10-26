@@ -45,7 +45,7 @@ export default function ReportViewer() {
   }
 
   // 👇 Build Google Docs Viewer URL
-  const baseUrl = process.env.BASE_URL || '';
+  const baseUrl = process.env.BASE_URL || 'https://flat-studios.vercel.app';
   const fileUrl = `${baseUrl}/api/reports/view/${report.id}`;
   const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(
     fileUrl
