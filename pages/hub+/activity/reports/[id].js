@@ -71,7 +71,7 @@ export default function ReportViewer() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <div className="max-h-screen bg-gray-950 text-white flex flex-col">
       {/* Header */}
       <header className="p-4 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
         <h1 className="text-xl font-semibold">

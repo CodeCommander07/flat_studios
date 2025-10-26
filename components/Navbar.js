@@ -71,7 +71,7 @@ export default function Navbar() {
       name: 'Public',
       items: [
         { label: 'Home', href: '/' },
-        { label: 'Updates', href: '/blog' },
+        { label: 'Content', href: '/content' },
       ],
     },
     {
@@ -79,8 +79,8 @@ export default function Navbar() {
       roleKey: 'ycc',
       items: [
         { label: 'YCC Home', href: '/ycc/' },
-        { label: 'Route Viewer', href: '/ycc/routes/' },
         { label: 'Bus Stops', href: '/ycc/stops/' },
+        { label: 'Route Viewer', href: '/ycc/routes/' },
         { label: 'Route Editor', href: '/ycc/routes/request', roleKey: 'Operator' },
       ],
     },
@@ -89,10 +89,10 @@ export default function Navbar() {
       roleKey: 'hub',
       items: [
         { label: 'Hub', href: '/hub/' },
-        { label: 'Moderation Guide', href: '/hub/guide' },
-        { label: 'Activity Logging', href: '/hub/activity' },
-        { label: 'Shift Scenarios', href: '/hub/shift' },
         { label: 'Authorised Leave', href: '/hub/leave' },
+        { label: 'Activity Logging', href: '/hub/activity' },
+        { label: 'Moderation Guide', href: '/hub/guide' },
+        { label: 'Shift Scenarios', href: '/hub/shift' },
       ],
     },
     {
@@ -100,12 +100,12 @@ export default function Navbar() {
       roleKey: 'hubPlus',
       items: [
         { label: 'Hub+', href: '/hub+/' },
-        { label: 'Hiring', href: '/hub+/hiring' },
-        { label: 'Contact Forms', href: '/hub+/contact/forms' },
+        { label: 'Activity', href: '/hub+/activity' }, 
         { label: 'Contact Emails', href: '/hub+/contact/emails' },
-        { label: 'Activity', href: '/hub+/activity' },
-        { label: 'Infract', href: '/hub+/infract' },
+        { label: 'Contact Forms', href: '/hub+/contact/forms' },
         { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
+        { label: 'Hiring', href: '/hub+/hiring' },
+        { label: 'Infract', href: '/hub+/infract' },
       ],
     },
     {
@@ -113,13 +113,14 @@ export default function Navbar() {
       roleKey: 'admin',
       items: [
         { label: 'Admin', href: '/admin' },
-        { label: 'Staff Accounts', href: '/admin/accounts' },
         { label: 'Ban Appeals', href: '/admin/appeals' },
-        { label: 'Manage Forms', href: '/admin/hiring' },
-        { label: 'Leave Requests', href: '/admin/leave' },
-        { label: 'Manage Routes', href: '/admin/routes' },
-        { label: 'Manage Operators', href: '/admin/operators' },
         { label: 'Dev Tasks', href: '/admin/dev' },
+        { label: 'Leave Requests', href: '/admin/leave' },
+        { label: 'Manage Content', href: '/admin/content' },
+        { label: 'Manage Forms', href: '/admin/hiring' },
+        { label: 'Manage Operators', href: '/admin/operators' },
+        { label: 'Manage Routes', href: '/admin/routes' },
+        { label: 'Staff Accounts', href: '/admin/accounts' },
       ],
     },
     {
@@ -173,7 +174,7 @@ export default function Navbar() {
                     onClick={() =>
                       setOpenDropdown(openDropdown === dropdown.name ? null : dropdown.name)
                     }
-                    className="hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition"
+                    className="hover:bg-white/10 px-3 py-2 rounded-md text-md font-medium transition"
                   >
                     {dropdown.name}
                   </button>
@@ -193,7 +194,7 @@ export default function Navbar() {
                             key={j}
                             href={item.href}
                             onClick={() => setOpenDropdown(null)}
-                            className="block px-4 py-2 hover:bg-white/10 text-sm transition"
+                            className="block px-4 py-2 hover:bg-white/10 text-md transition"
                           >
                             {item.label}
                           </Link>
@@ -225,7 +226,7 @@ export default function Navbar() {
                   height={28}
                   className="rounded-full"
                 />
-                <span className="text-sm">{user.username}</span>
+                <span className="text-md">{user.username}</span>
               </button>
               <AnimatePresence>
                 {openDropdown === 'user' && (
@@ -238,8 +239,8 @@ export default function Navbar() {
                                rounded-b-lg shadow-xl 
                                overflow-hidden w-44"
                   >
-                    <Link href="/me" className="block px-4 py-2 hover:bg-white/10 text-sm">Profile</Link>
-                    <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-sm">File Sharer</Link>
+                    <Link href="/me" className="block px-4 py-2 hover:bg-white/10 text-md">Profile</Link>
+                    <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-md">File Sharer</Link>
                     <LogoutButton />
                   </motion.div>
                 )}
