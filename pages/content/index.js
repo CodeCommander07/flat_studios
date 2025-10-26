@@ -7,15 +7,15 @@ import { Calendar, Clock } from 'lucide-react';
 const tabs = [
   { key: 'article', label: '📄 Articles' },
   { key: 'blog', label: '📝 Blogs' },
+  { key: 'changelog', label: '🧾 Changelogs' },
   { key: 'guide', label: '📘 Guides' },
   { key: 'news', label: '🗞 News' },
-  { key: 'changelog', label: '🧾 Changelogs' },
 ];
 
 export default function BlogIndex() {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('blog');
+  const [activeTab, setActiveTab] = useState('article');
   const [loading, setLoading] = useState(true);
 
   const loadPosts = async (type) => {
@@ -93,7 +93,7 @@ export default function BlogIndex() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md shadow-lg hover:bg-white/10 transition"
               >
-                <Link href={`/blog/${post.slug}`}>
+                <Link href={`/content/${post.slug}`}>
                   <div>
                     {post.coverImage?.url && (
                       // eslint-disable-next-line @next/next/no-img-element
