@@ -17,6 +17,7 @@ export default function App({ Component, pageProps }) {
   useEffect(() => {
     // Try to run scheduler on page load (non-blocking)
     fetch('/api/internal/run-scheduler').catch(() => {});
+    fetch('/api/start/activity').catch(() => {});
   }, []);
 
   useEffect(() => {

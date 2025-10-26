@@ -8,11 +8,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import LogoutButton from './LogoutButton';
 import { hasAccessTo } from '@/utils/permissions';
 
-// Animation variants
 const dropdownVariants = {
-  hidden: { opacity: 0, y: -10, scale: 0.95 },
+  hidden: { opacity: 0, y: -6, scale: 0.98 },
   visible: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: -10, scale: 0.95 },
+  exit: { opacity: 0, y: -6, scale: 0.98 },
 };
 
 const mobileMenuVariants = {
@@ -25,7 +24,6 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState('User');
   const [players, setPlayers] = useState(null);
-  const [pages, setPages] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef(null);
@@ -47,8 +45,8 @@ export default function Navbar() {
       try {
         const res = await axios.get('/api/roblox/playerCount');
         setPlayers(res.data.playing || 0);
-      } catch (err) {
-        console.error('Failed to fetch player count:', err.message);
+      } catch {
+        setPlayers(null);
       }
     };
 
@@ -58,19 +56,14 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, []);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (navRef.current && !navRef.current.contains(event.target)) {
+    const handleClickOutside = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
         setOpenDropdown(null);
-        setMobileOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const dropdowns = [
@@ -79,7 +72,6 @@ export default function Navbar() {
       items: [
         { label: 'Home', href: '/' },
         { label: 'Updates', href: '/blog' },
-
       ],
     },
     {
@@ -120,7 +112,7 @@ export default function Navbar() {
       name: 'Admin',
       roleKey: 'admin',
       items: [
-        { label: 'Admin', href: '/admin/' },
+        { label: 'Admin', href: '/admin' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
         { label: 'Ban Appeals', href: '/admin/appeals' },
         { label: 'Manage Forms', href: '/admin/hiring' },
@@ -141,74 +133,100 @@ export default function Navbar() {
     },
   ];
 
-  // Add dynamic pages to Public dropdown (excluding blog pages)
   return (
-    <nav ref={navRef} className="w-full bg-[#283335] backdrop-blur-2xl text-white px-4 md:px-8 py-4 relative z-50">
-      <div className="max-w-8xl mx-auto flex justify-between items-center">
-        {/* Brand */}
-        <div className="flex items-center gap-4">
+    <nav
+      ref={navRef}
+      className="w-full bg-[#283335] backdrop-blur-xl text-white sticky top-0 z-50 shadow-md"
+    >
+      <div className="mx-auto flex justify-between items-center px-4 md:px-8 py-3">
+        {/* Left: Logo + info */}
+        <div className="flex items-center gap-3">
           <Link href="/">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-md" />
+            <Image src="/logo.png" alt="Logo" width={40} height={40} />
           </Link>
-          <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold">Yapton & District</span>
-            <span className="text-sm text-gray-300">{players ?? '–'} currently playing • <Link href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District" className='hover:text-blue-300'>Game Link</Link></span>
+          <div>
+            <p className="font-semibold text-lg">
+              <Link href="/">Yapton & District</Link>
+            </p>
+            <p className="text-xs text-gray-300">
+              {players ?? '–'} playing •{' '}
+              <Link
+                href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-400 underline"
+              >
+                Visit on Roblox
+              </Link>
+            </p>
           </div>
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden p-2"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
 
-        {/* Desktop nav */}
+        {/* Center: Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          {dropdowns.map((dropdown, idx) => {
-            if (dropdown.name === 'Public') {
+          {dropdowns.map((dropdown, i) => {
+            if (dropdown.name === 'Public' || (user && (!dropdown.roleKey || hasAccessTo(dropdown.roleKey, role)))) {
               return (
-                <DropdownMenu
-                  key={idx}
-                  dropdown={dropdown}
-                  openDropdown={openDropdown}
-                  setOpenDropdown={setOpenDropdown}
-                />
+                <div key={i} className="relative">
+                  <button
+                    onClick={() =>
+                      setOpenDropdown(openDropdown === dropdown.name ? null : dropdown.name)
+                    }
+                    className="hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition"
+                  >
+                    {dropdown.name}
+                  </button>
+                  <AnimatePresence>
+                    {openDropdown === dropdown.name && (
+                      <motion.div
+                        variants={dropdownVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="absolute top-full left-0 mt-0.5 bg-[#283335] backdrop-blur-lg 
+                                   rounded-b-lg shadow-xl 
+                                   overflow-hidden min-w-[180px] z-50"
+                      >
+                        {dropdown.items.map((item, j) => (
+                          <Link
+                            key={j}
+                            href={item.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className="block px-4 py-2 hover:bg-white/10 text-sm transition"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               );
             }
-
-            if (!user || !dropdown.roleKey || !hasAccessTo(dropdown.roleKey, role)) return null;
-            return (
-              <DropdownMenu
-                key={idx}
-                dropdown={dropdown}
-                openDropdown={openDropdown}
-                setOpenDropdown={setOpenDropdown}
-              />
-            );
+            return null;
           })}
+        </div>
 
-          {/* User dropdown */}
+        {/* Right: Account */}
+        <div className="hidden md:flex items-center">
           {user ? (
             <div className="relative">
               <button
                 onClick={() =>
                   setOpenDropdown(openDropdown === 'user' ? null : 'user')
                 }
-                className="flex items-center gap-2 hover:bg-black/20 px-3 py-2 rounded transition"
+                className="flex items-center gap-2 hover:bg-white/10 px-3 py-2 rounded-md transition"
               >
-                <span>{user?.username}</span>
                 <Image
                   src={user?.defaultAvatar || '/logo.png'}
                   alt="Avatar"
-                  width={30}
-                  height={30}
+                  width={28}
+                  height={28}
                   className="rounded-full"
                 />
+                <span className="text-sm">{user.username}</span>
               </button>
-
               <AnimatePresence>
                 {openDropdown === 'user' && (
                   <motion.div
@@ -216,22 +234,34 @@ export default function Navbar() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                    className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50 overflow-hidden"
+                    className="absolute right-0 mt-0.5 bg-[#283335] backdrop-blur-lg 
+                               rounded-b-lg shadow-xl 
+                               overflow-hidden w-44"
                   >
-                    <Link href="/me" className="block px-4 py-2 hover:bg-black/20">Profile</Link>
-                    <Link href="/me/cdn" className="block px-4 py-2 hover:bg-black/20">File Sharer</Link>
+                    <Link href="/me" className="block px-4 py-2 hover:bg-white/10 text-sm">Profile</Link>
+                    <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-sm">File Sharer</Link>
                     <LogoutButton />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           ) : (
-            <Link href="/auth/login" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition">
+            <Link
+              href="/auth/login"
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm transition"
+            >
               Login
             </Link>
           )}
         </div>
+
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="md:hidden p-2 rounded-md hover:bg-white/10 transition"
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
 
       {/* Mobile Menu */}
@@ -242,93 +272,49 @@ export default function Navbar() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="md:hidden mt-4 bg-[#283335] rounded-lg px-4 py-3 space-y-4 overflow-hidden"
+            className="md:hidden bg-[#283335] backdrop-blur-xl border-t px-4 py-3 space-y-3"
           >
-            {dropdowns.map((dropdown, idx) => {
-              if (dropdown.name === 'Public') {
-                return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
+            {dropdowns.map((dropdown, i) => {
+              if (dropdown.name === 'Public' || (user && (!dropdown.roleKey || hasAccessTo(dropdown.roleKey, role)))) {
+                return (
+                  <div key={i}>
+                    <p className="font-semibold text-sm mb-1">{dropdown.name}</p>
+                    <div className="ml-2 space-y-1">
+                      {dropdown.items.map((item, j) => (
+                        <Link
+                          key={j}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="block text-sm text-gray-200 hover:text-blue-400"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
               }
-
-              if (!user || !dropdown.roleKey || !hasAccessTo(dropdown.roleKey, role)) return null;
-              return <MobileDropdownMenu key={idx} dropdown={dropdown} />;
+              return null;
             })}
 
-            <div>
-              {user ? (
-                <div className="mt-4 border-t border-white/20 pt-4 space-y-1">
-                  <Link href="/me" className="block text-sm hover:text-blue-400">Profile</Link>
-                  <Link href="/me/cdn" className="block text-sm hover:text-blue-400">File Sharer</Link>
-                  <LogoutButton />
-                </div>
-              ) : (
-                <Link href="/auth/login" className="block text-sm bg-blue-600 hover:bg-blue-700 text-center rounded py-2">
-                  Login
-                </Link>
-              )}
-            </div>
+            {user ? (
+              <div className="border-t pt-3">
+                <Link href="/me" className="block text-sm hover:text-blue-400">Profile</Link>
+                <Link href="/me/cdn" className="block text-sm hover:text-blue-400">File Sharer</Link>
+                <LogoutButton />
+              </div>
+            ) : (
+              <Link
+                href="/auth/login"
+                onClick={() => setMobileOpen(false)}
+                className="block bg-blue-600 hover:bg-blue-700 text-center py-2 rounded-md text-sm"
+              >
+                Login
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
     </nav>
-  );
-}
-
-/* ========== DESKTOP DROPDOWN ========== */
-function DropdownMenu({ dropdown, openDropdown, setOpenDropdown }) {
-  return (
-    <div className="relative">
-      <button
-        onClick={() =>
-          setOpenDropdown(openDropdown === dropdown.name ? null : dropdown.name)
-        }
-        className="hover:bg-black/20 px-3 py-2 rounded transition"
-      >
-        {dropdown.name}
-      </button>
-
-      <AnimatePresence>
-        {openDropdown === dropdown.name && (
-          <motion.div
-            variants={dropdownVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="absolute right-0 mt-2 bg-[#283335] rounded-lg shadow-md w-48 z-50 overflow-hidden"
-          >
-            {dropdown.items.map((item, i) => (
-              <Link
-                key={i}
-                href={item.href}
-                className="block px-4 py-2 hover:bg-black/20 transition"
-                onClick={() => setOpenDropdown(null)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-/* ========== MOBILE DROPDOWN ========== */
-function MobileDropdownMenu({ dropdown }) {
-  return (
-    <div>
-      <p className="font-semibold">{dropdown.name}</p>
-      <div className="ml-2 space-y-1">
-        {dropdown.items.map((item, i) => (
-          <Link
-            key={i}
-            href={item.href}
-            className="block text-sm hover:text-blue-400 transition"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </div>
-    </div>
   );
 }
