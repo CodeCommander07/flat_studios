@@ -1,12 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  compress: true, // Enables gzip/brotli compression automatically
-  poweredByHeader: false, // Minor security + speed gain
-  swcMinify: true, // Use SWC instead of Terser for faster builds
-  output: 'standalone', // Makes Vercel lambdas smaller and faster to start
+  compress: true,
+  poweredByHeader: false,
+  swcMinify: true,
+  output: 'standalone',
 
-  // ✅ Use modern formats for images and allow your existing domains
+  // ✅ Image optimization: safe to keep caching
   images: {
     domains: [
       'cdn.discordapp.com',
@@ -14,23 +14,35 @@ const nextConfig = {
       'tr.rbxcdn.com',
       'flat-studios.vercel.app',
     ],
-    formats: ['image/avif', 'image/webp'], // much smaller and faster
-    minimumCacheTTL: 60 * 60 * 24, // 1 day caching on CDN
+    formats: ['image/avif', 'image/webp'],
+    // ✅ CDN image caching is fine — only images
+    minimumCacheTTL: 60 * 60 * 24,
   },
 
-  // ✅ Useful for your static routes & API endpoints
+  // ✅ Disable caching for all dynamic content (pages + APIs)
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/_next/static/(.*)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store' },
+        ],
+      },
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store' },
         ],
       },
     ];
   },
 
-  // ✅ Keep your rewrites
   async rewrites() {
     return [
       {
@@ -44,7 +56,6 @@ const nextConfig = {
     ];
   },
 
-  // ✅ Experimental compiler-level optimizations
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', 'framer-motion', 'axios'],
