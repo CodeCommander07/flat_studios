@@ -150,14 +150,14 @@ export default function Navbar() {
             </p>
             <p className="text-xs text-gray-300">
               {players ?? '–'} playing •{' '}
-              <Link
+              <a
                 href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-400 underline"
               >
                 Visit on Roblox
-              </Link>
+              </a>
             </p>
           </div>
         </div>

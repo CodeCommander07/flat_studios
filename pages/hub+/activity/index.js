@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 // Helper: start of current week (Monday)
 const getStartOfWeek = () => {
@@ -93,9 +94,17 @@ export default function ActivityUsersList() {
 
   return (
     <main className="p-8 min-h-[calc(100vh-165px)] text-white">
-      <h1 className="text-3xl mb-6 font-bold bg-gray-800 rounded-xl p-4">
-        Weekly In-Game Activity Overview
-      </h1>
+<div className="flex items-center justify-between mb-6 bg-gray-800 rounded-xl p-4">
+  <h1 className="text-3xl font-bold">Weekly In-Game Activity Overview</h1>
+  <button
+    onClick={() => router.push('/hub+/activity/reports')}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
+  >
+    View Reports
+  </button>
+</div>
+
+
 
       <table className="min-w-full bg-gray-800 rounded-xl overflow-hidden">
         <thead>
@@ -123,8 +132,9 @@ export default function ActivityUsersList() {
                   <Image
                     src={user.profilePicture || '/default-avatar.png'}
                     alt={`${user.username} avatar`}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover border border-gray-600"
-                    loading="lazy"
                   />
                   <span className="font-semibold">{user.username} - {user.role}</span>
                 </td>
