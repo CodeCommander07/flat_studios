@@ -6,6 +6,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthWrapper from '@/components/AuthWrapper';
 import { Check, X, PanelTopOpen, PanelTopClose, CheckCircle, Flag, XCircle } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AppealDetailPage() {
     const router = useRouter();
@@ -284,6 +285,8 @@ export default function AppealDetailPage() {
                                                                 '/default-avatar.png'
                                                             }
                                                             alt={staff.username}
+                                                            width={32}
+                                                            height={32}
                                                             className="w-8 h-8 rounded-full"
                                                         />
                                                     ) : (

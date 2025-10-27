@@ -103,7 +103,7 @@ export default function MultiStepForm() {
         setIsSubmitting(true);
 
         try {
-            const res = await fetch('/api/ycc/operator-application', {
+            const res = await fetch('/api/ycc/operators/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

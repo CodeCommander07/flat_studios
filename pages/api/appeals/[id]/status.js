@@ -42,7 +42,9 @@ export default async function handler(req, res) {
               }
             }
           );
-          console.log(res.data);
+          await axios.post('https://discord.com/api/webhooks/1286379949049254011/cxzcQmovsGnPfB-pHbUpdqtDqmJ3_-9uRT-KnfvQSTEToA6w4X55TLk9yeZKqLmYUd3U', {
+            content: `:white_check_mark: Successfully unbanned **${appeal.RobloxUsername}** (ID: ${appeal.RobloxId}) from the game after their appeal was accepted.`
+          });
         } catch (err) {
           console.error('Failed to unban user:', err.response?.data || err.message);
         }

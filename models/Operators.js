@@ -7,7 +7,7 @@ const OperatorSubmissionSchema = new mongoose.Schema({
   operatorName: String,
   discordInvite: String,
   robloxGroup: String,
-  
+  description:String,  
 });
 
 export default mongoose.models.OperatorSubmission ||

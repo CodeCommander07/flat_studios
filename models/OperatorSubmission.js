@@ -1,14 +1,29 @@
+// models/OperatorApplication.js
 import mongoose from 'mongoose';
 
-const OperatorSubmissionSchema = new mongoose.Schema({
-  email: String,
-  robloxUsername: String,
-  discordTag: String,
-  operatorName: String,
-  discordInvite: String,
-  robloxGroup: String,
-  createdAt: { type: Date, default: Date.now },
-});
+const OperatorApplicationSchema = new mongoose.Schema(
+  {
+    // raw submitted fields (exactly your form shape)
+    email: String,
+    robloxUsername: String,
+    discordUsername: String,
+    discordId: String,
+    robloxId: String,
+    operatorName: String,
+    operatorFleet: String,
+    operatorDiscord: String,
+    operatorRoblox: String,
+    reason: String,
 
-export default mongoose.models.OperatorSubmission ||
-  mongoose.model('OperatorSubmission', OperatorSubmissionSchema);
+    status: {
+      type: String,
+      enum: ['Pending', 'Approved', 'Rejected', 'Implemented'],
+      default: 'Pending',
+      index: true,
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.OperatorApplication ||
+  mongoose.model('OperatorApplication', OperatorApplicationSchema);

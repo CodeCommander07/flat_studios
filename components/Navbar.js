@@ -100,7 +100,7 @@ export default function Navbar() {
       roleKey: 'hubPlus',
       items: [
         { label: 'Hub+', href: '/hub+/' },
-        { label: 'Activity', href: '/hub+/activity' }, 
+        { label: 'Activity', href: '/hub+/activity' },
         { label: 'Contact Emails', href: '/hub+/contact/emails' },
         { label: 'Contact Forms', href: '/hub+/contact/forms' },
         { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
@@ -147,8 +147,14 @@ export default function Navbar() {
           </Link>
           <div>
             <p className="font-semibold text-lg">
-              <Link href="/">Yapton & District</Link>
+              <Link
+                href="/"
+                className={process.env.NODE_ENV === "development" ? "text-orange-500" : ""}
+              >
+                Yapton & District
+              </Link>
             </p>
+
             <p className="text-xs text-gray-300">
               {players ?? '–'} playing •{' '}
               <a

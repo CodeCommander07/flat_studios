@@ -5,7 +5,7 @@ import AuthWrapper from '@/components/AuthWrapper';
 
 export default function RouteDetailPage() {
   const router = useRouter();
-  const { id } = router.query; // stopId from URL
+  const { id } = router.query;
   const [route, setRoute] = useState(null);
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,28 +60,66 @@ export default function RouteDetailPage() {
             Route Details: <span className="text-blue-400">{route.number}</span>
           </h1>
 
+          <p><strong>Operator:</strong> {route.operator || 'Unknown'}</p>
           <p><strong>Origin:</strong> {getStopName(route.origin)}</p>
           <p><strong>Destination:</strong> {getStopName(route.destination)}</p>
+
+          {/* 🚨 Diversion Status */}
+          {route.diversion?.active && (
+            <div className="mt-6 p-4 border-2 border-yellow-400 bg-yellow-500/10 rounded-xl animate-pulse text-yellow-300">
+              <h2 className="text-lg font-bold mb-2">⚠️ Diversion in Place</h2>
+              <p className="mb-2">{route.diversion.reason || 'Diversion active'}</p>
+              {route.diversion.stops?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-1">Affected Stops:</h3>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    {route.diversion.stops.map((stopId, idx) => (
+                      <li key={idx}>{getStopName(stopId)}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid gap-8 md:grid-cols-2 mt-6">
             <div>
               <h2 className="text-lg font-semibold mb-2">Stops (Forward):</h2>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                {route.stops.map((stopId, idx) => (
-                  <li key={idx}>{getStopName(stopId)}</li>
-                ))}
+                {route.stops.map((stopId, idx) => {
+                  const isAffected = route.diversion?.stops?.includes(stopId);
+                  return (
+                    <li
+                      key={idx}
+                      className={isAffected ? 'text-yellow-400 font-semibold' : ''}
+                    >
+                      {getStopName(stopId)}
+                      {isAffected && ' ⚠️'}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
             <div>
               <h2 className="text-lg font-semibold mb-2">Stops (In Reverse):</h2>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                {[...route.stops].reverse().map((stopId, idx) => (
-                  <li key={idx}>{getStopName(stopId)}</li>
-                ))}
+                {[...route.stops].reverse().map((stopId, idx) => {
+                  const isAffected = route.diversion?.stops?.includes(stopId);
+                  return (
+                    <li
+                      key={idx}
+                      className={isAffected ? 'text-yellow-400 font-semibold' : ''}
+                    >
+                      {getStopName(stopId)}
+                      {isAffected && ' ⚠️'}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
+
 
           {route.map?.filename && (
             <p className="mt-6">

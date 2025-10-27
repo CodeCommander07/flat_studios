@@ -1,0 +1,193 @@
+[
+  {
+    "page": 1,
+    "order": 1,
+    "label": "Email Address",
+    "type": "text",
+    "required": true,
+    "placeholder": "your@email.com",
+    "helperText": "Enter your contact email address for confirmation.",
+    "hiddenByDefault": false
+  },
+  {
+    "page": 1,
+    "order": 2,
+    "label": "Discord Tag",
+    "type": "text",
+    "required": true,
+    "placeholder": "user#0001",
+    "helperText": "Used to contact you if we have questions about your submission.",
+    "hiddenByDefault": false
+  },
+  {
+    "page": 1,
+    "order": 3,
+    "label": "Select Your Company",
+    "type": "radio",
+    "required": true,
+    "options": ["IRVING Coaches", "South West Buses", "West Coast Motors", "Slowcoach"],
+    "hiddenByDefault": false
+  },
+  {
+    "page": 2,
+    "order": 1,
+    "label": "Route Submission Type",
+    "type": "radio",
+    "required": true,
+    "options": ["Submit a new route", "Submit a proposed change to an existing route"],
+    "helperText": "Choose whether you're adding a new route or changing an existing one.",
+    "hiddenByDefault": false
+  },
+  {
+    "page": 3,
+    "order": 1,
+    "label": "Route Number",
+    "type": "text",
+    "required": true,
+    "placeholder": "e.g. 101A",
+    "helperText": "Enter the new route number.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a new route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 2,
+    "label": "Starting Location",
+    "type": "select",
+    "required": true,
+    "options": [],
+    "helperText": "Select the starting bus stop for your route.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a new route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 3,
+    "label": "Via Stops",
+    "type": "checkbox",
+    "required": false,
+    "options": [],
+    "helperText": "Select any intermediate stops your route passes through.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a new route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 4,
+    "label": "Finishing Location",
+    "type": "select",
+    "required": true,
+    "options": [],
+    "helperText": "Select the finishing bus stop for your route.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a new route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 5,
+    "label": "Allocated / Recommended Vehicle",
+    "type": "text",
+    "required": true,
+    "placeholder": "e.g. Volvo B9TL",
+    "helperText": "Specify the recommended vehicle for this new route.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a new route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 6,
+    "label": "Upload Map",
+    "type": "file",
+    "required": true,
+    "helperText": "Upload a PDF or image showing the route map.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a new route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 7,
+    "label": "Select Existing Route",
+    "type": "select",
+    "required": true,
+    "options": [],
+    "helperText": "Select the existing route you wish to modify.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a proposed change to an existing route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 8,
+    "label": "New Start Location",
+    "type": "select",
+    "required": false,
+    "options": [],
+    "helperText": "Select the new start location for this changed route.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a proposed change to an existing route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 9,
+    "label": "New Via Stops",
+    "type": "checkbox",
+    "required": false,
+    "options": [],
+    "helperText": "Select any new or changed via stops for this route.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a proposed change to an existing route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 10,
+    "label": "New Finish Location",
+    "type": "select",
+    "required": false,
+    "options": [],
+    "helperText": "Select the new finishing bus stop for your changed route.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a proposed change to an existing route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 11,
+    "label": "Details of Change",
+    "type": "textarea",
+    "required": false,
+    "placeholder": "Describe the proposed change in detail",
+    "helperText": "Explain what’s being updated (e.g. reroute, added stops, timing changes).",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a proposed change to an existing route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 3,
+    "order": 12,
+    "label": "Upload Updated Map",
+    "type": "file",
+    "required": false,
+    "helperText": "Upload a new map showing the updated route path.",
+    "triggerQuestionId": "Route Submission Type",
+    "triggerValue": "Submit a proposed change to an existing route",
+    "hiddenByDefault": true
+  },
+  {
+    "page": 4,
+    "order": 1,
+    "label": "Review & Confirm",
+    "type": "textarea",
+    "required": false,
+    "placeholder": "Please review all information before submission.",
+    "helperText": "Final confirmation before submitting your route request.",
+    "hiddenByDefault": false
+  }
+]

@@ -90,7 +90,7 @@ export default function RoutesView() {
             key={index}
             className="bg-black/50 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200"
           >
-            <a href={`/ycc/routes/${route.routeId}`}>
+            <a href={`/ycc/routes/${route._id}`}>
               <h2 className="text-xl font-semibold">
                 {route.number || `Route ${index + 1}`}
               </h2>
