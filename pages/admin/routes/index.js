@@ -160,7 +160,7 @@ export default function AdminRoutesPage() {
     const [diversionStopsSearch, setDiversionStopsSearch] = useState('');
 
     return (
-        <div className="min-h-screen bg-neutral-950 text-neutral-100">
+        <div className="min-h-screen text-neutral-100">
             <style jsx global>{`
         @keyframes flash {
           0%, 100% { opacity: 1; filter: drop-shadow(0 0 0px rgba(255,0,0,0.5)); }

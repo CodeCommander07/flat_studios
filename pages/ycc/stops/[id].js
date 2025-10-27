@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
+import { AlertTriangle } from 'lucide-react';
 
 export default function StopDetailPage() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function StopDetailPage() {
     try {
       const res = await axios.get(`/api/ycc/stops/${id}`);
       setStop(res.data.stop);
-        setLoading(false);
+      setLoading(false);
     } catch (err) {
       console.error(err);
       setError('Failed to fetch stop.');
@@ -42,23 +43,23 @@ export default function StopDetailPage() {
     fetchStop();
   }, [id]);
 
+  // 🧠 Helper — find route number by ID
   const getRouteNumber = (routeId) => {
     const route = routes.find((r) => r.routeId === routeId);
     return route ? route.number : routeId;
   };
 
+  // 🚨 Check if any linked routes are on diversion
+  const diversionRoutes = stop?.routes
+    ?.map((routeId) => routes.find((r) => r.routeId === routeId))
+    .filter((r) => r && r.diversion) || [];
+
   if (loading)
-    return (
-      <p className="text-white text-center mt-12">Loading stop details...</p>
-    );
+    return <p className="text-white text-center mt-12">Loading stop details...</p>;
   if (error)
-    return (
-      <p className="text-red-500 text-center mt-12">{error}</p>
-    );
+    return <p className="text-red-500 text-center mt-12">{error}</p>;
   if (!stop)
-    return (
-      <p className="text-white text-center mt-12">Stop not found.</p>
-    );
+    return <p className="text-white text-center mt-12">Stop not found.</p>;
 
   return (
     <AuthWrapper requiredRole="admin">
@@ -77,17 +78,38 @@ export default function StopDetailPage() {
           <p><strong>Postcode:</strong> {stop.postcode || 'N/A'}</p>
           <p><strong>Location:</strong> {stop.location || 'N/A'}</p>
 
+          {/* ⚠️ Diversion Banner */}
+          {diversionRoutes.length > 0 && (
+            <div className="mt-6 bg-yellow-400/20 border border-yellow-500/50 text-yellow-300 px-4 py-3 rounded-lg flex gap-3 items-start">
+              <AlertTriangle className="mt-0.5 flex-shrink-0" size={20} />
+              <div>
+                <p className="font-semibold">Route Diversion Active:</p>
+                <ul className="list-disc list-inside text-sm">
+                  {diversionRoutes.map((r, idx) => (
+                    <li key={idx}>
+                      <span className="font-medium text-yellow-200">
+                        {r.number || r.routeId}
+                      </span>
+                      {r.diversionMessage && ` – ${r.diversionMessage}`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* 🚌 Routes serving this stop */}
           {stop.routes && stop.routes.length > 0 ? (
             <>
               <h2 className="mt-6 mb-2 text-lg font-semibold">Routes that stop here:</h2>
               <ul className="list-disc list-inside ml-4">
-                {stop.routes.map((routeId, idx) => (
+                {stop.routes.map((id, idx) => (
                   <li key={idx}>
                     <a
-                      href={`/ycc/routes/${routeId}`}
+                      href={`/ycc/routes/${id}`}
                       className="underline text-blue-400 hover:text-blue-300"
                     >
-                      {getRouteNumber(routeId)}
+                      {getRouteNumber(id)}
                     </a>
                   </li>
                 ))}

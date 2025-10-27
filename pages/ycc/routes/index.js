@@ -65,7 +65,7 @@ export default function RoutesView() {
   }, [searchTerm, routes, stops]);
 
   return (
-    <main className="p-6 text-white bg-gradient-to-b from-gray-900 via-black to-gray-900 min-h-screen">
+    <main className="p-6 text-white">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <h1 className="text-3xl font-bold">Operator Routes</h1>
         <input
@@ -88,11 +88,11 @@ export default function RoutesView() {
         {filteredRoutes.map((route, index) => (
           <div
             key={index}
-            className="bg-black/50 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200"
+            className={`bg-black/50 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200 ${route.diversion?.active ? "bg-orange-400/30": ""} ${index % 2 === 0 ? 'bg-gradient-to-tr from-blue-900/30 to-purple-900/30' : 'bg-gradient-to-tr from-purple-900/30 to-blue-900/30'}`}
           >
             <a href={`/ycc/routes/${route._id}`}>
               <h2 className="text-xl font-semibold">
-                {route.number || `Route ${index + 1}`}
+                {route.number || `Route ${index + 1}`} {route.diversion?.active ? "(Diversion Active)" : ""}
               </h2>
               <p className="text-white/70">
                 Origin: {route.origin ? getStopName(route.origin) : " "}

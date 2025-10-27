@@ -93,8 +93,8 @@ export default function RouteDetailPage() {
                       key={idx}
                       className={isAffected ? 'text-yellow-400 font-semibold' : ''}
                     >
-                      {getStopName(stopId)}
-                      {isAffected && ' ⚠️'}
+                      {isAffected && '⚠️ '}
+                      <a href={`/ycc/stops/${stopId}`}>{getStopName(stopId)}</a>
                     </li>
                   );
                 })}
@@ -111,8 +111,8 @@ export default function RouteDetailPage() {
                       key={idx}
                       className={isAffected ? 'text-yellow-400 font-semibold' : ''}
                     >
-                      {getStopName(stopId)}
-                      {isAffected && ' ⚠️'}
+                      {isAffected && '⚠️ '}
+                      <a href={`/ycc/stops/${stopId}`}>{getStopName(stopId)}</a>
                     </li>
                   );
                 })}
