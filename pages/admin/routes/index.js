@@ -406,7 +406,7 @@ export default function AdminRoutesPage() {
                                             <div
                                                 key={stop.stopId}
                                                 onClick={() => toggleStop(stop.stopId)}
-                                                className={`px-3 py-1.5 rounded-md cursor-pointer flex justify-between items-center hover:bg-neutral-800 ${isSelected ? 'stop-item removed' : ''
+                                                className={`${isStart ? "bg-emerald-700/40":""} ${isEnd ? "bg-red-700/40":""} px-3 py-1.5 rounded-md cursor-pointer flex justify-between items-center hover:bg-neutral-800  ${isSelected ? 'stop-item removed' : ''
                                                     }`}
                                             >
                                                 <span>
@@ -414,10 +414,10 @@ export default function AdminRoutesPage() {
                                                     {stop.town ? `, ${stop.town}` : ''}
                                                 </span>
                                                 {isStart && (
-                                                    <span className="text-xs font-semibold text-emerald-400">Start</span>
+                                                    <span className="text-xs font-semibold text-emerald-300">Start</span>
                                                 )}
                                                 {isEnd && (
-                                                    <span className="text-xs font-semibold text-blue-400">End</span>
+                                                    <span className="text-xs font-semibold text-red-300">End</span>
                                                 )}
                                             </div>
                                         );

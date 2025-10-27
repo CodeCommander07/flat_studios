@@ -1,6 +1,7 @@
 import dbConnect from '@/utils/db';
 import Route from '@/models/BusRoutes';
 import Stops from '@/models/BusStops';
+import Disruption from '@/models/Disruption';
 
 export default async function handler(req, res) {
   await dbConnect();
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
       if (Array.isArray(route.stops) && route.stops.length > 0) {
         // Remove this route ID from all stops first
         await Stops.updateMany(
-          { routes: route.routeId }, // routeId is your custom field (not _id)
+          { routes: route.routeId },
           { $pull: { routes: route.routeId } }
         );
 
@@ -34,6 +35,35 @@ export default async function handler(req, res) {
           { stopId: { $in: route.stops } },
           { $addToSet: { routes: route.routeId } }
         );
+      }
+
+      // 🚨 Handle Diversion / Disruption Save
+      if (route.diversion && route.diversion.active) {
+        const incidentId = `R-${route.routeId}`;
+        const disruptionData = {
+          incidentId,
+          incidentName: `Diversion on Route ${route.number || route.routeId}`,
+          incidentDescription:
+            route.diversion.message ||
+            `Route ${route.number || route.routeId} is currently on diversion.`,
+          affectedStops: route.diversion.stops || [],
+          affectedRoutes: [route.routeId],
+          incidentType: 'Diversion',
+          incidentUpdated: new Date(),
+        };
+
+        // Upsert — create or update existing disruption record
+        await Disruption.findOneAndUpdate(
+          { incidentId },
+          disruptionData,
+          { upsert: true, new: true }
+        );
+
+        console.log(`✅ Disruption saved for route ${route.routeId}`);
+      } else {
+        // If diversion cleared, remove disruption record
+        await Disruption.findOneAndDelete({ incidentId: `R-${route.routeId}` });
+        console.log(`🧹 Disruption cleared for route ${route.routeId}`);
       }
 
       return res.status(200).json({ route });
@@ -49,6 +79,10 @@ export default async function handler(req, res) {
           { routes: route.routeId },
           { $pull: { routes: route.routeId } }
         );
+
+        // Delete associated disruption
+        await Disruption.findOneAndDelete({ incidentId: `R-${route.routeId}` });
+        console.log(`🗑️ Disruption deleted for removed route ${route.routeId}`);
       }
 
       return res.status(204).end();
