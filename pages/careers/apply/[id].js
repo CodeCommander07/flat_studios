@@ -144,6 +144,26 @@ export default function ApplicationView() {
                                         ))}
                                     </div>
                                 )}
+                                 {q.type === 'checkbox' && (
+                                    <div className="space-y-1">
+                                        {q.options?.map((opt, i) => (
+                                            <label
+                                                key={i}
+                                                className="flex items-center gap-2 text-gray-300 cursor-pointer"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    name={q.id || q._id}
+                                                    value={opt}
+                                                    onChange={(e) =>
+                                                        handleAnswerChange(q.id || q._id, e.target.value)
+                                                    }
+                                                />
+                                                {opt}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))
                     ) : (

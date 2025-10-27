@@ -35,7 +35,7 @@ export default function ActivityUsersList() {
         const usersRes = await axios.get('/api/admin/activity-users');
         const userList = usersRes.data || [];
 
-        // Get all activity logs (faster than per-user)
+        // Get all activity logs
         const logsRes = await axios.get('/api/activity/leaderboard');
         const logs = logsRes.data || [];
 
@@ -47,6 +47,7 @@ export default function ActivityUsersList() {
           const userLogs = logs.filter((log) => log.userId === user.userId);
           let totalMinutes = 0;
           let totalWeekMinutes = 0;
+          let totalShifts = 0;
 
           userLogs.forEach((log) => {
             const match = log.duration?.match(/(\d+)h\s*(\d+)?m?/);
@@ -59,6 +60,7 @@ export default function ActivityUsersList() {
               const logDate = new Date(log.date);
               if (logDate >= weekStart) {
                 totalWeekMinutes += mins;
+                totalShifts += 1; // ✅ count shift
               }
             }
           });
@@ -71,6 +73,7 @@ export default function ActivityUsersList() {
             week: {
               hours: Math.floor(totalWeekMinutes / 60),
               minutes: totalWeekMinutes % 60,
+              shifts: totalShifts,
             },
           };
         });
@@ -94,31 +97,29 @@ export default function ActivityUsersList() {
 
   return (
     <main className="p-8 min-h-[calc(100vh-165px)] text-white">
-<div className="flex items-center justify-between mb-6 bg-gray-800 rounded-xl p-4">
-  <h1 className="text-3xl font-bold">Weekly In-Game Activity Overview</h1>
-  <button
-    onClick={() => router.push('/hub+/activity/reports')}
-    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
-  >
-    View Reports
-  </button>
-</div>
+      <div className="flex items-center justify-between mb-6 bg-gray-800 rounded-xl p-4">
+        <h1 className="text-3xl font-bold">Weekly In-Game Activity Overview</h1>
+        <button
+          onClick={() => router.push('/hub+/activity/reports')}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
+        >
+          View Reports
+        </button>
+      </div>
 
-
-
-      <table className="min-w-full bg-gray-800 rounded-xl overflow-hidden">
+      <table className="min-w-full rounded-xl overflow-hidden">
         <thead>
           <tr className="text-left text-gray-400 uppercase text-sm">
             <th className="p-4">User</th>
             <th className="p-4">Total In-Game Time</th>
-            <th className="p-4">Total This Week</th>
+            <th className="p-4">Total Shifts</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => {
             const stats = weeklySummary[user.userId] || {
               total: { hours: 0, minutes: 0 },
-              week: { hours: 0, minutes: 0 },
+              week: { hours: 0, minutes: 0, shifts: 0 },
             };
 
             return (
@@ -136,13 +137,19 @@ export default function ActivityUsersList() {
                     height={48}
                     className="w-12 h-12 rounded-full object-cover border border-gray-600"
                   />
-                  <span className="font-semibold">{user.username} - {user.role}</span>
+                  <span className="font-semibold">
+                    {user.username} - {user.role}
+                  </span>
                 </td>
+
+                {/* Total In-Game Time */}
                 <td className="p-4 text-blue-300">
                   {stats.total.hours}h {stats.total.minutes}m
                 </td>
+
+                {/* ✅ Total Shifts (count) */}
                 <td className="p-4 text-green-400">
-                  {stats.week.hours}h {stats.week.minutes}m
+                  {stats.week.shifts ? stats.week.shifts : 0} {stats.week.shifts === 1 ? 'shift' : 'shifts'}
                 </td>
               </tr>
             );

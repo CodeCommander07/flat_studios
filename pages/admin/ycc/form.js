@@ -1,8 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import AuthWrapper from '@/components/AuthWrapper';
+import { useRouter } from 'next/navigation';
 
-export default function ManageQuestions() {
+export default function ManageQuestions() {  
+  const router = useRouter();
   const [questions, setQuestions] = useState([]);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({
@@ -78,7 +80,7 @@ export default function ManageQuestions() {
   return (
     <AuthWrapper requiredRole="admin">
       <main className="max-w-5xl mx-auto mt-10 p-8 bg-white/10 border border-white/20 rounded-xl text-white">
-        <h1 className="text-2xl font-bold mb-6">Manage Questions</h1>
+        <h1 className="text-2xl font-bold mb-6">Manage Questions</h1>             
 
         <div className="grid md:grid-cols-2 gap-6 mb-10">
           <div>
@@ -233,6 +235,19 @@ export default function ManageQuestions() {
         >
           {editing ? 'Update' : 'Add'} Question
         </button>
+
+        <button
+              onClick={() => router.push('/admin/ycc/routes')}
+              className="bg-blue-500 text-black hover:bg-blue-700 ml-2 px-4 py-2 rounded"
+            >
+              Route Form Responses
+            </button>
+        <button
+              onClick={() => router.push('/admin/ycc/operators')}
+              className="bg-red-500 text-white hover:bg-red-700 ml-2 px-4 py-2 rounded"
+            >
+              Operator Form Responses
+            </button>
 
         <hr className="my-8 border-white/20" />
 

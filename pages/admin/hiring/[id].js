@@ -81,7 +81,8 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
       >
         <option className="bg-black text-white" value="short">Short Answer</option>
         <option className="bg-black text-white" value="long">Long Answer</option>
-        <option className="bg-black text-white" value="radio">Multiple Choice</option>
+        <option className="bg-black text-white" value="radio">Multiple Choice (Single Select)</option>
+        <option className="bg-black text-white" value="checkbox">Multiple Choice (Multi Select)</option>
         <option className="bg-black text-white" value="number">Number Option</option>
       </select>
 
@@ -377,11 +378,12 @@ export default function EditForm() {
             >
               <option className="bg-black text-white" value="short">Short Answer</option>
               <option className="bg-black text-white" value="long">Long Answer</option>
-              <option className="bg-black text-white" value="radio">Multiple Choice</option>
+              <option className="bg-black text-white" value="radio">Multiple Choice (Single Select)</option>
+              <option className="bg-black text-white" value="checkbox">Multiple Choice (Multi Select)</option>
               <option className="bg-black text-white" value="number">Number Option</option>
             </select>
 
-            {qType === 'radio' && (
+            {qType === 'radio' || qType === 'checkbox' && (
               <div className="space-y-1">
                 {qOptions.map((opt, i) => (
                   <input

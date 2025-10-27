@@ -43,16 +43,21 @@ export default function StopDetailPage() {
     fetchStop();
   }, [id]);
 
-  // 🧠 Helper — find route number by ID
+  // 🧠 Helper — find route object
+  const findRoute = (routeId) =>
+    routes.find((r) => r.routeId === routeId || r._id === routeId);
+
+  // 🧠 Helper — display route number
   const getRouteNumber = (routeId) => {
-    const route = routes.find((r) => r.routeId === routeId);
+    const route = findRoute(routeId);
     return route ? route.number : routeId;
   };
 
   // 🚨 Check if any linked routes are on diversion
-  const diversionRoutes = stop?.routes
-    ?.map((routeId) => routes.find((r) => r.routeId === routeId))
-    .filter((r) => r && r.diversion) || [];
+  const diversionRoutes =
+    stop?.routes
+      ?.map((routeId) => findRoute(routeId))
+      .filter((r) => r && r.diversion?.active) || [];
 
   if (loading)
     return <p className="text-white text-center mt-12">Loading stop details...</p>;
@@ -90,7 +95,7 @@ export default function StopDetailPage() {
                       <span className="font-medium text-yellow-200">
                         {r.number || r.routeId}
                       </span>
-                      {r.diversionMessage && ` – ${r.diversionMessage}`}
+                      {r.diversion?.message && ` – ${r.diversion.message}`}
                     </li>
                   ))}
                 </ul>
@@ -101,18 +106,29 @@ export default function StopDetailPage() {
           {/* 🚌 Routes serving this stop */}
           {stop.routes && stop.routes.length > 0 ? (
             <>
-              <h2 className="mt-6 mb-2 text-lg font-semibold">Routes that stop here:</h2>
+              <h2 className="mt-6 mb-2 text-lg font-semibold">
+                Routes that stop here:
+              </h2>
               <ul className="list-disc list-inside ml-4">
-                {stop.routes.map((id, idx) => (
-                  <li key={idx}>
-                    <a
-                      href={`/ycc/routes/${id}`}
-                      className="underline text-blue-400 hover:text-blue-300"
-                    >
-                      {getRouteNumber(id)}
-                    </a>
-                  </li>
-                ))}
+                {stop.routes.map((routeId, idx) => {
+                  const route = findRoute(routeId);
+                  return (
+                    <li key={idx}>
+                      {route ? (
+                        <a
+                          href={`/ycc/routes/${route._id}`}
+                          className="underline text-blue-400 hover:text-blue-300"
+                        >
+                          {route.number || route.routeId}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">
+                          {routeId} (not found)
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </>
           ) : (

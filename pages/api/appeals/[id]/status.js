@@ -163,7 +163,6 @@ export default async function handler(req, res) {
 
         await transporter.sendMail({
           from: `"FlatStudios Team" <${process.env.MAIL_USER}>`,
-          bcc: 'codecmdr.rblx@gmail.com',
           to: appeal.email,
           subject: `Your Appeal has been ${status}`,
           html,
