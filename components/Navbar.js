@@ -143,7 +143,7 @@ export default function Navbar() {
         {/* Left: Logo + info */}
         <div className="flex items-center gap-3">
           <Link href="/">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
+            <Image src={process.env.NODE_ENV === "development" ? "/orange_logo.png" : "/logo.png"} alt="Logo" width={40} height={40} />
           </Link>
           <div>
             <p className="font-semibold text-lg">
@@ -155,7 +155,7 @@ export default function Navbar() {
               </Link>
             </p>
 
-            <p className="text-xs text-gray-300">
+            <p className={`text-xs ${process.env.NODE_ENV === "development" ? "text-orange-500" : "text-gray-300"}`}>
               {players ?? '–'} playing •{' '}
               <a
                 href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District"

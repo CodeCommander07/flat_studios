@@ -9,8 +9,8 @@ export default function Footer() {
         {/* Left: Logo & Name */}
         <div className="flex items-center gap-3">
           {/* If you want a logo here: */}
-          <Image src="/logo.png" alt="Logo" width={30} height={30} className="rounded-md black" />
-          <span className="text-lg font-semibold">© 2025 Yapton & District</span>
+          <Image src={process.env.NODE_ENV === "development" ? "/orange_logo.png" : "/logo.png"} alt="Logo" width={30} height={30} className="rounded-md black" />
+          <span className={`text-lg font-semibold ${process.env.NODE_ENV === "development" ? "text-orange-500" : ""}`}>© 2025 Yapton & District</span>
         </div>
 
         {/* Right: Links */}

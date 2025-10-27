@@ -8,6 +8,7 @@ import { MapPin, Route, Bus } from 'lucide-react'; // icons for style
 export default function YCCIndex() {
   const [stats, setStats] = useState(null);
   const [stats2, setStats2] = useState(null);
+  const [stats3, setStats3] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,8 +17,10 @@ export default function YCCIndex() {
       try {
         const res = await axios.get('/api/ycc/routes');
         const res2 = await axios.get('/api/ycc/stops');
+        const res3 = await axios.get('/api/ycc/operators/active');
         setStats(res.data.routes);
         setStats2(res2.data.stops);
+        setStats3(res3.data.submissions);
       } catch (err) {
         console.error('Failed to fetch routes summary:', err.message);
       } finally {
@@ -55,7 +58,7 @@ export default function YCCIndex() {
                 <a href='/ycc/operators'><Bus className="w-6 h-6 text-purple-300" /></a>
                 <h2 className="text-xl font-semibold">Total Operators</h2>
               </div>
-              <p className="text-4xl font-bold text-purple-300">4</p>
+              <p className="text-4xl font-bold text-purple-300">{stats3?.length ?? '—'}</p>
               <p className="text-sm text-white/50">Operators in total</p>
             </div>
 
