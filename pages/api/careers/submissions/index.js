@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { applicationId, answers, applicantEmail, applicantName } = req.body;
+      const { applicationId, answers } = req.body;
 
       if (!applicationId || !answers) {
         return res.status(400).json({ error: 'Missing applicationId or answers' });
