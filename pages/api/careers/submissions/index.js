@@ -70,7 +70,6 @@ export default async function handler(req, res) {
 
         }
       }
-
       // Determine status
       const status = deniedReason ? 'denied' : 'pending';
 
@@ -98,108 +97,8 @@ export default async function handler(req, res) {
 
       await sub.save();
 
-      // --- ✉️ THANK-YOU EMAIL (immediate) ---
-     
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.MAIL_USER,
-            pass: process.env.MAIL_PASS,
-          },
-        });
-
-        const html = `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="font-family:Arial,sans-serif;background-color:#f4f4f9;margin:0;padding:0;">
-  <table align="center" cellpadding="0" cellspacing="0" width="600"
-    style="margin:20px auto;background-color:#ffffff;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1);overflow:hidden;">
-    <tr>
-      <td style="background-color:#283335;color:#fff;padding:20px;text-align:center;">
-        <h1 style="margin:0;font-size:22px;">Thank You for Applying!</h1>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:20px;">
-        <p style="font-size:16px;line-height:1.6;">
-          Hello ${applicantEmail},
-        </p>
-        <p style="font-size:16px;line-height:1.6;">
-          We’ve received your application for <strong>${app.title}</strong>.
-          Our team will review it shortly and you’ll receive another email once a decision has been made.
-        </p>
-        <p style="margin-top:20px;font-size:14px;">
-          Thank you,<br><strong>FlatStudios Recruitment Team</strong>
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center;padding:10px;background-color:#f4f4f9;font-size:12px;color:#888;">
-        This is an automated email. Please do not reply.
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-
-        await transporter.sendMail({
-          from: `"Hiring Team" <${process.env.MAIL_USER}>`,
-          to: applicantEmail,
-          replyTo: "hiring@flatstudios.net",
-          subject: `Application Received – ${app.title}`,
-          html,
-        });
-      
-
-      return res.status(201).json({
-        success: true,
-        status,
-        ...(deniedReason ? { denyReason: deniedReason } : {}),
-        submission: sub,
-      });
-
-    } catch (err) {
-      console.error('Application submission failed:', err);
-      return res.status(500).json({ error: 'Server error', details: err.message });
-    }
-  }
-
-  res.setHeader('Allow', ['GET', 'POST']);
-  res.status(405).end();
-}
-
-// 🕐----------------------------------------------
-// 🕐 CRON JOB FOR AUTO-DENY EMAILS (with reason + status)
-// 🕐----------------------------------------------
-
-cron.schedule('* * * * *', async () => {
-  try {
-    await dbConnect();
-
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-
-    // Find denied apps without system note or email yet
-    const deniedSubs = await SubmittedApplication.find({
-      status: 'denied',
-      createdAt: { $lte: fiveMinutesAgo },
-      'notes.system': { $ne: true },
-    }).populate('applicationId');
-
-    if (deniedSubs.length > 0) {
-      console.log(`🚫 Found ${deniedSubs.length} denied applications to email...`);
-
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASS,
-        },
-      });
-
-      for (const sub of deniedSubs) {
-        try {
-          // 🧾 Ensure denyReason and status are both updated
+      if (deniedReason) {
+        setTimeout(async () => {
           sub.denyReason = sub.denyReason || 'Automatically denied by system review.';
           sub.status = 'denied';
 
@@ -256,16 +155,76 @@ cron.schedule('* * * * *', async () => {
             subject: `Application Update – ${sub.applicationId?.title || 'Application'}`,
             html,
           });
-
-          console.log(`🚫 Sent auto-deny email to ${sub.applicantEmail}`);
-        } catch (err) {
-          console.error(`❌ Failed auto-deny email to ${sub.applicantEmail}:`, err);
-        }
+        }, 5 * 60 * 1000);
       }
-    }
-  } catch (err) {
-    console.error('❌ Auto-deny cron failed:', err);
-  }
-});
 
-console.log('⏰ Auto-deny email cron job started');
+      // --- ✉️ THANK-YOU EMAIL (immediate) ---
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+      });
+
+      const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family:Arial,sans-serif;background-color:#f4f4f9;margin:0;padding:0;">
+  <table align="center" cellpadding="0" cellspacing="0" width="600"
+    style="margin:20px auto;background-color:#ffffff;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1);overflow:hidden;">
+    <tr>
+      <td style="background-color:#283335;color:#fff;padding:20px;text-align:center;">
+        <h1 style="margin:0;font-size:22px;">Thank You for Applying!</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px;">
+        <p style="font-size:16px;line-height:1.6;">
+          Hello ${applicantEmail},
+        </p>
+        <p style="font-size:16px;line-height:1.6;">
+          We’ve received your application for <strong>${app.title}</strong>.
+          Our team will review it shortly and you’ll receive another email once a decision has been made.
+        </p>
+        <p style="margin-top:20px;font-size:14px;">
+          Thank you,<br><strong>FlatStudios Recruitment Team</strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:center;padding:10px;background-color:#f4f4f9;font-size:12px;color:#888;">
+        This is an automated email. Please do not reply.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+      await transporter.sendMail({
+        from: `"Hiring Team" <${process.env.MAIL_USER}>`,
+        to: applicantEmail,
+        replyTo: "hiring@flatstudios.net",
+        subject: `Application Received – ${app.title}`,
+        html,
+      });
+
+
+      return res.status(201).json({
+        success: true,
+        status,
+        ...(deniedReason ? { denyReason: deniedReason } : {}),
+        submission: sub,
+      });
+
+    } catch (err) {
+      console.error('Application submission failed:', err);
+      return res.status(500).json({ error: 'Server error', details: err.message });
+    }
+  }
+
+  res.setHeader('Allow', ['GET', 'POST']);
+  res.status(405).end();
+}
