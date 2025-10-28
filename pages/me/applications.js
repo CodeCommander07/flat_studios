@@ -43,36 +43,61 @@ export default function ApplicationHistory() {
           </p>
         ) : (
           <div className="space-y-4">
-            {applications.map((app) => (
-              <motion.div
-                key={app._id}
-                whileHover={{ scale: 1.02 }}
-                className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <FileText className="text-blue-400 w-5 h-5" />
-                  <div>
-                    <p className="font-semibold">
-                      {app.applicationId?.title || 'Untitled Application'}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      Submitted: {new Date(app.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-md text-sm font-semibold ${
-                    app.status === 'accepted'
-                      ? 'bg-green-600/40 text-green-300'
-                      : app.status === 'denied'
-                      ? 'bg-red-600/40 text-red-300'
-                      : 'bg-yellow-600/40 text-yellow-300'
-                  }`}
+            {applications.map((app) => {
+              const status = app.status?.toLowerCase();
+              const denyReason = app.denyReason || null;
+
+              return (
+                <motion.div
+                  key={app._id}
+                  whileHover={{ scale: 1.02 }}
+                  className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10"
                 >
-                  {app.status?.toUpperCase() || 'PENDING'}
-                </span>
-              </motion.div>
-            ))}
+                  <div className="flex items-center gap-3 flex-1">
+                    <FileText className="text-blue-400 w-5 h-5 flex-shrink-0" />
+                    <div className="flex flex-col flex-1">
+                      <p className="font-semibold">
+                        {app.applicationId?.title || 'Untitled Application'}
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Submitted: {new Date(app.createdAt).toLocaleDateString()}
+                      </p>
+
+                      {/* Deny Reason or Additional Info */}
+                      {status === 'denied' && denyReason && (
+                        <p className="mt-1 text-sm text-red-400">
+                          <span className="font-semibold">Reason:</span> {denyReason}
+                        </p>
+                      )}
+                      {status === 'accepted' && (
+                        <p className="mt-1 text-sm text-green-400">
+                          ✅ Congratulations! Your application was accepted.
+                        </p>
+                      )}
+                      {status === 'talented' && (
+                        <p className="mt-1 text-sm text-yellow-400">
+                          ⚠️ You were added to the talent pool for future roles.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <span
+                    className={`px-3 py-1 rounded-md text-sm font-semibold ${
+                      status === 'accepted'
+                        ? 'bg-green-600/40 text-green-300'
+                        : status === 'denied'
+                        ? 'bg-red-600/40 text-red-300'
+                        : status === 'talented'
+                        ? 'bg-yellow-600/40 text-yellow-300'
+                        : 'bg-gray-600/40 text-gray-300'
+                    }`}
+                  >
+                    {app.status?.toUpperCase() || 'PENDING'}
+                  </span>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </motion.div>

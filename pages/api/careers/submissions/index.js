@@ -42,15 +42,15 @@ export default async function handler(req, res) {
         const accepted = Array.isArray(question.acceptedAnswers)
           ? question.acceptedAnswers
           : typeof question.acceptedAnswers === 'string'
-          ? [question.acceptedAnswers]
-          : [];
+            ? [question.acceptedAnswers]
+            : [];
 
         if (question.autoDeny && accepted.length > 0) {
           const validAnswers = accepted.map((a) => a.trim().toLowerCase());
           const normalized = userAnswer.toLowerCase();
 
           if (!validAnswers.includes(normalized)) {
-            deniedReason = `Auto-denied: "${userAnswer}" failed rule for question "${question.label}".`;
+            deniedReason = `Auto-denied: "${userAnswer}" failed for question "${question.label}".`;
             break;
           }
         }
@@ -62,14 +62,12 @@ export default async function handler(req, res) {
       // Create submission record
       const sub = new SubmittedApplication({
         applicationId,
-
         applicantEmail,
         answers,
         status,
         denyReason: deniedReason || null,
         notes: [],
       });
-
       // --- 🗒️ Add system note if denied ---
       if (status === 'denied') {
         sub.notes.push({
@@ -84,27 +82,44 @@ export default async function handler(req, res) {
 
       // --- ✉️ AUTO-DENY EMAIL ---
       if (status === 'denied' && applicantEmail) {
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.MAIL_USER,
-            pass: process.env.MAIL_PASS,
-          },
-        });
+        setTimeout(async () => {
 
-        const statusMessage = `
-          <p style="font-size:16px;line-height:1.5;">
-            Unfortunately, after reviewing your application, we’ve decided not to move forward at this time.
-            Please don’t be discouraged — you’re welcome to apply again in the future if your circumstances change.
-          </p>
-        `;
+          sub.notes.push({
+            staffMember: '68f94e6aea94abc88941a751',
+            noteText: deniedReason,
+            status: 'denied',
+            system: true,
+          });
 
-        const html = `
+          await sub.save();
+
+
+          const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.MAIL_USER,
+              pass: process.env.MAIL_PASS,
+            },
+          });
+
+          const statusMessage = `
+    <p style="font-size:16px;line-height:1.5;">
+      Unfortunately, after reviewing your application, we’ve decided not to move forward at this time.
+      Please don’t be discouraged — you’re welcome to apply again in the future if your circumstances change.
+    </p>
+    <p style="font-size:15px;line-height:1.6;margin-top:10px;">
+      If you’d like more information about the decision or wish to appeal, you can contact our recruitment team at 
+      <a href="mailto:${generalApplyEmail}" style="color:#007BFF;text-decoration:none;">${generalApplyEmail}</a>.
+    </p>
+  `;
+
+          const html = `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="font-family:Arial,sans-serif;background-color:#f4f4f9;margin:0;padding:0;">
-  <table align="center" cellpadding="0" cellspacing="0" width="600" style="margin:20px auto;background-color:#ffffff;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1);overflow:hidden;">
+  <table align="center" cellpadding="0" cellspacing="0" width="600"
+    style="margin:20px auto;background-color:#ffffff;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1);overflow:hidden;">
     <tr>
       <td style="background-color:#283335;color:#fff;padding:20px;">
         <h1 style="margin:0;font-size:20px;text-align:center;">
@@ -124,21 +139,75 @@ export default async function handler(req, res) {
     </tr>
     <tr>
       <td style="text-align:center;padding:10px;background-color:#f4f4f9;font-size:12px;color:#888;">
-        This is an automated email. Yapton & District is a subsidiary of Flat Studios.
+        This is an automated email. For questions, please contact 
+        <a href="mailto:${generalApplyEmail}" style="color:#007BFF;text-decoration:none;">${generalApplyEmail}</a>.<br>
+        Yapton & District is a subsidiary of Flat Studios.
       </td>
     </tr>
   </table>
 </body>
 </html>`;
-        await transporter.sendMail({
-          from: `"FlatStudios Team" <${process.env.MAIL_USER}>`,
-          to: applicantEmail,
-          subject: `Application Update – ${app.title}`,
-          html,
-        });
-      }
 
-      // ✅ Respond
+          await transporter.sendMail({
+            from: `"Hiring Team" <${process.env.MAIL_USER}>`,
+            to: applicantEmail,
+            replyTo: "hiring@flatstudios.net", // ✅ sets the general apply email as reply-to
+            subject: `Application Update – ${app.title}`,
+            html,
+          });
+        }, 5 * 60 * 1000)
+      }
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+      });
+
+      const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family:Arial,sans-serif;background-color:#f4f4f9;margin:0;padding:0;">
+  <table align="center" cellpadding="0" cellspacing="0" width="600"
+    style="margin:20px auto;background-color:#ffffff;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1);overflow:hidden;">
+    <tr>
+      <td style="background-color:#283335;color:#fff;padding:20px;text-align:center;">
+        <h1 style="margin:0;font-size:22px;">Thank You for Applying!</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px;">
+        <p style="font-size:16px;line-height:1.6;">
+          Hello ${applicantEmail},
+        </p>
+        <p style="font-size:16px;line-height:1.6;">
+          We’ve received your application and our team will review it shortly.
+          You’ll receive another email once a decision has been made.
+        </p>
+        <p style="margin-top:20px;font-size:14px;">
+          Thank you,<br><strong>FlatStudios Recruitment Team</strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:center;padding:10px;background-color:#f4f4f9;font-size:12px;color:#888;">
+        This is an automated email. Please do not reply.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+      await transporter.sendMail({
+        from: `"Hiring Team" <${process.env.MAIL_USER}>`,
+        to: applicantEmail,
+        replyTo: "hiring@flatstudios.net", // ✅ sets the general apply email as reply-to
+        subject: `Application Recived - ${app.title}`,
+        html,
+      });
+
       return res.status(201).json({
         success: true,
         status,

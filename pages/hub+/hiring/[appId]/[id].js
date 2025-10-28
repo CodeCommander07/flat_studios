@@ -14,7 +14,7 @@ export default function SubmissionDetailPage() {
     return <p className="text-center text-white">Loading...</p>;
   }
 
-  const { id } = params;
+  const { id, appId } = params;
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showNotes, setShowNotes] = useState(true);
@@ -104,7 +104,7 @@ export default function SubmissionDetailPage() {
   try {
     await axios.delete(`/api/careers/submissions/${id}`);
     alert('Application deleted successfully.');
-    window.location.href = '/application/history'; // or wherever you want to redirect
+    window.location.href = `/hub+/hiring/${appId}`; // or wherever you want to redirect
   } catch (err) {
     console.error('Failed to delete application:', err);
     alert('Failed to delete this application. Check console for details.');

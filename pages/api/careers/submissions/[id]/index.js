@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       return res.json(sub);
 
     case 'DELETE':
-      await sub.remove();
+      await SubmittedApplication.findByIdAndDelete(id)
       return res.json({ message: 'Deleted' });
 
     default:

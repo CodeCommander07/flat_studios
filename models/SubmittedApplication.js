@@ -18,6 +18,7 @@ const SubmittedApplicationSchema = new mongoose.Schema({
   applicantEmail: { type: String, required: true },
   answers: [AnswerSchema],
   status: { type: String, enum: ['pending','accepted','denied','talented'], default: 'pending' },
+  denyReason: { type: String, default: null },
   notes: [NoteSchema], // ✅ added
   createdAt: { type: Date, default: Date.now },
 });
