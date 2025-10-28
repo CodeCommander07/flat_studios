@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
       // Determine status
       const status = deniedReason ? 'denied' : 'pending';
-      
+
       // Create submission record
       const sub = new SubmittedApplication({
         applicationId,
@@ -68,9 +68,9 @@ export default async function handler(req, res) {
         status: "pending",
         notes: [],
       });
-      
+
       await sub.save();
-      
+
       // --- ✉️ THANK-YOU EMAIL (immediate) ---
       if (applicantEmail && status !== 'denied') {
         const transporter = nodemailer.createTransport({
@@ -128,9 +128,10 @@ export default async function handler(req, res) {
       return res.status(201).json({
         success: true,
         status,
-        ...(deniedReason ? { denyReason } : {}),
+        ...(deniedReason ? { denyReason: deniedReason } : {}),
         submission: sub,
       });
+
     } catch (err) {
       console.error('Application submission failed:', err);
       return res.status(500).json({ error: 'Server error', details: err.message });
