@@ -34,5 +34,5 @@ export function generateRandomPassword(length = 10) {
 
 export function logout(router) {
   localStorage.removeItem('User'); // clear stored session
-  router.push('/auth/login');      // redirect to login
+  router.push('/');      // redirect to login
 }
