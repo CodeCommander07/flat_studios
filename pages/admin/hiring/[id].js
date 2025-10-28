@@ -87,7 +87,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
       </select>
 
       {/* Multiple Choice Options */}
-      {question.type === 'radio' && (
+      {question.type === 'radio' || question.type === 'checkbox' && (
         <div className="space-y-1">
           {question.options?.map((opt, i) => (
             <input
