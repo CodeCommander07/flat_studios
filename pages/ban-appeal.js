@@ -47,7 +47,7 @@ export default function BanAppealsPage() {
   }
 
   return (
-    <main className="px-4 flex justify-center text-white">
+    <main className="px-4 py-10 flex justify-center text-white">
       <form
         onSubmit={handleSubmit}
         className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-2xl shadow-lg max-w-3xl w-full space-y-6"
@@ -55,7 +55,6 @@ export default function BanAppealsPage() {
       >
         <h1 className="text-3xl font-bold text-center">🛑 Ban Appeal Form</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block mb-1 font-medium">Email</label>
             <input
@@ -68,6 +67,7 @@ export default function BanAppealsPage() {
               required
             />
           </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           <div>
             <label className="block mb-1 font-medium">Roblox Username</label>

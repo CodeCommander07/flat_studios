@@ -250,6 +250,8 @@ export default function Navbar() {
                   >
                     <Link href="/me" className="block px-4 py-2 hover:bg-white/10 text-md">Profile</Link>
                     <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-md">File Sharer</Link>
+                    <Link href="/me/applications" className="block px-4 py-2 hover:bg-white/10 text-md">My Applications</Link>
+                    <Link href="/me/appeals" className="block px-4 py-2 hover:bg-white/10 text-md">My Appeals</Link>
                     <LogoutButton />
                   </motion.div>
                 )}
@@ -311,6 +313,9 @@ export default function Navbar() {
               <div className="border-t pt-3">
                 <Link href="/me" className="block text-sm hover:text-blue-400">Profile</Link>
                 <Link href="/me/cdn" className="block text-sm hover:text-blue-400">File Sharer</Link>
+                <Link href="/me/applications" className="block text-sm hover:text-blue-400">My Applications</Link>
+                <Link href="/me/appeals" className="block text-sm hover:text-blue-400">My Appeals</Link>
+
                 <LogoutButton />
               </div>
             ) : (

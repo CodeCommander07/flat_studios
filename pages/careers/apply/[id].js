@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 export default function ApplicationView() {
     const params = useParams();
+    const router = useRouter();
     const { id } = params || {};
 
     const [form, setForm] = useState(null);
@@ -38,7 +40,7 @@ export default function ApplicationView() {
                 applicantEmail: email,
                 answers,
             });
-            alert('Application submitted!');
+            router.push('/application/success');
         } catch (err) {
             console.error('Submit failed:', err);
             alert('Something went wrong while submitting.');
