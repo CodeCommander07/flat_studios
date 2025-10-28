@@ -287,22 +287,53 @@ export default function Navbar() {
             className="md:hidden bg-[#283335] backdrop-blur-xl border-t px-4 py-3 space-y-3"
           >
             {dropdowns.map((dropdown, i) => {
-              if (dropdown.name === 'Public' || (user && (!dropdown.roleKey || hasAccessTo(dropdown.roleKey, role)))) {
+              if (
+                dropdown.name === 'Public' ||
+                (user && (!dropdown.roleKey || hasAccessTo(dropdown.roleKey, role)))
+              ) {
+                const isOpen = openDropdown === dropdown.name;
                 return (
-                  <div key={i}>
-                    <p className="font-semibold text-sm mb-1">{dropdown.name}</p>
-                    <div className="ml-2 space-y-1">
-                      {dropdown.items.map((item, j) => (
-                        <Link
-                          key={j}
-                          href={item.href}
-                          onClick={() => setMobileOpen(false)}
-                          className="block text-sm text-gray-200 hover:text-blue-400"
+                  <div key={i} className="border-b border-white/10 pb-2">
+                    <button
+                      onClick={() =>
+                        setOpenDropdown(isOpen ? null : dropdown.name)
+                      }
+                      className="flex justify-between items-center w-full text-left text-sm font-semibold text-white hover:text-blue-400 py-2"
+                    >
+                      {dropdown.name}
+                      <motion.span
+                        animate={{ rotate: isOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        ▼
+                      </motion.span>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="ml-3 mt-1 space-y-1 overflow-hidden"
                         >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
+                          {dropdown.items.map((item, j) => (
+                            <Link
+                              key={j}
+                              href={item.href}
+                              onClick={() => {
+                                setMobileOpen(false);
+                                setOpenDropdown(null);
+                              }}
+                              className="block text-sm text-gray-300 hover:text-blue-400"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               }
@@ -310,13 +341,77 @@ export default function Navbar() {
             })}
 
             {user ? (
-              <div className="border-t pt-3">
-                <Link href="/me" className="block text-sm hover:text-blue-400">Profile</Link>
-                <Link href="/me/cdn" className="block text-sm hover:text-blue-400">File Sharer</Link>
-                <Link href="/me/applications" className="block text-sm hover:text-blue-400">My Applications</Link>
-                <Link href="/me/appeals" className="block text-sm hover:text-blue-400">My Appeals</Link>
+              <div className="border-t pt-2">
+                <button
+                  onClick={() =>
+                    setOpenDropdown(openDropdown === 'user-mobile' ? null : 'user-mobile')
+                  }
+                  className="flex justify-between items-center w-full text-left text-sm font-semibold text-white hover:text-blue-400 py-2"
+                >
+                  {user.username || 'Account'}
+                  <motion.span
+                    animate={{ rotate: openDropdown === 'user-mobile' ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    ▼
+                  </motion.span>
+                </button>
 
-                <LogoutButton />
+                <AnimatePresence initial={false}>
+                  {openDropdown === 'user-mobile' && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="ml-3 mt-1 space-y-1 overflow-hidden"
+                    >
+                      <Link
+                        href="/me"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setOpenDropdown(null);
+                        }}
+                        className="block text-sm text-gray-300 hover:text-blue-400"
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        href="/me/cdn"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setOpenDropdown(null);
+                        }}
+                        className="block text-sm text-gray-300 hover:text-blue-400"
+                      >
+                        File Sharer
+                      </Link>
+                      <Link
+                        href="/me/applications"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setOpenDropdown(null);
+                        }}
+                        className="block text-sm text-gray-300 hover:text-blue-400"
+                      >
+                        My Applications
+                      </Link>
+                      <Link
+                        href="/me/appeals"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setOpenDropdown(null);
+                        }}
+                        className="block text-sm text-gray-300 hover:text-blue-400"
+                      >
+                        My Appeals
+                      </Link>
+                      <div className="pt-2">
+                        <LogoutButton />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <Link
@@ -327,6 +422,7 @@ export default function Navbar() {
                 Login
               </Link>
             )}
+
           </motion.div>
         )}
       </AnimatePresence>
