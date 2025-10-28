@@ -15,6 +15,7 @@ const NoteSchema = new mongoose.Schema({
 
 const SubmittedApplicationSchema = new mongoose.Schema({
   applicationId: { type: mongoose.Schema.Types.ObjectId, ref: 'ApplicationForm', required: true },
+  appTitle: { type: String, required: true },
   applicantEmail: { type: String, required: true },
   answers: [AnswerSchema],
   status: { type: String, enum: ['pending','accepted','denied','talented'], default: 'pending' },

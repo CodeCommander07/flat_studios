@@ -62,6 +62,7 @@ export default async function handler(req, res) {
       // Create submission record
       const sub = new SubmittedApplication({
         applicationId,
+        appTitle: app.title,
         applicantEmail,
         answers,
         status,

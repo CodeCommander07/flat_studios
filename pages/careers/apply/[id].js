@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { a } from 'framer-motion/dist/types.d-D0HXPxHm';
 
 export default function ApplicationView() {
     const params = useParams();
@@ -36,6 +37,7 @@ export default function ApplicationView() {
         setSubmitting(true);
         try {
             await axios.post('/api/careers/submissions', {
+                appTitle: form.title,
                 applicationId: form._id,
                 applicantEmail: email,
                 answers,
