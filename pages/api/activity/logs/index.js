@@ -65,6 +65,54 @@ export default async function handler(req, res) {
         return res.status(201).json(newLog);
       }
 
+// --- 💬 DISCORD WEBHOOK EMBED ---
+try {
+  const webhookUrl ="https://discordapp.com/api/webhooks/1158481712586686516/bwICusjZu3N5t-T4jkwPnRxuK0d8bQ2iwmdWefnOA6Z-_EkGoNfzCGnspOjpyDChA9DH";
+  if (webhookUrl) {
+    const embed = {
+      username: 'Activity Log',
+      avatar_url: 'https://flat-studios.vercel.app/cdn/image/logo.png',
+      embeds: [
+        {
+          title: '📝 New Activity Submitted!',
+          color: 0x283335,
+          fields: [
+            { name: 'Roblox username', value: `${user.username} (${user.robloxUsername || 'Unknown'})`, inline: false },
+            { name: 'Date of activity logged', value: new Date(newLog.date).toISOString().split('T')[0], inline: false },
+            { name: 'Time in', value: newLog.timeJoined || 'N/A', inline: true },
+            { name: 'Time out', value: newLog.timeLeft || 'N/A', inline: true },
+            { name: 'Total in-game', value: `${newLog.duration || 0}`, inline: false },
+            { name: 'Did you host a Yapton shift as part of this activity?', value: newLog.host ? 'Yes' : 'No', inline: false },
+            {
+              name: 'Notes',
+              value:
+                Array.isArray(newLog.notes) && newLog.notes.length > 0
+                  ? newLog.notes.map((n) => `• ${n.noteText}`).join('\n')
+                  : 'None provided',
+              inline: false,
+            },
+          ],
+          footer: {
+            text: 'Contact Code if broken',
+          },
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(embed),
+    });
+  } else {
+    console.warn('⚠️ ACTIVITY_WEBHOOK_URL not set; skipping Discord post.');
+  }
+} catch (err) {
+  console.error('❌ Failed to post Discord embed:', err);
+}
+
+
       const subject = 'Activity Log Confirmation';
       const to = user.email;
 
