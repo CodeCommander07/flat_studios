@@ -22,7 +22,7 @@ export default function ViewApplication() {
 
     const fetchData = async () => {
       try {
-        const appRes = await axios.get(`/api/careers/applications/?id=${appId}`);
+        const appRes = await axios.get(`/api/careers/applications/${appId}`);
         const subsRes = await axios.get('/api/careers/submissions');
 
         setApp(appRes.data);

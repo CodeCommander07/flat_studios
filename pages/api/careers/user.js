@@ -9,24 +9,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 🔹 Determine user (adjust depending on your auth system)
-    const email =
-      req.query.email ||
-      req.headers['x-user-email'] ||
-      req.body?.email ||
-      null;
-
+    const { email } = req.query;
     if (!email) {
-      return res.status(400).json({ message: 'Missing user email' });
+      return res.status(400).json({ message: 'Missing email parameter' });
     }
 
+    // ✅ Populate the applicationId reference to include title
     const applications = await SubmittedApplication.find({ applicantEmail: email })
+      .populate({
+        path: 'applicationId',
+        select: 'title department open', // pull any fields you want
+      })
       .sort({ createdAt: -1 })
       .lean();
 
     res.status(200).json({ applications });
   } catch (err) {
-    console.error('Error fetching applications:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching user applications:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }

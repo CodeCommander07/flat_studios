@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Flag, StickyNote } from 'lucide-react';
+import { CheckCircle, XCircle, Flag, StickyNote, Trash } from 'lucide-react';
 import Image from 'next/image';
 
 export default function SubmissionDetailPage() {
@@ -97,6 +97,21 @@ export default function SubmissionDetailPage() {
     }
   };
 
+  const handleDeleteApplication = async () => {
+  if (!userData) return alert('User data missing.');
+  if (!confirm('Are you sure you want to permanently delete this application?')) return;
+
+  try {
+    await axios.delete(`/api/careers/submissions/${id}`);
+    alert('Application deleted successfully.');
+    window.location.href = '/application/history'; // or wherever you want to redirect
+  } catch (err) {
+    console.error('Failed to delete application:', err);
+    alert('Failed to delete this application. Check console for details.');
+  }
+};
+
+
   const getNoteStyles = (note) => {
     const text = note.noteText.toLowerCase();
     let bgColor = 'bg-white/10 border-white/20';
@@ -163,17 +178,33 @@ export default function SubmissionDetailPage() {
             ))}
           </div>
 
-          <div className="mt-auto flex justify-between pt-6">
-            <button onClick={() => handleStatusChange('accepted')} className="flex items-center gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-semibold px-4 py-2 rounded-lg transition">
+          <div className="mt-auto flex flex-wrap gap-3 justify-between pt-6">
+            <button
+              onClick={() => handleStatusChange('accepted')}
+              className="flex items-center gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-semibold px-4 py-2 rounded-lg transition"
+            >
               <CheckCircle className="w-5 h-5" /> Accept
             </button>
-            <button onClick={() => handleStatusChange('talented')} className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 font-semibold px-4 py-2 rounded-lg transition">
+            <button
+              onClick={() => handleStatusChange('talented')}
+              className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 font-semibold px-4 py-2 rounded-lg transition"
+            >
               <Flag className="w-5 h-5" /> Talent Pool
             </button>
-            <button onClick={() => handleStatusChange('denied')} className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-4 py-2 rounded-lg transition">
+            <button
+              onClick={() => handleStatusChange('denied')}
+              className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-4 py-2 rounded-lg transition"
+            >
               <XCircle className="w-5 h-5" /> Deny
             </button>
+            <button
+              onClick={handleDeleteApplication}
+              className="flex items-center gap-2 bg-red-700/20 hover:bg-red-700/30 text-red-500 font-semibold px-4 py-2 rounded-lg transition"
+            >
+              <Trash className='w-5 h-5' /> Delete
+            </button>
           </div>
+
         </motion.div>
         {/* Right Panel: Notes */}
         <AnimatePresence>
@@ -209,7 +240,7 @@ export default function SubmissionDetailPage() {
                 <p className="text-white/60">No notes yet.</p>
               ) : (
                 <ul className="space-y-2 flex-1 overflow-y-auto max-h-[500px]">
-                   {[...sub.notes].reverse().map((note, idx) => {
+                  {[...sub.notes].reverse().map((note, idx) => {
                     const staff = note.staffMember;
                     const { bgColor, textColor } = getNoteStyles(note);
 
