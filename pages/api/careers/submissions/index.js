@@ -68,15 +68,6 @@ export default async function handler(req, res) {
         denyReason: deniedReason || null,
         notes: [],
       });
-      // --- 🗒️ Add system note if denied ---
-      if (status === 'denied') {
-        sub.notes.push({
-          staffMember: '68f94e6aea94abc88941a751',
-          noteText: deniedReason,
-          status: 'denied',
-          system: true,
-        });
-      }
 
       await sub.save();
 
