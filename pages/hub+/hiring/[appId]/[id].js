@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, Flag, StickyNote } from 'lucide-react';
+import Image from 'next/image';
 
 export default function SubmissionDetailPage() {
   const params = useParams();
@@ -215,7 +216,7 @@ export default function SubmissionDetailPage() {
                     return (
                       <li key={idx} className={`p-3 rounded-md border ${bgColor} flex items-start gap-3`}>
                         {staff?.defaultAvatar ? (
-                          <Image src={staff.defaultAvatar || "./default-avatar.png"} alt={staff.username} className="w-8 h-8 rounded-full" />
+                          <Image width={40} height={40} src={staff.defaultAvatar || "./default-avatar.png"} alt={staff.username} className="w-8 h-8 rounded-full" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-white/10" />
                         )}
