@@ -7,6 +7,7 @@ import remarkBreaks from 'remark-breaks';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Tag, Share2 } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
+import Image from 'next/image';
 
 export default function BlogPostPage() {
   const router = useRouter();
@@ -131,6 +132,8 @@ export default function BlogPostPage() {
               <Image
                 src={post.author.avatar}
                 alt={post.author.name}
+                width={40}
+                height={40}
                 className="w-10 h-10 rounded-full border border-white/20"
               />
             )}

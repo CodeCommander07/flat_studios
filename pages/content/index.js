@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock } from 'lucide-react';
+import Image from 'next/image';
 
 const tabs = [
   { key: 'article', label: '📄 Articles' },
@@ -100,6 +101,8 @@ export default function BlogIndex() {
                       <Image
                         src={post.coverImage.url}
                         alt={post.coverImage.alt || post.title}
+                        width={400}
+                        height={160}
                         className="rounded-xl mb-3 w-full h-40 object-cover border border-white/10"
                       />
                     )}
