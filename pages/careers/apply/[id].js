@@ -10,6 +10,7 @@ export default function ApplicationView() {
     const [form, setForm] = useState(null);
     const [answers, setAnswers] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [email, setEmail] = useState('');
 
     useEffect(() => {
         if (!id) return;
@@ -34,6 +35,7 @@ export default function ApplicationView() {
         try {
             await axios.post('/api/careers/submissions', {
                 applicationId: form._id,
+                applicantEmail: email,
                 answers,
             });
             alert('Application submitted!');
@@ -81,6 +83,22 @@ export default function ApplicationView() {
 
                 {/* Scrollable Questions */}
                 <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+                    <label className="block mb-1 font-medium">
+                        Email Address<span className='text-red-400'>*</span>{' '}
+                        <span className="text-sm text-gray-400">
+                            (We will contact you via this email)
+                        </span>
+                    </label>
+                    <input
+                        type="text"
+                        onChange={(e) =>
+                            setEmail(e.target.value)
+                        }
+                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                        value={email}
+                        required
+                        placeholder="Your Email"
+                    />
                     {form.questions && form.questions.length > 0 ? (
                         form.questions.map((q) => (
                             <div key={q.id || q._id} className="space-y-2">
@@ -144,7 +162,7 @@ export default function ApplicationView() {
                                         ))}
                                     </div>
                                 )}
-                                 {q.type === 'checkbox' && (
+                                {q.type === 'checkbox' && (
                                     <div className="space-y-1">
                                         {q.options?.map((opt, i) => (
                                             <label
@@ -177,8 +195,8 @@ export default function ApplicationView() {
                         onClick={handleSubmit}
                         disabled={submitting || !form.open}
                         className={`w-full py-3 rounded-md font-semibold transition ${form.open
-                                ? 'bg-blue-600 hover:bg-blue-700'
-                                : 'bg-gray-600 cursor-not-allowed'
+                            ? 'bg-blue-600 hover:bg-blue-700'
+                            : 'bg-gray-600 cursor-not-allowed'
                             }`}
                     >
                         {submitting ? 'Submitting...' : 'Submit Application'}

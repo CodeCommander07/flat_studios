@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { applicationId, answers } = req.body;
+      const { applicationId, applicantEmail, answers } = req.body;
 
       if (!applicationId || !answers) {
         return res.status(400).json({ error: 'Missing applicationId or answers' });
@@ -63,7 +63,6 @@ export default async function handler(req, res) {
       const sub = new SubmittedApplication({
         applicationId,
         applicantEmail,
-        applicantName,
         answers,
         status,
         denyReason: deniedReason || null,
@@ -114,7 +113,7 @@ export default async function handler(req, res) {
     </tr>
     <tr>
       <td style="padding:20px;">
-        <p style="font-size:16px;">Hello${applicantName ? ` ${applicantName}` : ''},</p>
+        <p style="font-size:16px;">Hello${applicantEmail ? ` ${applicantEmail}` : ''},</p>
         <p style="font-size:16px;line-height:1.5;">
           Your application for <strong>${app.title}</strong> has been <strong style="color:#dc3545;">DENIED</strong>.
         </p>
