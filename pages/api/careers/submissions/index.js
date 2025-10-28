@@ -58,30 +58,31 @@ export default async function handler(req, res) {
 
       // Determine status
       const status = deniedReason ? 'denied' : 'pending';
-
+      
       // Create submission record
       const sub = new SubmittedApplication({
         applicationId,
         applicantEmail,
         answers,
-        status,
-        denyReason: deniedReason || null,
+        status: "pending",
         notes: [],
       });
-
+      
       await sub.save();
-
+      
       // --- ✉️ AUTO-DENY EMAIL ---
       if (status === 'denied' && applicantEmail) {
         setTimeout(async () => {
-
+          
           sub.notes.push({
             staffMember: '68f94e6aea94abc88941a751',
             noteText: deniedReason,
             status: 'denied',
             system: true,
           });
-
+          sub.denyReason= deniedReason;
+          sub.status = 'denied';
+          
           await sub.save();
 
 
