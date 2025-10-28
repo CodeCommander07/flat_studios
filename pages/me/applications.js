@@ -52,7 +52,7 @@ export default function ApplicationHistory() {
                 <div className="flex items-center gap-3">
                   <FileText className="text-blue-400 w-5 h-5" />
                   <div>
-                    <p className="font-semibold">{app.position || 'Untitled Role'}</p>
+                    <p className="font-semibold">{app.title || 'Untitled Role'}</p>
                     <p className="text-sm text-gray-400">
                       Submitted: {new Date(app.createdAt).toLocaleDateString()}
                     </p>

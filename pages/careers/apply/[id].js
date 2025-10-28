@@ -40,7 +40,7 @@ export default function ApplicationView() {
                 applicantEmail: email,
                 answers,
             });
-            router.push('/application/success');
+            router.push('/careers/success');
         } catch (err) {
             console.error('Submit failed:', err);
             alert('Something went wrong while submitting.');
