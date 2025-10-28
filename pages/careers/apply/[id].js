@@ -19,17 +19,36 @@ export default function ApplicationView() {
         axios.get(`/api/careers/applications/${id}`).then((res) => setForm(res.data));
     }, [id]);
 
-    const handleAnswerChange = (questionId, value) => {
+    const handleAnswerChange = (questionId, value, type, checked) => {
         setAnswers((prev) => {
             const existing = prev.find((a) => a.questionId === questionId);
+
+            // 🟦 Handle checkboxes as an array of selected options
+            if (type === 'checkbox') {
+                if (existing) {
+                    const updatedAnswers = checked
+                        ? [...(existing.answer || []), value] // add if checked
+                        : (existing.answer || []).filter((v) => v !== value); // remove if unchecked
+
+                    return prev.map((a) =>
+                        a.questionId === questionId ? { ...a, answer: updatedAnswers } : a
+                    );
+                } else {
+                    return [...prev, { questionId, answer: [value] }];
+                }
+            }
+
+            // 🟩 Handle all other question types normally (single answer)
             if (existing) {
                 return prev.map((a) =>
                     a.questionId === questionId ? { ...a, answer: value } : a
                 );
             }
+
             return [...prev, { questionId, answer: value }];
         });
     };
+
 
     const handleSubmit = async () => {
         if (!form) return;
@@ -177,7 +196,12 @@ export default function ApplicationView() {
                                                     name={q.id || q._id}
                                                     value={opt}
                                                     onChange={(e) =>
-                                                        handleAnswerChange(q.id || q._id, e.target.value)
+                                                        handleAnswerChange(
+                                                            q.id || q._id,
+                                                            e.target.value,
+                                                            'checkbox',
+                                                            e.target.checked
+                                                        )
                                                     }
                                                 />
                                                 {opt}
@@ -185,6 +209,7 @@ export default function ApplicationView() {
                                         ))}
                                     </div>
                                 )}
+
                             </div>
                         ))
                     ) : (
