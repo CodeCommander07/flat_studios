@@ -100,7 +100,7 @@ export default async function handler(req, res) {
     </p>
     <p style="font-size:15px;line-height:1.6;margin-top:10px;">
       If you’d like more information about the decision or wish to appeal, you can contact our recruitment team at 
-      <a href="mailto:${generalApplyEmail}" style="color:#007BFF;text-decoration:none;">${generalApplyEmail}</a>.
+      <a href="mailto:hiring@flatstudios.net" style="color:#007BFF;text-decoration:none;">hiring@flatstudios.net</a>.
     </p>
   `;
 
@@ -131,7 +131,7 @@ export default async function handler(req, res) {
     <tr>
       <td style="text-align:center;padding:10px;background-color:#f4f4f9;font-size:12px;color:#888;">
         This is an automated email. For questions, please contact 
-        <a href="mailto:${generalApplyEmail}" style="color:#007BFF;text-decoration:none;">${generalApplyEmail}</a>.<br>
+        <a href="mailto:hiring@flatstudios.net" style="color:#007BFF;text-decoration:none;">hiring@flatstudios.net</a>.<br>
         Yapton & District is a subsidiary of Flat Studios.
       </td>
     </tr>
