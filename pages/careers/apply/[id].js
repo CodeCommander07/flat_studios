@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { a } from 'framer-motion/dist/types.d-D0HXPxHm';
 
 export default function ApplicationView() {
     const params = useParams();
