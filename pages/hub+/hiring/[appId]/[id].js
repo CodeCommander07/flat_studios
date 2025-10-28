@@ -98,18 +98,18 @@ export default function SubmissionDetailPage() {
   };
 
   const handleDeleteApplication = async () => {
-  if (!userData) return alert('User data missing.');
-  if (!confirm('Are you sure you want to permanently delete this application?')) return;
+    if (!userData) return alert('User data missing.');
+    if (!confirm('Are you sure you want to permanently delete this application?')) return;
 
-  try {
-    await axios.delete(`/api/careers/submissions/${id}`);
-    alert('Application deleted successfully.');
-    window.location.href = `/hub+/hiring/${appId}`; // or wherever you want to redirect
-  } catch (err) {
-    console.error('Failed to delete application:', err);
-    alert('Failed to delete this application. Check console for details.');
-  }
-};
+    try {
+      await axios.delete(`/api/careers/submissions/${id}`);
+      alert('Application deleted successfully.');
+      window.location.href = `/hub+/hiring/${appId}`; // or wherever you want to redirect
+    } catch (err) {
+      console.error('Failed to delete application:', err);
+      alert('Failed to delete this application. Check console for details.');
+    }
+  };
 
 
   const getNoteStyles = (note) => {
@@ -173,7 +173,11 @@ export default function SubmissionDetailPage() {
             {sub.answers.map((ans, i) => (
               <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-4">
                 <p className="font-semibold text-blue-300">{ans.questionLabel}</p>
-                <p className="text-white/80 mt-1">{ans.answer || '—'}</p>
+                <p className="text-white/80 mt-1">
+                  {Array.isArray(ans.answer)
+                    ? ans.answer.join(', ')
+                    : ans.answer || '—'}
+                </p>
               </div>
             ))}
           </div>

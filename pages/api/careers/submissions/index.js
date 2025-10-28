@@ -37,7 +37,14 @@ export default async function handler(req, res) {
           (a) => (a.questionLabel || '').trim().toLowerCase() === qLabel
         );
 
-        const userAnswer = (userAnswerObj?.answer || '').trim();
+        let userAnswer = userAnswerObj?.answer || '';
+        // Normalize checkbox arrays -> lowercase strings for comparison
+        if (Array.isArray(userAnswer)) {
+          userAnswer = userAnswer.map((ans) => ans.trim().toLowerCase());
+        } else {
+          userAnswer = userAnswer.trim().toLowerCase();
+        }
+
 
         // Ensure acceptedAnswers is an array
         const accepted = Array.isArray(question.acceptedAnswers)
@@ -50,10 +57,17 @@ export default async function handler(req, res) {
           const validAnswers = accepted.map((a) => a.trim().toLowerCase());
           const normalized = userAnswer.toLowerCase();
 
-          if (!validAnswers.includes(normalized)) {
-            deniedReason = `Auto-denied: "${userAnswer}" failed for question "${question.label}".`;
+          // ✅ handle both array and single answers correctly
+          const match =
+            Array.isArray(userAnswer)
+              ? userAnswer.some((ans) => validAnswers.includes(ans))
+              : validAnswers.includes(userAnswer);
+
+          if (!match) {
+            deniedReason = `Auto-denied: "${Array.isArray(userAnswer) ? userAnswer.join(', ') : userAnswer}" failed for question "${question.label}".`;
             break;
           }
+
         }
       }
 
@@ -61,18 +75,31 @@ export default async function handler(req, res) {
       const status = deniedReason ? 'denied' : 'pending';
 
       // Create submission record
+      // 🧩 Enrich answers with their question labels
+      const enrichedAnswers = answers.map((a) => {
+        const question = app.questions.find(
+          (q) => q._id.toString() === a.questionId || q.id === a.questionId
+        );
+        return {
+          questionLabel: question?.label || 'Unknown Question',
+          answer: a.answer,
+        };
+      });
+
+      // Create submission record
       const sub = new SubmittedApplication({
         applicationId,
         applicantEmail,
-        answers,
+        answers: enrichedAnswers,
         status: "pending",
         notes: [],
+        thankYouSent: true,
       });
 
       await sub.save();
 
       // --- ✉️ THANK-YOU EMAIL (immediate) ---
-      if (applicantEmail && status !== 'denied') {
+     
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
@@ -123,7 +150,7 @@ export default async function handler(req, res) {
           subject: `Application Received – ${app.title}`,
           html,
         });
-      }
+      
 
       return res.status(201).json({
         success: true,
