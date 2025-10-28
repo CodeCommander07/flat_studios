@@ -92,7 +92,7 @@ export default function Navbar() {
       roleKey: 'hub',
       items: [
         { label: 'Hub', href: '/hub/' },
-        { label: 'Leave Of Absense', href: '/hub/leave' },
+        { label: 'Authorised Leave', href: '/hub/leave' },
         { label: 'Activity Logging', href: '/hub/activity' },
         { label: 'Moderation Guide', href: '/hub/guide' },
         { label: 'Shift Scenarios', href: '/hub/shift' },
@@ -131,7 +131,7 @@ export default function Navbar() {
       roleKey: 'dev',
       items: [
         { label: 'Dev Hub', href: '/dev/' },
-        { label: 'Leave Of Absense', href: '/dev/leave' },
+        { label: 'Authorised Leave', href: '/dev/leave' },
         { label: 'Tasks', href: '/dev/tasks' },
       ],
     },

@@ -21,5 +21,6 @@ const SubmittedApplicationSchema = new mongoose.Schema({
   denyReason: { type: String, default: null },
   notes: [NoteSchema], // ✅ added
   createdAt: { type: Date, default: Date.now },
+  thankYouSent: { type: Boolean, default: false }, 
 });
 export default mongoose.models.SubmittedApplication || mongoose.model('SubmittedApplication', SubmittedApplicationSchema);
