@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     password: hashed,
     operator:false,
     newsletter,
-    defaultAvatar: 'https://flat-studios.vercel.app/cdn/image/logo.png',
+    defaultAvatar: 'https://yapton.vercel.app/cdn/image/logo.png',
   });
 
   invite.used = true;

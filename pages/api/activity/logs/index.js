@@ -71,7 +71,7 @@ try {
   if (webhookUrl) {
     const embed = {
       username: 'Activity Log',
-      avatar_url: 'https://flat-studios.vercel.app/cdn/image/logo.png',
+      avatar_url: 'https://yapton.vercel.app/cdn/image/logo.png',
       embeds: [
         {
           title: '📝 New Activity Submitted!',
@@ -125,7 +125,7 @@ try {
           <table border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td align="left" style="vertical-align: middle; width: 50px;">
-                <Image src="https://flat-studios.vercel.app/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
+                <Image src="https://yapton.vercel.app/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
               </td>
               <td align="center" style="vertical-align: middle;">
                 <h1 style="font-size: 24px; margin: 0; color: #ffffff;">New Activity Log Submitted</h1>

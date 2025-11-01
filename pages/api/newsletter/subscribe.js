@@ -4,7 +4,7 @@ import Subscriber from '@/models/Subscriber';
 import Content from '@/models/Content';
 import nodemailer from 'nodemailer';
 
-const SITE = (process.env.BASE_URL || 'https://flat-studios.vercel.app').replace(/\/+$/, '');
+const SITE = (process.env.BASE_URL || 'https://yapton.vercel.app').replace(/\/+$/, '');
 const FROM = "Yapton & District <" + (process.env.MAIL_FROM || process.env.MAIL_USER) + ">";
 
 function createTransport() {
@@ -119,7 +119,7 @@ function welcomeEmailTemplate(email, posts = []) {
                       )}.</p>
                     </td>
                     <td align="right">
-                      <img src="https://flat-studios.vercel.app/logo.png" width="40" height="40" alt="Logo" style="border-radius:8px;">
+                      <img src="https://yapton.vercel.app/logo.png" width="40" height="40" alt="Logo" style="border-radius:8px;">
                     </td>
                   </tr>
                 </table>

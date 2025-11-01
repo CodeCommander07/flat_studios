@@ -12,7 +12,7 @@ const nextConfig = {
       'cdn.discordapp.com',
       'www.roblox.com',
       'tr.rbxcdn.com',
-      'flat-studios.vercel.app',
+      'yapton.vercel.app',
     ],
     formats: ['image/avif', 'image/webp'],
     // ✅ CDN image caching is fine — only images
