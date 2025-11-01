@@ -106,7 +106,7 @@ export default function Navbar() {
         { label: 'Activity', href: '/hub+/activity' },
         { label: 'Contact Emails', href: '/hub+/contact/emails' },
         { label: 'Contact Forms', href: '/hub+/contact/forms' },
-        { label: 'Diciplinaries', href: '/hub+/diciplinaries' },
+        { label: 'Disciplinaries', href: '/hub+/disciplinaries' },
         { label: 'Hiring', href: '/hub+/hiring' },
         { label: 'Infract', href: '/hub+/infract' },
       ],

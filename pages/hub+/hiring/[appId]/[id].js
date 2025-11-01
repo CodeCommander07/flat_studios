@@ -135,7 +135,7 @@ export default function SubmissionDetailPage() {
   if (!sub) return <p className="text-center text-white/70">Submission not found.</p>;
 
   return (
-    <div className="p-6">
+    <div className="p-4">
       <motion.div
         layout
         className={`max-w-10xl mx-auto w-full grid ${showNotes ? 'md:grid-cols-2' : 'grid-cols-1'} gap-6 transition-all duration-500`}
@@ -169,7 +169,7 @@ export default function SubmissionDetailPage() {
             </span>
           </p>
 
-          <div className="space-y-3 overflow-y-auto pr-2">
+          <div className="space-y-3 overflow-y-auto max-h-[500px] pr-2">
             {sub.answers.map((ans, i) => (
               <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-4">
                 <p className="font-semibold text-blue-300">{ans.questionLabel}</p>

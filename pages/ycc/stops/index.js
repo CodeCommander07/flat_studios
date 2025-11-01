@@ -106,7 +106,7 @@ export default function StopsView() {
 
           return (
             <a
-              href={`/ycc/stops/${stop.stopId}`}
+              href={`/ycc/stops/${stop._id}`}
               key={stop.stopId}
               className={`relative bg-black/50 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200 ${
                 hasDiversion
