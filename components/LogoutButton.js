@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 
-export default function YourComponent() {
+export default function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = () => {
