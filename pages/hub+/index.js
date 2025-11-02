@@ -221,7 +221,7 @@ export default function Dashboard() {
           </div>
           {/* Stats Cards */}
           <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
-            <h1 className="text-3xl font-bold">Welcome, {user?.username || 'Staff'}</h1>
+            <h1 className="text-3xl font-bold">Welcome, {user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy ": ""}{user?.username || 'Staff'}</h1>
             <p className="text-sm text-white/60">View your staff metrics below.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-3">
