@@ -1,18 +1,18 @@
-import { useRouter } from 'next/router';
+'use client';
+import { useRouter } from 'next/navigation';
 
 export default function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = () => {
     localStorage.removeItem('User');
-    router.push('/');
+    router.push('/auth/login');
   };
 
   return (
     <button
       onClick={handleLogout}
-      className="block px-4 py-2 hover:bg-black/20 text-left w-full"
-      type="button"
+      className="block w-full text-left px-4 py-2 hover:bg-white/10 text-md transition"
     >
       Logout
     </button>

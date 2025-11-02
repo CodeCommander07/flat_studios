@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {LogoutButton} from './LogoutButton';
+import LogoutButton from './LogoutButton';
 import { hasAccessTo } from '@/utils/permissions';
 
 const dropdownVariants = {
