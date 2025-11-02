@@ -87,7 +87,7 @@ export default async function handler(req, res) {
 </p>
 <p style="font-size: 16px; line-height: 1.6;><a href="${inviteUrl}">${inviteUrl}</a></p>
 <p style="font-size: 16px; line-height: 1.6; ">
-            This link expires in <strong style="color:#8B0000">${expiresAt.toLocaleDateString('en-UK')}</strong>
+            This link expires at <strong style="color:#8B0000">${expiresAt.toLocaleDateString('en-UK')}</strong>
           </p>
           <p style="font-size: 16px; line-height: 1.6;">
             If you have any questions or require further details, please contact <a href="mailto:hello@flatstudios.net" style="color:#283335; text-decoration: underline;">hello@flatstudios.net</a>.

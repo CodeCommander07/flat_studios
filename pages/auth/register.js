@@ -64,7 +64,8 @@ export default function RegisterPage() {
     const data = await res.json();
     if (res.ok) {
       setSuccess(true);
-      setTimeout(() => (window.location.href = '/auth/login'), 2000);
+      localStorage.setItem('User', JSON.stringify(data.safeUser));
+      setTimeout(() => (window.location.href = '/hub/'), 5000);
     } else {
       setMessage(`❌ ${data.message || 'Error creating account'}`);
     }

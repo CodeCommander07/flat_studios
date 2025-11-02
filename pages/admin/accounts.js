@@ -14,15 +14,14 @@ export default function AccountsPage() {
   const [form, setForm] = useState({
     email: '',
     username: '',
-    role: 'staff',
-    createdBy: ''
+    role: 'Staff',
   });
   const [inviteLink, setInviteLink] = useState('');
   const [editingUserId, setEditingUserId] = useState(null);
   const [editForm, setEditForm] = useState({
     email: '',
     username: '',
-    role: 'staff',
+    role: 'Staff',
     discordId: '',
     robloxId: '',
   });
@@ -52,10 +51,9 @@ export default function AccountsPage() {
     e.preventDefault();
     try {
       const user = JSON.parse(localStorage.getItem('User'));
-      form.createdBy = user.username
       const res = await axios.post('/api/admin/invite', form);
       setInviteLink(res.data.inviteUrl || '');
-      setForm({ email: '', username: '', role: 'staff', createdBy });
+      setForm({ email: '', username: '', role: 'staff' });
       fetchUsers();
     } catch (err) {
       console.log(err)

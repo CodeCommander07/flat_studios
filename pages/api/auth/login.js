@@ -16,6 +16,7 @@ export default async function handler(req, res) {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
+  
     // Do not return password
     const { password: _, ...safeUser } = user.toObject();
     res.status(200).json(safeUser);

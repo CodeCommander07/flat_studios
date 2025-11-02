@@ -24,7 +24,6 @@ export default async function handler(req, res) {
   const id= new Date().getTime().toString(36) + Math.random().toString(36).substring(2, 15);
 
   const existingUsername = await User.findOne({ username:username });
-  console.log(existingUsername);
   if (existingUsername) return res.status(409).json({ message: 'Username already taken' });
 
   await User.create({
@@ -33,14 +32,19 @@ export default async function handler(req, res) {
     username,
     role:  role || 'User',
     password: hashed,
-    operator:false,
     newsletter,
     defaultAvatar: 'https://yapton.vercel.app/cdn/image/logo.png',
   });
 
-  invite.used = true;
-  invite.usedAt = new Date();
-  await invite.save();
+  // invite.used = true;
+  // invite.usedAt = new Date();
+  // await invite.save();
 
-  res.status(201).json({ success: true });
+  //  await InviteCode.findOneAndDelete({ code, email, used: true});
+
+   const user = await User.findOne({id})
+    const { password: _, ...safeUser } = user.toObject();
+
+
+  res.status(200).json({ success: true, safeUser});
 }
