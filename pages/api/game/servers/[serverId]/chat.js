@@ -9,10 +9,6 @@ export default async function handler(req, res) {
 
   // ✅ POST — game sends message
   if (req.method === 'POST') {
-  const key = req.headers['x-api-key'];
-  if (key !== process.env.GAME_API_KEY)
-    return res.status(403).json({ error: 'Unauthorized' });
-
     try {
       const { playerId, username, chatMessage } = req.body;
       if (!playerId || !chatMessage)

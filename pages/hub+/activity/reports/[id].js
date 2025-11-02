@@ -56,7 +56,7 @@ export default function ReportViewer() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-950 text-white">
+      <div className="flex items-center justify-center text-white">
         <p>Loading report...</p>
       </div>
     );
@@ -64,14 +64,14 @@ export default function ReportViewer() {
 
   if (!report) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-950 text-white">
+      <div className="flex items-center justify-center text-white">
         <p>Report not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-h-screen bg-gray-950 text-white flex flex-col">
+    <div className="max-h-screen text-white flex flex-col">
       {/* Header */}
       <header className="p-4 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
         <h1 className="text-xl font-semibold">
@@ -84,12 +84,7 @@ export default function ReportViewer() {
           >
             Download
           </a>
-          <a
-            href="/reports"
-            className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-semibold"
-          >
-            Back
-          </a>
+
         </div>
       </header>
 

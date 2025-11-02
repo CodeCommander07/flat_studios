@@ -11,7 +11,7 @@ export default function ReportsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-8">
+    <div className="text-white p-8">
       <h1 className="text-3xl font-bold mb-6">📊 Weekly Reports</h1>
 
       {reports.length === 0 ? (

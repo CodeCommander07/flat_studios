@@ -9,9 +9,7 @@ export default async function handler(req, res) {
 
   // ✅ POST — game updates player list
 if (req.method === 'POST') {
-  const key = req.headers['x-api-key'];
-  if (key !== process.env.GAME_API_KEY)
-    return res.status(403).json({ error: 'Unauthorized' });
+  console.log(req.body)
     try {
       const { players } = req.body;
       if (!Array.isArray(players)) {
