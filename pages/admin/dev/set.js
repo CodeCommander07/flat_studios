@@ -113,7 +113,7 @@ export default function SetTaskPage() {
                             {results.map((user) => (
                                 <li
                                     key={user._id}
-                                    onClick={() => handleSelectUser(user)}
+                                    onClick={() => handleSelectUser(user.username)}
                                     className="flex items-center gap-3 p-3 hover:bg-white/10 cursor-pointer"
                                 >
                                     <Image width={10} height={10}
