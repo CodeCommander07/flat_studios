@@ -124,7 +124,7 @@ export default function ServerDetailPage() {
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 relative z-10">
             <div>
               <p className="text-sm mt-1 font-mono">
-                <a href="/hub/game/"><ArrowLeftIcon /> Go Back</a>
+                <a href="/hub/game/" className='text-gray-300 underline hover:text-blue-400 transition'>View All Servers</a>
                 {" "}
                 |{" "}Join The Server:{" "}
                 <a
@@ -519,30 +519,56 @@ export default function ServerDetailPage() {
                 {filteredChat.length === 0 ? (
                   <p className="text-gray-400">No chat messages found.</p>
                 ) : (
-                  [...filteredChat].reverse().map((msg, idx) => (
-                    <div key={idx} className={`flex items-start gap-3 border-b border-white/10 pb-2 ${msg.playerId === "0" ? "bg-red-500/10" : ""}`}>
-                      {msg.playerId !== "0" && (
-                        <img src={msg.icon || '/logo.png'} className="w-7 h-7 rounded-md mt-0.5" />
-                      )}
-                      <div className="flex flex-1 gap-3">
-                        <div className="flex flex-col w-32 shrink-0 leading-tight">
-                          <span className={`font-semibold ${msg.playerId === "0" ? "text-red-400" : "text-blue-400"}`}>
-                            {msg.playerId === "0" ? "System" : msg.username}
-                          </span>
-                          {msg.playerId !== "0" && <span className="text-xs text-gray-400">{msg.role}</span>}
-                        </div>
+                  [...filteredChat].reverse().map((msg, idx) => {
+                    const isModLog = msg.isModerationLog;
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex items-start gap-3 border-b border-white/10 pb-3 ${isModLog ? "bg-gradient-to-r from-blue-900/30 to-blue-800/10" : ""
+                          }`}
+                      >
+                        <img
+                          src={msg.icon || "/logo.png"}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-md mt-0.5 border border-white/10"
+                        />
                         <div className="flex-1">
-                          <p className={`text-sm ${msg.playerId === "0" ? "text-red-300 italic" : "text-gray-200"}`}>
-                            {msg.chatMessage}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {msg.time ? new Date(msg.time).toLocaleTimeString() : ''}
-                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-blue-300 text-sm">
+                              {msg.username}
+                            </span>
+                            {isModLog && (
+                              <span className="text-gray-400 text-sm">
+                                {msg.chatMessage}
+                              </span>
+                            )}
+                          </div>
+
+                          {isModLog && (
+                            <div className="flex justify-between text-xs text-gray-500 mt-1">
+                              <span>{msg.role}</span>
+                              <span>
+                                {msg.time
+                                  ? new Date(msg.time).toLocaleTimeString("en-GB", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                    hour12: true,
+                                    timeZone: "Europe/London",
+                                  })
+                                  : ""}
+                              </span>
+                            </div>
+                          )}
+                          {!isModLog && (
+                            <p className="text-gray-200 text-sm mt-1">{msg.chatMessage}</p>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
+
               </div>
             </div>
           </div>

@@ -82,15 +82,27 @@ export default async function handler(req, res) {
 
     // For “Game” reports, include Accept / Deny buttons
     if (operator === 'Game') {
-      payload.components = [
-        {
-          type: 1,
-          components: [
-            { type: 2, label: 'Accept', style: 3, custom_id: `${id}-Accept` },
-            { type: 2, label: 'Deny', style: 4, custom_id: `${id}-Deny` },
-          ],
-        },
-      ];
+      if (purpose === 'bug') {
+        payload.components = [
+          {
+            type: 1,
+            components: [
+              { type: 2, label: 'Accept', style: 3, custom_id: `bugAccept` },
+              { type: 2, label: 'Deny', style: 4, custom_id: `bugDeny` },
+            ],
+          },
+        ];
+      } else {
+        payload.components = [
+          {
+            type: 1,
+            components: [
+              { type: 2, label: 'Accept', style: 3, custom_id: `SuggestAccept` },
+              { type: 2, label: 'Deny', style: 4, custom_id: `SuggestDeny` },
+            ],
+          },
+        ];
+      }
     }
 
     // 🚀 Send to Discord

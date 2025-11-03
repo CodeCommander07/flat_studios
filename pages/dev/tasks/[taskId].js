@@ -122,7 +122,7 @@ export default function TaskDetailPage() {
   const currentStatus = statusOptions.find((s) => s.value === task.taskStatus);
 
   return (
-    <div className="p-6 text-white/90 min-h-[calc(95vh-7rem)] flex flex-col">
+    <div className="p-6 text-white/90 max-h-screen flex flex-col">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -148,7 +148,7 @@ export default function TaskDetailPage() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1"
+            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1 max-h-[300px]"
           >
             <h2 className="text-lg font-semibold text-blue-300 mb-4">Task Status</h2>
             <div className="flex flex-wrap gap-2 mb-6">
@@ -182,7 +182,7 @@ export default function TaskDetailPage() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1"
+            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1 max-h-[300px]"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-blue-300">Files</h2>
@@ -260,14 +260,14 @@ export default function TaskDetailPage() {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex flex-col"
+          className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex flex-col max-h-[625px]"
         >
           <h2 className="text-lg font-semibold text-blue-300 mb-4">Notes</h2>
           <div className="flex-1 overflow-y-auto space-y-3 mb-4 max-h-[70vh]">
             {notes.length === 0 ? (
               <p className="text-white/50 text-sm text-center">No notes yet.</p>
             ) : (
-              notes.map((n, i) => (
+              [...notes].reverse().map((n, i) => (
                 <div
                   key={i}
                   className={`p-4 rounded-lg border ${

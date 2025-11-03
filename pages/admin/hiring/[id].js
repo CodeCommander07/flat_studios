@@ -87,7 +87,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
       </select>
 
       {/* Multiple Choice Options */}
-      {question.type === 'radio' || question.type === 'checkbox' && (
+      {(question.type === 'radio' || question.type === 'checkbox') && (
         <div className="space-y-1">
           {question.options?.map((opt, i) => (
             <input
@@ -383,7 +383,7 @@ export default function EditForm() {
               <option className="bg-black text-white" value="number">Number Option</option>
             </select>
 
-            {qType === 'radio' || qType === 'checkbox' && (
+            {(qType === 'radio' || qType === 'checkbox') && (
               <div className="space-y-1">
                 {qOptions.map((opt, i) => (
                   <input

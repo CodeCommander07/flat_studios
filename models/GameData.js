@@ -12,16 +12,26 @@ const ChatSchema = new mongoose.Schema({
   time: { type: Date, default: Date.now },
 });
 
+const CommandSchema = new mongoose.Schema({
+  type: String,
+  targetId: String,
+  reason: String,
+  issuedBy: String,
+  executed: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const GameDataSchema = new mongoose.Schema(
   {
-    serverId: { type: String, unique: true, required: true, index: true },
+    serverId: { type: String, unique: true, required: true },
     players: [PlayerSchema],
     chat: [ChatSchema],
+    commands: [CommandSchema], // ✅ Add this
     flagged: { type: Boolean, default: false },
-    flaggedAt: { type: Date },
   },
   { timestamps: true }
 );
+
 
 export default mongoose.models.GameData ||
   mongoose.model("GameData", GameDataSchema);
