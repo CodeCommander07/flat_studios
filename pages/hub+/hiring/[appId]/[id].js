@@ -61,7 +61,7 @@ export default function SubmissionDetailPage() {
   const handleStatusChange = async (status, extraNote) => {
     if (!userData) return;
     try {
-      await axios.patch(`/api/careers/submissions/${id}/status`, { status });
+      await axios.patch(`/api/careers/submissions/${id}/status`, { status, denyReason });
 
       const systemNote = {
         staffMember: userData._id,
