@@ -11,6 +11,8 @@ export default function Document() {
         <meta name="theme-color" content="#283335" />
         <meta name="keywords" content="FS, Staff, Hub, Management, Community, Roblox" />
         <meta name="author" content="FS Staff Team" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6225467467515536"
+     crossorigin="anonymous"></script>
         </Head>
       <body className="antialiased">
         <Main />
