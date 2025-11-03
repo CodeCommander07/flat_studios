@@ -18,6 +18,7 @@ export default async function handler(req, res) {
     // Optionally clear them after sending (so they don’t resend)
     server.chat = (server.chat || []).filter((c) => c.playerId !== 'WEB');
     await server.save();
+    console.log(fromWeb)
 
     return res.status(200).json(fromWeb);
   } catch (err) {
