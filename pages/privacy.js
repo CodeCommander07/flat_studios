@@ -40,6 +40,9 @@ export default function PrivacyPolicy() {
                 tracking technologies to enhance user experience, analyse usage patterns, and
                 improve security.
               </li>
+              <li>
+                <strong>Chat Logs:</strong> We collect chat logs for each game server which is active to montior player behaviour. This data is temporaily stored for <strong>14</strong> days unless flagged by our staff team which is then stored for <strong>90</strong> days. 
+              </li>
             </ul>
           </div>
 
@@ -53,6 +56,7 @@ export default function PrivacyPolicy() {
               <li>Analysing usage trends and performance.</li>
               <li>Ensuring site security and preventing fraud.</li>
               <li>Complying with legal obligations.</li>
+              <li>Monitor player behaviour.</li>
             </ul>
           </div>
 

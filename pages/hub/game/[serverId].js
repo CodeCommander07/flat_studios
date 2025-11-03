@@ -210,64 +210,7 @@ export default function ServerDetailPage() {
         ) : (
           <div className="grid md:grid-cols-2 gap-8">
             <div className="flex flex-col min-h-[575px]">
-              <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                <Users size={20} /> Players ({players.length})
-              </h2>
-              <div className="flex-1 overflow-y-auto bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3">
-
-                {players.length === 0 ? (
-                  <p className="text-gray-400 text-sm">No players online.</p>
-                ) : (
-                  <ul className="space-y-2">
-                    {players.map((player) => (
-                      <li
-                        key={player.playerId}
-                        onClick={() => setSelectedPlayer(player)}
-                        className={`flex items-center justify-between border-b border-white/10 pb-2 cursor-pointer hover:bg-white/5 rounded-md transition ${selectedPlayer?.playerId === player.playerId ? "bg-white/10" : ""
-                          }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={player.icon || "/logo.png"}
-                            alt="avatar"
-                            className="w-8 h-8 rounded-md"
-                          />
-                          <div>
-                            <p className="font-medium text-blue-400">{player.username}</p>
-                            <p className="text-xs text-gray-400">
-                              {player.role} ({player.rank}) — {player.playerId}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              Joined:{" "}
-                              {player.joined
-                                ? new Date(player.joined).toLocaleTimeString()
-                                : "—"}
-                              {player.left && (
-                                <>
-                                  {" "}• Left:{" "}
-                                  {new Date(player.left).toLocaleTimeString()}
-                                </>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-
-                        <a
-                          href={`https://www.roblox.com/users/${player.playerId}/profile`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-gray-400 hover:text-blue-400 transition mr-2"
-                          title="View Roblox Profile"
-                        >
-                          <Link2 size={18} />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <h2 className="text-xl font-semibold mt-3 flex items-center gap-2">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Users size={20} /> Player Console (
                 {selectedPlayer?.username ? selectedPlayer.username : "Select A Player"})
               </h2>
@@ -377,7 +320,7 @@ export default function ServerDetailPage() {
     scrollbar-width: none; /* Firefox */
   }
 `}</style>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-row flex-wrap items-center gap-2 mt-2">
                       <button
                         onClick={async () => {
                           await axios.post(`/api/game/servers/${serverId}/commands`, {
@@ -388,9 +331,9 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Kick Player"
-                        className="p-2 bg-yellow-500/20 border border-yellow-500/40 rounded-md hover:bg-yellow-500/30 transition"
+                        className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-md hover:bg-yellow-500/30 transition text-sm"
                       >
-                        <LogOut className="text-yellow-400" size={18} />
+                        <LogOut className="text-yellow-400" size={16} /> Kick
                       </button>
 
                       <button
@@ -403,9 +346,9 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Ban Player"
-                        className="p-2 bg-red-500/20 border border-red-500/40 rounded-md hover:bg-red-500/30 transition"
+                        className="flex items-center gap-1 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-md hover:bg-red-500/30 transition text-sm"
                       >
-                        <Ban className="text-red-400" size={18} />
+                        <Ban className="text-red-400" size={16} /> Ban
                       </button>
 
                       <button
@@ -418,9 +361,9 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Mute Player"
-                        className="p-2 bg-orange-500/20 border border-orange-500/40 rounded-md hover:bg-orange-500/30 transition"
+                        className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-md hover:bg-orange-500/30 transition text-sm"
                       >
-                        <VolumeX className="text-orange-400" size={18} />
+                        <VolumeX className="text-orange-400" size={16} /> Mute
                       </button>
 
                       <button
@@ -433,9 +376,9 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Unmute Player"
-                        className="p-2 bg-green-500/20 border border-green-500/40 rounded-md hover:bg-green-500/30 transition"
+                        className="flex items-center gap-1 px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-md hover:bg-green-500/30 transition text-sm"
                       >
-                        <Volume2 className="text-green-400" size={18} />
+                        <Volume2 className="text-green-400" size={16} /> Unmute
                       </button>
 
                       <button
@@ -443,17 +386,75 @@ export default function ServerDetailPage() {
                           navigator.clipboard.writeText(selectedPlayer.playerId);
                         }}
                         title="Copy Player ID"
-                        className="p-2 bg-gray-500/20 border border-gray-500/40 rounded-md hover:bg-gray-500/30 transition"
+                        className="flex items-center gap-1 px-3 py-1 bg-gray-500/20 border border-gray-500/40 rounded-md hover:bg-gray-500/30 transition text-sm"
                       >
-                        <Copy className="text-gray-300" size={18} />
+                        <Copy className="text-gray-300" size={16} /> Copy Player ID
                       </button>
                     </div>
+
                   </>
                 ) : (
                   <div className="flex flex-col items-center justify-center flex-1 text-gray-500">
                     <Users size={32} className="mb-2 opacity-50" />
                     <p className="text-sm">Select a player to view details and actions.</p>
                   </div>
+                )}
+              </div>
+              <h2 className="text-xl font-semibold mb-3 mt-3 flex items-center gap-2">
+                <Users size={20} /> Players ({players.length})
+              </h2>
+              <div className="flex-1 overflow-y-auto bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3">
+
+                {players.length === 0 ? (
+                  <p className="text-gray-400 text-sm">No players online.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {players.map((player) => (
+                      <li
+                        key={player.playerId}
+                        onClick={() => setSelectedPlayer(player)}
+                        className={`flex items-center justify-between border-b border-white/10 pb-2 cursor-pointer hover:bg-white/5 rounded-md transition ${selectedPlayer?.playerId === player.playerId ? "bg-white/10" : ""
+                          }`}
+                      >
+                        <div className="m-2 flex items-center gap-3">
+                          <img
+                            src={player.icon || "/logo.png"}
+                            alt="avatar"
+                            className="w-8 h-8 rounded-md"
+                          />
+                          <div>
+                            <p className="font-medium text-blue-400">{player.username}</p>
+                            <p className="text-xs text-gray-400">
+                              {player.role} ({player.rank}) — {player.playerId}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Joined:{" "}
+                              {player.joined
+                                ? new Date(player.joined).toLocaleTimeString()
+                                : "—"}
+                              {player.left && (
+                                <>
+                                  {" "}• Left:{" "}
+                                  {new Date(player.left).toLocaleTimeString()}
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <a
+                          href={`https://www.roblox.com/users/${player.playerId}/profile`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-gray-400 hover:text-blue-400 transition m-2"
+                          title="View Roblox Profile"
+                        >
+                          <Link2 size={18} />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
             </div>
