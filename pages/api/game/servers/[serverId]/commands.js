@@ -18,7 +18,19 @@ export default async function handler(req, res) {
       issuedBy,
       executed: false,
     });
-
+    await GameData.updateOne(
+      { serverId },
+      {
+        $push: {
+          chat: {
+            playerId: "0", // System message
+            chatMessage: `[MODERATION] ${issuedBy} issued ${type.toUpperCase()} to ${targetId} — ${reason}`,
+            time: new Date(),
+          },
+        },
+      },
+      { upsert: true }
+    );
     return res.status(200).json({ success: true });
   }
 

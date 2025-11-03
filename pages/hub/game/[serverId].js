@@ -518,30 +518,21 @@ export default function ServerDetailPage() {
                   <p className="text-gray-400">No chat messages found.</p>
                 ) : (
                   [...filteredChat].reverse().map((msg, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-3 border-b border-white/10 pb-2"
-                    >
-                      <img
-                        src={msg.icon || '/logo.png'}
-                        alt="avatar"
-                        className="w-7 h-7 rounded-md mt-0.5"
-                      />
+                    <div key={idx} className={`flex items-start gap-3 border-b border-white/10 pb-2 ${msg.playerId === "0" ? "bg-red-500/10" : ""}`}>
+                      {msg.playerId !== "0" && (
+                        <img src={msg.icon || '/logo.png'} className="w-7 h-7 rounded-md mt-0.5" />
+                      )}
                       <div className="flex flex-1 gap-3">
                         <div className="flex flex-col w-32 shrink-0 leading-tight">
-                          <span className="font-semibold text-blue-400">
-                            <a
-                              href={`https://www.roblox.com/users/${msg.playerId}/profile`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {msg.username}
-                            </a>
+                          <span className={`font-semibold ${msg.playerId === "0" ? "text-red-400" : "text-blue-400"}`}>
+                            {msg.playerId === "0" ? "System" : msg.username}
                           </span>
-                          <span className="text-xs text-gray-400">{msg.role}</span>
+                          {msg.playerId !== "0" && <span className="text-xs text-gray-400">{msg.role}</span>}
                         </div>
                         <div className="flex-1">
-                          <p className="text-gray-200">{msg.chatMessage}</p>
+                          <p className={`text-sm ${msg.playerId === "0" ? "text-red-300 italic" : "text-gray-200"}`}>
+                            {msg.chatMessage}
+                          </p>
                           <p className="text-xs text-gray-500 mt-0.5">
                             {msg.time ? new Date(msg.time).toLocaleTimeString() : ''}
                           </p>
