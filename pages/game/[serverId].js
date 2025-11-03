@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { Loader2, Users, MessageSquare, ArrowLeft, Search } from 'lucide-react';
 import Link from 'next/link';
+import AuthWrapper from '@/components/AuthWrapper';
 
 export default function ServerDetailPage() {
   const router = useRouter();
@@ -93,142 +94,144 @@ export default function ServerDetailPage() {
   }, [chatLogs, filter]);
 
   return (
-    <main className="text-white px-6 py-8">
-      <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
-        {/* Left: Title */}
-        <h1 className="text-2xl font-bold">Server ID: {serverId}</h1>
+    <AuthWrapper requiredRole="hub">
+      <main className="text-white px-6 py-8">
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+          {/* Left: Title */}
+          <h1 className="text-2xl font-bold">Server ID: {serverId}</h1>
 
-        {/* Right: Button row */}
-        <div className="flex flex-wrap gap-3 items-center">
-          <Link
-            href="/game"
-            className="text-sm text-gray-300 hover:text-blue-400 flex items-center gap-1 transition"
-          >
-            <ArrowLeft size={16} /> Back to Servers
-          </Link>
+          {/* Right: Button row */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <Link
+              href="/game"
+              className="text-sm text-gray-300 hover:text-blue-400 flex items-center gap-1 transition"
+            >
+              <ArrowLeft size={16} /> Back to Servers
+            </Link>
 
-          <a
-            href={`roblox://placeId=112732882456453&launchData={"jobId":"${serverId}"}`}
-            className="bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-md text-sm font-medium transition"
-          >
-            Join Server
-          </a>
+            <a
+              href={`roblox://placeId=112732882456453&launchData={"jobId":"${serverId}"}`}
+              className="bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-md text-sm font-medium transition"
+            >
+              Join Server
+            </a>
 
-          <button
-            onClick={async () => {
-              const msg = prompt('Enter notification message to send:');
-              if (!msg) return;
-              await axios.post(`/api/game/servers/${serverId}/post`, {
-                message: msg,
-                author: 'Admin Notice',
-                type: 'notification',
-              });
-              alert('Notification sent!');
-            }}
-            className="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-md text-sm font-medium transition"
-          >
-            Send Notification
-          </button>
-        </div>
-      </div>
-
-
-      {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <Loader2 size={32} className="animate-spin text-blue-400" />
-        </div>
-      ) : (
-
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* 🧍 Players */}
-          <div>
-            <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-              <Users size={20} /> Players ({players.length})
-            </h2>
-            <div className="bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3 max-h-96 overflow-y-auto">
-              {players.length === 0 ? (
-                <p className="text-gray-400 text-sm">No players online.</p>
-              ) : (
-                <ul className="space-y-2">
-                  {players.map((player) => (
-                    <li
-                      key={player.userId}
-                      className="flex items-center gap-3 border-b border-white/10 pb-2"
-                    >
-                      <img
-                        src={player.icon || '/logo.png'}
-                        alt="avatar"
-                        className="w-8 h-8 rounded-md"
-                      />
-                      <div>
-                        <p className="font-medium"><a href={`https://www.roblox.com/users/${player.userId}/profile`}>{player.username}</a></p>
-                        <p className="text-xs text-gray-400">
-                          {player.role} ({player.rank}) — {player.userId}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <button
+              onClick={async () => {
+                const msg = prompt('Enter notification message to send:');
+                if (!msg) return;
+                await axios.post(`/api/game/servers/${serverId}/post`, {
+                  message: msg,
+                  author: 'Admin Notice',
+                  type: 'notification',
+                });
+                alert('Notification sent!');
+              }}
+              className="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-md text-sm font-medium transition"
+            >
+              Send Notification
+            </button>
           </div>
+        </div>
 
-          {/* 💬 Chat Logs */}
-          <div>
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <MessageSquare size={20} /> Chat Logs ({filteredChat.length})
+
+        {loading ? (
+          <div className="flex items-center justify-center h-40">
+            <Loader2 size={32} className="animate-spin text-blue-400" />
+          </div>
+        ) : (
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* 🧍 Players */}
+            <div>
+              <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+                <Users size={20} /> Players ({players.length})
               </h2>
-
-              {/* 🔍 Search Filter */}
-              <div className="relative">
-                <Search
-                  size={16}
-                  className="absolute left-2 top-2.5 text-gray-400"
-                />
-                <input
-                  type="text"
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  placeholder="Filter messages..."
-                  className="pl-8 pr-3 py-1 text-sm rounded-md bg-white/10 border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none"
-                />
+              <div className="bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3 max-h-96 overflow-y-auto">
+                {players.length === 0 ? (
+                  <p className="text-gray-400 text-sm">No players online.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {players.map((player) => (
+                      <li
+                        key={player.userId}
+                        className="flex items-center gap-3 border-b border-white/10 pb-2"
+                      >
+                        <img
+                          src={player.icon || '/logo.png'}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-md"
+                        />
+                        <div>
+                          <p className="font-medium"><a href={`https://www.roblox.com/users/${player.userId}/profile`}>{player.username}</a></p>
+                          <p className="text-xs text-gray-400">
+                            {player.role} ({player.rank}) — {player.userId}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
 
-            <div className="bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3 max-h-96 overflow-y-auto space-y-2 font-mono text-sm">
-              {filteredChat.length === 0 ? (
-                <p className="text-gray-400">No chat messages found.</p>
-              ) : (
-                filteredChat.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-3 border-b border-white/10 pb-2"
-                  >
-                    <img
-                      src={msg.icon || '/logo.png'}
-                      alt="avatar"
-                      className="w-7 h-7 rounded-md mt-0.5"
-                    />
-                    <div className="flex flex-1 gap-3">
-                      {/* Left column: username + role stacked */}
-                      <div className="flex flex-col w-32 shrink-0 leading-tight">
-                        <span className="font-semibold text-blue-400"><a href={`https://www.roblox.com/users/${msg.userId}/profile`}>{msg.username}</a></span>
-                        <span className="text-xs text-gray-400">{msg.role}</span>
-                      </div>
+            {/* 💬 Chat Logs */}
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <MessageSquare size={20} /> Chat Logs ({filteredChat.length})
+                </h2>
 
-                      {/* Right column: message spans both lines */}
-                      <div className="flex-1">
-                        <p className="text-gray-200">{msg.chatMessage}</p>
+                {/* 🔍 Search Filter */}
+                <div className="relative">
+                  <Search
+                    size={16}
+                    className="absolute left-2 top-2.5 text-gray-400"
+                  />
+                  <input
+                    type="text"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    placeholder="Filter messages..."
+                    className="pl-8 pr-3 py-1 text-sm rounded-md bg-white/10 border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3 max-h-96 overflow-y-auto space-y-2 font-mono text-sm">
+                {filteredChat.length === 0 ? (
+                  <p className="text-gray-400">No chat messages found.</p>
+                ) : (
+                  filteredChat.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 border-b border-white/10 pb-2"
+                    >
+                      <img
+                        src={msg.icon || '/logo.png'}
+                        alt="avatar"
+                        className="w-7 h-7 rounded-md mt-0.5"
+                      />
+                      <div className="flex flex-1 gap-3">
+                        {/* Left column: username + role stacked */}
+                        <div className="flex flex-col w-32 shrink-0 leading-tight">
+                          <span className="font-semibold text-blue-400"><a href={`https://www.roblox.com/users/${msg.userId}/profile`}>{msg.username}</a></span>
+                          <span className="text-xs text-gray-400">{msg.role}</span>
+                        </div>
+
+                        {/* Right column: message spans both lines */}
+                        <div className="flex-1">
+                          <p className="text-gray-200">{msg.chatMessage}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </main>
+        )}
+      </main>
+    </AuthWrapper>
   );
 }
