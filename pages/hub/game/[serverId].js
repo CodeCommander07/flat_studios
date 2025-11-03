@@ -124,7 +124,7 @@ export default function ServerDetailPage() {
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 relative z-10">
             <div>
               <p className="text-sm mt-1 font-mono">
-                <a><ArrowLeftIcon /> Go Back</a>
+                <a href="/hub/game/"><ArrowLeftIcon /> Go Back</a>
                 {" "}
                 |{" "}Join The Server:{" "}
                 <a
