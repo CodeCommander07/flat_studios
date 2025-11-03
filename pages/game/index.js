@@ -4,6 +4,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Users } from 'lucide-react';
 import { motion } from 'framer-motion';
+import AuthWrapper from '@/components/AuthWrapper';
 
 export default function GameListPage() {
   const [servers, setServers] = useState([]);
@@ -26,6 +27,7 @@ export default function GameListPage() {
   }, []);
 
   return (
+    <AuthWrapper requiredRole="hub">
     <main className="text-white px-6 py-10">
       <h1 className="text-3xl font-bold mb-6 text-center">Active Game Servers</h1>
 
@@ -61,5 +63,6 @@ export default function GameListPage() {
         </div>
       )}
     </main>
+    </AuthWrapper>
   );
 }

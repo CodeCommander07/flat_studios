@@ -1,17 +1,25 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const PlayerSchema = new mongoose.Schema({
   playerId: String,
+  joined: { type: Date, default: Date.now },
+  left: { type: Date, default: null },
 });
+
 const ChatSchema = new mongoose.Schema({
   playerId: String,
   chatMessage: String,
+  time: { type: Date, default: Date.now },
 });
 
-const GameDataSchema = new mongoose.Schema({
-  serverId: { type: String, unique: true, required: true }, // Unique email ID (e.g. Message-ID header)
-  players:[PlayerSchema],
-  chat:[ChatSchema],
-}, { timestamps: true });
+const GameDataSchema = new mongoose.Schema(
+  {
+    serverId: { type: String, unique: true, required: true },
+    players: [PlayerSchema],
+    chat: [ChatSchema],
+  },
+  { timestamps: true }
+);
 
-export default mongoose.models.GameData || mongoose.model('GameData', GameDataSchema);
+export default mongoose.models.GameData ||
+  mongoose.model("GameData", GameDataSchema);

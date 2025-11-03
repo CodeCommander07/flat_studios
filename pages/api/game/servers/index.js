@@ -1,23 +1,40 @@
 // pages/api/game/servers.js
 import axios from 'axios';
+import dbConnect from '@/utils/db';
+import GameData from '@/models/GameData';
 
 export default async function handler(req, res) {
+  await dbConnect();
+
   try {
-    const gameId = '112732882456453'; // ← your Roblox place ID
+    const gameId = '112732882456453'; // your Roblox place ID
     const response = await axios.get(
-      `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=10`
+      `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100`
     );
 
-    // Roblox returns { data: [ {id, region, playing, ...}, ... ] }
-    if (!response.data || !Array.isArray(response.data.data)) {
+    const liveServers = response.data?.data;
+    if (!Array.isArray(liveServers)) {
       return res.status(400).json({ error: 'Unexpected Roblox API format' });
     }
 
-    const servers = response.data.data.map((srv) => ({
+    // Build formatted array
+    const servers = liveServers.map((srv) => ({
       serverId: srv.id,
       region: srv.region || 'Unknown',
       players: srv.playing || 0,
     }));
+
+    // 🧹 Clean up stale GameData records
+    const liveServerIds = servers.map((s) => s.serverId);
+    const stale = await GameData.find({
+      serverId: { $nin: liveServerIds },
+    });
+
+    if (stale.length > 0) {
+      const ids = stale.map((s) => s.serverId);
+      await GameData.deleteMany({ serverId: { $in: ids } });
+      console.log(`🗑️ Removed ${ids.length} old server records`, ids);
+    }
 
     return res.status(200).json(servers);
   } catch (err) {
