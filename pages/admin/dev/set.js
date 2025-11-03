@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function SetTaskPage() {
+    const router = useRouter();
     const [form, setForm] = useState({
         taskName: '',
         taskDescription: '',
@@ -165,6 +167,12 @@ export default function SetTaskPage() {
                     className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold"
                 >
                     Create Task
+                </button>
+                <button
+                    onClick={router.push("/admin/dev")}
+                    className="ml-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold"
+                >
+                    Cancel
                 </button>
             </form>
 
