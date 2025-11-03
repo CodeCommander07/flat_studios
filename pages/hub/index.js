@@ -274,7 +274,7 @@ export default function Dashboard() {
                 {weeklySummary.hours}h {weeklySummary.minutes}m
               </p>
               <p className="text-white/60 mt-1">
-                {totalShifts} activity logs.
+                {totalShifts} {totalShifts === 1 ? 'shift' : 'shifts'} this week
               </p>
             </div>
           </div>
