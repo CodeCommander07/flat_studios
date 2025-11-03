@@ -123,7 +123,7 @@ export default function SetTaskPage() {
                                     />
                                     <div className="flex flex-col">
                                         <span className="font-semibold">{user.username}</span>
-                                        <span className="text-sm text-gray-400">{user.robloxUsername} / {user.DiscordUsername}</span>
+                                        <span className="text-sm text-gray-400">{user.username} / {user.robloxUsername} / {user.DiscordUsername}</span>
                                         <span className="text-xs text-gray-500">- {user.id}</span>
                                     </div>
                                 </li>
