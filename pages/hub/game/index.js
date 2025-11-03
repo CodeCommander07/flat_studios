@@ -136,7 +136,7 @@ export default function GameListPage() {
                         </p>
 
                         <Link
-                          href={`/hub/review/${server.serverId}`}
+                          href={`/hub/game/review/${server.serverId}`}
                           className="block mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-md py-2 text-center text-sm font-medium transition"
                         >
                           Review Data
