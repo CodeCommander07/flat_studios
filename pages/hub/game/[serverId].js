@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { Loader2, Users, MessageSquare, Search, Link2, Ban, VolumeX, Volume2, LogOut, Copy, Clock } from 'lucide-react';
+import { Loader2, Users, MessageSquare, Search, Link2, Ban, VolumeX, Volume2, LogOut, Copy, Clock, ArrowLeftIcon } from 'lucide-react';
 import AuthWrapper from '@/components/AuthWrapper';
 
 export default function ServerDetailPage() {
@@ -124,7 +124,9 @@ export default function ServerDetailPage() {
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 relative z-10">
             <div>
               <p className="text-sm mt-1 font-mono">
-                Join The Server:{" "}
+                <a><ArrowLeftIcon /> Go Back</a>
+                {" "}
+                |{" "}Join The Server:{" "}
                 <a
                   href={`roblox://placeId=112732882456453&launchData={"jobId":"${serverId}"}`}
                   className="text-gray-300 underline hover:text-blue-400 transition"
