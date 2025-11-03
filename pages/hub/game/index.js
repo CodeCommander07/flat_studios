@@ -53,7 +53,7 @@ export default function GameListPage() {
                 <Users size={16} /> {server.players ?? 0} players
               </p>
               <Link
-                href={`/game/${server.serverId}`}
+                href={`/hub/game/${server.serverId}`}
                 className="block mt-3 bg-blue-600 hover:bg-blue-700 rounded-md py-2 text-center text-sm font-medium transition"
               >
                 View Server

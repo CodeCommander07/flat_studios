@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function Breadcrumb() {
-  const pathname = usePathname(); // e.g. /blogs/my-first-post
-  const parts = pathname.split("/").filter(Boolean); // ["blogs", "my-first-post"]
+  const pathname = usePathname();
+  const parts = pathname ? pathname.split("/").filter(Boolean) : []; // ✅ Safe guard
 
   return (
     <nav className="text-sm text-gray-400 mb-6">
@@ -19,8 +19,7 @@ export default function Breadcrumb() {
           const href = "/" + parts.slice(0, idx + 1).join("/");
           const isLast = idx === parts.length - 1;
           const label =
-            part.charAt(0).toUpperCase() +
-            part.slice(1).replace(/-/g, " "); // make it readable
+            part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, "-");
 
           return (
             <li key={idx} className="flex items-center gap-2">
