@@ -72,7 +72,7 @@ export default function Navbar() {
       items: [
         { label: 'Home', href: '/' },
         { label: 'Content', href: '/content' },
-        { label: 'Community', href: '/community' },
+        { label: 'Make A Report', href: '/make-a-report' },
         { label: 'Advertising', href: '/advertising' },
       ],
     },

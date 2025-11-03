@@ -170,7 +170,7 @@ export default function SubmissionDetailPage() {
           </p>
 
           <div className="space-y-3 overflow-y-auto max-h-[500px] pr-2">
-            {sub.answers.map((ans, i) => (
+            {[...sub.answers].reverse().map((ans, i) => (
               <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-4">
                 <p className="font-semibold text-blue-300">{ans.questionLabel}</p>
                 <p className="text-white/80 mt-1">

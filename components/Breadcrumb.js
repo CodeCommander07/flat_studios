@@ -11,7 +11,7 @@ export default function Breadcrumb() {
     <nav className="text-sm text-gray-400 mb-6">
       <ol className="flex items-center gap-2 flex-wrap">
         <li>
-          <Link href="/" className="text-purple-400 hover:text-purple-300 transition">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 transition">
             Home
           </Link>
         </li>
@@ -29,7 +29,7 @@ export default function Breadcrumb() {
               ) : (
                 <Link
                   href={href}
-                  className="text-purple-400 hover:text-purple-300 transition"
+                  className="text-blue-400 hover:text-blue-300 transition"
                 >
                   {label}
                 </Link>

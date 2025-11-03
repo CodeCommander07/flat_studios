@@ -75,7 +75,7 @@ export default function WebsiteReportForm() {
                                 <p className="text-xs text-white/50 mt-1">
                                     We may contact you for clarification. See our{' '}
                                     <a
-                                        href="/privacy-policy"
+                                        href="/privacy"
                                         className="text-blue-400 underline hover:text-blue-300"
                                     >
                                         Privacy Policy

@@ -24,7 +24,7 @@ export default async function handler(req, res) {
             // Fetch related application details
             const application = await ApplicationForm.findById(submission.applicationId);
             console.log(application) // assuming submission has applicationId
-            const applicationName = application ? application.name : 'Operations Manager';
+            const applicationName = application ? application.title : 'Operations Manager';
 
             // Update submission fields
             submission.status = status;
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
                 const statusMessage =
                     status === 'denied'
                         ? `<p style="margin-top:20px;font-size:14px;">Unfortunately, your Application for <strong>${applicationName}</strong> has been denied.<br>Reason:<br><div style="border: 1px solid black; padding: 8px; border-radius: 8px; margin-top: 8px;">
-  ${denyReason || 'N/A'}
+  ${denyReason || ""}
 </div></p>`
                         : status === 'Held'
                             ? `<p style="font-size: 16px; line-height: 1.5;">
