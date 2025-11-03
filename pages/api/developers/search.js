@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         { userId: { $regex: q, $options: 'i' } },
       ],
     })
-      .select('discordUsername robloxUsername defaultAvatar userId')
+      .select('email username discordUsername robloxUsername defaultAvatar userId')
       .limit(10);
 
     return res.status(200).json(users);
