@@ -2,13 +2,13 @@
 
 export default function AdvertisingPage() {
   return (
-    <main className="text-white px-6 py-12 flex justify center">
-      <div className="max-w-4xl w-full bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-8 shadow-xl">
-        <h1 className="text-4xl font-bold mb-6 text-center text-blue-400">
+    <main className="text-white px-6 py-12 flex justify-center items-center min-h-[calc(100vh-100px)]">
+      <div className="max-w-4xl w-full bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-8 shadow-xl text-center">
+        <h1 className="text-4xl font-bold mb-6 text-blue-400">
           Advertising with Yapton & District
         </h1>
 
-        <section className="space-y-8 text-white/80 leading-relaxed">
+        <section className="space-y-8 text-white/80 leading-relaxed text-left">
           <div>
             <h2 className="text-2xl font-semibold mb-2">Why advertise with us?</h2>
             <p>
@@ -52,7 +52,7 @@ export default function AdvertisingPage() {
           </div>
 
           <div>
-            <p className="text-sm text-white/60 pt-4 border-t border-white/10">
+            <p className="text-sm text-white/60 pt-4 border-t border-white/10 text-center">
               Yapton &amp; District · Flat Studios © 2025 · All rights reserved.
             </p>
           </div>

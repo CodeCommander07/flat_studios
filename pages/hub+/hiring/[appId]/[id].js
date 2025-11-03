@@ -9,18 +9,19 @@ import Image from 'next/image';
 
 export default function SubmissionDetailPage() {
   const params = useParams();
+  const { id, appId } = params || {};
 
-  if (!params || !params.id) {
-    return <p className="text-center text-white">Loading...</p>;
-  }
-
-  const { id, appId } = params;
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showNotes, setShowNotes] = useState(true);
   const [newNote, setNewNote] = useState('');
   const [addingNote, setAddingNote] = useState(false);
   const [userData, setUserData] = useState(null);
+
+  // 🆕 Modal for deny reason
+  const [showDenyModal, setShowDenyModal] = useState(false);
+  const [denyReason, setDenyReason] = useState('');
+  const [submittingDeny, setSubmittingDeny] = useState(false);
 
   useEffect(() => {
     const data = localStorage.getItem('User');
@@ -32,7 +33,7 @@ export default function SubmissionDetailPage() {
       const res = await axios.get(`/api/careers/submissions/${id}`);
       const subData = res.data;
 
-      // Fetch full staff data for notes
+      // Fetch staff info for notes
       const notePromises = subData.notes?.map(async (note) => {
         if (!note.staffMember) return note;
         try {
@@ -56,19 +57,19 @@ export default function SubmissionDetailPage() {
     if (id) fetchSubmission();
   }, [id]);
 
-  const handleStatusChange = async (status) => {
+  // 🧩 Handle status change (accept / talent pool)
+  const handleStatusChange = async (status, extraNote) => {
     if (!userData) return;
     try {
       await axios.patch(`/api/careers/submissions/${id}/status`, { status });
 
-      // Add system note for status change
       const systemNote = {
         staffMember: userData._id,
         noteText:
           status === 'accepted'
             ? `System | ✅ Application was accepted by ${userData.username || 'Unknown'}`
             : status === 'denied'
-              ? `System | ❌ Application was denied by ${userData.username || 'Unknown'}`
+              ? `System | ❌ Application was denied by ${userData.username || 'Unknown'}${extraNote ? ` — Reason: ${extraNote}` : ''}`
               : `System | ⚠️ Application was added to the talent pool by ${userData.username || 'Unknown'}`,
         system: true,
       };
@@ -97,6 +98,29 @@ export default function SubmissionDetailPage() {
     }
   };
 
+  // 🆕 Handle deny with popup reason
+  const handleDeny = async () => {
+    if (!denyReason.trim()) return alert('Please provide a reason.');
+    setSubmittingDeny(true);
+    try {
+      await handleStatusChange('denied', denyReason);
+
+      // Add personal staff note for the reason
+      await axios.post(`/api/careers/submissions/${id}/note`, {
+        staffMember: userData._id,
+        noteText: `📝 Deny Reason: ${denyReason}`,
+      });
+
+      setDenyReason('');
+      setShowDenyModal(false);
+      await fetchSubmission();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmittingDeny(false);
+    }
+  };
+
   const handleDeleteApplication = async () => {
     if (!userData) return alert('User data missing.');
     if (!confirm('Are you sure you want to permanently delete this application?')) return;
@@ -104,13 +128,12 @@ export default function SubmissionDetailPage() {
     try {
       await axios.delete(`/api/careers/submissions/${id}`);
       alert('Application deleted successfully.');
-      window.location.href = `/hub+/hiring/${appId}`; // or wherever you want to redirect
+      window.location.href = `/hub+/hiring/${appId}`;
     } catch (err) {
       console.error('Failed to delete application:', err);
-      alert('Failed to delete this application. Check console for details.');
+      alert('Failed to delete this application.');
     }
   };
-
 
   const getNoteStyles = (note) => {
     const text = note.noteText.toLowerCase();
@@ -140,8 +163,8 @@ export default function SubmissionDetailPage() {
         layout
         className={`max-w-10xl mx-auto w-full grid ${showNotes ? 'md:grid-cols-2' : 'grid-cols-1'} gap-6 transition-all duration-500`}
       >
-        {/* Left Panel: Details */}
-        <motion.div layout className={`bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl h-full flex flex-col ${showNotes ? '' : 'mx-auto max-w-xl'}`}>
+        {/* Left Panel */}
+        <motion.div layout className={`bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl flex flex-col`}>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-white">Application Details</h2>
             <button onClick={() => setShowNotes(!showNotes)} className="text-white/60 hover:text-white transition">
@@ -152,18 +175,18 @@ export default function SubmissionDetailPage() {
           <p className="text-white/70 mb-2">
             <span className="font-semibold text-blue-300">Applicant Email:</span> {sub.applicantEmail}
           </p>
-
           <p className="text-white/70 mb-4">
             <span className="font-semibold text-blue-300">Status:</span>{' '}
             <span
-              className={`capitalize font-medium ${sub.status === 'accepted'
-                ? 'text-green-400'
-                : sub.status === 'denied'
-                  ? 'text-red-400'
-                  : sub.status === 'talnted'
-                    ? 'text-yellow-400'
-                    : 'text-white/70'
-                }`}
+              className={`capitalize font-medium ${
+                sub.status === 'accepted'
+                  ? 'text-green-400'
+                  : sub.status === 'denied'
+                    ? 'text-red-400'
+                    : sub.status === 'talented'
+                      ? 'text-yellow-400'
+                      : 'text-white/70'
+              }`}
             >
               {sub.status}
             </span>
@@ -174,9 +197,7 @@ export default function SubmissionDetailPage() {
               <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-4">
                 <p className="font-semibold text-blue-300">{ans.questionLabel}</p>
                 <p className="text-white/80 mt-1">
-                  {Array.isArray(ans.answer)
-                    ? ans.answer.join(', ')
-                    : ans.answer || '—'}
+                  {Array.isArray(ans.answer) ? ans.answer.join(', ') : ans.answer || '—'}
                 </p>
               </div>
             ))}
@@ -196,7 +217,7 @@ export default function SubmissionDetailPage() {
               <Flag className="w-5 h-5" /> Talent Pool
             </button>
             <button
-              onClick={() => handleStatusChange('denied')}
+              onClick={() => setShowDenyModal(true)} // 🆕 open popup
               className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-4 py-2 rounded-lg transition"
             >
               <XCircle className="w-5 h-5" /> Deny
@@ -205,12 +226,12 @@ export default function SubmissionDetailPage() {
               onClick={handleDeleteApplication}
               className="flex items-center gap-2 bg-red-700/20 hover:bg-red-700/30 text-red-500 font-semibold px-4 py-2 rounded-lg transition"
             >
-              <Trash className='w-5 h-5' /> Delete
+              <Trash className="w-5 h-5" /> Delete
             </button>
           </div>
-
         </motion.div>
-        {/* Right Panel: Notes */}
+
+        {/* Right Panel (Notes) */}
         <AnimatePresence>
           {showNotes && (
             <motion.div
@@ -251,7 +272,7 @@ export default function SubmissionDetailPage() {
                     return (
                       <li key={idx} className={`p-3 rounded-md border ${bgColor} flex items-start gap-3`}>
                         {staff?.defaultAvatar ? (
-                          <Image width={40} height={40} src={staff.defaultAvatar || "./default-avatar.png"} alt={staff.username} className="w-8 h-8 rounded-full" />
+                          <Image width={40} height={40} src={staff.defaultAvatar || '/default-avatar.png'} alt={staff.username} className="w-8 h-8 rounded-full" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-white/10" />
                         )}
@@ -271,6 +292,49 @@ export default function SubmissionDetailPage() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* 🆕 Deny Reason Modal */}
+      <AnimatePresence>
+        {showDenyModal && (
+          <motion.div
+            className="fixed inset-0 bg-black/70 flex justify-center items-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <h2 className="text-xl font-semibold mb-4 text-center">Enter Deny Reason</h2>
+              <textarea
+                rows={4}
+                className="w-full bg-white/10 border border-white/20 rounded-md p-2 text-white resize-none"
+                placeholder="Why is this application being denied?"
+                value={denyReason}
+                onChange={(e) => setDenyReason(e.target.value)}
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setShowDenyModal(false)}
+                  className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeny}
+                  disabled={submittingDeny}
+                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg"
+                >
+                  {submittingDeny ? 'Submitting...' : 'Confirm Deny'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
