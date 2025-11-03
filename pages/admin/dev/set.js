@@ -118,13 +118,13 @@ export default function SetTaskPage() {
                                 >
                                     <Image width={10} height={10}
                                         src={user.defaultAvatar || '/default-avatar.png'}
-                                        alt={user.discordUsername}
+                                        alt={user.username}
                                         className="w-10 h-10 rounded-full"
                                     />
                                     <div className="flex flex-col">
-                                        <span className="font-semibold">{user.discordUsername}</span>
-                                        <span className="text-sm text-gray-400">{user.robloxUsername}</span>
-                                        <span className="text-xs text-gray-500">- {user.userId}</span>
+                                        <span className="font-semibold">{user.username}</span>
+                                        <span className="text-sm text-gray-400">{user.robloxUsername} / {user.DiscordUsername}</span>
+                                        <span className="text-xs text-gray-500">- {user.id}</span>
                                     </div>
                                 </li>
                             ))}

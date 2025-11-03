@@ -194,7 +194,7 @@ const handleRobloxConnect = () => {
 
           {/* Password Reset Section */}
           <div className="flex-1 bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-            <h2 className="text-xl font-bold mb-4">🔐 Reset Password</h2>
+            <h2 className="text-xl font-bold mb-4">🔐 Update Password</h2>
             <div className="flex flex-col gap-4 mb-4">
               <input
                 type="password"

@@ -8,10 +8,15 @@ import Image from 'next/image';
 // Helper: start of current week (Monday)
 const getStartOfWeek = () => {
   const now = new Date();
-  const day = now.getDay(); // 0 (Sun) to 6 (Sat)
-  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(now.setDate(diff));
+  const utcNow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const day = utcNow.getUTCDay(); // 0 (Sun) - 6 (Sat)
+  const diff = day === 0 ? -6 : 1 - day; // shift to Monday
+  const monday = new Date(utcNow);
+  monday.setUTCDate(utcNow.getUTCDate() + diff);
+  monday.setUTCHours(0, 0, 0, 0);
+  return monday;
 };
+
 
 // Helper: format float hours into h/m
 const formatTime = (hoursFloat) => {
@@ -144,7 +149,7 @@ export default function ActivityUsersList() {
 
                 {/* Total In-Game Time */}
                 <td className="p-4 text-blue-300">
-                  {stats.total.hours}h {stats.total.minutes}m
+                  {stats.week.hours}h {stats.week.minutes}m
                 </td>
 
                 {/* ✅ Total Shifts (count) */}
