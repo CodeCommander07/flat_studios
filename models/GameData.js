@@ -14,9 +14,11 @@ const ChatSchema = new mongoose.Schema({
 
 const GameDataSchema = new mongoose.Schema(
   {
-    serverId: { type: String, unique: true, required: true },
+    serverId: { type: String, unique: true, required: true, index: true },
     players: [PlayerSchema],
     chat: [ChatSchema],
+    flagged: { type: Boolean, default: false },
+    flaggedAt: { type: Date },
   },
   { timestamps: true }
 );

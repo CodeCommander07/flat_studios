@@ -124,21 +124,12 @@ export default function ServerDetailPage() {
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 relative z-10">
             <div>
               <p className="text-sm mt-1 font-mono">
-                Join The Server:{" "}
-                <a
-                  href={`roblox://placeId=112732882456453&launchData={"jobId":"${serverId}"}`}
-                  className="text-gray-300 underline hover:text-blue-400 transition"
-                >
-                  {serverId}
-                </a>{" "}
-                |{" "}
-                <a
-                  href={`https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District`}
-                  className="text-gray-300 underline hover:text-blue-400 transition"
-                >
-                  Join The Game
-                </a>
+                Server ID: {serverId}
               </p>
+              <p className="text-xs text-gray-400/80 italic">
+                This is a saved data server
+              </p>
+
 
               {serverMeta && (
                 <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:gap-6 text-sm text-gray-400">

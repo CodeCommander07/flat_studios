@@ -1,10 +1,13 @@
-// pages/api/game/servers.js
 import axios from 'axios';
 import dbConnect from '@/utils/db';
 import GameData from '@/models/GameData';
+import cleanupGameData from '@/utils/cleanupGameData';
 
 export default async function handler(req, res) {
   await dbConnect();
+
+  // 🔁 Run cleanup on every call (non-blocking)
+  cleanupGameData().catch((err) => console.error('Cleanup error:', err));
 
   try {
     const gameId = '112732882456453'; // your Roblox place ID
@@ -17,15 +20,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Unexpected Roblox API format' });
     }
 
-    // Build formatted array
     const servers = liveServers.map((srv) => ({
       serverId: srv.id,
       region: srv.region || 'Unknown',
       players: srv.playing || 0,
     }));
 
-    // 🧹 Clean up stale GameData records
     const liveServerIds = servers.map((s) => s.serverId);
+
+    // 🗑️ Delete stale GameData entries not in Roblox’s live list
     const stale = await GameData.find({
       serverId: { $nin: liveServerIds },
     });
