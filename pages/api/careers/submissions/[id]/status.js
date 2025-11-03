@@ -43,7 +43,9 @@ export default async function handler(req, res) {
                     status === 'denied'
                         ? denyReason ?  `<p style="margin-top:20px;font-size:14px;">Unfortunately, your application for <strong>${applicationName}</strong> has been denied.<br>Reason:<br><div style="border: 1px solid black; padding: 8px; border-radius: 8px; margin-top: 8px;">
   ${denyReason || ""}
-</div></p>`:`<p style="margin-top:20px;font-size:14px;">Unfortunately, your application for <strong>${applicationName}</strong> has been denied.</p>`
+</div></p>`:`<p style="margin-top:20px;font-size:14px;">Thank you for submitting your application for the ${applicationName} position at Yapton & District.<br /><br />
+
+Unfortunately, your application has not been successful at this time. We encourage you to reapply in the future if your circumstances change.</p>`
                         : status === 'Held'
                             ? `<p style="font-size: 16px; line-height: 1.5;">
                     We're pleased to inform you that we've moved your application for <strong>${applicationName}</strong> to our talent pool. While we don't have a spot for you on the team just yet, we're excited about the possibility of having you on board in the future. When we have a vacancy or a final decision regarding your application, we will reach out via email — so please keep an eye on your inbox, including your spam and junk folders.
