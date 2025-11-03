@@ -6,7 +6,7 @@ import cleanupGameData from '@/utils/cleanupGameData';
 export default async function handler(req, res) {
   await dbConnect();
 
-  // 🔁 Run cleanup on every call (non-blocking)
+  // 🧹 Run time-based cleanup (non-blocking)
   cleanupGameData().catch((err) => console.error('Cleanup error:', err));
 
   try {
@@ -20,25 +20,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Unexpected Roblox API format' });
     }
 
+    // ✅ Only build the server list — no deletions!
     const servers = liveServers.map((srv) => ({
       serverId: srv.id,
       region: srv.region || 'Unknown',
       players: srv.playing || 0,
     }));
 
-    const liveServerIds = servers.map((s) => s.serverId);
-
-    // 🗑️ Delete stale GameData entries not in Roblox’s live list
-    const stale = await GameData.find({
-      serverId: { $nin: liveServerIds },
-    });
-
-    if (stale.length > 0) {
-      const ids = stale.map((s) => s.serverId);
-      await GameData.deleteMany({ serverId: { $in: ids } });
-      console.log(`🗑️ Removed ${ids.length} old server records`, ids);
-    }
-
+    // 🟢 Just return live data, do NOT delete anything.
     return res.status(200).json(servers);
   } catch (err) {
     console.error('Roblox API error:', err.response?.status, err.message);
