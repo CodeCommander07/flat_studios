@@ -247,7 +247,7 @@ export default function Dashboard() {
             {/* Live Players */}
             <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
-                <Sparkles className="w-6 h-6 text-green-300" />
+                <a href="/hub/game"><Sparkles className="w-6 h-6 text-green-300" /></a>
                 <h2 className="text-xl font-semibold">Live Players</h2>
               </div>
               <p className="text-4xl font-bold text-green-300">{stats?.playing || '—'}</p>
