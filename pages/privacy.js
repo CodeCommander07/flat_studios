@@ -41,7 +41,7 @@ export default function PrivacyPolicy() {
                 improve security.
               </li>
               <li>
-                <strong>Chat Logs:</strong> We collect chat logs for each game server which is active to montior player behaviour. This data is temporaily stored for <strong>14</strong> days unless flagged by our staff team which is then stored for <strong>90</strong> days. 
+                <strong>Chat Logs:</strong> We collect chat logs for each game server which is active to montior player behaviour. This data is temporaily stored for <strong className="text-red-400 underline">14</strong> days unless flagged by our staff team which is then stored for <strong className="text-red-400 underline">90</strong> days. 
               </li>
             </ul>
           </div>
