@@ -41,15 +41,21 @@ export default async function handler(req, res) {
 
                 const statusMessage =
                     status === 'denied'
-                        ? `<p style="margin-top:20px;font-size:14px;">Unfortunately, your Application for <strong>${applicationName}</strong> has been denied.<br>Reason:<br><div style="border: 1px solid black; padding: 8px; border-radius: 8px; margin-top: 8px;">
+                        ? denyReason ?  `<p style="margin-top:20px;font-size:14px;">Unfortunately, your Application for <strong>${applicationName}</strong> has been denied.<br>Reason:<br><div style="border: 1px solid black; padding: 8px; border-radius: 8px; margin-top: 8px;">
   ${denyReason || ""}
-</div></p>`
+</div></p>`:`<p style="margin-top:20px;font-size:14px;">Unfortunately, your Application for <strong>${applicationName}</strong> has been denied.</p>`
                         : status === 'Held'
                             ? `<p style="font-size: 16px; line-height: 1.5;">
                     We're pleased to inform you that we've moved your application for <strong>${applicationName}</strong> to our talent pool. While we don't have a spot for you on the team just yet, we're excited about the possibility of having you on board in the future. When we have a vacancy or a final decision regarding your application, we will reach out via email — so please keep an eye on your inbox, including your spam and junk folders.
                   </p>`
                             : `<p style="margin-top:20px;font-size:14px;">
-        Your submission for <strong>${applicationName}</strong> has been <strong style="color: green;">accepted</strong>. Our team will process it accordingly.
+Congratulations! We are pleased to inform you that your application for the ${applicationName} position at Yapton & District has been accepted.<br /><br />
+
+Further details will be provided in the Yapton & District Community Server. Make sure you have all channels visible to ensure you don't miss anything!<br /><br />
+
+Welcome to the team! <br /><br />
+
+Please check your emails for further updates.
       </p>`;
 
                 const html = `
