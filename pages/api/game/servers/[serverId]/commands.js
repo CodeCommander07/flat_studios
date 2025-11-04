@@ -1,6 +1,7 @@
 import axios from "axios";
 import dbConnect from "@/utils/db";
 import GameData from "@/models/GameData";
+import GameCommand from "@/models/GameCommand";
 
 export default async function handler(req, res) {
   await dbConnect();
@@ -11,8 +12,8 @@ export default async function handler(req, res) {
     const { type, targetId, reason, issuedBy, issuedById, issuedByRole } = req.body;
 
     try {
-      // Save the command
-      const command = await GameData.create({
+
+      const command = await GameCommand.create({
         serverId,
         type,
         targetId,
@@ -20,7 +21,6 @@ export default async function handler(req, res) {
         issuedBy,
         executed: false,
       });
-
       // Fetch Roblox avatar + username (optional for dashboard logs)
       let avatarUrl = "";
       try {
@@ -47,6 +47,14 @@ export default async function handler(req, res) {
               time: new Date(),
               isModerationLog: true,
             },
+            commands: {
+              serverId,
+              type,
+              targetId,
+              reason,
+              issuedBy,
+              executed: false,
+            },
           },
         },
         { upsert: true }
@@ -60,7 +68,8 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    const commands = await GameData.find({ serverId });
+    const server = await GameData.find({ serverId });
+    const commands = server.commands()
     return res.status(200).json(commands);
   }
 }
