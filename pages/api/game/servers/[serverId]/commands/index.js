@@ -67,8 +67,10 @@ export default async function handler(req, res) {
     }
   }
 
-  if (req.method === "GET") {
-    const commands = await GameCommand.find({ serverId });
-    return res.status(200).json(commands);
-  }
+if (req.method === "GET") {
+  const commands = await GameCommand.find({ serverId, executed: false });
+  await GameCommand.updateMany({ serverId, executed: false }, { executed: true });
+  return res.status(200).json(commands);
+}
+
 }
