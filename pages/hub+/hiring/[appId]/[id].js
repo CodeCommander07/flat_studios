@@ -67,10 +67,10 @@ export default function SubmissionDetailPage() {
         staffMember: userData._id,
         noteText:
           status === 'accepted'
-            ? `System | ✅ Application was accepted by ${userData.username || 'Unknown'}`
+            ? `✅ Application was accepted by ${userData.username || 'Unknown'}`
             : status === 'denied'
-              ? `System | ❌ Application was denied by ${userData.username || 'Unknown'}${extraNote ? ` — Reason: ${extraNote}` : ''}`
-              : `System | ⚠️ Application was added to the talent pool by ${userData.username || 'Unknown'}`,
+              ? `❌ Application was denied by ${userData.username || 'Unknown'}${extraNote ? ` — Reason: ${extraNote}` : ''}`
+              : `⚠️ Application was added to the talent pool by ${userData.username || 'Unknown'}`,
         system: true,
       };
 

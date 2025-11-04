@@ -22,7 +22,10 @@ export default function Home() {
       if (!res.ok) throw new Error(data.message || 'Login failed');
 
       localStorage.setItem('User', JSON.stringify(data));
-      window.location.href = '/hub/';
+      if(data.role !== "User"){
+      window.location.href = '/hub/'}else{
+         window.location.href = '/me/'
+      };
     } catch (err) {
       alert(err.message);
       console.error('Login failed:', err);

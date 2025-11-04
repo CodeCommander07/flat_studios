@@ -10,7 +10,9 @@ export default async function handler(req, res) {
   cleanupGameData().catch((err) => console.error('Cleanup error:', err));
 
   try {
-    const gameId = '112732882456453'; // your Roblox place ID
+    // const gameId = '112732882456453'; // your Roblox place ID Test Game
+    // const gameId = '5883938795'; // your Roblox place ID Yapton
+    const gameId = '10568768188'; // your Roblox place ID Yapton V4
     const response = await axios.get(
       `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100`
     );
