@@ -68,8 +68,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    const server = await GameData.find({ serverId });
-    const commands = server.commands()
+    const commands = await GameCommand.find({ serverId });
     return res.status(200).json(commands);
   }
 }
