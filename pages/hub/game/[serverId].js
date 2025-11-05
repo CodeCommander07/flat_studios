@@ -245,7 +245,7 @@ export default function ServerDetailPage() {
               <div className="mt-3 bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-4 flex flex-col justify-between flex-1">
                 {selectedPlayer ? (
                   <>
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-3 mb-3 max-h-[250px]">
                       <img
                         src={selectedPlayer.icon || "/logo.png"}
                         alt="avatar"
