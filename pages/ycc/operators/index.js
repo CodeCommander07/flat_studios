@@ -25,10 +25,10 @@ export default function Home() {
   }, []); // ✅ Run only once
 
   const logos = [
-    { src: "https://yapton.vercel.app/operators/swb/swbHoloLeft.png", alt: "swbHoloLeft" },
-    { src: "https://yapton.vercel.app/operators/swb/swbHoloRight.png", alt: "swbHoloRight" },
-    { src: "https://yapton.vercel.app/operators/swb/swbRavenLeft.png", alt: "swbRavenLeft" },
-    { src: "https://yapton.vercel.app/operators/swb/SWRavenRight.png", alt: "SWRavenRight" },
+    { src: "https://yapton.vercel.app/operators/swb/swbHoloLeft.png", alt: "SWBLogo" },
+    { src: "https://yapton.vercel.app/operators/ic/IC.png", alt: "ICLogo" },
+    { src: "https://yapton.vercel.app/operators/ycb/YCB_simplifies.png", alt: "YCBLogo" },
+    { src: "https://yapton.vercel.app/operators/sc/sc.png", alt: "SCLogo" },
   ]
 
   return (
