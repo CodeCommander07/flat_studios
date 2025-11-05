@@ -242,10 +242,10 @@ export default function ServerDetailPage() {
                 {selectedPlayer?.username ? selectedPlayer.username : "Select A Player"})
               </h2>
 
-              <div className="mt-3 bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-4 flex flex-col justify-between flex-1">
+              <div className="mt-3 bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-4 flex flex-col justify-between flex-1 max-h-[250px]">
                 {selectedPlayer ? (
                   <>
-                    <div className="flex items-center gap-3 mb-3 max-h-[250px]">
+                    <div className="flex items-center gap-3 mb-3 ">
                       <img
                         src={selectedPlayer.icon || "/logo.png"}
                         alt="avatar"
@@ -434,7 +434,7 @@ export default function ServerDetailPage() {
               <h2 className="text-xl font-semibold mb-3 mt-3 flex items-center gap-2">
                 <Users size={20} /> Players ({players.length})
               </h2>
-              <div className="flex-1 overflow-y-auto bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3">
+              <div className="flex-1 overflow-y-auto bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3 max-h-[250px]">
 
                 {players.length === 0 ? (
                   <p className="text-gray-400 text-sm">No players online.</p>
