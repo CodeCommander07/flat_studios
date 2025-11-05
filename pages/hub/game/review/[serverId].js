@@ -347,6 +347,7 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Kick Player"
+                        disabled
                         className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-md hover:bg-yellow-500/30 transition text-sm"
                       >
                         <LogOut className="text-yellow-400" size={16} /> Kick
@@ -362,6 +363,7 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Ban Player"
+                        disabled
                         className="flex items-center gap-1 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-md hover:bg-red-500/30 transition text-sm"
                       >
                         <Ban className="text-red-400" size={16} /> Ban
@@ -377,6 +379,7 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Mute Player"
+                        disabled
                         className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-md hover:bg-orange-500/30 transition text-sm"
                       >
                         <VolumeX className="text-orange-400" size={16} /> Mute
@@ -392,6 +395,7 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Unmute Player"
+                        disabled
                         className="flex items-center gap-1 px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-md hover:bg-green-500/30 transition text-sm"
                       >
                         <Volume2 className="text-green-400" size={16} /> Unmute
@@ -402,6 +406,7 @@ export default function ServerDetailPage() {
                           navigator.clipboard.writeText(selectedPlayer.playerId);
                         }}
                         title="Copy Player ID"
+                        disabled
                         className="flex items-center gap-1 px-3 py-1 bg-gray-500/20 border border-gray-500/40 rounded-md hover:bg-gray-500/30 transition text-sm"
                       >
                         <Copy className="text-gray-300" size={16} /> Copy Player ID

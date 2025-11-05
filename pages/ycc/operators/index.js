@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import LogoLoop from '@/components/LogoLoop';
 
 export default function Home() {
   const [companies, setCompanies] = useState([]);
@@ -23,6 +24,13 @@ export default function Home() {
     fetchCompanies();
   }, []); // ✅ Run only once
 
+  const logos = [
+    { src: "https://yapton.vercel.app/operators/swb/swbHoloLeft.png", alt: "swbHoloLeft" },
+    { src: "https://yapton.vercel.app/operators/swb/swbHoloRight.png", alt: "swbHoloRight" },
+    { src: "https://yapton.vercel.app/operators/swb/swbRavenLeft.png", alt: "swbRavenLeft" },
+    { src: "https://yapton.vercel.app/operators/swb/SWRavenRight.png", alt: "SWRavenRight" },
+  ]
+
   return (
     <main className="flex flex-col gap-16 items-center justify-center px-4 py-20 text-white max-w-7xl mx-auto">
       {loading && <p className="text-white/50">Loading operators...</p>}
@@ -31,12 +39,20 @@ export default function Home() {
         <p className="text-white/50">No active operators found.</p>
       )}
 
+      <LogoLoop
+        logos={logos}
+        speed={100}
+        direction="left"
+        fadeOut
+        fadeOutColor="rgb(15,23,42)"
+        scaleOnHover
+        className="max-w-4xl"
+      />
       {companies.map((company, idx) => (
         <div
           key={company._id || idx}
-          className={`flex flex-col md:flex-row ${
-            idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
-          } items-center gap-10 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
+          className={`flex flex-col md:flex-row ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
+            } items-center gap-10 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
         >
           {/* 🖼️ Logo */}
           <div className="w-full md:w-1/2 flex justify-center">

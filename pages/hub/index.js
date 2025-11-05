@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
+import SplitText from "@/components/splitText";
 import { Sparkles, Users, Clock, Info } from 'lucide-react';
 
 const getStartOfWeek = () => {
@@ -239,7 +240,21 @@ export default function Dashboard() {
 
           {/* Stats */}
           <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
-            <h1 className="text-3xl font-bold">Welcome, {user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy ": ""}{user?.username || 'Staff'}</h1>
+            <SplitText
+              text={`Welcome, ${user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy " : ""}${user?.username || 'Staff'}`}
+              className="text-3xl font-bold text-center"
+              delay={100}
+              duration={0.6}
+              ease="power3.out"
+              splitType="chars"
+              from={{ opacity: 0, y: 40 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.1}
+              rootMargin="-100px"
+              textAlign="center"
+              // onLetterAnimationComplete={handleAnimationComplete}
+            />
+            {/* <h1 className="text-3xl font-bold">Welcome, {user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy ": ""}{user?.username || 'Staff'}</h1> */}
             <p className="text-sm text-white/60">View your staff metrics below.</p>
           </div>
 
@@ -278,7 +293,7 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3 w-full">
             {/* Shift Activity */}
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
 import { MapPin, Route, Bus } from 'lucide-react'; // icons for style
+import CountUp from '@/components/CountUp';
 
 export default function YCCIndex() {
   const [stats, setStats] = useState(null);
@@ -49,7 +50,15 @@ export default function YCCIndex() {
                 <a href='/ycc/routes'><Route className="w-6 h-6 text-green-300" /></a>
                 <h2 className="text-xl font-semibold">Total Routes</h2>
               </div>
-              <p className="text-4xl font-bold text-green-300">{stats?.length ?? '—'}</p>
+              <p className="text-4xl font-bold text-green-300">
+                <CountUp
+                  from={0}
+                  to={stats?.length ?? 0}
+                  separator=","
+                  direction="up"
+                  duration={1}
+                  className="count-up-text"
+                /></p>
               <p className="text-sm text-white/50">routes in total</p>
             </div>
 
@@ -58,7 +67,15 @@ export default function YCCIndex() {
                 <a href='/ycc/operators'><Bus className="w-6 h-6 text-purple-300" /></a>
                 <h2 className="text-xl font-semibold">Total Operators</h2>
               </div>
-              <p className="text-4xl font-bold text-purple-300">{stats3?.length ?? '—'}</p>
+              <p className="text-4xl font-bold text-purple-300">                
+                <CountUp
+                  from={0}
+                  to={stats3?.length ?? 0}
+                  separator=","
+                  direction="up"
+                  duration={1}
+                  className="count-up-text"
+                /></p>
               <p className="text-sm text-white/50">Operators in total</p>
             </div>
 
@@ -68,7 +85,15 @@ export default function YCCIndex() {
                 <a href='/ycc/stops'><MapPin className="w-6 h-6 text-cyan-300" /></a>
                 <h2 className="text-xl font-semibold">Total Stops</h2>
               </div>
-              <p className="text-4xl font-bold text-cyan-300">{stats2?.length ?? '—'}</p>
+              <p className="text-4xl font-bold text-cyan-300">
+                <CountUp
+                  from={0}
+                  to={stats2?.length ?? 0}
+                  separator=","
+                  direction="up"
+                  duration={1}
+                  className="count-up-text"
+                /></p>
               <p className="text-sm text-white/50">stops in total</p>
             </div>
 
@@ -77,10 +102,10 @@ export default function YCCIndex() {
           <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
             <h1 className="text-3xl font-bold">Want to be an operator?</h1>
             <p className="text-sm text-white/60 mt-2 mb-5">Apply to be an operator</p>
-             <a href="/ycc/operators/request" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
-              >
-                Submit Operator
-              </a>
+            <a href="/ycc/operators/request" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
+            >
+              Submit Operator
+            </a>
           </div>
         </div>
       </main>

@@ -1,13 +1,12 @@
 'use client';
-
 import '@/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/router";
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import BreadCrumb from '@/components/Breadcrumb';
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import DotGrid from '@/components/DotGrid'; 
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -15,44 +14,52 @@ export default function App({ Component, pageProps }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Try to run scheduler on page load (non-blocking)
     fetch('/api/internal/run-scheduler').catch(() => {});
   }, []);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('User');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
   const title = `Yapton | Flat Studios`;
-
   const shouldHideNavbar = hideNavbarRoutes.includes(router.pathname);
 
-  return (<>
-    <Head>
-      <title>{title}</title>
-    </Head>
-    <div className="relative flex flex-col min-h-screen text-white">
-      {/* Black overlay with blur */}
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-0"></div>
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+      </Head>
 
-      {/* Background image */}
-      <div className="fixed inset-0 bg-[url(/comet.png)] bg-cover bg-center z-[-1]"></div>
+      <div className="relative flex flex-col min-h-screen text-white overflow-hidden">
+        {/* 🚌 Background image (your bus/comet) */}
+        <div className="fixed inset-0 z-0 bg-[url(/comet.png)] bg-cover bg-center" />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {!shouldHideNavbar ? <Navbar role={user?.role} user={user?.username} /> : <div />}
-        <main className="flex-1">
-        {/* <BreadCrumb /> */}
-          <Component {...pageProps} />
-          <SpeedInsights/>
-        </main>
-        {!shouldHideNavbar ? <Footer /> : <div />}
+        {/* ✨ Animated DotGrid overlay (on top of bus) */}
+        <div className="fixed inset-0 z-[2] pointer-events-none">
+          <DotGrid
+            dotSize={10}
+            gap={28}
+            baseColor="#283335"
+            activeColor="#B49BFF"
+            proximity={180}
+            className="h-full w-full opacity-30"
+          />
+        </div>
+
+        {/* 🖤 Subtle blur overlay for readability */}
+        <div className="fixed inset-0 z-[1] bg-black/75 backdrop-blur-md" />
+
+        {/* 🧭 Foreground content */}
+        <div className="relative z-[3] flex flex-col min-h-screen">
+          {!shouldHideNavbar ? <Navbar role={user?.role} user={user?.username} /> : <div />}
+          <main className="flex-1">
+            <Component {...pageProps} />
+            <SpeedInsights/>
+          </main>
+          {!shouldHideNavbar ? <Footer /> : <div />}
+        </div>
       </div>
-    </div>
-
-  </>
+    </>
   );
 }

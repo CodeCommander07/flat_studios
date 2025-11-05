@@ -373,6 +373,7 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Ban Player"
+                        
                         className="flex items-center gap-1 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-md hover:bg-red-500/30 transition text-sm"
                       >
                         <Ban className="text-red-400" size={16} /> Ban
@@ -388,6 +389,7 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Mute Player"
+                        
                         className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-md hover:bg-orange-500/30 transition text-sm"
                       >
                         <VolumeX className="text-orange-400" size={16} /> Mute
@@ -403,6 +405,7 @@ export default function ServerDetailPage() {
                           });
                         }}
                         title="Unmute Player"
+                        
                         className="flex items-center gap-1 px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-md hover:bg-green-500/30 transition text-sm"
                       >
                         <Volume2 className="text-green-400" size={16} /> Unmute
@@ -413,6 +416,7 @@ export default function ServerDetailPage() {
                           navigator.clipboard.writeText(selectedPlayer.playerId);
                         }}
                         title="Copy Player ID"
+                        
                         className="flex items-center gap-1 px-3 py-1 bg-gray-500/20 border border-gray-500/40 rounded-md hover:bg-gray-500/30 transition text-sm"
                       >
                         <Copy className="text-gray-300" size={16} /> Copy Player ID

@@ -22,9 +22,10 @@ export default function Home() {
       if (!res.ok) throw new Error(data.message || 'Login failed');
 
       localStorage.setItem('User', JSON.stringify(data));
-      if(data.role !== "User"){
-      window.location.href = '/hub/'}else{
-         window.location.href = '/me/'
+      if (data.role !== "User") {
+        window.location.href = '/hub/'
+      } else {
+        window.location.href = '/me/'
       };
     } catch (err) {
       alert(err.message);
@@ -49,7 +50,7 @@ export default function Home() {
       setStatus('✅ Reset code sent to your email.');
 
       setTimeout(() => {
-      window.location.href = '/auth/reset-password';
+        window.location.href = '/auth/reset-password';
         setShowResetForm(false);
         setStatus('');
       }, 2000);
@@ -76,30 +77,41 @@ export default function Home() {
           {showResetForm ? '🔁 Reset Password' : '🔐 Hub Login'}
         </h1>
 
-        <div className="text-left w-full space-y-2">
-          <label className="block font-medium">Email</label>
+        <div class="relative">
           <input
-            type="email"
-            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
-            placeholder="example@example.example"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            type="text"
+            id="email"
+            placeholder=" "
+            class="peer block w-full rounded-md border border-gray-500/30 bg-transparent px-3 pt-5 pb-2 text-sm text-white placeholder-transparent focus:border-blue-500 focus:outline-none focus:ring-0"
           />
+          <label
+            for="email"
+            class="absolute left-3 top-2.5 text-sm text-gray-400 transition-all duration-200
+           peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500 peer-placeholder-shown:text-sm
+           peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-400"
+          >
+            Email
+          </label>
         </div>
 
+
         {!showResetForm && (
-          <div className="text-left w-full space-y-2">
-            <label className="block font-medium">Password</label>
-            <input
-              type="password"
-              className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
-              placeholder="Your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <div class="relative">
+  <input
+    type="password"
+    id="password"
+    placeholder=" "
+    class="peer block w-full rounded-md border border-gray-500/30 bg-transparent px-3 pt-5 pb-2 text-sm text-white placeholder-transparent focus:border-blue-500 focus:outline-none focus:ring-0"
+  />
+  <label
+    for="password"
+    class="absolute left-3 top-2.5 text-sm text-gray-400 transition-all duration-200
+           peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500 peer-placeholder-shown:text-sm
+           peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-400"
+  >
+    Password
+  </label>
+</div>
         )}
 
         <button
