@@ -1,4 +1,4 @@
-'use client';
+'use server';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';

@@ -1,4 +1,4 @@
-'use client';
+'use server';
 import { useEffect, useState } from 'react';
 
 export default function ReportsPage() {

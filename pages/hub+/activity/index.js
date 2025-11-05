@@ -1,4 +1,4 @@
-'use client';
+'use server';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
