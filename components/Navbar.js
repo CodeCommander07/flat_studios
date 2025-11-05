@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LogoutButton from './LogoutButton';
 import { hasAccessTo } from '@/utils/permissions';
+import CountUp from '@/components/CountUp';
 
 const dropdownVariants = {
   hidden: { opacity: 0, y: -6, scale: 0.98 },
@@ -159,7 +160,14 @@ export default function Navbar() {
             </p>
 
             <p className={`text-xs ${process.env.NODE_ENV === "development" ? "text-orange-500" : "text-gray-300"}`}>
-              {players ?? '–'} playing •{' '}
+                              <CountUp
+                  from={0}
+                  to={players ?? 0}
+                  separator=","
+                  direction="up"
+                  duration={1}
+                  className="count-up-text"
+                /> playing •{' '}
               <a
                 href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District"
                 target="_blank"
