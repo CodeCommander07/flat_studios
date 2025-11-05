@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
-import SplitText from "@/components/splitText";
+import SplitText from "@/components/SplitText";
 import { Sparkles, Users, Clock, Info } from 'lucide-react';
 
 const getStartOfWeek = () => {
