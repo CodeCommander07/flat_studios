@@ -87,11 +87,13 @@ export default function Home() {
         <div className="relative w-full rounded-lg overflow-hidden">
 
           <div
-            className="absolute inset-0 bg-[url('/statsbg.png')] bg-cover bg-center opacity-30"
+            className="absolute inset-0 bg-[url('/statsbg.png')] bg-cover bg-center z-[0]"
             aria-hidden="true"
           />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[1]" />
 
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 w-full p-6 md:place-items-stretch place-items-center">
+
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 w-full p-6 md:place-items-stretch place-items-center z-[2]">
 
             <div className="w-full">
               <TiltedCard
