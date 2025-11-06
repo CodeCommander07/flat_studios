@@ -26,6 +26,7 @@
     "formidable-serverless": "^1.1.1",
     "framer-motion": "^12.23.0",
     "fs": "^0.0.1-security",
+    "gasp": "^0.0.2",
     "googleapis": "^164.1.0",
     "gsap": "^3.13.0",
     "imap": "^0.8.17",

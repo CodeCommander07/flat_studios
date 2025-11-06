@@ -3,7 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,
-  swcMinify: true,
   output: 'standalone',
 
   // ✅ Image optimization: safe to keep caching
@@ -50,8 +49,16 @@ const nextConfig = {
         source: '/cdn/image/:path*',
         destination: '/:path*',
       },
+      //       {
+      //   source: '/cdn/image/:path*',
+      //   destination: '/api/cdn/:path*',
+      // },
       {
         source: '/files/:path*',
+        destination: '/api/files/:path*',
+      },
+      {
+        source: '/storage/:path*',
         destination: '/api/files/:path*',
       },
     ];

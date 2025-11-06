@@ -5,24 +5,20 @@ import Link from 'next/link';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
+  const [game, setGame] = useState(null);
   const [status, setStatus] = useState('');
-  const [vercelStatus, setVercelStatus] = useState(null);
 
-  // 🟢 Fetch Vercel system status
   useEffect(() => {
-    async function fetchStatus() {
+    async function loadData() {
       try {
-        const res = await fetch('https://www.vercel-status.com/api/v2/status.json');
-        const data = await res.json();
-        setVercelStatus(data.status);
+        const res = await fetch("/api/game/stats");
+        const json = await res.json();
+        setGame(json);
       } catch (err) {
-        console.error('Failed to fetch Vercel status:', err);
+        console.error("Failed to load game data", err);
       }
     }
-
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 60000); // refresh every 60 s
-    return () => clearInterval(interval);
+    loadData();
   }, []);
 
   const handleSubscribe = async (e) => {
@@ -48,21 +44,13 @@ export default function Footer() {
     }
   };
 
-  // 🟢 Pick color based on status
-  const getStatusColor = () => {
-    if (!vercelStatus) return 'bg-gray-400';
-    switch (vercelStatus.indicator) {
-      case 'none':
-        return 'bg-green-500';
-      case 'minor':
-        return 'bg-yellow-400';
-      case 'major':
-      case 'critical':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-400';
-    }
-  };
+  const updated = game?.updated
+    ? new Date(game.updated).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "N/A";
 
   return (
     <footer className="w-full bg-[#283335]/95 backdrop-blur-md text-white px-5 py-6 border-t border-white/20 shadow-inner mb-0">
@@ -78,29 +66,23 @@ export default function Footer() {
               height={30}
               className="rounded-md"
             />
-            <span
-              className={`text-lg font-semibold ${
-                process.env.NODE_ENV === 'development' ? 'text-orange-500' : ''
-              }`}
-            >
-              © 2025 Yapton & District
-            </span>
+            <div className="flex flex-col leading-tight">
+              <span
+                className={`text-lg font-semibold ${
+                  process.env.NODE_ENV === 'development' ? 'text-orange-500' : ''
+                }`}
+              >
+                © 2025 Fkat Stuidos & CodeCmdr LTD
+              </span>
+              <span
+                className={`text-sm opacity-70 ${
+                  process.env.NODE_ENV === 'development' ? 'text-orange-400' : 'text-gray-300'
+                }`}
+              >
+                Game Last Updated: <span className='underline'>{updated}</span>
+              </span>
+            </div>
           </div>
-
-          {/* 🟢 Vercel status line */}
-          <a
-            href="https://www.vercel-status.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-gray-300 bg-black/50 rounded p-2 hover:text-blue-400 transition"
-          >
-            <span className={`w-3 h-3 rounded-full ${getStatusColor()} animate-pulse`} />
-            <span>
-              {vercelStatus
-                ? vercelStatus.description
-                : 'Checking Vercel status...'}
-            </span>
-          </a>
         </div>
 
         {/* Center: Newsletter */}

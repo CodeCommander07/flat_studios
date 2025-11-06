@@ -1,4 +1,4 @@
-'use client';
+'use servers';
 import '@/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -6,7 +6,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/router";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import DotGrid from '@/components/DotGrid'; 
+import DotGridWrapper from '@/components/DotGridWrapper'; 
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function App({ Component, pageProps }) {
 
         {/* ✨ Animated DotGrid overlay (on top of bus) */}
         <div className="fixed inset-0 z-[2] pointer-events-none">
-          <DotGrid
+          <DotGridWrapper
             dotSize={10}
             gap={28}
             baseColor="#283335"
