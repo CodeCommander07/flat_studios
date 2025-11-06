@@ -48,7 +48,7 @@ export default function App({ Component, pageProps }) {
         </div>
 
         {/* 🖤 Subtle blur overlay for readability */}
-        <div className="fixed inset-0 z-[1] bg-black/75 backdrop-blur-md" />
+        <div className="fixed inset-0 z-[1] bg-black/57 backdrop-blur-md" />
 
         {/* 🧭 Foreground content */}
         <div className="relative z-[3] flex flex-col min-h-screen">
