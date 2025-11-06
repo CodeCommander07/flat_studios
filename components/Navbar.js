@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LogoutButton from './LogoutButton';
 import { hasAccessTo } from '@/utils/permissions';
@@ -27,6 +27,8 @@ export default function Navbar() {
   const [players, setPlayers] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [hasNew, setHasNew] = useState(false);
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -50,10 +52,23 @@ export default function Navbar() {
         setPlayers(null);
       }
     };
+    const fetchNotifications = async () => {
+      try {
+        const localUser = JSON.parse(localStorage.getItem('User'));
+        if (!localUser?._id) return;
+        const res = await axios.get(`/api/user/notifications?userId=${localUser._id}`);
+        setNotifications(res.data || []);
+        setHasNew(res.data.some(n => !n.read));
+      } catch (err) {
+        console.error('Failed to fetch notifications:', err.message);
+      }
+    };
+    fetchNotifications();
 
     fetchUser();
     fetchPlayers();
     const interval = setInterval(fetchPlayers, 30000);
+    const notifInterval = setInterval(fetchNotifications, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -160,14 +175,14 @@ export default function Navbar() {
             </p>
 
             <p className={`text-xs ${process.env.NODE_ENV === "development" ? "text-orange-500" : "text-gray-300"}`}>
-                              <CountUp
-                  from={0}
-                  to={players ?? 0}
-                  separator=","
-                  direction="up"
-                  duration={1}
-                  className="count-up-text"
-                /> playing •{' '}
+              <CountUp
+                from={0}
+                to={players ?? 0}
+                separator=","
+                direction="up"
+                duration={1}
+                className="count-up-text"
+              /> playing •{' '}
               <a
                 href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District"
                 target="_blank"
@@ -226,8 +241,16 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Right: Account */}
         <div className="hidden md:flex items-center">
+          <div className="relative mr-3">
+            <Link href="/notifications" className="relative p-2 hover:bg-white/10 rounded-full transition">
+              <Bell className="w-5 h-5" />
+              {hasNew && (
+                <span className="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+              )}
+            </Link>
+          </div>
+
           {user ? (
             <div className="relative">
               <button
@@ -413,6 +436,13 @@ export default function Navbar() {
                         className="block text-sm text-gray-300 hover:text-blue-400"
                       >
                         My Appeals
+                      </Link>
+                      <Link
+                        href="/notifications"
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm font-semibold text-white hover:text-blue-400 py-2"
+                      >
+                        🔔 Notifications
                       </Link>
                       <div className="pt-2">
                         <LogoutButton />

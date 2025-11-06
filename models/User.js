@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 
+const NotificationSchema = new mongoose.Schema({
+  notification: { type: String, required: true },
+  link: { type: String, default: null },
+  read: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const UserSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true }, // Unique identifier for the user
   email: { type: String, required: true, unique: true },
@@ -10,25 +17,30 @@ const UserSchema = new mongoose.Schema({
 
   // System Role
   role: { type: String, default: 'User' },
-  operator: { type: String, enum:["South West Buses", "IRVING Coaches", "West Coast Motors", "Cowie"] }, // Is the user an operator?
+  operator: { 
+    type: String, 
+    enum: ["South West Buses", "IRVING Coaches", "West Coast Motors", "Slowcoach"] 
+  },
 
   // Connections
-  robloxId: { type: String }, // Numeric ID from Roblox
+  robloxId: { type: String },
   robloxUsername: { type: String },
   robloxAvatar: { type: String },
   
-  discordId: { type: String }, // Discord User ID (Snowflake)
-  discordUsername: { type: String }, // e.g. Obi#1234
-  discordAvatar: { type: String }, // e.g. Obi#1234
+  discordId: { type: String },
+  discordUsername: { type: String },
+  discordAvatar: { type: String },
 
-  googleId: { type: String }, // Discord User ID (Snowflake)
-  googleUsername: { type: String }, // e.g. Obi#1234
-  googleAvatar: { type: String }, // e.g. Obi#1234
+  googleId: { type: String },
+  googleUsername: { type: String },
+  googleAvatar: { type: String },
+
+  // Notifications
+  notifications: [NotificationSchema],
 
   // Metadata
   createdAt: { type: Date, default: Date.now },
-
-  newsletter: { type: Boolean, default: true }, // Opt-in for newsletters
+  newsletter: { type: Boolean, default: true },
 });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

@@ -1,6 +1,7 @@
 import dbConnect from '@/utils/db';
 import LeaveRequest from '@/models/LeaveRequest';
 import nodemailer from 'nodemailer';
+import { notifyUser } from '@/utils/notifyUser';
 
 const mailHub = nodemailer.createTransport({
     service: 'gmail',
@@ -107,6 +108,8 @@ export default async function handler(req, res) {
         };
 
         await mailHub.sendMail(mailOptions);
+
+        await notifyUser(leave._id, 'Your leave request was approved!', '/hub/leave');
 
         return res.status(200).json(leave);
     } catch (err) {

@@ -231,7 +231,7 @@ export default function LeavePage() {
           ) : (
             <AnimatePresence>
               <ul className="space-y-4">
-                {loaHistory.map((entry, idx) => (
+                {[...loaHistory].reverse().map((entry, idx) => (
                   <motion.li
                     key={entry._id}
                     initial={{ opacity: 0, y: 10 }}
