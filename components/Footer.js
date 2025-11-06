@@ -72,7 +72,7 @@ export default function Footer() {
                   process.env.NODE_ENV === 'development' ? 'text-orange-500' : ''
                 }`}
               >
-                © 2025 Fkat Stuidos & CodeCmdr LTD
+                © 2025 Flat Stuidos
               </span>
               <span
                 className={`text-sm opacity-70 ${

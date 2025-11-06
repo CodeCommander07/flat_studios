@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       expiresAt,
     });
 
-    const inviteUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/auth/register?email=${encodeURIComponent(
+    const inviteUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/auth/staff/register?email=${encodeURIComponent(
       email
     )}&role=${encodeURIComponent(role)}&code=${code}`;
 

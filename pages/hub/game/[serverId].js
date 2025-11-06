@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
+import { motion, AnimatePresence } from "framer-motion";
 import axios from 'axios';
-import { Loader2, Users, MessageSquare, Search, Link2, Ban, VolumeX, Volume2, LogOut, Copy, Clock, ArrowLeftIcon } from 'lucide-react';
+import { Loader2, Users, MessageSquare, Search, Link2, Ban, VolumeX, Volume2, LogOut, Copy, Clock, ArrowLeftIcon, BrushCleaning } from 'lucide-react';
 import AuthWrapper from '@/components/AuthWrapper';
 
 export default function ServerDetailPage() {
@@ -15,8 +16,11 @@ export default function ServerDetailPage() {
   const [chatLogs, setChatLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
+  const [showLogsModal, setShowLogsModal] = useState(false);
+  const [logSearch, setLogSearch] = useState('');
+  const [logFilter, setLogFilter] = useState('all');
+  const [logDate, setLogDate] = useState('');
 
-  // Roblox info cache
   const robloxCacheRef = useRef({});
 
   async function getRobloxInfo(userId) {
@@ -45,8 +49,12 @@ export default function ServerDetailPage() {
   useEffect(() => {
     if (!serverId) return;
 
-    async function loadServerData() {
-      setLoading(true);
+    let isMounted = true;
+    let isRefreshing = false;
+
+    async function loadServerData(isBackground = false) {
+      if (isRefreshing) return;
+      isRefreshing = true;
       try {
         const [metaRes, playersRes, chatRes] = await Promise.all([
           axios.get(`/api/game/servers/${serverId}`),
@@ -54,10 +62,8 @@ export default function ServerDetailPage() {
           axios.get(`/api/game/servers/${serverId}/chat`),
         ]);
 
-        // 🧩 Fix: Use .data for meta
-        setServerMeta(metaRes.data);
+        if (!isMounted) return;
 
-        // 🎮 Enhance player data
         const playersData = await Promise.all(
           (playersRes.data || []).map(async (p) => {
             const info = await getRobloxInfo(p.playerId);
@@ -73,7 +79,6 @@ export default function ServerDetailPage() {
           })
         );
 
-        // 💬 Enhance chat data
         const chatData = await Promise.all(
           (chatRes.data || []).map(async (msg) => {
             const info = await getRobloxInfo(msg.playerId);
@@ -89,22 +94,39 @@ export default function ServerDetailPage() {
           })
         );
 
-        setPlayers(playersData);
-        setChatLogs(chatData);
+        setServerMeta((prev) =>
+          JSON.stringify(prev) === JSON.stringify(metaRes.data) ? prev : metaRes.data
+        );
+        setPlayers((prev) => {
+          const sameLength = prev.length === playersData.length;
+          const unchanged = sameLength && prev.every((p, i) => p.playerId === playersData[i].playerId && p.left === playersData[i].left);
+          return unchanged ? prev : playersData;
+        });
+        setChatLogs((prev) =>
+          JSON.stringify(prev) === JSON.stringify(chatData) ? prev : chatData
+        );
       } catch (err) {
-        console.error('Failed to load server data:', err);
+        console.error("Background update failed:", err);
       } finally {
-        setLoading(false);
+        isRefreshing = false;
       }
     }
 
-    loadServerData();
-    const interval = setInterval(loadServerData, 30000);
-    return () => clearInterval(interval);
+    (async () => {
+      setLoading(true);
+      await loadServerData();
+      setLoading(false);
+    })();
+
+    const interval = setInterval(() => loadServerData(true), 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [serverId]);
 
 
-  // Filter chat messages
+
   const filteredChat = useMemo(() => {
     if (!filter.trim()) return chatLogs;
     const q = filter.toLowerCase();
@@ -115,6 +137,32 @@ export default function ServerDetailPage() {
     );
   }, [chatLogs, filter]);
 
+  function groupByDate(list) {
+    if (!list.length) return {};
+
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const formatDateLabel = (dateStr) => {
+      const d = new Date(dateStr);
+      if (d.toDateString() === today.toDateString()) return '🟩 Today';
+      if (d.toDateString() === yesterday.toDateString()) return '🟨 Yesterday';
+      return d.toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    };
+
+    return list.reduce((groups, p) => {
+      const key = p.joined ? formatDateLabel(p.joined) : 'Unknown Date';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(p);
+      return groups;
+    }, {});
+  }
 
 
   return (
@@ -164,9 +212,7 @@ export default function ServerDetailPage() {
               )}
             </div>
 
-            {/* 🔴 Flag server + notification controls */}
             <div className="flex flex-col gap-3 items-end">
-              {/* Flag Server Button */}
               <button
                 onClick={async () => {
                   if (!confirm("Are you sure you want to flag this server?")) return;
@@ -185,7 +231,6 @@ export default function ServerDetailPage() {
                 🚩 Flag Server
               </button>
 
-              {/* Notification Input + Send Button */}
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -229,6 +274,19 @@ export default function ServerDetailPage() {
           </div>
         </div>
 
+        {!loading && (
+          <motion.div
+            key="refreshing"
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-2 right-3 text-xs text-gray-400 flex items-center gap-1"
+          >
+            <Loader2 size={12} className="animate-spin text-blue-400" />
+            Updating data…
+          </motion.div>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center h-40">
@@ -245,45 +303,128 @@ export default function ServerDetailPage() {
               <div className="mt-3 bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-4 flex flex-col justify-between flex-1 max-h-[250px]">
                 {selectedPlayer ? (
                   <>
-                    <div className="flex items-center gap-3 mb-3 ">
-                      <img
-                        src={selectedPlayer.icon || "/logo.png"}
-                        alt="avatar"
-                        className="w-10 h-10 rounded-md"
-                      />
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">
-                          {selectedPlayer.username}
-                        </h3>
-                        <p className="text-sm text-gray-400">
-                          {selectedPlayer.role} ({selectedPlayer.rank}) —{" "}
-                          <span
-                            className="text-blue-400 cursor-pointer"
-                            onClick={() =>
-                              navigator.clipboard.writeText(selectedPlayer.playerId)
-                            }
-                          >
-                            {selectedPlayer.playerId}
-                          </span>
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Joined:{" "}
-                          {selectedPlayer.joined
-                            ? new Date(selectedPlayer.joined).toLocaleString("en-GB", {
-                              timeZone: "Europe/London",
-                            })
-                            : "—"}
-                          {selectedPlayer.left && (
-                            <>
-                              {" "}• Left:{" "}
-                              {new Date(selectedPlayer.left).toLocaleString("en-GB", {
+                    <div className="flex items-start justify-between gap-4 mb-3 flex-wrap">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={selectedPlayer.icon || "/logo.png"}
+                          alt="avatar"
+                          className="w-10 h-10 rounded-md"
+                        />
+                        <div>
+                          <h3 className="text-lg font-semibold text-white flex items-center gap-2 flex-wrap">
+                            {selectedPlayer.username}
+                            <span className="text-sm text-gray-400">
+                              {selectedPlayer.role} ({selectedPlayer.rank})
+                            </span>
+                            <span
+                              className="text-blue-400 cursor-pointer text-xs"
+                              onClick={() =>
+                                navigator.clipboard.writeText(selectedPlayer.playerId)
+                              }
+                            >
+                              {selectedPlayer.playerId}
+                            </span>
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Joined:{" "}
+                            {selectedPlayer.joined
+                              ? new Date(selectedPlayer.joined).toLocaleString("en-GB", {
                                 timeZone: "Europe/London",
-                              })}
-                            </>
-                          )}
-                        </p>
+                              })
+                              : "—"}
+                            {selectedPlayer.left && (
+                              <>
+                                {" "}• Left:{" "}
+                                {new Date(selectedPlayer.left).toLocaleString("en-GB", {
+                                  timeZone: "Europe/London",
+                                })}
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-end gap-2 ml-auto">
+                        <button
+                          onClick={async () => {
+                            await axios.post(`/api/game/servers/${serverId}/commands`, {
+                              type: "kick",
+                              targetId: selectedPlayer.playerId,
+                              reason: "Kicked by web admin",
+                              issuedBy: "Web Dashboard",
+                            });
+                          }}
+                          title="Kick Player"
+                          className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-md hover:bg-yellow-500/30 transition text-sm"
+                        >
+                          <LogOut className="text-yellow-400" size={16} /> Kick
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            await axios.post(`/api/game/servers/${serverId}/commands`, {
+                              type: "ban",
+                              targetId: selectedPlayer.playerId,
+                              reason: "Banned by web admin",
+                              issuedBy: "Web Dashboard",
+                            });
+                          }}
+                          title="Ban Player"
+                          className="flex items-center gap-1 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-md hover:bg-red-500/30 transition text-sm"
+                        >
+                          <Ban className="text-red-400" size={16} /> Ban
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            await axios.post(`/api/game/servers/${serverId}/commands`, {
+                              type: "mute",
+                              targetId: selectedPlayer.playerId,
+                              reason: "Muted by web admin",
+                              issuedBy: "Web Dashboard",
+                            });
+                          }}
+                          title="Mute Player"
+                          className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-md hover:bg-orange-500/30 transition text-sm"
+                        >
+                          <VolumeX className="text-orange-400" size={16} /> Mute
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            await axios.post(`/api/game/servers/${serverId}/commands`, {
+                              type: "unmute",
+                              targetId: selectedPlayer.playerId,
+                              reason: "Unmuted by web admin",
+                              issuedBy: "Web Dashboard",
+                            });
+                          }}
+                          title="Unmute Player"
+                          className="flex items-center gap-1 px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-md hover:bg-green-500/30 transition text-sm"
+                        >
+                          <Volume2 className="text-green-400" size={16} /> Unmute
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(selectedPlayer.playerId);
+                          }}
+                          title="Copy Player ID"
+                          className="flex items-center gap-1 px-3 py-1 bg-gray-500/20 border border-gray-500/40 rounded-md hover:bg-gray-500/30 transition text-sm"
+                        >
+                          <Copy className="text-gray-300" size={16} /> Copy
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedPlayer(null)
+                          }}
+                          title="Deselect Player"
+                          className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 border border-blue-500/40 rounded-md hover:bg-blue-500/30 transition text-sm"
+                        >
+                          <BrushCleaning  className="text-gray-300" size={16} /> Deselect
+                        </button>
                       </div>
                     </div>
+
 
                     <div className="flex flex-wrap gap-4 mb-3">
                       <div className="flex items-center gap-2 text-gray-300 text-sm">
@@ -313,7 +454,7 @@ export default function ServerDetailPage() {
                       </div>
                     </div>
                     <div
-                      className="border border-white/10 rounded-md p-2 bg-[#222a2e]/40 mb-3 max-h-24 overflow-y-auto no-scrollbar"
+                      className="border border-white/10 rounded-md p-2 bg-[#222a2e]/40 mb-3 min-h-30 max-h-32 overflow-y-auto no-scrollbar"
                     >
                       <p className="text-xs text-gray-400 uppercase mb-1">Recent Messages</p>
                       <div className="space-y-1 text-sm text-gray-300 font-mono">
@@ -347,82 +488,6 @@ export default function ServerDetailPage() {
     scrollbar-width: none; /* Firefox */
   }
 `}</style>
-                    <div className="flex flex-row flex-wrap items-center gap-2 mt-2">
-                      <button
-                        onClick={async () => {
-                          await axios.post(`/api/game/servers/${serverId}/commands`, {
-                            type: "kick",
-                            targetId: selectedPlayer.playerId,
-                            reason: "Kicked by web admin",
-                            issuedBy: "Web Dashboard",
-                          });
-                        }}
-                        title="Kick Player"
-                        className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-md hover:bg-yellow-500/30 transition text-sm"
-                      >
-                        <LogOut className="text-yellow-400" size={16} /> Kick
-                      </button>
-
-                      <button
-                        onClick={async () => {
-                          await axios.post(`/api/game/servers/${serverId}/commands`, {
-                            type: "ban",
-                            targetId: selectedPlayer.playerId,
-                            reason: "Banned by web admin",
-                            issuedBy: "Web Dashboard",
-                          });
-                        }}
-                        title="Ban Player"
-                        
-                        className="flex items-center gap-1 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-md hover:bg-red-500/30 transition text-sm"
-                      >
-                        <Ban className="text-red-400" size={16} /> Ban
-                      </button>
-
-                      <button
-                        onClick={async () => {
-                          await axios.post(`/api/game/servers/${serverId}/commands`, {
-                            type: "mute",
-                            targetId: selectedPlayer.playerId,
-                            reason: "Muted by web admin",
-                            issuedBy: "Web Dashboard",
-                          });
-                        }}
-                        title="Mute Player"
-                        
-                        className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-md hover:bg-orange-500/30 transition text-sm"
-                      >
-                        <VolumeX className="text-orange-400" size={16} /> Mute
-                      </button>
-
-                      <button
-                        onClick={async () => {
-                          await axios.post(`/api/game/servers/${serverId}/commands`, {
-                            type: "unmute",
-                            targetId: selectedPlayer.playerId,
-                            reason: "Unmuted by web admin",
-                            issuedBy: "Web Dashboard",
-                          });
-                        }}
-                        title="Unmute Player"
-                        
-                        className="flex items-center gap-1 px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-md hover:bg-green-500/30 transition text-sm"
-                      >
-                        <Volume2 className="text-green-400" size={16} /> Unmute
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(selectedPlayer.playerId);
-                        }}
-                        title="Copy Player ID"
-                        
-                        className="flex items-center gap-1 px-3 py-1 bg-gray-500/20 border border-gray-500/40 rounded-md hover:bg-gray-500/30 transition text-sm"
-                      >
-                        <Copy className="text-gray-300" size={16} /> Copy Player ID
-                      </button>
-                    </div>
-
                   </>
                 ) : (
                   <div className="flex flex-col items-center justify-center flex-1 text-gray-500">
@@ -431,61 +496,76 @@ export default function ServerDetailPage() {
                   </div>
                 )}
               </div>
-              <h2 className="text-xl font-semibold mb-3 mt-3 flex items-center gap-2">
-                <Users size={20} /> Players ({players.length})
-              </h2>
+              <div className="flex justify-between items-center mb-3 mt-3">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Users size={20} /> Players ({players.filter((p) => !p.left).length})
+                </h2>
+                <button
+                  onClick={() => setShowLogsModal(true)}
+                  className="px-3 py-1 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-medium text-sm shadow-sm transition-all hover:shadow-md"
+                >
+                  Player Logs
+                </button>
+              </div>
+
               <div className="flex-1 overflow-y-auto bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-lg p-3 max-h-[250px]">
 
-                {players.length === 0 ? (
+                {players.filter((p) => !p.left).length === 0 ? (
                   <p className="text-gray-400 text-sm">No players online.</p>
                 ) : (
-                  <ul className="space-y-2">
-                    {players.map((player) => (
-                      <li
-                        key={player.playerId}
-                        onClick={() => setSelectedPlayer(player)}
-                        className={`flex items-center justify-between border-b border-white/10 pb-2 cursor-pointer hover:bg-white/5 rounded-md transition ${selectedPlayer?.playerId === player.playerId ? "bg-white/10" : ""
-                          }`}
-                      >
-                        <div className="m-2 flex items-center gap-3">
-                          <img
-                            src={player.icon || "/logo.png"}
-                            alt="avatar"
-                            className="w-8 h-8 rounded-md"
-                          />
-                          <div>
-                            <p className="font-medium text-blue-400">{player.username}</p>
-                            <p className="text-xs text-gray-400">
-                              {player.role} ({player.rank}) — {player.playerId}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              Joined:{" "}
-                              {player.joined
-                                ? new Date(player.joined).toLocaleTimeString()
-                                : "—"}
-                              {player.left && (
-                                <>
-                                  {" "}• Left:{" "}
-                                  {new Date(player.left).toLocaleTimeString()}
-                                </>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-
-                        <a
-                          href={`https://www.roblox.com/users/${player.playerId}/profile`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-gray-400 hover:text-blue-400 transition m-2"
-                          title="View Roblox Profile"
+                  <AnimatePresence mode="popLayout">
+                    <ul className="space-y-2">
+                      {players.filter((p) => !p.left).map((player) => (
+                        <motion.li
+                          key={player.playerId}
+                          layout
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          onClick={() => setSelectedPlayer(player)}
+                          className={`flex items-center justify-between border-b border-white/10 pb-2 cursor-pointer hover:bg-white/5 rounded-md transition ${selectedPlayer?.playerId === player.playerId ? "bg-white/10" : ""}`}
                         >
-                          <Link2 size={18} />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                          <div className="m-2 flex items-center gap-3">
+                            <img
+                              src={player.icon || "/logo.png"}
+                              alt="avatar"
+                              className="w-8 h-8 rounded-md"
+                            />
+                            <div>
+                              <p className="font-medium text-blue-400">{player.username}</p>
+                              <p className="text-xs text-gray-400">
+                                {player.role} ({player.rank}) — {player.playerId}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                Joined:{" "}
+                                {player.joined
+                                  ? new Date(player.joined).toLocaleTimeString()
+                                  : "—"}
+                                {player.left && (
+                                  <>
+                                    {" "}• Left:{" "}
+                                    {new Date(player.left).toLocaleTimeString()}
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+
+                          <a
+                            href={`https://www.roblox.com/users/${player.playerId}/profile`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-gray-400 hover:text-blue-400 transition m-2"
+                            title="View Roblox Profile"
+                          >
+                            <Link2 size={18} />
+                          </a>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </AnimatePresence>
                 )}
               </div>
             </div>
@@ -575,6 +655,156 @@ export default function ServerDetailPage() {
 
               </div>
             </div>
+            <AnimatePresence mode="wait" initial={false}>
+              {showLogsModal ? (
+                <motion.div
+                  key="playerLogsModal"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+                >
+                  <motion.div
+                    initial={{ y: 50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 50, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 120, damping: 14 }}
+                    className="bg-[#283335]/95 border border-white/10 rounded-lg p-6 w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col shadow-xl shadow-black/40"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Clock size={18} /> Player Join/Leave Logs
+                      </h2>
+                      <button
+                        onClick={() => setShowLogsModal(false)}
+                        className="text-gray-400 hover:text-white transition text-lg font-semibold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                      <div className="flex items-center bg-white/10 border border-white/10 rounded-md px-2 py-1 text-sm text-gray-300">
+                        <label className="mr-2 text-gray-400">View:</label>
+                        <select
+                          value={logFilter}
+                          onChange={(e) => setLogFilter(e.target.value)}
+                          className="bg-transparent outline-none"
+                        >
+                          <option value="all">All</option>
+                          <option value="online">Online Only</option>
+                          <option value="date">Specific Date</option>
+                        </select>
+                      </div>
+
+                      {logFilter === 'date' && (
+                        <input
+                          type="date"
+                          value={logDate}
+                          onChange={(e) => setLogDate(e.target.value)}
+                          className="bg-white/10 border border-white/10 rounded-md px-2 py-1 text-sm text-gray-200 focus:ring-1 focus:ring-blue-500 outline-none"
+                        />
+                      )}
+
+                      <div className="relative flex-1 min-w-[200px]">
+                        <Search size={16} className="absolute left-2 top-2.5 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder="Search by username or ID..."
+                          value={logSearch}
+                          onChange={(e) => setLogSearch(e.target.value)}
+                          className="pl-8 pr-3 py-1.5 w-full text-sm rounded-md bg-white/10 border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none placeholder-gray-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="overflow-y-auto flex-1 border border-white/10 rounded-md p-3 bg-[#222a2e]/40">
+                      <style jsx global>{` `}</style>
+                      {Object.entries(
+                        groupByDate(
+                          players
+                            .filter((p) => {
+                              if (logFilter === 'online') return !p.left;
+                              if (logFilter === 'date' && logDate)
+                                return p.joined && new Date(p.joined).toISOString().slice(0, 10) === logDate;
+                              return true;
+                            })
+                            .filter((p) =>
+                              [p.username, p.playerId].some((val) =>
+                                val?.toLowerCase().includes(logSearch.toLowerCase())
+                              )
+                            )
+                        )
+                      ).map(([dateLabel, logs]) => (
+                        <div key={dateLabel} className="mb-5">
+                          <h3 className="text-sm font-semibold text-gray-400 border-b border-white/10 pb-1 mb-2">
+                            {dateLabel}
+                          </h3>
+                          {logs.map((p, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-3 border-b border-white/5 py-2 text-sm text-gray-300"
+                            >
+                              <img
+                                src={p.icon || '/logo.png'}
+                                alt="avatar"
+                                className="w-10 h-10 rounded-md border border-white/10 flex-shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-center flex-wrap">
+                                  <span className="text-blue-400 font-semibold truncate">{p.username}</span>
+                                  <span className="text-xs text-gray-400 font-mono truncate">{p.playerId}</span>
+                                </div>
+                                <p className="text-xs mt-1">
+                                  <span className="text-green-400 font-semibold">🟢 Joined:</span>{' '}
+                                  {p.joined
+                                    ? new Date(p.joined).toLocaleString('en-GB', {
+                                      timeZone: 'Europe/London',
+                                    })
+                                    : '—'}
+                                </p>
+                                {p.left ? (
+                                  <p className="text-xs text-red-400 font-semibold">
+                                    🔴 Left:{' '}
+                                    {new Date(p.left).toLocaleString('en-GB', {
+                                      timeZone: 'Europe/London',
+                                    })}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs text-green-400">🟢 Still Online</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+
+                      {Object.keys(
+                        groupByDate(
+                          players
+                            .filter((p) => {
+                              if (logFilter === 'online') return !p.left;
+                              if (logFilter === 'date' && logDate)
+                                return p.joined && new Date(p.joined).toISOString().slice(0, 10) === logDate;
+                              return true;
+                            })
+                            .filter((p) =>
+                              [p.username, p.playerId].some((val) =>
+                                val?.toLowerCase().includes(logSearch.toLowerCase())
+                              )
+                            )
+                        )
+                      ).length === 0 && (
+                          <p className="text-gray-400 text-sm text-center mt-4">
+                            No matching logs found.
+                          </p>
+                        )}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </div>
         )}
       </main>

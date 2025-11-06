@@ -267,7 +267,7 @@ export default function Navbar() {
             </div>
           ) : (
             <Link
-              href="/auth/login"
+              href="/auth/"
               className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm transition"
             >
               Login
@@ -423,7 +423,7 @@ export default function Navbar() {
               </div>
             ) : (
               <Link
-                href="/auth/login"
+                href="/auth/"
                 onClick={() => setMobileOpen(false)}
                 className="block bg-blue-600 hover:bg-blue-700 text-center py-2 rounded-md text-sm"
               >
