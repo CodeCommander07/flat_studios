@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const PlayerSchema = new mongoose.Schema({
   playerId: String,
+  team:String,
   joined: { type: Date, default: Date.now },
   left: { type: Date, default: null },
 });

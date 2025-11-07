@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const now = new Date();
 
     if (req.method === 'POST') {
-      const { players, action, playerId, joined, left } = req.body;
+      const { players, action, playerId, joined, left, team } = req.body;
 
       if (Array.isArray(players)) {
         const liveIds = players.map((p) => String(p.playerId));
@@ -25,6 +25,7 @@ export default async function handler(req, res) {
           if (!existing) {
             server.players.push({
               playerId: id,
+              team,
               joined: p.joined ? new Date(p.joined) : now,
               left: null,
             });
@@ -49,6 +50,7 @@ export default async function handler(req, res) {
         if (!existing) {
           server.players.push({
             playerId: id,
+            team,
             joined: joined ? new Date(joined) : now,
             left: null,
           });
@@ -61,6 +63,7 @@ export default async function handler(req, res) {
         const existing = server.players.find((p) => String(p.playerId) === id);
         if (existing && !existing.left) {
           existing.left = left ? new Date(left) : now;
+          existing.team =null;
         }
       }
 

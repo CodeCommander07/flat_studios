@@ -314,7 +314,7 @@ export default function ServerDetailPage() {
                           <h3 className="text-lg font-semibold text-white flex items-center gap-2 flex-wrap">
                             {selectedPlayer.username}
                             <span className="text-sm text-gray-400">
-                              {selectedPlayer.role} ({selectedPlayer.rank})
+                              {selectedPlayer.role} ({selectedPlayer.rank}) • Team: {selectedPlayer.team}
                             </span>
                             <span
                               className="text-blue-400 cursor-pointer text-xs"
