@@ -4,7 +4,7 @@ import dbConnect from '@/utils/db';
 export async function notifyUser(userId, notification, link = null) {
   await dbConnect();
   const user = await User.findOne({ _id:userId });
-  if (!user) throw new Error('User not found');
+  if (!user) return;
 
   user.notifications.push({ notification, link });
   await user.save();

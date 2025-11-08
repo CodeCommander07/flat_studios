@@ -69,6 +69,12 @@ export default function ManageForms() {
             >
               Manage Route Form
             </button>
+            <button
+              onClick={() => router.push('/admin/hiring/review')}
+              className="bg-orange-600 hover:bg-orange-700 ml-2 px-5 py-2 rounded-md font-semibold"
+            >
+              Review Applications
+            </button>
           </div>
 
           {/* Existing Forms */}

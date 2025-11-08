@@ -124,7 +124,6 @@ export default function Navbar() {
         { label: 'Contact Emails', href: '/hub+/contact/emails' },
         { label: 'Contact Forms', href: '/hub+/contact/forms' },
         { label: 'Disciplinaries', href: '/hub+/disciplinaries' },
-        { label: 'Hiring', href: '/hub+/hiring' },
         { label: 'Infract', href: '/hub+/infract' },
       ],
     },
@@ -135,9 +134,9 @@ export default function Navbar() {
         { label: 'Admin', href: '/admin' },
         { label: 'Ban Appeals', href: '/admin/appeals' },
         { label: 'Dev Tasks', href: '/admin/dev' },
+        { label: 'Hiring', href: '/admin/hiring' },
         { label: 'Leave Requests', href: '/admin/leave' },
         { label: 'Manage Content', href: '/admin/content' },
-        { label: 'Manage Forms', href: '/admin/hiring' },
         { label: 'Manage Operators', href: '/admin/operators' },
         { label: 'Manage Routes', href: '/admin/routes' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
@@ -487,7 +486,7 @@ export default function Navbar() {
                       <Link
                         href="/me/notifications"
                         onClick={() => setMobileOpen(false)}
-                        className="block text-sm font-semibold text-white hover:text-blue-400 py-2"
+                        className={`block text-sm font-semibold text-white hover:text-blue-400 py-2 ${hasNew ? "animate-ping" : ""}`}
                       >
                         My Notifications
                       </Link>

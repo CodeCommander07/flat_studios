@@ -2,7 +2,8 @@ import dbConnect from '@/utils/db';
 import SubmittedApplication from '@/models/SubmittedApplication';
 import Application from '@/models/ApplicationForm';
 import nodemailer from 'nodemailer';
-import cron from 'node-cron'; // ✅ added
+import { notifyUser } from '@/utils/notifyUser';
+import User from '@/models/User';
 
 export default async function handler(req, res) {
   await dbConnect();
@@ -151,10 +152,14 @@ export default async function handler(req, res) {
           await transporter.sendMail({
             from: `"Hiring Team" <${process.env.MAIL_USER}>`,
             to: sub.applicantEmail,
+            cc: "hiring@flatstudios.net",
             replyTo: 'hiring@flatstudios.net',
             subject: `Application Update – ${sub.applicationId?.title || 'Application'}`,
             html,
           });
+
+          const user = await User.findOne({ email: sub.applicantEmail })
+          notifyUser(user?._id, `Application for ${app.Title} unfortunatly has been denied.`, '/me/applications')
         }, 5 * 60 * 1000);
       }
 
@@ -205,11 +210,14 @@ export default async function handler(req, res) {
 
       await transporter.sendMail({
         from: `"Hiring Team" <${process.env.MAIL_USER}>`,
+        cc: "hiring@flatstudios.net",
         to: applicantEmail,
         replyTo: "hiring@flatstudios.net",
         subject: `Application Received – ${app.title}`,
         html,
       });
+      const user = await User.findOne({ email: applicantEmail })
+      notifyUser(user?._id, `Application for ${app.Title} recived.`, '/me/applications')
 
 
       return res.status(201).json({
