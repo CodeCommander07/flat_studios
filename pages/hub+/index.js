@@ -3,7 +3,16 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
-import { Sparkles, Users, Clock, Info, Trophy } from 'lucide-react';
+import SplitText from "@/components/SplitText";
+import CountUp from "@/components/CountUp";
+import { Sparkles, Users, Clock, Info } from 'lucide-react';
+
+const getStartOfWeek = () => {
+  const now = new Date();
+  const day = now.getDay(); // 0 (Sun) to 6 (Sat)
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday as start
+  return new Date(now.setDate(diff));
+};
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -16,6 +25,7 @@ export default function Dashboard() {
   const [loadingLeaves, setLoadingLeaves] = useState(true);
   const [notices, setNotices] = useState([]);
   const [loadingNotices, setLoadingNotices] = useState(true);
+  const [weeklySummary, setWeeklySummary] = useState({ hours: 0, minutes: 0 });
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('User'));
@@ -43,7 +53,7 @@ export default function Dashboard() {
       } catch (err) {
         console.error('Failed to fetch staff count:', err.message);
       }
-    }
+    };
 
     const fetchActivityLogs = async () => {
       setLoadingActivity(true);
@@ -109,7 +119,8 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, []);
-  // Compute total shifts and total time in hours from activityLogs (this week only)
+
+  // Calculate totals
   const startOfWeek = new Date();
   startOfWeek.setHours(0, 0, 0, 0);
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Sunday start
@@ -124,14 +135,29 @@ export default function Dashboard() {
     (acc, log) => acc + parseFloat(log.duration || 0),
     0
   );
-  // Format totalTimeHours into "Xh Ym" string
-  const formatTime = (hoursFloat) => {
-    const hours = Math.floor(hoursFloat);
-    const minutes = Math.round((hoursFloat - hours) * 60);
-    return `${hours}h ${minutes}m`;
-  };
 
-  // Helper to render leave status with icon and color
+  // 🟢 Weekly summary calculation
+useEffect(() => {
+  const weekStart = getStartOfWeek();
+  let totalMinutes = 0;
+
+  for (const log of activityLogs) {
+    const logDate = new Date(log.date);
+    if (logDate >= weekStart && log.duration) {
+      // Extract numbers from something like "2h 30m", "1h", or "45m"
+      const hours = parseInt(log.duration.match(/(\d+)\s*h/)?.[1] ?? 0);
+      const minutes = parseInt(log.duration.match(/(\d+)\s*m/)?.[1] ?? 0);
+      totalMinutes += hours * 60 + minutes;
+    }
+  }
+
+  setWeeklySummary({
+    hours: Math.floor(totalMinutes / 60), // integer
+    minutes: totalMinutes % 60            // integer
+  });
+}, [activityLogs]);
+
+
   const renderLeaveStatus = (status) => {
     switch (status?.toLowerCase()) {
       case 'approved':
@@ -145,7 +171,6 @@ export default function Dashboard() {
     }
   };
 
-  // Color classes by notice type
   const noticeColorClass = (type) => {
     switch (type.toLowerCase()) {
       case 'announcement':
@@ -176,40 +201,31 @@ export default function Dashboard() {
     <AuthWrapper requiredRole="hubPlus">
       <main className="text-white px-6 py-2 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-8">
-
+          {/* Notices */}
           <div className="flex flex-col gap-4 mt-4">
             <div>
               {loadingNotices ? (
                 <p className="text-white/60">Loading notices...</p>
               ) : notices.length === 0 ? (
-                <div className="border-l-4 border-r-4 rounded-md border-purple-500 space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
-                  <div className='bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 p-4'>
-                    <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
-                      <Info
-                        className={`w-6 h-6 text-purple-500`}
-                        aria-hidden="true"
-                      />
-                      No notices available
-                    </h5>
-                  </div>
+                <div className="border-l-4 border-r-4 rounded-md border-purple-500 p-4 bg-white/10">
+                  <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
+                    <Info className="w-6 h-6 text-purple-500" /> No notices available
+                  </h5>
                 </div>
               ) : (
-                <ul className="space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                <ul className="space-y-4 max-h-56 overflow-y-auto">
                   {notices.map((notice) => (
                     <li
                       key={notice._id}
-                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 ${noticeColorClass(notice.type)}`}
+                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 ${noticeColorClass(notice.type)}`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
-                          <Info
-                            className={`w-6 h-6 ${iconColorClass(notice.type)} ${notice.type === "alert" ? "animate-flash" : ""}`}
-                            aria-hidden="true"
-                          />
+                          <Info className={`w-6 h-6 ${iconColorClass(notice.type)}`} />
                           {notice.title}
                         </h5>
-                        <span className={`text-sm font-semibold ${iconColorClass(notice.type)} px-2 py-0.5 rounded-md select-none animate-flash`}>
-                          <strong>{new Date(notice.date).toLocaleDateString('en-UK')}</strong>
+                        <span className="text-sm font-semibold text-white/70">
+                          {new Date(notice.date).toLocaleDateString('en-UK')}
                         </span>
                       </div>
                       <p className="text-white/80 whitespace-pre-wrap">{notice.content}</p>
@@ -219,42 +235,59 @@ export default function Dashboard() {
               )}
             </div>
           </div>
-          {/* Stats Cards */}
-          <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
-            <h1 className="text-3xl font-bold">Welcome, {user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy " : ""}{user?.username || 'Staff'}</h1>
+
+          {/* Stats */}
+          <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
+            <SplitText
+              text={`Welcome, ${user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy " : ""}${user?.username || 'Staff'}`}
+              className="text-3xl font-bold text-center"
+              delay={100}
+              duration={0.6}
+              ease="power3.out"
+              splitType="chars"
+              from={{ opacity: 0, y: 40 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.1}
+              rootMargin="-100px"
+              textAlign="center"
+              // onLetterAnimationComplete={handleAnimationComplete}
+            />
+            {/* <h1 className="text-3xl font-bold">Welcome, {user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy ": ""}{user?.username || 'Staff'}</h1> */}
             <p className="text-sm text-white/60">View your staff metrics below.</p>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-3">
-            {/* Player Count */}
-            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            {/* Live Players */}
+            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
-                <Sparkles className="w-6 h-6 text-green-300" />
+                <a href="/hub/game"><Sparkles className="w-6 h-6 text-green-300" /></a>
                 <h2 className="text-xl font-semibold">Live Players</h2>
               </div>
-              <p className="text-4xl font-bold text-green-300">{stats?.playing || '—'}</p>
+              <p className="text-4xl font-bold text-green-300"> <CountUp from={0} to={stats?.playing} duration={1.5} /></p>
               <p className="text-sm text-white/50">currently in game</p>
             </div>
 
             {/* Staff Online */}
-            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
                 <Users className="w-6 h-6 text-cyan-300" />
                 <h2 className="text-xl font-semibold">Staff Online</h2>
               </div>
-              <p className="text-4xl font-bold text-cyan-300">{staffCount}</p>
+              <p className="text-4xl font-bold text-cyan-300"> <CountUp from={0} to={staffCount} duration={1.5} /></p>
               <p className="text-sm text-white/50">verified accounts</p>
             </div>
 
-            {/* Activity Summary */}
-            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            {/* Activity Summary + Weekly */}
+            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
                 <Clock className="w-6 h-6 text-yellow-300" />
                 <h2 className="text-xl font-semibold">Your Activity</h2>
               </div>
-              <p className="text-2xl font-bold text-yellow-300"><span className="font-mono">{formatTime(totalTimeHours)}</span>
+              <p className="text-2xl font-bold text-yellow-300">
+                 <CountUp from={0} to={weeklySummary.hours} duration={1.5} />h  <CountUp from={0} to={weeklySummary.minutes} duration={1.5} />m
               </p>
-              <p className="text-white/70">
-                {totalShifts} {totalShifts === 1 ? 'shift' : 'shifts'} this week
+              <p className="text-white/60 mt-1">
+                <CountUp from={0} to={totalShifts} duration={1.5} /> {totalShifts === 1 ? 'shift' : 'shifts'} this week
               </p>
             </div>
           </div>
@@ -269,7 +302,7 @@ export default function Dashboard() {
               ) : activityLogs.length === 0 ? (
                 <p className="text-white/60">No shifts logged yet.</p>
               ) : (
-                <ul className="space-y-3 text-white/90 text-sm max-h-64 overflow-y-auto">
+                <ul className="space-y-3 text-white/90 text-sm max-h-28 overflow-y-auto">
                   {activityLogs
                     .slice() // clone array
                     .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
@@ -301,7 +334,7 @@ export default function Dashboard() {
               ) : leaveRequests.length === 0 ? (
                 <p className="text-white/60">No leave requests found.</p>
               ) : (
-                <ul className="space-y-3 text-white/90 text-sm max-h-64 overflow-y-auto">
+                <ul className="space-y-3 text-white/90 text-sm max-h-28 overflow-y-auto">
                   {leaveRequests
                     .slice()
                     .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
@@ -321,7 +354,7 @@ export default function Dashboard() {
               )}
 
               <div className="mt-4 text-right">
-                <a href="/hub/leave" className="text-blue-400 hover:underline text-sm">
+                <a href="/me/leave" className="text-blue-400 hover:underline text-sm">
                   Manage Leave →
                 </a>
               </div>
@@ -332,4 +365,3 @@ export default function Dashboard() {
     </AuthWrapper>
   );
 }
-

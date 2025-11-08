@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthWrapper from '@/components/AuthWrapper';
 import SplitText from "@/components/SplitText";
+import CountUp from "@/components/CountUp";
 import { Sparkles, Users, Clock, Info } from 'lucide-react';
 
 const getStartOfWeek = () => {
@@ -136,29 +137,26 @@ export default function Dashboard() {
   );
 
   // 🟢 Weekly summary calculation
-  useEffect(() => {
-    if (activityLogs.length > 0) {
-      const weekStart = getStartOfWeek();
-      let totalMinutes = 0;
+useEffect(() => {
+  const weekStart = getStartOfWeek();
+  let totalMinutes = 0;
 
-      activityLogs.forEach((log) => {
-        const logDate = new Date(log.date);
-        if (logDate >= weekStart) {
-          const match = log.duration?.match(/(\d+)h\s*(\d+)?m?/);
-          if (match) {
-            const hours = parseInt(match[1]) || 0;
-            const minutes = parseInt(match[2]) || 0;
-            totalMinutes += hours * 60 + minutes;
-          }
-        }
-      });
-
-      setWeeklySummary({
-        hours: Math.floor(totalMinutes / 60),
-        minutes: totalMinutes % 60,
-      });
+  for (const log of activityLogs) {
+    const logDate = new Date(log.date);
+    if (logDate >= weekStart && log.duration) {
+      // Extract numbers from something like "2h 30m", "1h", or "45m"
+      const hours = parseInt(log.duration.match(/(\d+)\s*h/)?.[1] ?? 0);
+      const minutes = parseInt(log.duration.match(/(\d+)\s*m/)?.[1] ?? 0);
+      totalMinutes += hours * 60 + minutes;
     }
-  }, [activityLogs]);
+  }
+
+  setWeeklySummary({
+    hours: Math.floor(totalMinutes / 60), // integer
+    minutes: totalMinutes % 60            // integer
+  });
+}, [activityLogs]);
+
 
   const renderLeaveStatus = (status) => {
     switch (status?.toLowerCase()) {
@@ -265,7 +263,7 @@ export default function Dashboard() {
                 <a href="/hub/game"><Sparkles className="w-6 h-6 text-green-300" /></a>
                 <h2 className="text-xl font-semibold">Live Players</h2>
               </div>
-              <p className="text-4xl font-bold text-green-300">{stats?.playing || '—'}</p>
+              <p className="text-4xl font-bold text-green-300"> <CountUp from={0} to={stats?.playing} duration={1.5} /></p>
               <p className="text-sm text-white/50">currently in game</p>
             </div>
 
@@ -275,7 +273,7 @@ export default function Dashboard() {
                 <Users className="w-6 h-6 text-cyan-300" />
                 <h2 className="text-xl font-semibold">Staff Online</h2>
               </div>
-              <p className="text-4xl font-bold text-cyan-300">{staffCount}</p>
+              <p className="text-4xl font-bold text-cyan-300"> <CountUp from={0} to={staffCount} duration={1.5} /></p>
               <p className="text-sm text-white/50">verified accounts</p>
             </div>
 
@@ -286,10 +284,10 @@ export default function Dashboard() {
                 <h2 className="text-xl font-semibold">Your Activity</h2>
               </div>
               <p className="text-2xl font-bold text-yellow-300">
-                {weeklySummary.hours}h {weeklySummary.minutes}m
+                 <CountUp from={0} to={weeklySummary.hours} duration={1.5} />h  <CountUp from={0} to={weeklySummary.minutes} duration={1.5} />m
               </p>
               <p className="text-white/60 mt-1">
-                {totalShifts} {totalShifts === 1 ? 'shift' : 'shifts'} this week
+                <CountUp from={0} to={totalShifts} duration={1.5} /> {totalShifts === 1 ? 'shift' : 'shifts'} this week
               </p>
             </div>
           </div>
@@ -304,7 +302,7 @@ export default function Dashboard() {
               ) : activityLogs.length === 0 ? (
                 <p className="text-white/60">No shifts logged yet.</p>
               ) : (
-                <ul className="space-y-3 text-white/90 text-sm max-h-64 overflow-y-auto">
+                <ul className="space-y-3 text-white/90 text-sm max-h-28 overflow-y-auto">
                   {activityLogs
                     .slice() // clone array
                     .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
@@ -336,7 +334,7 @@ export default function Dashboard() {
               ) : leaveRequests.length === 0 ? (
                 <p className="text-white/60">No leave requests found.</p>
               ) : (
-                <ul className="space-y-3 text-white/90 text-sm max-h-64 overflow-y-auto">
+                <ul className="space-y-3 text-white/90 text-sm max-h-28 overflow-y-auto">
                   {leaveRequests
                     .slice()
                     .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
@@ -356,7 +354,7 @@ export default function Dashboard() {
               )}
 
               <div className="mt-4 text-right">
-                <a href="/hub/leave" className="text-blue-400 hover:underline text-sm">
+                <a href="/me/leave" className="text-blue-400 hover:underline text-sm">
                   Manage Leave →
                 </a>
               </div>

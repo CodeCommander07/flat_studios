@@ -2,6 +2,7 @@ import dbConnect from '@/utils/db';
 import ActivityLog from '@/models/ActivityLog';
 import User from '@/models/User';
 import nodemailer from 'nodemailer';
+import { notifyUser } from '@/utils/notifyUser';
 
 const mailHub = nodemailer.createTransport({
   service: 'gmail',
@@ -177,6 +178,7 @@ try {
       };
 
       await mailHub.sendMail(mailOptions);
+      notifyUser(user._id, `Activity Log Submitted Succesffuly on ${date} for a duration of ${duration} between ${timeJoined} & ${timeLeft}`, '/me/activity')
 
       return res.status(201).json(newLog);
     } catch (error) {

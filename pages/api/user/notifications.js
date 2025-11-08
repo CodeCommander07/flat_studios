@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (!userId) return res.status(400).json({ error: 'Missing userId' });
 
   try {
-    const user = await User.findOne({ id: userId });
+    const user = await User.findOne({ _id: userId });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     switch (req.method) {

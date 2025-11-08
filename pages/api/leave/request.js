@@ -1,6 +1,7 @@
 import dbConnect from '@/utils/db';
 import LeaveRequest from '@/models/LeaveRequest';
 import nodemailer from 'nodemailer';
+import { notifyUser } from '@/utils/notifyUser';
 
 const mailHub = nodemailer.createTransport({
     service: 'gmail',
@@ -24,6 +25,9 @@ export default async function handler(req, res) {
     try {
       const leave = new LeaveRequest({ userId, reason, startDate, endDate, status: 'Pending' });
       await leave.save();
+
+      const notReason = `Leave Request form ${startDate} to ${endDate} is pending.`
+      notifyUser(userId, notReason, "/me/leave")
 
               const to = leave.userId.email;
         const userName = leave.userId.username;
@@ -89,6 +93,8 @@ export default async function handler(req, res) {
             html,
         };
         await mailHub.sendMail(mailOptions);
+
+
 
       return res.status(200).json({ success: true });
     } catch (err) {

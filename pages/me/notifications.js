@@ -48,21 +48,47 @@ export default function NotificationsPage() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className={`p-4 rounded-lg border ${
-                n.read ? 'border-gray-600 bg-[#2f3a3c]' : 'border-blue-500/40 bg-[#2b3b3d]'
-              }`}
+              className={`p-4 rounded-lg border transition ${n.read ? 'border-gray-600 bg-[#2f3a3c]' : 'border-blue-500/40 bg-[#2b3b3d] hover:bg-[#32494c]'
+                }`}
             >
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-semibold">{n.title}</p>
-                  <p className="text-sm text-gray-300">{n.message}</p>
+                  <p className="text-sm text-gray-300">{n.notification}</p>
                 </div>
-                {n.read ? (
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-yellow-400" />
-                )}
+
+                <button
+                  onClick={async () => {
+                    try {
+                      const localUser = JSON.parse(localStorage.getItem('User'));
+                      await axios.patch(`/api/user/notifications/?userId=${localUser._id}`, { notifId: n._id });
+                      setNotifications(prev =>
+                        prev.map(item =>
+                          item._id === n._id ? { ...item, read: true } : item
+                        )
+                      );
+                    } catch (err) {
+                      console.error('Failed to mark read:', err.message);
+                    }
+                  }}
+                  className={`relative p-1 rounded-full transition ${n.read
+                      ? 'bg-green-700/40 text-green-400 cursor-default'
+                      : 'bg-blue-600/30 hover:bg-blue-600/50 text-yellow-400'
+                    }`}
+                  disabled={n.read}
+                  title={n.read ? 'Already read' : 'Mark as read'}
+                >
+                  {n.read ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <>
+                      <XCircle className="w-5 h-5 relative z-10" />
+                      <span className="absolute inset-0 rounded-full bg-blue-400 opacity-75 animate-ping"></span>
+                    </>
+                  )}
+                </button>
               </div>
+
               {n.link && (
                 <Link
                   href={n.link}
@@ -73,6 +99,7 @@ export default function NotificationsPage() {
               )}
             </motion.div>
           ))}
+
         </div>
       )}
     </div>
