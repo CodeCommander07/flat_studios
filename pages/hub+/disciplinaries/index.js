@@ -54,7 +54,7 @@ export default function DisciplinaryList() {
           </div>
 
           <Link
-            href="/hub+/infract"
+            href="/hub+/disciplinaries/new"
             className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 font-medium hover:bg-blue-700 shadow-lg shadow-blue-600/20"
           >
             + New Infraction

@@ -124,7 +124,6 @@ export default function Navbar() {
         { label: 'Contact Emails', href: '/hub+/contact/emails' },
         { label: 'Contact Forms', href: '/hub+/contact/forms' },
         { label: 'Disciplinaries', href: '/hub+/disciplinaries' },
-        { label: 'Infract', href: '/hub+/infract' },
       ],
     },
     {
@@ -344,7 +343,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden p-2 rounded-md hover:bg-white/10 transition"
@@ -353,7 +351,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -483,13 +480,22 @@ export default function Navbar() {
                       >
                         My Appeals
                       </Link>
-                      <Link
-                        href="/me/notifications"
-                        onClick={() => setMobileOpen(false)}
-                        className={`block text-sm font-semibold text-white hover:text-blue-400 py-2 ${hasNew ? "animate-ping" : ""}`}
-                      >
-                        My Notifications
-                      </Link>
+                      <div className="relative">
+                        <Link
+                          href="/me/notifications"
+                          onClick={() => setMobileOpen(false)}
+                          className="block text-sm text-gray-300 hover:text-blue-400"
+                        >
+                          My Notifications
+                          {hasNew && (
+                            <span className="relative flex">
+                              <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping"></span>
+                              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                            </span>
+                          )}
+                        </Link>
+                      </div>
+
                       <div className="pt-2">
                         <LogoutButton />
                       </div>

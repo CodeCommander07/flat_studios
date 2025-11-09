@@ -105,7 +105,7 @@ export default function Home() {
                 displayOverlayContent={true}
                 showTooltip={false}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-blue-300 mb-2">
                       Group Members
                     </h3>
@@ -127,7 +127,7 @@ export default function Home() {
                 displayOverlayContent={true}
                 showTooltip={false}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-green-300 mb-2">
                       Active Players
                     </h3>
@@ -148,7 +148,7 @@ export default function Home() {
                 displayOverlayContent={true}
                 showTooltip={false}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-green-300 mb-2">
                       Total Visits
                     </h3>
