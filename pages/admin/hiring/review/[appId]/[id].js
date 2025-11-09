@@ -6,6 +6,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, Flag, StickyNote, Trash } from 'lucide-react';
 import Image from 'next/image';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function SubmissionDetailPage() {
   const params = useParams();
@@ -165,6 +166,7 @@ export default function SubmissionDetailPage() {
       >
         {/* Left Panel */}
         <motion.div layout className={`bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl flex flex-col`}>
+            <Breadcrumb />
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-white">Application Details</h2>
             <button onClick={() => setShowNotes(!showNotes)} className="text-white/60 hover:text-white transition">

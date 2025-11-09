@@ -27,7 +27,7 @@ export default function DisciplinaryList() {
 
   return (
     <div className="text-white">
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Disciplinary Records</h1>
           <p className="text-gray-400 mt-1">Search, filter, and drill into details.</p>
@@ -68,7 +68,7 @@ export default function DisciplinaryList() {
             No records found.
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             {filtered.map(d => (
               <Link
                 key={d._id}
