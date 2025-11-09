@@ -24,8 +24,8 @@ export default async function handler(req, res) {
       });
 
       // Fetch full user details for email
-      const staffUser = await User.findById(staffId).select('name email');
-      const issuer = await User.findById(issuedById).select('name email');
+      const staffUser = await User.findById(staffId).select('username email');
+      const issuer = await User.findById(issuedById).select('username email');
 
       if (staffUser?.email) {
         // 💌 Send email notification
@@ -95,8 +95,8 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const records = await Disciplinary.find()
-        .populate('staffId', 'name email')
-        .populate('issuedById', 'name email')
+        .populate('staffId', 'username email')
+        .populate('issuedById', 'username email')
         .sort({ createdAt: -1 });
 
       return res.status(200).json({ success: true, records });

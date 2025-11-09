@@ -76,7 +76,7 @@ export default function DisciplinaryList() {
                 className="rounded-2xl bg-gray-900/60 border border-gray-800 p-5 hover:bg-gray-900 transition shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold">{d.staffName}</h3>
+                  <h3 className="text-xl font-semibold">{d.staffId.username}</h3>
                   <span className={`text-xs px-2 py-1 rounded-full border
                     ${d.status === 'Active' ? 'border-red-500 text-red-300' :
                       d.status === 'Appealed' ? 'border-yellow-500 text-yellow-300' :
@@ -88,7 +88,7 @@ export default function DisciplinaryList() {
                 <div className="mt-3 text-sm text-gray-400 flex items-center gap-3">
                   <span>Severity: <strong className="text-gray-200">{d.severity}</strong></span>
                   <span>•</span>
-                  <span>Issued by: {d.issuedBy}</span>
+                  <span>Issued by: {d.issuedById.username}</span>
                 </div>
                 <div className="mt-3 text-xs text-gray-500">
                   {new Date(d.createdAt).toLocaleString()}

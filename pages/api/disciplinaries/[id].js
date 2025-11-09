@@ -95,8 +95,8 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const record = await Disciplinary.findById(id)
-        .populate('staffId', 'name email')
-        .populate('issuedById', 'name email')
+        .populate('staffId', 'username email')
+        .populate('issuedById', 'username email')
         .lean();
 
       if (!record) return res.status(404).json({ message: 'Not found' });
@@ -113,8 +113,8 @@ export default async function handler(req, res) {
       if (!before) return res.status(404).json({ message: 'Not found' });
 
       const updated = await Disciplinary.findByIdAndUpdate(id, req.body, { new: true })
-        .populate('staffId', 'name email')
-        .populate('issuedById', 'name email')
+        .populate('staffId', 'username email')
+        .populate('issuedById', 'username email')
         .lean();
 
        
@@ -131,8 +131,8 @@ export default async function handler(req, res) {
           severity: updated.severity,
           notes: updated.notes,
           status: updated.status,
-          issuedBy: updated.issuedById?.name,
-          staffName: updated.staffId?.name,
+          issuedBy: updated.issuedById?.username,
+          staffName: updated.staffId?.username,
         });
 
         await sendMail(
@@ -153,8 +153,8 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     try {
       const record = await Disciplinary.findByIdAndDelete(id)
-        .populate('staffId', 'name email')
-        .populate('issuedById', 'name email')
+        .populate('staffId', 'username email')
+        .populate('issuedById', 'username email')
         .lean();
 
       if (!record) return res.status(404).json({ message: 'Not found' });
@@ -163,13 +163,13 @@ export default async function handler(req, res) {
       if (record?.staffId?.email) {
         const html = disciplinaryEmailTemplate({
           title: 'Disciplinary Record Deleted',
-          subtitle: `Your disciplinary record has been permanently removed by ${record.issuedById?.name || 'HR'}.`,
+          subtitle: `Your disciplinary record has been permanently removed by ${record.issuedById?.username || 'HR'}.`,
           reason: record.reason,
           severity: record.severity,
           notes: record.notes,
           status: 'Deleted',
-          issuedBy: record.issuedById?.name,
-          staffName: record.staffId?.name,
+          issuedBy: record.issuedById?.username,
+          staffName: record.staffId?.username,
         });
 
         await sendMail(record.staffId.email, 'Disciplinary Record Deleted', html);

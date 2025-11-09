@@ -128,10 +128,10 @@ export default function DisciplinaryDetail() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold">
-                {staff?.username || record.staffName || 'Unknown Staff'}
+                {staff?.username || record.staffId.username || 'Unknown Staff'}
               </h1>
               <p className="text-gray-400 text-sm">
-                {staff?.email || record.staffEmail || 'No email available'}
+                {staff?.email || record.staffId.email || 'No email available'}
               </p>
               {staff?.role && (
                 <p className="text-gray-500 text-xs mt-1">Role: {staff.role}</p>
@@ -206,7 +206,7 @@ export default function DisciplinaryDetail() {
 
             <div>
               <span className="text-gray-400">Issued By:</span>{' '}
-              {admin?.username || 'Unknown'} ({admin?.email || 'No email'})
+              {record.issuedById?.username || 'Unknown'} ({record.issuedById?.email || 'No email'})
             </div>
 
             <div className="text-gray-400 text-xs mt-2">
