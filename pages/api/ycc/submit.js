@@ -101,7 +101,7 @@ export default async function handler(req, res) {
       <p>Hello <strong>${discordTag}</strong>,</p>
       <p>Your route request for <strong>${selectedCompany}</strong> has been received.</p>
       ${sections}
-      <p style="margin-top:20px;">Thank you,<br>FlatStudios Team</p>
+      <p style="margin-top:14px;">Thank you,<br>FlatStudios Team</p>
     </td></tr>
   </table>
 </body>
