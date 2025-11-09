@@ -38,14 +38,14 @@ export default function YCCIndex() {
       <main className="text-white px-6 py-6 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-8">
 
-          <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
+          <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
             <h1 className="text-3xl font-bold">Yapton Community Council</h1>
             <p className="text-sm text-white/60 mt-2">Overview of total routes and routes per company</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Total Routes */}
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
                 <a href='/ycc/routes'><Route className="w-6 h-6 text-green-300" /></a>
                 <h2 className="text-xl font-semibold">Total Routes</h2>
@@ -62,7 +62,7 @@ export default function YCCIndex() {
               <p className="text-sm text-white/50">routes in total</p>
             </div>
 
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
                 <a href='/ycc/operators'><Bus className="w-6 h-6 text-purple-300" /></a>
                 <h2 className="text-xl font-semibold">Total Operators</h2>
@@ -80,7 +80,7 @@ export default function YCCIndex() {
             </div>
 
             {/* Total Stops */}
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
                 <a href='/ycc/stops'><MapPin className="w-6 h-6 text-cyan-300" /></a>
                 <h2 className="text-xl font-semibold">Total Stops</h2>
@@ -99,7 +99,7 @@ export default function YCCIndex() {
 
           </div>
 
-          <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
+          <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
             <h1 className="text-3xl font-bold">Want to be an operator?</h1>
             <p className="text-sm text-white/60 mt-2 mb-5">Apply to be an operator</p>
             <a href="/ycc/operators/request" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"

@@ -76,7 +76,7 @@ export default function TravelUpdatesPage() {
               <Link
                 href={`/ycc/travel/${d._id}`}
                 key={d._id}
-                className="block bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-lg hover:border-yellow-400/50 hover:bg-white/15 transition-all duration-300"
+                className="block bg-[#283335]/95 border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-lg hover:border-yellow-400/50 hover:bg-white/15 transition-all duration-300"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                   <h2 className="text-xl font-semibold text-yellow-400 flex items-center gap-2">
