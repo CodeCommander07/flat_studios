@@ -59,12 +59,23 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
       </div>
 
       {/* Question Label */}
+      {/* Question Label */}
       <input
         value={question.label}
         onChange={(e) => onChange(index, { ...question, label: e.target.value })}
         placeholder="Question Label"
         className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
       />
+
+      {/* Question Info (description) */}
+      <textarea
+        value={question.info || ''}
+        onChange={(e) => onChange(index, { ...question, info: e.target.value })}
+        placeholder="Additional information about this question..."
+        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 text-sm resize-none"
+        rows={2}
+      />
+
 
       {/* Type Selector */}
       <select
@@ -164,6 +175,7 @@ export default function EditForm() {
   const [requirements, setRequirements] = useState('');
   const [status, setStatus] = useState(true);
   const [qLabel, setQLabel] = useState('');
+  const [qInfo, setQInfo] = useState('')
   const [qType, setQType] = useState('short');
   const [qOptions, setQOptions] = useState(['']);
   const [saving, setSaving] = useState(false); const [showDescModal, setShowDescModal] = useState(false);
@@ -223,12 +235,15 @@ export default function EditForm() {
     const q = {
       id: `q_${Date.now()}`,
       label: qLabel.trim(),
+      info: qInfo.trim(),
       type: qType,
       options: qType === 'radio' ? qOptions.filter((o) => o.trim()) : [],
     };
+
     const data = { ...form, questions: [...(form.questions || []), q] };
     await saveForm(data);
     setQLabel('');
+    setQInfo('');
     setQType('short');
     setQOptions(['']);
   };
@@ -289,10 +304,7 @@ export default function EditForm() {
   return (
     <AuthWrapper requiredRole="admin">
       <main className="max-w-8xl mx-auto px-4 py-10 text-white grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* LEFT COLUMN */}
-        {/* MIDDLE COLUMN — Edit Role Info */}
         <div className="space-y-6">
-          {/* Title (still inline editable) */}
           <div className="glass p-4 rounded-2xl shadow-lg flex items-center justify-between">
             <h2 className="text-xl font-bold p-2">Title:</h2>
             <input
@@ -370,6 +382,13 @@ export default function EditForm() {
               className="w-full p-2 rounded-md bg-white/10 placeholder-white/50"
               disabled={saving}
             />
+            <textarea
+              value={qInfo}
+              onChange={(e) => setQInfo(e.target.value)}
+              placeholder="Additional information about this question..."
+              className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 text-sm resize-none"
+              rows={2}
+            />
             <select
               className="w-full p-2 rounded-md bg-white/10 text-white"
               value={qType}
@@ -419,7 +438,7 @@ export default function EditForm() {
 
         <div className="glass p-6 rounded-2xl shadow-lg">
           <h2 className="text-xl font-bold mb-2">Questions</h2>
-          <div className="max-h-[600px] overflow-y-auto overscroll-contain">
+          <div className="max-h-[666px] overflow-y-auto overscroll-contain">
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext
                 items={(form.questions || []).map((q) => q.id)}

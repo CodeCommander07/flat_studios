@@ -123,13 +123,17 @@ export default function ApplicationView() {
                     />
                     {form.questions && form.questions.length > 0 ? (
                         form.questions.map((q) => (
-                            <div key={q.id || q._id} className="space-y-2">
-                                <label className="block mb-1 font-medium">
-                                    {q.label}{' '}
-                                    <span className="text-sm text-gray-400">
-                                        ({q.type})
-                                    </span>
+                            <div key={q.id || q._id} className="space-y-2 border-b border-white/10 pb-4">
+                                <label className="block mb-1 font-medium text-white">
+                                    {q.label}
+                                    {q.type && (
+                                        <span className="ml-2 text-xs text-gray-500">({q.type})</span>
+                                    )}
                                 </label>
+
+                                {q.info && (
+                                    <p className="text-white/60 text-sm italic mb-1">{q.info}</p>
+                                )}
 
                                 {q.type === 'short' && (
                                     <input
@@ -167,10 +171,7 @@ export default function ApplicationView() {
                                 {q.type === 'radio' && (
                                     <div className="space-y-1">
                                         {q.options?.map((opt, i) => (
-                                            <label
-                                                key={i}
-                                                className="flex items-center gap-2 text-gray-300 cursor-pointer"
-                                            >
+                                            <label key={i} className="flex items-center gap-2 text-gray-300 cursor-pointer">
                                                 <input
                                                     type="radio"
                                                     name={q.id || q._id}
@@ -184,13 +185,11 @@ export default function ApplicationView() {
                                         ))}
                                     </div>
                                 )}
+
                                 {q.type === 'checkbox' && (
                                     <div className="space-y-1">
                                         {q.options?.map((opt, i) => (
-                                            <label
-                                                key={i}
-                                                className="flex items-center gap-2 text-gray-300 cursor-pointer"
-                                            >
+                                            <label key={i} className="flex items-center gap-2 text-gray-300 cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     name={q.id || q._id}
@@ -209,12 +208,12 @@ export default function ApplicationView() {
                                         ))}
                                     </div>
                                 )}
-
                             </div>
                         ))
                     ) : (
                         <p className="text-gray-400">No questions have been added yet.</p>
                     )}
+
                 </div>
 
                 {/* Fixed Submit Button */}

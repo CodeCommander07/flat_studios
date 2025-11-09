@@ -10,7 +10,6 @@ export default async function handler(req, res) {
     try {
       const data = req.body;
 
-      // --- 🧠 Validate & Normalize Auto-Deny Fields ---
       if (Array.isArray(data.questions)) {
         data.questions = data.questions.map((q) => ({
           ...q,

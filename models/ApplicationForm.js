@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const QuestionSchema = new mongoose.Schema({
   id: String,
   label: String,
+  info: String,
   type: { type: String, enum: ['short', 'long', 'radio', 'number', 'checkbox'], default: 'short' },
   options: [String],
   autoDeny: { type: Boolean, default: false },

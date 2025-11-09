@@ -101,16 +101,18 @@ export default function SubmissionDetailPage() {
 
   // 🆕 Handle deny with popup reason
   const handleDeny = async () => {
-    if (!denyReason.trim()) return setDenyReason(null);
     setSubmittingDeny(true);
     try {
-      await handleStatusChange('denied', denyReason);
+      // ✅ Always call handleStatusChange, even if denyReason is empty
+      await handleStatusChange('denied', denyReason || '');
 
-      // Add personal staff note for the reason
-      await axios.post(`/api/careers/submissions/${id}/note`, {
-        staffMember: userData._id,
-        noteText: `📝 Deny Reason: ${denyReason}`,
-      });
+      // ✅ Only add a personal note if a reason was actually entered
+      if (denyReason.trim()) {
+        await axios.post(`/api/careers/submissions/${id}/note`, {
+          staffMember: userData._id,
+          noteText: `📝 Deny Reason: ${denyReason}`,
+        });
+      }
 
       setDenyReason('');
       setShowDenyModal(false);
@@ -121,6 +123,7 @@ export default function SubmissionDetailPage() {
       setSubmittingDeny(false);
     }
   };
+
 
   const handleDeleteApplication = async () => {
     if (!userData) return alert('User data missing.');
@@ -166,7 +169,7 @@ export default function SubmissionDetailPage() {
       >
         {/* Left Panel */}
         <motion.div layout className={`bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl flex flex-col`}>
-            <Breadcrumb />
+          <Breadcrumb />
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-white">Application Details</h2>
             <button onClick={() => setShowNotes(!showNotes)} className="text-white/60 hover:text-white transition">
@@ -180,15 +183,14 @@ export default function SubmissionDetailPage() {
           <p className="text-white/70 mb-4">
             <span className="font-semibold text-blue-300">Status:</span>{' '}
             <span
-              className={`capitalize font-medium ${
-                sub.status === 'accepted'
+              className={`capitalize font-medium ${sub.status === 'accepted'
                   ? 'text-green-400'
                   : sub.status === 'denied'
                     ? 'text-red-400'
                     : sub.status === 'talented'
                       ? 'text-yellow-400'
                       : 'text-white/70'
-              }`}
+                }`}
             >
               {sub.status}
             </span>

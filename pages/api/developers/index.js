@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
   const all = await DeveloperTasks.find({})
-    .populate('user', 'name email')
+    .populate('user', 'username email')
     .lean();
 
   const tasks = all.flatMap((entry) =>
