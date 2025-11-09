@@ -186,7 +186,7 @@ export default function Dashboard() {
                 <p className="text-white/60">Loading notices...</p>
               ) : notices.length === 0 ? (
                 <div className="border-l-4 border-r-4 rounded-md border-purple-500 space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
-                  <div className='bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 p-4'>
+                  <div className='bg-[#283335] backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 p-4'>
                     <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
                       <Info
                         className={`w-6 h-6 text-purple-500`}
@@ -201,7 +201,7 @@ export default function Dashboard() {
                   {notices.map((notice) => (
                     <li
                       key={notice._id}
-                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 ${noticeColorClass(notice.type)}`}
+                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-[#283335] backdrop-blur-sm hover:bg-[#283335]/80 transition-colors duration-300 ${noticeColorClass(notice.type)}`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
@@ -226,7 +226,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 backdrop-blur-mdmd:grid-cols-2 lg:grid-cols-3 gap-6">
 
             {/* Player Count */}
-            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="bg-[#283335] border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
                 <Sparkles className="w-6 h-6 text-green-300" />
                 <h2 className="text-xl font-semibold">Live Players</h2>
@@ -236,7 +236,7 @@ export default function Dashboard() {
             </div>
 
             {/* Staff Online */}
-            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="bg-[#283335] border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
                 <Users className="w-6 h-6 text-cyan-300" />
                 <h2 className="text-xl font-semibold">Staff Online</h2>
@@ -246,7 +246,7 @@ export default function Dashboard() {
             </div>
 
             {/* Activity Summary */}
-            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="bg-[#283335] border backdrop-blur-md border-white/20 p-6 rounded-2xl shadow-md hover:shadow-xl transition">
               <div className="flex items-center gap-4 mb-4">
                 <Link href={`/dev/tasks`} > <Trophy className="w-6 h-6 text-red-300" /></Link>
                 <h2 className="text-xl font-semibold">Tasks Outstanding</h2>
@@ -258,7 +258,7 @@ export default function Dashboard() {
             </div>
 
             {/* Notices Box */}
-            <div className="bg-white/10 border backdrop-blur-md border-white/20 p-6 col-span-2 rounded-2xl shadow-md flex items-start gap-4">
+            <div className="bg-[#283335] border backdrop-blur-md border-white/20 p-6 col-span-2 rounded-2xl shadow-md flex items-start gap-4">
               <Info className="w-6 h-6 text-blue-400 mt-1" />
               <div>
                 <h3 className="text-xl font-semibold mb-1">Staff Notice</h3>
@@ -273,7 +273,7 @@ export default function Dashboard() {
 
 
             {/* Leave Requests */}
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
+            <div className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
               <h2 className="text-xl font-bold mb-4 text-yellow-300">📅 Leave Requests</h2>
 
               {loadingLeaves ? (

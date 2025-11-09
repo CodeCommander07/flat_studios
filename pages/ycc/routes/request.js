@@ -10,7 +10,7 @@ export default function DynamicYCCForm() {
   const [pageTitles, setPageTitles] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Load questions
+  // 📦 Load questions from API
   useEffect(() => {
     const load = async () => {
       try {
@@ -38,7 +38,7 @@ export default function DynamicYCCForm() {
 
   const handleChange = (id, value) => setFormData((p) => ({ ...p, [id]: value }));
 
-  // Visibility logic
+  // 🔍 Visibility logic
   const isVisible = (q) => {
     if (!q.triggerQuestionId) return !q.hiddenByDefault;
     const val = formData[q.triggerQuestionId];
@@ -46,61 +46,134 @@ export default function DynamicYCCForm() {
     return val === q.triggerValue;
   };
 
-  // Navigation
+  // ⏩ Navigation
   const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    // separate file uploads from text fields
-    const hasFiles = Object.values(formData).some((v) => v instanceof File);
-
-    if (hasFiles) {
-      const form = new FormData();
-      for (const [key, val] of Object.entries(formData)) {
-        if (val instanceof File) form.append(key, val);
-        else form.append(key, typeof val === 'object' ? JSON.stringify(val) : val);
-      }
-
-      const res = await fetch('/api/ycc/submit', {
-        method: 'POST',
-        body: form,
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert('Form submitted successfully!');
-        console.log(data);
+  // 📤 Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const hasFiles = Object.values(formData).some((v) => v instanceof File);
+      if (hasFiles) {
+        const form = new FormData();
+        for (const [key, val] of Object.entries(formData)) {
+          if (val instanceof File) form.append(key, val);
+          else form.append(key, typeof val === 'object' ? JSON.stringify(val) : val);
+        }
+        const res = await fetch('/api/ycc/submit', { method: 'POST', body: form });
+        const data = await res.json();
+        if (res.ok) alert('Form submitted successfully!');
+        else alert(`Error: ${data.error || 'Unknown error'}`);
       } else {
-        alert(`Error: ${data.error || 'Unknown error'}`);
+        const res = await fetch('/api/ycc/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (res.ok) alert('Form submitted successfully!');
+        else alert(`Error: ${data.error || 'Unknown error'}`);
       }
-    } else {
-      const res = await fetch('/api/ycc/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert('Form submitted successfully!');
-        console.log(data);
-      } else {
-        alert(`Error: ${data.error || 'Unknown error'}`);
-      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('An error occurred while submitting.');
     }
-  } catch (err) {
-    console.error('Submit error:', err);
-    alert('An error occurred while submitting.');
+  };
+
+  // 🧩 Auto options question (routes/stops)
+  function AutoOptionsQuestion({ q, formData, handleChange }) {
+    const [options, setOptions] = useState([]);
+
+    useEffect(() => {
+      const loadOptions = async () => {
+        try {
+          if (q.autoSource === 'routes') {
+            const res = await fetch('/api/ycc/routes');
+            const data = await res.json();
+            setOptions(data.routes?.map((r) => r.name || r.routeName) || []);
+          } else if (q.autoSource === 'stops') {
+            const res = await fetch('/api/ycc/stops');
+            const data = await res.json();
+            setOptions(data.stops?.map((s) => s.name || s.stopName) || []);
+          } else {
+            setOptions(q.options || []);
+          }
+        } catch (err) {
+          console.error('Failed to load auto options:', err);
+          setOptions([]);
+        }
+      };
+      loadOptions();
+    }, [q.autoSource, q.options]);
+
+    if (q.type === 'select') {
+      return (
+        <select
+          required={q.required}
+          value={formData[q._id] || ''}
+          onChange={(e) => handleChange(q._id, e.target.value)}
+          className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-white"
+        >
+          <option value="">Select...</option>
+          {options.map((o, i) => (
+            <option key={i} value={o} className="bg-black text-white">
+              {o}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    if (q.type === 'radio') {
+      return (
+        <div className="space-y-2">
+          {options.map((o, i) => (
+            <label key={i} className="flex items-center gap-2">
+              <input
+                type="radio"
+                name={q._id}
+                value={o}
+                checked={formData[q._id] === o}
+                onChange={() => handleChange(q._id, o)}
+                required={q.required}
+                className="accent-blue-500"
+              />
+              {o}
+            </label>
+          ))}
+        </div>
+      );
+    }
+
+    if (q.type === 'checkbox') {
+      return (
+        <div className="space-y-2">
+          {options.map((o, i) => (
+            <label key={i} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData[q._id]?.includes(o) || false}
+                onChange={(e) => {
+                  const prev = formData[q._id] || [];
+                  const updated = e.target.checked
+                    ? [...prev, o]
+                    : prev.filter((x) => x !== o);
+                  handleChange(q._id, updated);
+                }}
+                className="accent-blue-500"
+              />
+              {o}
+            </label>
+          ))}
+        </div>
+      );
+    }
+
+    return null;
   }
-};
 
-
-  const currentQuestions = questions.filter(
-    (q) => Number(q.page) === step && isVisible(q)
-  );
-
-  // 🧱 Render one question (no autoSource)
+  // 🧱 Render one question
   const renderQuestion = (q) => {
     return (
       <div key={q._id} className="space-y-2">
@@ -129,54 +202,60 @@ const handleSubmit = async (e) => {
 
         {['radio', 'checkbox', 'select'].includes(q.type) && (
           <>
-            {q.type === 'select' && (
-              <input
-                type="text"
-                required={q.required}
-                placeholder="Enter option manually..."
-                value={formData[q._id] || ''}
-                onChange={(e) => handleChange(q._id, e.target.value)}
-                className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-white"
-              />
-            )}
-            {q.type === 'radio' && q.options?.length > 0 && (
-              <div className="space-y-2">
-                {q.options.map((o, i) => (
-                  <label key={i} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name={q._id}
-                      value={o}
-                      checked={formData[q._id] === o}
-                      onChange={() => handleChange(q._id, o)}
-                      required={q.required}
-                      className="accent-blue-500"
-                    />
-                    {o}
-                  </label>
-                ))}
-              </div>
-            )}
-            {q.type === 'checkbox' && q.options?.length > 0 && (
-              <div className="space-y-2">
-                {q.options.map((o, i) => (
-                  <label key={i} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData[q._id]?.includes(o) || false}
-                      onChange={(e) => {
-                        const prev = formData[q._id] || [];
-                        const updated = e.target.checked
-                          ? [...prev, o]
-                          : prev.filter((x) => x !== o);
-                        handleChange(q._id, updated);
-                      }}
-                      className="accent-blue-500"
-                    />
-                    {o}
-                  </label>
-                ))}
-              </div>
+            {q.autoSource && q.autoSource !== 'none' ? (
+              <AutoOptionsQuestion q={q} formData={formData} handleChange={handleChange} />
+            ) : (
+              <>
+                {q.type === 'select' && (
+                  <input
+                    type="text"
+                    required={q.required}
+                    placeholder="Enter option manually..."
+                    value={formData[q._id] || ''}
+                    onChange={(e) => handleChange(q._id, e.target.value)}
+                    className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-white"
+                  />
+                )}
+                {q.type === 'radio' && q.options?.length > 0 && (
+                  <div className="space-y-2">
+                    {q.options.map((o, i) => (
+                      <label key={i} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name={q._id}
+                          value={o}
+                          checked={formData[q._id] === o}
+                          onChange={() => handleChange(q._id, o)}
+                          required={q.required}
+                          className="accent-blue-500"
+                        />
+                        {o}
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {q.type === 'checkbox' && q.options?.length > 0 && (
+                  <div className="space-y-2">
+                    {q.options.map((o, i) => (
+                      <label key={i} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formData[q._id]?.includes(o) || false}
+                          onChange={(e) => {
+                            const prev = formData[q._id] || [];
+                            const updated = e.target.checked
+                              ? [...prev, o]
+                              : prev.filter((x) => x !== o);
+                            handleChange(q._id, updated);
+                          }}
+                          className="accent-blue-500"
+                        />
+                        {o}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -193,7 +272,7 @@ const handleSubmit = async (e) => {
     );
   };
 
-  // 🧾 Review grouped by page
+  // 🧾 Review Page
   const renderReview = () => {
     const pages = {};
     for (const q of questions) {
@@ -209,7 +288,7 @@ const handleSubmit = async (e) => {
 
     return (
       <div className="space-y-8">
-        <h2 className="text-2xl font-bold text-center mb-4">Step {step}: Review & Confirm</h2>
+        <h2 className="text-2xl font-bold text-center mb-4">Review & Confirm</h2>
 
         {Object.keys(pages).map((p) => (
           <div
@@ -239,10 +318,6 @@ const handleSubmit = async (e) => {
             ))}
           </div>
         ))}
-
-        <p className="text-center text-white/70">
-          Please review your answers before submitting.
-        </p>
       </div>
     );
   };
@@ -259,6 +334,7 @@ const handleSubmit = async (e) => {
   return (
     <AuthWrapper requiredRole="ycc">
       <main className="max-w-4xl mx-auto mt-10 p-8 bg-white/10 border border-white/20 rounded-2xl text-white backdrop-blur-lg shadow-lg">
+        {/* Progress Bar */}
         <div className="mb-6">
           <div className="w-full h-2 bg-white/20 rounded-full">
             <div
@@ -275,13 +351,13 @@ const handleSubmit = async (e) => {
           {step < totalSteps ? (
             <>
               <h2 className="text-2xl font-bold text-center mb-6">{currentTitle}</h2>
-              {currentQuestions.length > 0 ? (
-                currentQuestions.map((q) => renderQuestion(q))
+              {questions.filter((q) => Number(q.page) === step && isVisible(q)).length > 0 ? (
+                questions
+                  .filter((q) => Number(q.page) === step && isVisible(q))
+                  .map((q) => renderQuestion(q))
               ) : (
                 <p className="text-center text-gray-400">
-                  {questions.some((q) => Number(q.page) === step)
-                    ? 'Please complete the previous step to reveal questions for this section.'
-                    : 'No questions found for this step.'}
+                  No questions found for this step.
                 </p>
               )}
             </>

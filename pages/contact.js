@@ -64,7 +64,7 @@ export default function SendContactRequest() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-white/10 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-lg space-y-5"
+          className="bg-[#283335] backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-lg space-y-5"
         >
           <h1 className="text-3xl font-bold bg-gradient-to-r from-red-400 to-purple-400 bg-clip-text text-transparent">
             Contact Us
@@ -107,7 +107,7 @@ export default function SendContactRequest() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
-          className="bg-white/10 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-lg"
+          className="bg-[#283335] backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-lg"
         >
           <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
             Contact Directory

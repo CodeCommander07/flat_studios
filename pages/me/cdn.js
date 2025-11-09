@@ -115,22 +115,22 @@ export default function FilesPage() {
 
     return (
         <div className="max-h-screen p-6 flex justify-center items-start py-12">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg w-full max-w-4xl p-8 text-white border border-white/20">
+            <div className="bg-[#283335] backdrop-blur-md rounded-2xl shadow-lg w-full max-w-4xl p-8 text-white border border-white/20">
                 <h1 className="text-4xl font-extrabold mb-8 text-center tracking-wide drop-shadow-md">Your Files</h1>
 
                 <form onSubmit={handleUpload} className="mb-8 flex flex-col sm:flex-row items-center gap-4">
                     <input
                         type="file"
                         ref={fileInputRef}
-                        className="block w-full sm:w-auto text-white rounded-md p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="block bg-blue-600/10 w-full sm:w-auto text-white rounded-md p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                         type="submit"
                         disabled={uploading}
                         className={`px-6 py-2 rounded-lg font-semibold tracking-wide transition-colors duration-300
               ${uploading
-                                ? 'bg-purple-500 cursor-not-allowed opacity-70'
-                                : 'bg-purple-700 hover:bg-purple-800 cursor-pointer'}`}
+                                ? 'bg-blue-500 cursor-not-allowed opacity-70'
+                                : 'bg-blue-700 hover:bg-blue-800 cursor-pointer'}`}
                     >
                         {uploading ? 'Uploading...' : 'Upload'}
                     </button>

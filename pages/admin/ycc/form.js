@@ -303,18 +303,40 @@ export default function ManageQuestions() {
               {(form.type === 'select' ||
                 form.type === 'radio' ||
                 form.type === 'checkbox') && (
-                <div className="col-span-2">
-                  <label>Options (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={form.options}
-                    onChange={(e) =>
-                      setForm({ ...form, options: e.target.value })
-                    }
-                    className="w-full bg-white/10 border border-white/20 p-2 rounded"
-                  />
-                </div>
-              )}
+                  <div className="col-span-2 space-y-2">
+                    <label>Auto Populate Source</label>
+                    <select
+                      value={form.autoSource || 'none'}
+                      onChange={(e) => setForm({ ...form, autoSource: e.target.value })}
+                      className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                    >
+                      <option value="none" className="bg-black text-white">
+                        None (Manual Options)
+                      </option>
+                      <option value="routes" className="bg-black text-white">
+                        Auto: Routes
+                      </option>
+                      <option value="stops" className="bg-black text-white">
+                        Auto: Stops
+                      </option>
+                    </select>
+
+                    {form.autoSource === 'none' && (
+                      <>
+                        <label>Manual Options (comma-separated)</label>
+                        <input
+                          type="text"
+                          value={form.options}
+                          onChange={(e) =>
+                            setForm({ ...form, options: e.target.value })
+                          }
+                          className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                          placeholder="e.g. Option 1, Option 2, Option 3"
+                        />
+                      </>
+                    )}
+                  </div>
+                )}
             </div>
 
             <div className="flex flex-wrap gap-3 mt-4">

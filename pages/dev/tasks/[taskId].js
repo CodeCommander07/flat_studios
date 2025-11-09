@@ -129,7 +129,7 @@ export default function TaskDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-wrap justify-between items-center mb-6"
       >
-        <div className="bg-white/10 border border-white/20 rounded-2xl px-4 py-2 shadow-md">
+        <div className="bg-[#283335] border border-white/20 rounded-2xl px-4 py-2 shadow-md">
           <span className="text-red-400 font-semibold text-sm">
             Due: {new Date(task.dueDate).toLocaleDateString('en-UK')}
           </span>
@@ -148,7 +148,7 @@ export default function TaskDetailPage() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1 max-h-[300px]"
+            className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1 max-h-[300px]"
           >
             <h2 className="text-lg font-semibold text-blue-300 mb-4">Task Status</h2>
             <div className="flex flex-wrap gap-2 mb-6">
@@ -182,7 +182,7 @@ export default function TaskDetailPage() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1 max-h-[300px]"
+            className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1 max-h-[300px]"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-blue-300">Files</h2>
@@ -260,7 +260,7 @@ export default function TaskDetailPage() {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex flex-col max-h-[625px]"
+          className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex flex-col max-h-[625px]"
         >
           <h2 className="text-lg font-semibold text-blue-300 mb-4">Notes</h2>
           <div className="flex-1 overflow-y-auto space-y-3 mb-4 max-h-[70vh]">

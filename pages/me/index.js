@@ -29,7 +29,7 @@ export default function ProfilePage() {
     const localUser = JSON.parse(localStorage.getItem('User'));
     const userId = localUser?._id;
     const scopes = encodeURIComponent('identify');
-    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=http://yapton.vercel.app/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
+    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=http://localhost:3000/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
   };
 
   const handleRobloxConnect = () => {
@@ -103,7 +103,7 @@ export default function ProfilePage() {
         {/* 🔹 Top Section - Stack on mobile, side by side on desktop */}
         <div className="flex flex-col lg:flex-row gap-6">
           {/* User Profile Box */}
-          <div className="flex-1 bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex-1 bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2 flex justify-between items-center mb-2">
               <h2 className="text-2xl font-bold">User Profile</h2>
               {!editMode ? (
@@ -176,7 +176,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Password Reset */}
-          <div className="flex-1 bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+          <div className="flex-1 bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl">
             <h2 className="text-xl font-bold mb-4">🔐 Update Password</h2>
             <div className="flex flex-col gap-4 mb-4">
               <input
@@ -211,7 +211,7 @@ export default function ProfilePage() {
           {[
             {
               name: 'Discord',
-              avatar: user.discordAvatar || '/0.png',
+              avatar: user.discordAvatar || '/black_logo.png',
               username: user.discordUsername || 'Not connected',
               id: user.discordId,
               onConnect: handleDiscordConnect,
@@ -220,7 +220,7 @@ export default function ProfilePage() {
             },
             {
               name: 'Roblox',
-              avatar: user.robloxAvatar || '/roblox.png',
+              avatar: user.robloxAvatar || '/black_logo.png',
               username: user.robloxUsername || 'Not connected',
               id: user.robloxId,
               onConnect: handleRobloxConnect,
@@ -229,17 +229,17 @@ export default function ProfilePage() {
             },
             {
               name: 'Google',
-              avatar: '/colour_logo.png',
+              avatar: '/black_logo.png',
               username: 'Google (Not Setup)',
               id: 'Not connected',
               disabled: true,
-              onDefault: () => handleSetDefaultAvatar('/colour_logo.png'),
-              isDefault: user.defaultAvatar === '/colour_logo.png',
+              onDefault: () => handleSetDefaultAvatar('/black_logo.png'),
+              isDefault: user.defaultAvatar === '/black_logo.png',
             },
           ].map((svc, i) => (
             <div
               key={i}
-              className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-4 shadow-xl flex items-center hover:bg-white/20 transition"
+              className="bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl p-4 shadow-xl flex items-center hover:bg-[#283335]/80 transition"
             >
               <Image
                 src={svc.avatar}
@@ -265,7 +265,7 @@ export default function ProfilePage() {
                   className={`mt-2 self-start px-3 py-1 rounded text-sm border border-white/30 transition ${
                     svc.isDefault
                       ? 'bg-green-600 text-white'
-                      : 'bg-white/10 hover:bg-white/20 text-white'
+                      : 'bg-[#283335]/10 hover:bg-white/20 text-white'
                   }`}
                 >
                   {svc.isDefault ? '✔️ Default Avatar' : 'Set as Default'}
@@ -276,7 +276,7 @@ export default function ProfilePage() {
         </div>
 
         {/* 🔹 Metadata Section */}
-        <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+        <div className="bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl">
           <h2 className="text-2xl font-bold mb-4">User Metadata</h2>
           <p className="text-white/90">
             <span className="font-semibold">Role:</span> {user.role}

@@ -194,7 +194,7 @@ export default function RouteRequestDetail() {
 
         {/* RIGHT COLUMN — Questions */}
         <div className="glass bg-[#283335] p-6 rounded-2xl flex flex-col max-h-[75vh] overflow-y-auto">
-          <h2 className="text-xl font-bold mb-4">Submitted Answers</h2>
+          <h2 className="text-xl font-bold mb-4">Propposed Route</h2>
           {Object.values(grouped).length > 0 ? (
             Object.values(grouped).map((pg, i) => (
               <div

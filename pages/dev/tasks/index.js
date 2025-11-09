@@ -45,18 +45,18 @@ export default function AllTasksPage() {
         <div className="space-y-4">
           {tasks.map(task => (
             <a key={task.taskId} href={`/dev/tasks/${task.taskId}`} className="block">
-              <div className="bg-white/10 border border-white/20 p-4 rounded-xl hover:bg-white/20 transition">
+              <div className="bg-[#283335] border border-white/20 p-4 rounded-xl hover:bg-[#283335]/80 transition">
                 <div className="flex justify-between items-center mb-2">
                   <div>
                     <h2 className="text-xl font-semibold">{task.taskName}</h2>
                     <p className="text-sm text-white/60">{task.taskDescription}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    task.taskStatus === 'returned' ? 'bg-red-600' :
+                    task.taskStatus === 'implemented' ? 'bg-blue-600' :
                     task.taskStatus === 'completed' ? 'bg-green-600' :
                     task.taskStatus === 'pending' ? 'bg-yellow-600' :
-                    task.taskStatus === 'in-progress' ? 'bg-blue-600' :
-                    'bg-orange-600'
+                    task.taskStatus === 'in-progress' ? 'bg-orange-600' :
+                    'bg-red-600'
                   }`}>
                     {task.taskStatus}
                   </span>

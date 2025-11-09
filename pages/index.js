@@ -63,7 +63,7 @@ export default function Home() {
         </div>
 
         {/* Intro Box */}
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg p-10 text-center w-full mb-10">
+        <div className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl shadow-lg p-10 text-center w-full mb-10">
           <p className="text-lg mb-6 leading-relaxed">
             Welcome to{" "}
             <span className="font-semibold text-blue-400">Yapton & District</span>, the ultimate destination for virtual bus enthusiasts on Roblox! Immerse yourself in the thrilling world of public transportation as you take the wheel in this exciting bus driving game.

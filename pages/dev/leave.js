@@ -207,8 +207,8 @@ export default function LeavePage() {
   if (submitted) {
     return (
       <AuthWrapper requiredRole="hub">
-        <main className="min-h-[calc(100vh-160px)] flex items-center justify-center text-white px-4">
-          <div className="bg-white/10 p-8 backdrop-blur-lg rounded-2xl border border-white/20 text-center max-w-md shadow-xl">
+        <main className="max-h-screen flex items-center justify-center text-white px-4">
+          <div className="bg-[#283335] p-8 backdrop-blur-lg rounded-2xl border border-white/20 text-center max-w-md shadow-xl">
             <h1 className="text-3xl font-bold">✅ Request Submitted</h1>
             <p className="mt-2 text-white/70">Thanks for submitting your leave request!</p>
           </div>
@@ -219,9 +219,9 @@ export default function LeavePage() {
 
   return (
     <AuthWrapper requiredRole="hub">
-      <main className="px-6 py-10 max-w-7xl mx-auto text-white grid grid-cols-1 md:grid-cols-3 gap-8 min-h-[calc(100vh-160px)]">
+      <main className="px-6 py-5 max-w-7xl mx-auto text-white grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* LOA History */}
-        <section className="md:col-span-1 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
+        <section className="md:col-span-1 bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
           <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
             <Calendar className="text-yellow-300" /> Your LOA History
           </h2>
@@ -269,7 +269,7 @@ export default function LeavePage() {
         </section>
 
         {/* LOA Request Form */}
-        <section className="md:col-span-2 bg-white/10 border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
+        <section className="md:col-span-2 bg-[#283335] border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
           <h2 className="text-2xl font-semibold mb-6">📅 Submit Leave Request</h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -290,7 +290,7 @@ export default function LeavePage() {
                 value={form.reason}
                 onChange={handleChange}
                 required
-                rows={3}
+                rows={10}
                 className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/50 resize-none"
                 placeholder="Explain why you're taking leave..."
               />
