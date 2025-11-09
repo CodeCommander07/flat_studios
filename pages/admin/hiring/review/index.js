@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function AdminApps() {
   const [apps, setApps] = useState([]);
@@ -33,7 +34,7 @@ export default function AdminApps() {
 
   return (
     <main className="max-w-6xl mx-auto p-6 text-white">
-                  <Breadcrumb />
+      <Breadcrumb />
       <h1 className="bg-white/10 shadow-lg p-4 rounded-md text-3xl font-bold mb-6 border border-white/20 backdrop-blur-md">Applications Overview</h1>
 
       {loading ? (
