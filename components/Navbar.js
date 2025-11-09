@@ -248,8 +248,14 @@ export default function Navbar() {
           >
             <div className="relative p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
               <Bell className="w-5 h-5" />
+
               {hasNew && (
-                <span className="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                <>
+                  <span className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 rounded-full opacity-75 animate-ping"></span>
+                  <span className="absolute top-0.5 right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-red-600 text-[8px] font-bold text-white">
+                    {notifications.filter((n) => !n.read).length}
+                  </span>
+                </>
               )}
             </div>
 
@@ -328,6 +334,7 @@ export default function Navbar() {
                     <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-md">File Sharer</Link>
                     <Link href="/me/applications" className="block px-4 py-2 hover:bg-white/10 text-md">My Applications</Link>
                     <Link href="/me/appeals" className="block px-4 py-2 hover:bg-white/10 text-md">My Appeals</Link>
+                    <Link href="/me/notifications" className="block px-4 py-2 hover:bg-white/10 text-md">My Notifications</Link>
                     <LogoutButton />
                   </motion.div>
                 )}
@@ -343,12 +350,21 @@ export default function Navbar() {
           )}
         </div>
 
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-2 rounded-md hover:bg-white/10 transition"
-        >
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="relative md:hidden">
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 rounded-md hover:bg-white/10 transition relative"
+          >
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+
+          {hasNew && (
+            <span className="absolute top-1 right-1 flex">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+            </span>
+          )}
+        </div>
       </div>
 
       <AnimatePresence>
@@ -420,9 +436,19 @@ export default function Navbar() {
                   onClick={() =>
                     setOpenDropdown(openDropdown === 'user-mobile' ? null : 'user-mobile')
                   }
-                  className="flex justify-between items-center w-full text-left text-sm font-semibold text-white hover:text-blue-400 py-2"
+                  className="flex justify-between items-center w-full text-left text-sm font-semibold text-white hover:text-blue-400 py-2 relative"
                 >
-                  {user.username || 'Account'}
+                  <div className="flex items-center gap-2">
+                    {user.username || 'Account'}
+
+                    {hasNew && (
+                      <span className="relative flex">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping"></span>
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                      </span>
+                    )}
+                  </div>
+
                   <motion.span
                     animate={{ rotate: openDropdown === 'user-mobile' ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
@@ -480,22 +506,21 @@ export default function Navbar() {
                       >
                         My Appeals
                       </Link>
-                      <div className="relative">
-                        <Link
-                          href="/me/notifications"
-                          onClick={() => setMobileOpen(false)}
-                          className="block text-sm text-gray-300 hover:text-blue-400"
-                        >
+                      <Link
+                        href="/me/notifications"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center justify-between text-sm text-gray-300 hover:text-blue-400"
+                      >
+                        <span className="flex items-center gap-2">
                           My Notifications
-                          {hasNew && (
-                            <span className="relative flex">
-                              <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping"></span>
-                              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
-                            </span>
-                          )}
-                        </Link>
-                      </div>
+                        </span>
 
+                        {hasNew && (
+                          <span className="ml-1 bg-red-500 text-white text-[10px] px-1.5 py-[1px] rounded-full">
+                            {notifications.filter(n => !n.read).length}
+                          </span>
+                        )}
+                      </Link>
                       <div className="pt-2">
                         <LogoutButton />
                       </div>

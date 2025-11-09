@@ -79,6 +79,7 @@ export default function ViewApplication() {
       <div className={`glassy p-6 rounded-2xl shadow-lg border border-white/10 bg-gradient-to-br ${bgColor}`}>
         <h1 className="text-3xl font-bold mb-2">{app.title}</h1>
         <p className="text-white/70 mb-4">{app.description || 'No description provided.'}</p>
+        <p className="text-white/70 mb-4">Reminder, Please give all applications a 5 minute window after being submitted to allow for the Automation to work.</p>
 
         <div className="flex items-center gap-3">
           <span

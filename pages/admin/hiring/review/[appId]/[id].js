@@ -100,7 +100,7 @@ export default function SubmissionDetailPage() {
 
   // 🆕 Handle deny with popup reason
   const handleDeny = async () => {
-    if (!denyReason.trim()) return alert('Please provide a reason.');
+    if (!denyReason.trim()) return setDenyReason(null);
     setSubmittingDeny(true);
     try {
       await handleStatusChange('denied', denyReason);
