@@ -19,18 +19,31 @@ export default async function handler(req, res) {
     // 🛠️ Update or Patch route
     if (method === 'PUT' || method === 'PATCH') {
       const updates = req.body;
+
+      // 🆕 Reverse stops if requested
+      if (updates.reverse === true) {
+        const existing = await Route.findById(id);
+        if (!existing) return res.status(404).json({ error: 'Not found' });
+
+        // Reverse the stops array safely
+        existing.stops = [...existing.stops].reverse();
+        await existing.save();
+
+        console.log(`🔁 Stops reversed for route ${existing.routeId}`);
+        return res.status(200).json({ route: existing });
+      }
+
+      // Normal update
       const route = await Route.findByIdAndUpdate(id, updates, { new: true });
       if (!route) return res.status(404).json({ error: 'Not found' });
 
       // 🧩 Sync route to stops
       if (Array.isArray(route.stops) && route.stops.length > 0) {
-        // Remove this route ID from all stops first
         await Stops.updateMany(
           { routes: route.routeId },
           { $pull: { routes: route.routeId } }
         );
 
-        // Then add it back to only the relevant stops
         await Stops.updateMany(
           { stopId: { $in: route.stops } },
           { $addToSet: { routes: route.routeId } }
@@ -52,7 +65,6 @@ export default async function handler(req, res) {
           incidentUpdated: new Date(),
         };
 
-        // Upsert — create or update existing disruption record
         await Disruption.findOneAndUpdate(
           { incidentId },
           disruptionData,
@@ -61,7 +73,6 @@ export default async function handler(req, res) {
 
         console.log(`✅ Disruption saved for route ${route.routeId}`);
       } else {
-        // If diversion cleared, remove disruption record
         await Disruption.findOneAndDelete({ incidentId: `R-${route.routeId}` });
         console.log(`🧹 Disruption cleared for route ${route.routeId}`);
       }
@@ -74,13 +85,11 @@ export default async function handler(req, res) {
       const route = await Route.findByIdAndDelete(id);
 
       if (route) {
-        // Remove route from any stops it was linked to
         await Stops.updateMany(
           { routes: route.routeId },
           { $pull: { routes: route.routeId } }
         );
 
-        // Delete associated disruption
         await Disruption.findOneAndDelete({ incidentId: `R-${route.routeId}` });
         console.log(`🗑️ Disruption deleted for removed route ${route.routeId}`);
       }

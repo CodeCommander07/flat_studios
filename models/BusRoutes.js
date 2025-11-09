@@ -7,6 +7,7 @@ const BusRoutesSchema = new mongoose.Schema({
   origin: { type: String, required: true },
   destination: { type: String, required: true },
   stops: { type: [String], default: [] }, // Array of stopIds
+  stopsReverse: { type: [String], default: [] }, // Array of stopIds
   description: { type: String },
 
   // 🚧 Diversion details

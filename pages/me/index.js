@@ -29,7 +29,7 @@ export default function ProfilePage() {
     const localUser = JSON.parse(localStorage.getItem('User'));
     const userId = localUser?._id;
     const scopes = encodeURIComponent('identify');
-    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=http://localhost:3000/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
+    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=http://yapton.vercel.app/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
   };
 
   const handleRobloxConnect = () => {

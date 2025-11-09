@@ -104,7 +104,7 @@ export default function RouteDetailPage() {
             <div>
               <h2 className="text-lg font-semibold mb-2">Stops (In Reverse):</h2>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                {[...route.stops].reverse().map((stopId, idx) => {
+                {stopsReverse.map((stopId, idx) => {
                   const isAffected = route.diversion?.stops?.includes(stopId);
                   return (
                     <li

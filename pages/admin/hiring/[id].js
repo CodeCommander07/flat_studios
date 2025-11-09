@@ -303,9 +303,9 @@ export default function EditForm() {
 
   return (
     <AuthWrapper requiredRole="admin">
-      <main className="max-w-8xl mx-auto px-4 py-10 text-white grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <div className="glass p-4 rounded-2xl shadow-lg flex items-center justify-between">
+      <main className="max-w-8xl mx-auto px-4 py-5 text-white grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <div className="glass bg-[#283335] p-4 rounded-2xl shadow-lg flex items-center justify-between">
             <h2 className="text-xl font-bold p-2">Title:</h2>
             <input
               value={title}
@@ -319,7 +319,7 @@ export default function EditForm() {
 
           {/* Description (modal-based) */}
           <div
-            className="glass p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-white/10 transition relative"
+            className="glass bg-[#283335] p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-[#283335]/80 transition relative"
             onClick={() => setShowDescModal(true)}
           >
             <h2 className="text-xl font-bold mb-2">Description</h2>
@@ -328,7 +328,7 @@ export default function EditForm() {
 
           {/* Requirements (modal-based) */}
           <div
-            className="glass p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-white/10 transition relative"
+            className="glass bg-[#283335] p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-[#283335]/80 transition relative"
             onClick={() => setShowReqModal(true)}
           >
             <h2 className="text-xl font-bold mb-2">Requirements</h2>
@@ -338,7 +338,7 @@ export default function EditForm() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="glass p-4 rounded-2xl shadow-lg flex items-center justify-between">
+            <div className="glass bg-[#283335] p-4 rounded-2xl shadow-lg flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold">Status:</h2>
                 <span
@@ -359,7 +359,7 @@ export default function EditForm() {
             </div>
 
 
-            <div className="glass p-4 rounded-2xl shadow-lg flex items-center justify-between">
+            <div className="glass bg-[#283335] p-4 rounded-2xl shadow-lg flex items-center justify-between">
               <h2 className="text-xl font-bold">Applications</h2>
               <button
                 onClick={() => window.open(`/hub+/hiring/`, '_blank')}
@@ -373,7 +373,7 @@ export default function EditForm() {
           </div>
 
           {/* Add Question Section (unchanged) */}
-          <div className="glass p-6 rounded-2xl shadow-lg space-y-2">
+          <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg space-y-2">
             <h2 className="text-xl font-bold mb-2">Add Question</h2>
             <input
               placeholder="Question Label"
@@ -436,9 +436,9 @@ export default function EditForm() {
           </div>
         </div>
 
-        <div className="glass p-6 rounded-2xl shadow-lg">
+        <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg">
           <h2 className="text-xl font-bold mb-2">Questions</h2>
-          <div className="max-h-[666px] overflow-y-auto overscroll-contain">
+          <div className="max-h-[624px] overflow-y-auto overscroll-contain">
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext
                 items={(form.questions || []).map((q) => q.id)}
@@ -462,7 +462,7 @@ export default function EditForm() {
 
         {showDescModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="glass p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
+            <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
               <h2 className="text-xl font-bold mb-4">Edit Description</h2>
               <textarea
                 value={tempDesc}
@@ -494,7 +494,7 @@ export default function EditForm() {
 
         {showReqModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="glass p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
+            <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
               <h2 className="text-xl font-bold mb-4">Edit Requirements</h2>
               <textarea
                 value={tempReq}
@@ -526,7 +526,6 @@ export default function EditForm() {
 
         <style jsx>{`
           .glass {
-            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
