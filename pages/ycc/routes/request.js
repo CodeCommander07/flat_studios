@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
+import { Combobox, Transition } from '@headlessui/react';
+import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/20/solid';
 import AuthWrapper from '@/components/AuthWrapper';
 
 export default function DynamicYCCForm() {
@@ -10,7 +12,7 @@ export default function DynamicYCCForm() {
   const [pageTitles, setPageTitles] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // 📦 Load questions from API
+  // 📦 Load questions
   useEffect(() => {
     const load = async () => {
       try {
@@ -20,7 +22,7 @@ export default function DynamicYCCForm() {
           const all = data.questions;
           setQuestions(all);
           const maxPage = Math.max(...all.map((q) => Number(q.page) || 1));
-          setTotalSteps(maxPage + 1); // +1 for review
+          setTotalSteps(maxPage + 1);
           const titles = {};
           for (const q of all) {
             if (q.pageTitle && !titles[q.page]) titles[q.page] = q.pageTitle;
@@ -38,7 +40,7 @@ export default function DynamicYCCForm() {
 
   const handleChange = (id, value) => setFormData((p) => ({ ...p, [id]: value }));
 
-  // 🔍 Visibility logic
+  // 🔍 Conditional visibility
   const isVisible = (q) => {
     if (!q.triggerQuestionId) return !q.hiddenByDefault;
     const val = formData[q.triggerQuestionId];
@@ -46,44 +48,40 @@ export default function DynamicYCCForm() {
     return val === q.triggerValue;
   };
 
-  // ⏩ Navigation
   const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-  // 📤 Submit
+  // 📤 Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const hasFiles = Object.values(formData).some((v) => v instanceof File);
-      if (hasFiles) {
-        const form = new FormData();
-        for (const [key, val] of Object.entries(formData)) {
-          if (val instanceof File) form.append(key, val);
-          else form.append(key, typeof val === 'object' ? JSON.stringify(val) : val);
-        }
-        const res = await fetch('/api/ycc/submit', { method: 'POST', body: form });
-        const data = await res.json();
-        if (res.ok) alert('Form submitted successfully!');
-        else alert(`Error: ${data.error || 'Unknown error'}`);
-      } else {
-        const res = await fetch('/api/ycc/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-        const data = await res.json();
-        if (res.ok) alert('Form submitted successfully!');
-        else alert(`Error: ${data.error || 'Unknown error'}`);
-      }
+      const body = hasFiles
+        ? (() => {
+            const form = new FormData();
+            for (const [key, val] of Object.entries(formData))
+              form.append(key, val instanceof File ? val : JSON.stringify(val));
+            return form;
+          })()
+        : JSON.stringify(formData);
+      const res = await fetch('/api/ycc/submit', {
+        method: 'POST',
+        headers: hasFiles ? {} : { 'Content-Type': 'application/json' },
+        body,
+      });
+      const data = await res.json();
+      if (res.ok) alert('Form submitted successfully!');
+      else alert(`Error: ${data.error || 'Unknown error'}`);
     } catch (err) {
       console.error('Submit error:', err);
       alert('An error occurred while submitting.');
     }
   };
 
-  // 🧩 Auto options question (routes/stops)
-  function AutoOptionsQuestion({ q, formData, handleChange }) {
+  // 🧩 Auto-populated options (routes/stops)
+  function AutoOptionsQuestion({ q }) {
     const [options, setOptions] = useState([]);
+    const [query, setQuery] = useState('');
 
     useEffect(() => {
       const loadOptions = async () => {
@@ -91,81 +89,148 @@ export default function DynamicYCCForm() {
           if (q.autoSource === 'routes') {
             const res = await fetch('/api/ycc/routes');
             const data = await res.json();
-            setOptions(data.routes?.map((r) => r.name || r.routeName) || []);
+            setOptions(data.routes || []);
           } else if (q.autoSource === 'stops') {
             const res = await fetch('/api/ycc/stops');
             const data = await res.json();
-            setOptions(data.stops?.map((s) => s.name || s.stopName) || []);
+            setOptions(data.stops || []);
           } else {
             setOptions(q.options || []);
           }
         } catch (err) {
-          console.error('Failed to load auto options:', err);
-          setOptions([]);
+          console.error('Failed to load options', err);
         }
       };
       loadOptions();
     }, [q.autoSource, q.options]);
 
+    // 🔍 Custom searchable select dropdown
     if (q.type === 'select') {
+      const filtered =
+        query === ''
+          ? options
+          : options.filter((opt) =>
+              (opt.name || opt.routeName || opt.stopName || opt)
+                .toLowerCase()
+                .includes(query.toLowerCase())
+            );
+
       return (
-        <select
-          required={q.required}
+        <Combobox
           value={formData[q._id] || ''}
-          onChange={(e) => handleChange(q._id, e.target.value)}
-          className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-white"
+          onChange={(val) => handleChange(q._id, val)}
         >
-          <option value="">Select...</option>
-          {options.map((o, i) => (
-            <option key={i} value={o} className="bg-black text-white">
-              {o}
-            </option>
-          ))}
-        </select>
-      );
-    }
-
-    if (q.type === 'radio') {
-      return (
-        <div className="space-y-2">
-          {options.map((o, i) => (
-            <label key={i} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name={q._id}
-                value={o}
-                checked={formData[q._id] === o}
-                onChange={() => handleChange(q._id, o)}
-                required={q.required}
-                className="accent-blue-500"
+          <div className="relative mt-1">
+            <div className="relative w-full cursor-default overflow-hidden rounded-md bg-white/10 text-left border border-white/20 focus:ring-2 focus:ring-orange-500">
+              <Combobox.Input
+                className="w-full border-none bg-transparent py-2 pl-3 pr-10 text-white focus:ring-0 placeholder-gray-400"
+                displayValue={(v) =>
+                  v?.name || v?.routeName || v?.stopName || v || ''
+                }
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search..."
               />
-              {o}
-            </label>
-          ))}
-        </div>
+              <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronUpDownIcon className="h-5 w-5 text-gray-300" />
+              </Combobox.Button>
+            </div>
+            <Transition
+              as={Fragment}
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+              afterLeave={() => setQuery('')}
+            >
+              <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#202a2c] border border-white/20 shadow-lg z-50">
+                {filtered.length === 0 ? (
+                  <div className="px-4 py-2 text-gray-400">No results.</div>
+                ) : (
+                  filtered.map((opt, i) => (
+                    <Combobox.Option
+                      key={i}
+                      value={opt}
+                      className={({ active }) =>
+                        `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                          active
+                            ? 'bg-orange-500/20 text-white'
+                            : 'text-gray-200'
+                        }`
+                      }
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span
+                            className={`block truncate ${
+                              selected ? 'font-semibold' : 'font-normal'
+                            }`}
+                          >
+                            {opt.name ||
+                              opt.routeName ||
+                              opt.stopName ||
+                              opt}
+                          </span>
+                          {selected && (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-400">
+                              <CheckIcon className="h-5 w-5" />
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </Combobox.Option>
+                  ))
+                )}
+              </Combobox.Options>
+            </Transition>
+          </div>
+        </Combobox>
       );
     }
 
+    // 🟧 Custom checkbox grid
     if (q.type === 'checkbox') {
+      const selected = formData[q._id] || [];
       return (
-        <div className="space-y-2">
-          {options.map((o, i) => (
-            <label key={i} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData[q._id]?.includes(o) || false}
-                onChange={(e) => {
-                  const prev = formData[q._id] || [];
-                  const updated = e.target.checked
-                    ? [...prev, o]
-                    : prev.filter((x) => x !== o);
-                  handleChange(q._id, updated);
-                }}
-                className="accent-blue-500"
-              />
-              {o}
-            </label>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-2">
+          {options.map((opt, i) => {
+            const name = opt.name || opt.stopName || opt.routeName || opt;
+            const location =
+              opt.location ||
+              opt.description ||
+              opt.zone ||
+              opt.area ||
+              '';
+            const checked = selected.some((s) => s.name === name || s === name);
+
+            return (
+              <label
+                key={i}
+                className={`p-3 rounded-xl border cursor-pointer transition ${
+                  checked
+                    ? 'bg-orange-500/20 border-orange-500 text-orange-200'
+                    : 'bg-white/5 border-white/20 text-white/80 hover:bg-white/10'
+                } flex flex-col gap-1`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => {
+                    const prev = selected || [];
+                    const updated = e.target.checked
+                      ? [...prev, opt]
+                      : prev.filter((x) => (x.name || x) !== name);
+                    handleChange(q._id, updated);
+                  }}
+                  className="hidden"
+                />
+                <span className="font-semibold text-sm truncate">{name}</span>
+                {location && (
+                  <span className="text-xs text-gray-400 truncate">
+                    {location}
+                  </span>
+                )}
+              </label>
+            );
+          })}
         </div>
       );
     }
@@ -173,154 +238,24 @@ export default function DynamicYCCForm() {
     return null;
   }
 
-  // 🧱 Render one question
-  const renderQuestion = (q) => {
-    return (
-      <div key={q._id} className="space-y-2">
-        <label className="block font-semibold">{q.label}</label>
-        {q.helperText && <p className="text-sm text-gray-400">{q.helperText}</p>}
-
-        {q.type === 'text' && (
-          <input
-            type="text"
-            required={q.required}
-            value={formData[q._id] || ''}
-            onChange={(e) => handleChange(q._id, e.target.value)}
-            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-white"
-          />
-        )}
-
-        {q.type === 'textarea' && (
-          <textarea
-            required={q.required}
-            value={formData[q._id] || ''}
-            onChange={(e) => handleChange(q._id, e.target.value)}
-            rows={3}
-            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-white resize-y"
-          />
-        )}
-
-        {['radio', 'checkbox', 'select'].includes(q.type) && (
-          <>
-            {q.autoSource && q.autoSource !== 'none' ? (
-              <AutoOptionsQuestion q={q} formData={formData} handleChange={handleChange} />
-            ) : (
-              <>
-                {q.type === 'select' && (
-                  <input
-                    type="text"
-                    required={q.required}
-                    placeholder="Enter option manually..."
-                    value={formData[q._id] || ''}
-                    onChange={(e) => handleChange(q._id, e.target.value)}
-                    className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-white"
-                  />
-                )}
-                {q.type === 'radio' && q.options?.length > 0 && (
-                  <div className="space-y-2">
-                    {q.options.map((o, i) => (
-                      <label key={i} className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name={q._id}
-                          value={o}
-                          checked={formData[q._id] === o}
-                          onChange={() => handleChange(q._id, o)}
-                          required={q.required}
-                          className="accent-blue-500"
-                        />
-                        {o}
-                      </label>
-                    ))}
-                  </div>
-                )}
-                {q.type === 'checkbox' && q.options?.length > 0 && (
-                  <div className="space-y-2">
-                    {q.options.map((o, i) => (
-                      <label key={i} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={formData[q._id]?.includes(o) || false}
-                          onChange={(e) => {
-                            const prev = formData[q._id] || [];
-                            const updated = e.target.checked
-                              ? [...prev, o]
-                              : prev.filter((x) => x !== o);
-                            handleChange(q._id, updated);
-                          }}
-                          className="accent-blue-500"
-                        />
-                        {o}
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
-
-        {q.type === 'file' && (
-          <input
-            type="file"
-            required={q.required}
-            onChange={(e) => handleChange(q._id, e.target.files[0])}
-            className="w-full text-white"
-          />
-        )}
-      </div>
-    );
-  };
-
-  // 🧾 Review Page
-  const renderReview = () => {
-    const pages = {};
-    for (const q of questions) {
-      if (!isVisible(q)) continue;
-      const val = formData[q._id];
-      if (!val || val === '') continue;
-
-      const pageKey = q.page;
-      if (!pages[pageKey])
-        pages[pageKey] = { title: pageTitles[q.page] || `Page ${q.page}`, items: [] };
-      pages[pageKey].items.push({ label: q.label, value: val });
-    }
-
-    return (
-      <div className="space-y-8">
-        <h2 className="text-2xl font-bold text-center mb-4">Review & Confirm</h2>
-
-        {Object.keys(pages).map((p) => (
-          <div
-            key={p}
-            className="bg-white/10 p-6 rounded-xl border border-white/20 space-y-3"
-          >
-            <div className="flex justify-between items-center border-b border-white/10 pb-1 mb-3">
-              <h3 className="text-lg font-semibold">{pages[p].title}</h3>
-              <button
-                type="button"
-                onClick={() => setStep(Number(p))}
-                className="text-sm bg-blue-500 hover:bg-blue-600 text-black px-3 py-1 rounded"
-              >
-                Edit
-              </button>
-            </div>
-
-            {pages[p].items.map((i, idx) => (
-              <div key={idx}>
-                <p className="font-medium">{i.label}</p>
-                <p className="text-sm text-gray-300 break-words">
-                  {Array.isArray(i.value)
-                    ? i.value.join(', ')
-                    : i.value?.name || i.value.toString()}
-                </p>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    );
-  };
+  // 🧱 Render single question
+  const renderQuestion = (q) => (
+    <div key={q._id} className="space-y-2">
+      <label className="block font-semibold">{q.label}</label>
+      {q.autoSource && q.autoSource !== 'none' ? (
+        <AutoOptionsQuestion q={q} />
+      ) : (
+        <input
+          type="text"
+          required={q.required}
+          value={formData[q._id] || ''}
+          onChange={(e) => handleChange(q._id, e.target.value)}
+          className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-orange-500"
+          placeholder="Enter value..."
+        />
+      )}
+    </div>
+  );
 
   if (loading)
     return (
@@ -330,6 +265,9 @@ export default function DynamicYCCForm() {
     );
 
   const currentTitle = pageTitles[step] || `Step ${step}`;
+  const currentQuestions = questions.filter(
+    (q) => Number(q.page) === step && isVisible(q)
+  );
 
   return (
     <AuthWrapper requiredRole="ycc">
@@ -350,11 +288,11 @@ export default function DynamicYCCForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {step < totalSteps ? (
             <>
-              <h2 className="text-2xl font-bold text-center mb-6">{currentTitle}</h2>
-              {questions.filter((q) => Number(q.page) === step && isVisible(q)).length > 0 ? (
-                questions
-                  .filter((q) => Number(q.page) === step && isVisible(q))
-                  .map((q) => renderQuestion(q))
+              <h2 className="text-2xl font-bold text-center mb-6">
+                {currentTitle}
+              </h2>
+              {currentQuestions.length > 0 ? (
+                currentQuestions.map((q) => renderQuestion(q))
               ) : (
                 <p className="text-center text-gray-400">
                   No questions found for this step.
@@ -362,7 +300,9 @@ export default function DynamicYCCForm() {
               )}
             </>
           ) : (
-            renderReview()
+            <div className="text-center text-gray-400">
+              Review & confirmation page coming soon
+            </div>
           )}
 
           <div className="flex mt-8">
