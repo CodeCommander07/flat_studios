@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function ViewApplication() {
     const params = useParams();
@@ -75,27 +76,38 @@ export default function ViewApplication() {
 
   return (
     <main className="max-w-6xl mx-auto p-6 text-white space-y-6">
-      {/* Application header */}
+      < Breadcrumb />
       <div className={`glassy p-6 rounded-2xl shadow-lg border border-white/10 bg-gradient-to-br ${bgColor}`}>
-        <h1 className="text-3xl font-bold mb-2">{app.title}</h1>
-        <p className="text-white/70 mb-4">{app.description || 'No description provided.'}</p>
-        <p className="text-white/70 mb-4">Reminder, Please give all applications a 5 minute window after being submitted to allow for the Automation to work.</p>
+  <div className="flex flex-wrap justify-between items-center mb-2">
+    <h1 className="text-3xl font-bold">{app.title}</h1>
 
-        <div className="flex items-center gap-3">
-          <span
-            className={`text-sm font-semibold px-3 py-1 rounded-full ${
-              app.open ? 'bg-green-700' : 'bg-red-700'
-            }`}
-          >
-            {app.open ? 'Open' : 'Closed'}
-          </span>
-          <span className="text-sm text-white/70">
-            {subs.length} {subs.length === 1 ? 'Applicant' : 'Applicants'}
-          </span>
-        </div>
-      </div>
+    <button
+      onClick={() => router.push(`/admin/hiring/${app._id}`)} 
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+    >
+      Manage Application
+    </button>
+  </div>
 
-      {/* Applicants section */}
+  <p className="text-white/70 mb-2">{app.description || 'No description provided.'}</p>
+  <p className="text-white/70 mb-4">
+    Reminder: Please give all applications a 5-minute window after being submitted to allow for the automation to work.
+  </p>
+
+  <div className="flex items-center gap-3">
+    <span
+      className={`text-sm font-semibold px-3 py-1 rounded-full ${
+        app.open ? 'bg-green-700' : 'bg-red-700'
+      }`}
+    >
+      {app.open ? 'Open' : 'Closed'}
+    </span>
+    <span className="text-sm text-white/70">
+      {subs.length} {subs.length === 1 ? 'Applicant' : 'Applicants'}
+    </span>
+  </div>
+</div>
+
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Applicants</h2>
 
