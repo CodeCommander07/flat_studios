@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 
 export default function RoutesView() {
   const [routes, setRoutes] = useState([]);
@@ -18,8 +19,8 @@ export default function RoutesView() {
           fetch('/api/ycc/stops'),
         ]);
 
-        if (!resRoutes.ok) throw new Error('Failed to fetch route data');
-        if (!resStops.ok) throw new Error('Failed to fetch stop data');
+        if (!resRoutes.ok || !resStops.ok)
+          throw new Error('Failed to fetch route or stop data');
 
         const routesData = await resRoutes.json();
         const stopsData = await resStops.json();
@@ -38,8 +39,14 @@ export default function RoutesView() {
   }, []);
 
   const getStopName = (stopId) => {
-    const stop = stops.find((s) => s.stopId === stopId || s.id === stopId);
+    const stop = stops.find((s) => s.stopId === stopId);
     return stop ? stop.name : stopId;
+  };
+
+  const getClosedStops = (route) => {
+    return route.stops
+      ?.map((id) => stops.find((s) => s.stopId === id && s.closed))
+      .filter(Boolean);
   };
 
   useEffect(() => {
@@ -49,6 +56,7 @@ export default function RoutesView() {
       const originName = getStopName(route.origin)?.toLowerCase() || '';
       const destName = getStopName(route.destination)?.toLowerCase() || '';
       const routeNumber = route.number?.toLowerCase() || '';
+      const operator = route.operator?.toLowerCase() || '';
       const stopNames = route.stops
         ?.map((id) => getStopName(id)?.toLowerCase() || '')
         .join(' ') || '';
@@ -57,7 +65,8 @@ export default function RoutesView() {
         routeNumber.includes(term) ||
         originName.includes(term) ||
         destName.includes(term) ||
-        stopNames.includes(term)
+        stopNames.includes(term) ||
+        operator.includes(term)
       );
     });
 
@@ -85,27 +94,46 @@ export default function RoutesView() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredRoutes.map((route, index) => (
-          <div
-            key={index}
-            className={`bg-black/50 backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200 ${route.diversion?.active ? "bg-orange-400/30": ""} ${index % 2 === 0 ? 'bg-gradient-to-tr from-blue-900/30 to-purple-900/30' : 'bg-gradient-to-tr from-purple-900/30 to-blue-900/30'}`}
-          >
-            <a href={`/ycc/routes/${route._id}`}>
-              <h2 className="text-xl font-semibold">
-                {route.number || `Route ${index + 1}`} {route.diversion?.active ? "(Diversion Active)" : ""}
+        {filteredRoutes.map((route, index) => {
+          const closedStops = getClosedStops(route);
+          const hasDiversion = route.diversion?.active;
+
+          const bgColor = closedStops.length
+            ? 'bg-red-900/30 ring-2 ring-red-500/40'
+            : hasDiversion
+            ? 'bg-orange-900/30 ring-2 ring-orange-500/40'
+            : index % 2 === 0
+            ? 'bg-gradient-to-tr from-blue-900/30 to-purple-900/30'
+            : 'bg-gradient-to-tr from-purple-900/30 to-blue-900/30';
+
+          return (
+            <a
+              key={route._id}
+              href={`/ycc/routes/${route._id}`}
+              className={`relative backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200 ${bgColor}`}
+            >
+              <h2 className="text-xl font-semibold mb-1">
+                {route.number || `Route ${index + 1}`}{' '}
+                {hasDiversion && '⚠️ Diversion Active'}
+                {closedStops.length > 0 && ' 🚧 Stop Closed'}
               </h2>
               <p className="text-white/70">
-                Origin: {route.origin ? getStopName(route.origin) : " "}
+                {getStopName(route.origin)} → {getStopName(route.destination)}
               </p>
-              <p className="text-white/70">
-                Destination: {route.destination ? getStopName(route.destination) : " "}
+              <p className="text-white/50 text-sm mt-1">
+                Operator: {route.operator || '—'}
               </p>
-              <p className="text-white/50 text-sm mt-2">
-                Stops: {route.stops? route.stops.length : 0}
+              <p className="text-white/50 text-sm mt-1">
+                Stops: {route.stops?.length || 0}
               </p>
+              {closedStops.length > 0 && (
+                <div className="mt-2 text-xs text-red-300 flex gap-1 items-center">
+                  <AlertTriangle size={14} /> {closedStops.length} stop(s) closed
+                </div>
+              )}
             </a>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </main>
   );

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Save, X, Loader2 } from 'lucide-react';
+import { Save, X, Loader2, AlertTriangle } from 'lucide-react';
 
 export default function AdminStopsPage() {
   const [stops, setStops] = useState([]);
@@ -16,6 +16,8 @@ export default function AdminStopsPage() {
     postcode: '',
     location: '',
     routes: [],
+    closed: false,
+    closureReason: '',
   });
 
   // 🧭 Load Stops
@@ -67,12 +69,17 @@ export default function AdminStopsPage() {
       postcode: '',
       location: '',
       routes: [],
+      closed: false,
+      closureReason: '',
     });
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((f) => ({
+      ...f,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const toggleRoute = (routeId) => {
@@ -128,7 +135,25 @@ export default function AdminStopsPage() {
       postcode: stop.postcode,
       location: stop.location,
       routes: stop.routes || [],
+      closed: stop.closed || false,
+      closureReason: stop.closureReason || '',
     });
+  }
+
+  async function handleDisruptionSave() {
+    if (!editing) return;
+    setSaving(true);
+    await fetch(`/api/ycc/stops/${editing}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        closed: form.closed,
+        closureReason: form.closureReason,
+      }),
+    });
+    setSaving(false);
+    alert('Disruption updated successfully.');
+    await loadStops();
   }
 
   const getRouteNumbers = (routeIds) => {
@@ -227,16 +252,59 @@ export default function AdminStopsPage() {
                   <div
                     key={r._id}
                     onClick={() => toggleRoute(r._id)}
-                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.routes.includes(r._id)
+                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${
+                      form.routes.includes(r._id)
                         ? 'bg-green-600/40 border border-green-500/20'
                         : ''
-                      }`}
+                    }`}
                   >
                     {r.number} — {r.operator}
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* 🟠 Manage Disruption (Stop Closure) */}
+            {editing && (
+              <div className="mt-6 border-t border-white/10 pt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="text-yellow-400" size={18} />
+                  <h2 className="text-lg font-semibold">Manage Stop Disruption</h2>
+                </div>
+
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="closed"
+                    checked={form.closed}
+                    onChange={handleChange}
+                  />
+                  Stop Closed / Out of Action
+                </label>
+
+                {form.closed && (
+                  <div className="mt-3 space-y-3">
+                    <textarea
+                      placeholder="Closure reason..."
+                      name="closureReason"
+                      value={form.closureReason}
+                      onChange={handleChange}
+                      className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
+                      rows="3"
+                    />
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={handleDisruptionSave}
+                      className="bg-yellow-500 hover:bg-yellow-400 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
+                    >
+                      <Save size={18} />
+                      {saving ? 'Saving...' : 'Save Closure'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"
@@ -261,7 +329,7 @@ export default function AdminStopsPage() {
             />
           </div>
 
-          <div className="overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
+          <div className="overflow-y-auto max-h-[550px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
             {loading ? (
               <div className="flex items-center gap-2 text-gray-400">
                 <Loader2 className="animate-spin w-4 h-4" /> Loading stops...
@@ -280,6 +348,9 @@ export default function AdminStopsPage() {
                       <p className="text-xs text-gray-400">{s.stopId}</p>
                     </div>
                     <p className="text-sm text-gray-300">{s.town}</p>
+                    {s.closed && (
+                      <p className="text-xs text-yellow-400 mt-1">⚠️ Stop Closed</p>
+                    )}
                     <p className="text-xs text-gray-400 mt-1">
                       Routes: {getRouteNumbers(s.routes)}
                     </p>

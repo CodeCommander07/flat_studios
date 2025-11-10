@@ -41,7 +41,7 @@ export default function NotificationsPage() {
       {notifications.length === 0 ? (
         <p className="text-gray-400">No notifications yet.</p>
       ) : (
-        <div className="space-y-3 max-h-36">
+        <div className="space-y-3 max-h-[666px] overflow-y-scroll">
           {notifications.map((n, i) => (
             <motion.div
               key={i}

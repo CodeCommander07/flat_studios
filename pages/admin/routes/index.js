@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Save, Loader2, X } from 'lucide-react';
+import { Save, Loader2, X, AlertTriangle } from 'lucide-react';
 
 export default function AdminRoutesPage() {
   const [routes, setRoutes] = useState([]);
@@ -16,6 +16,7 @@ export default function AdminRoutesPage() {
     destination: '',
     description: '',
     stops: [],
+    diversion: { active: false, message: '', stops: [] },
   });
 
   // 🧩 Load Routes
@@ -113,6 +114,7 @@ export default function AdminRoutesPage() {
       destination: r.destination || '',
       description: r.description || '',
       stops: r.stops || [],
+      diversion: r.diversion || { active: false, message: '', stops: [] },
     });
   };
 
@@ -125,7 +127,31 @@ export default function AdminRoutesPage() {
       destination: '',
       description: '',
       stops: [],
+      diversion: { active: false, message: '', stops: [] },
     });
+  };
+
+  const toggleDiversionStop = (stopId) => {
+    setForm((f) => {
+      const d = f.diversion || { active: false, message: '', stops: [] };
+      const updatedStops = d.stops.includes(stopId)
+        ? d.stops.filter((x) => x !== stopId)
+        : [...d.stops, stopId];
+      return { ...f, diversion: { ...d, stops: updatedStops } };
+    });
+  };
+
+  const handleDisruptionSave = async () => {
+    if (!editing) return;
+    setSaving(true);
+    await fetch(`/api/ycc/routes/${editing}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ diversion: form.diversion }),
+    });
+    setSaving(false);
+    alert('Disruption saved successfully.');
+    await loadRoutes();
   };
 
   return (
@@ -142,7 +168,10 @@ export default function AdminRoutesPage() {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10"
+          >
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1">Route Number</label>
@@ -237,10 +266,80 @@ export default function AdminRoutesPage() {
               </div>
             </div>
 
+            {/* 🟠 Disruption / Diversion Section (only in edit mode) */}
+            {editing && (
+              <div className="mt-6 border-t border-white/10 pt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="text-yellow-400" size={18} />
+                  <h2 className="text-lg font-semibold">Manage Disruption</h2>
+                </div>
+
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={form.diversion.active}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        diversion: { ...f.diversion, active: e.target.checked },
+                      }))
+                    }
+                  />
+                  Active Diversion
+                </label>
+
+                {form.diversion.active && (
+                  <div className="mt-3 space-y-3">
+                    <textarea
+                      placeholder="Diversion message..."
+                      value={form.diversion.message}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          diversion: { ...f.diversion, message: e.target.value },
+                        }))
+                      }
+                      className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
+                      rows="3"
+                    />
+
+                    <div>
+                      <p className="text-sm mb-1">Affected Stops</p>
+                      <div className="max-h-24 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
+                        {stops.map((stop) => (
+                          <div
+                            key={stop.stopId}
+                            onClick={() => toggleDiversionStop(stop.stopId)}
+                            className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${
+                              form.diversion.stops.includes(stop.stopId)
+                                ? 'bg-yellow-600/40 border border-yellow-400/20'
+                                : ''
+                            }`}
+                          >
+                            {getStopName(stop.stopId)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={handleDisruptionSave}
+                      className="bg-yellow-500 hover:bg-yellow-400 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
+                    >
+                      <Save size={18} />
+                      {saving ? 'Saving...' : 'Save Disruption'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={saving}
-              className="bg-green-500 hover:bg-green-600 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
+              className="mt-4 bg-green-500 hover:bg-green-600 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Save size={18} />
               {saving ? 'Saving...' : editing ? 'Update Route' : 'Add Route'}
@@ -261,7 +360,7 @@ export default function AdminRoutesPage() {
             />
           </div>
 
-          <div className="overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
+          <div className="overflow-y-auto max-h-[550px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
             {loading ? (
               <div className="flex items-center gap-2 text-gray-400">
                 <Loader2 className="animate-spin w-4 h-4" /> Loading routes...
@@ -280,6 +379,9 @@ export default function AdminRoutesPage() {
                       {getStopName(r.origin)} → {getStopName(r.destination)}
                     </p>
                     <p className="text-xs text-gray-400 mt-1 line-clamp-2">{r.description}</p>
+                    {r.diversion?.active && (
+                      <p className="text-xs text-yellow-400 mt-2">⚠️ Diversion Active</p>
+                    )}
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleEdit(r)}

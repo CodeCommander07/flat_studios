@@ -1,4 +1,4 @@
-'use servers';
+'use client';
 import '@/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from "next/router";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import DotGridWrapper from '@/components/DotGridWrapper'; 
+import Banner from '@/components/Banner'; // 🆕 import the banner
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -32,10 +33,10 @@ export default function App({ Component, pageProps }) {
       </Head>
 
       <div className="relative flex flex-col min-h-screen text-white overflow-hidden">
-        {/* 🚌 Background image (your bus/comet) */}
+        {/* 🚌 Background image */}
         <div className="fixed inset-0 z-0 bg-[url(/comet.png)] bg-cover bg-center" />
 
-        {/* ✨ Animated DotGrid overlay (on top of bus) */}
+        {/* ✨ Animated DotGrid overlay */}
         <div className="fixed inset-0 z-[2] pointer-events-none">
           <DotGridWrapper
             dotSize={10}
@@ -47,11 +48,14 @@ export default function App({ Component, pageProps }) {
           />
         </div>
 
-        {/* 🖤 Subtle blur overlay for readability */}
+        {/* 🖤 Subtle blur overlay */}
         <div className="fixed inset-0 z-[1] bg-black/57 backdrop-blur-md" />
 
         {/* 🧭 Foreground content */}
         <div className="relative z-[3] flex flex-col min-h-screen">
+          {/* 🟢 Global banner at very top */}
+          <Banner />
+
           {!shouldHideNavbar ? <Navbar role={user?.role} user={user?.username} /> : <div />}
           <main className="flex-1">
             <Component {...pageProps} />

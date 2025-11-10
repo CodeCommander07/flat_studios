@@ -14,6 +14,7 @@ export default function StopDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 🧩 Fetch stop details
   const fetchStop = async () => {
     if (!id) return;
     try {
@@ -26,6 +27,7 @@ export default function StopDetailPage() {
     }
   };
 
+  // 🚌 Fetch all routes
   const fetchRoutes = async () => {
     try {
       const res = await axios.get('/api/ycc/routes');
@@ -43,17 +45,17 @@ export default function StopDetailPage() {
     fetchStop();
   }, [id]);
 
-  // 🧠 Helper — find route object
+  // 🧠 Find route object
   const findRoute = (routeId) =>
     routes.find((r) => r.routeId === routeId || r._id === routeId);
 
-  // 🧠 Helper — display route number
+  // 🧠 Get route number
   const getRouteNumber = (routeId) => {
     const route = findRoute(routeId);
     return route ? route.number : routeId;
   };
 
-  // 🚨 Check if any linked routes are on diversion
+  // 🚨 Routes currently diverted that serve this stop
   const diversionRoutes =
     stop?.routes
       ?.map((routeId) => findRoute(routeId))
@@ -83,12 +85,27 @@ export default function StopDetailPage() {
           <p><strong>Postcode:</strong> {stop.postcode || 'N/A'}</p>
           <p><strong>Location:</strong> {stop.location || 'N/A'}</p>
 
-          {/* ⚠️ Diversion Banner */}
+          {/* 🚧 STOP CLOSURE ALERT */}
+          {stop.closed && (
+            <div className="mt-6 bg-red-500/20 border border-red-600/50 text-red-300 px-4 py-3 rounded-lg flex gap-3 items-start">
+              <AlertTriangle className="mt-0.5 flex-shrink-0 text-red-400" size={20} />
+              <div>
+                <p className="font-semibold">Stop Closed / Out of Action</p>
+                <p className="text-sm">
+                  {stop.closureReason
+                    ? stop.closureReason
+                    : `This stop is currently closed until further notice.`}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ⚠️ ROUTE DIVERSIONS */}
           {diversionRoutes.length > 0 && (
             <div className="mt-6 bg-yellow-400/20 border border-yellow-500/50 text-yellow-300 px-4 py-3 rounded-lg flex gap-3 items-start">
               <AlertTriangle className="mt-0.5 flex-shrink-0" size={20} />
               <div>
-                <p className="font-semibold">Route Diversion Active:</p>
+                <p className="font-semibold">Active Diversions Affecting This Stop:</p>
                 <ul className="list-disc list-inside text-sm">
                   {diversionRoutes.map((r, idx) => (
                     <li key={idx}>
@@ -103,7 +120,7 @@ export default function StopDetailPage() {
             </div>
           )}
 
-          {/* 🚌 Routes serving this stop */}
+          {/* 🚌 ROUTES SERVING THIS STOP */}
           {stop.routes && stop.routes.length > 0 ? (
             <>
               <h2 className="mt-6 mb-2 text-lg font-semibold">
@@ -132,7 +149,7 @@ export default function StopDetailPage() {
               </ul>
             </>
           ) : (
-            <p className="mt-4">No routes currently assigned.</p>
+            <p className="mt-4 text-gray-400">No routes currently assigned.</p>
           )}
         </div>
       </main>
