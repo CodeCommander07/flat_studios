@@ -22,6 +22,7 @@
     "canvas-confetti": "^1.9.3",
     "cookie": "^1.0.2",
     "critters": "^0.0.23",
+    "discord.js": "^14.24.2",
     "dotenv": "^17.0.0",
     "exceljs": "^4.4.0",
     "formidable": "^3.5.4",

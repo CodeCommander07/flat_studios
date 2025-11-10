@@ -45,7 +45,7 @@ export default function Home() {
       {!loading && logos.length > 0 && (
         <LogoLoop
           logos={logos}
-          speed={100}
+          speed={20}
           direction="left"
           fadeOut
           fadeOutColor="rgb(15,23,42)"
