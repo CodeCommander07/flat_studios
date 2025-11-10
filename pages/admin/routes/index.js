@@ -144,11 +144,16 @@ export default function AdminRoutesPage() {
   const handleDisruptionSave = async () => {
     if (!editing) return;
     setSaving(true);
-    await fetch(`/api/ycc/routes/${editing}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form.diversion }),
-    });
+await fetch(`/api/ycc/routes/${editing}`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    diversion: {
+      ...form.diversion,
+      message: form.diversion.description, // convert before sending
+    },
+  }),
+});
     setSaving(false);
     alert('Disruption saved successfully.');
     await loadRoutes();
