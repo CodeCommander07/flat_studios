@@ -96,7 +96,16 @@ export default function DynamicYCCForm() {
       loadOptions();
     }, [q.autoSource, q.options]);
 
-    // Select dropdown (auto-source)
+    // 🟧 Helper to extract a readable name/value
+    const getDisplay = (item) =>
+      item?.name ||
+      item?.stopName ||
+      item?.number ||
+      item?.routeId ||
+      item?.location ||
+      item?.toString();
+
+    // 🎚 Select dropdown
     if (q.type === 'select') {
       return (
         <select
@@ -107,10 +116,10 @@ export default function DynamicYCCForm() {
         >
           <option value="">Select...</option>
           {options.map((o, i) => {
-            const name = o.name || o.routeName || o.stopName || o;
+            const display = getDisplay(o);
             return (
-              <option key={i} value={name} className="bg-black text-white">
-                {name}
+              <option key={i} value={display} className="bg-black text-white">
+                {display}
               </option>
             );
           })}
@@ -118,24 +127,24 @@ export default function DynamicYCCForm() {
       );
     }
 
-    // Radio buttons
+    // 🎚 Radio buttons
     if (q.type === 'radio') {
       return (
         <div className="space-y-2">
           {options.map((o, i) => {
-            const name = o.name || o.routeName || o.stopName || o;
+            const display = getDisplay(o);
             return (
               <label key={i} className="flex items-center gap-2">
                 <input
                   type="radio"
                   name={q._id}
-                  value={name}
-                  checked={formData[q._id] === name}
-                  onChange={() => handleChange(q._id, name)}
+                  value={display}
+                  checked={formData[q._id] === display}
+                  onChange={() => handleChange(q._id, display)}
                   required={q.required}
                   className="accent-blue-500"
                 />
-                {name}
+                {display}
               </label>
             );
           })}
@@ -143,24 +152,23 @@ export default function DynamicYCCForm() {
       );
     }
 
-    // Checkbox grid (scrollable stops)
+    // 🟧 Checkbox grid (scrollable 100px cards)
     if (q.type === 'checkbox') {
       const selected = formData[q._id] || [];
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto">
           {options.map((opt, i) => {
-            const name = opt.name || opt.stopName || opt.routeName || opt;
+            const name = getDisplay(opt);
             const location = opt.location || opt.zone || '';
             const checked = selected.includes(name);
 
             return (
               <label
                 key={i}
-                className={`flex flex-col justify-between p-3 h-[100px] rounded-xl border cursor-pointer transition ${
-                  checked
+                className={`flex flex-col justify-between p-3 h-[100px] rounded-xl border cursor-pointer transition ${checked
                     ? 'bg-orange-500/20 border-orange-500 text-orange-200'
                     : 'bg-white/5 border-white/20 text-white/80 hover:bg-white/10'
-                }`}
+                  }`}
               >
                 <input
                   type="checkbox"
@@ -188,6 +196,7 @@ export default function DynamicYCCForm() {
 
     return null;
   }
+
 
   // 🧱 Render question (handles both auto + manual)
   const renderQuestion = (q) => {

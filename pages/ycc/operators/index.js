@@ -58,15 +58,13 @@ export default function Home() {
           <div className="w-full md:w-1/2 flex justify-center">
             <div className="w-64 h-64 bg-black/20 rounded-xl flex items-center justify-center overflow-hidden">
               {company.logo ? (
-                <Image
+                <img
                   src={company.logo}
-                  alt={`${company.operatorName} Logo`}
-                  width={200}
-                  height={200}
-                  className="object-contain"
+                  alt={`${company.operatorName || 'Unknown'} Logo`}
+                  className="object-contain w-full h-full"
                 />
               ) : (
-                <span className="text-gray-400">No Logo</span>
+                <div className="text-gray-400 text-sm">No Logo</div>
               )}
             </div>
           </div>
