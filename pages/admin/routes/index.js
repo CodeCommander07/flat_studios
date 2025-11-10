@@ -147,7 +147,7 @@ export default function AdminRoutesPage() {
     await fetch(`/api/ycc/routes/${editing}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ diversion: form.diversion }),
+      body: JSON.stringify({ ...form.diversion }),
     });
     setSaving(false);
     alert('Disruption saved successfully.');
