@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Link from 'next/link';
-import { AlertTriangle, Clock, ArrowLeft, MapPin } from 'lucide-react';
+import { AlertTriangle, Clock, ArrowLeft, MapPin, TrendingUpDown, RouteOff } from 'lucide-react';
 
 export default function DisruptionDetailPage() {
   const router = useRouter();
@@ -44,6 +44,16 @@ export default function DisruptionDetailPage() {
   const findStop = (sid) =>
     stops.find((s) => s.stopId === sid || s._id === sid);
 
+  // 🧩 Determine icon and color based on disruption type
+  const getIconAndColor = (type) => {
+    const lower = (type || '').toLowerCase();
+    if (lower.includes('diversion'))
+      return { Icon: TrendingUpDown, color: 'text-yellow-400' };
+    if (lower.includes('stop closure'))
+      return { Icon: RouteOff, color: 'text-red-500' };
+    return { Icon: AlertTriangle, color: 'text-yellow-400' };
+  };
+
   if (loading)
     return (
       <main className="flex items-center justify-center min-h-screen text-white">
@@ -65,6 +75,9 @@ export default function DisruptionDetailPage() {
       </main>
     );
 
+  // Get icon and color for this disruption
+  const { Icon, color } = getIconAndColor(disruption.incidentType);
+
   return (
     <main className="text-white px-6 py-12">
       <div className="max-w-4xl mx-auto">
@@ -79,8 +92,8 @@ export default function DisruptionDetailPage() {
         {/* ⚠️ Disruption card */}
         <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
-            <h1 className="text-2xl font-bold flex items-center gap-2 text-yellow-400">
-              <AlertTriangle size={24} /> {disruption.incidentName}
+            <h1 className={`text-2xl font-bold flex items-center gap-2 ${color}`}>
+              <Icon size={24} /> {disruption.incidentName}
             </h1>
             <p className="text-sm text-gray-400 flex items-center gap-1">
               <Clock size={14} /> Last updated:{' '}
@@ -95,7 +108,7 @@ export default function DisruptionDetailPage() {
           <div className="space-y-3 text-sm">
             <p>
               <span className="font-semibold text-white/70">Incident Type:</span>{' '}
-              <span className="text-yellow-300">{disruption.incidentType}</span>
+              <span className={color}>{disruption.incidentType}</span>
             </p>
 
             {/* 🚌 Affected Routes */}
