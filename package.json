@@ -39,6 +39,7 @@
     "mailparser": "^3.7.4",
     "mammoth": "^1.9.1",
     "mime-types": "^3.0.1",
+    "mongodb": "^7.0.0",
     "mongoose": "^8.16.1",
     "motion": "^12.23.24",
     "motion-dom": "^12.23.23",
