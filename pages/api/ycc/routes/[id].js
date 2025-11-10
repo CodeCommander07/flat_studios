@@ -57,7 +57,7 @@ export default async function handler(req, res) {
           incidentId,
           incidentName: `Diversion on Route ${route.number || route.routeId}`,
           incidentDescription:
-            route.diversion.message ||
+            route.diversion.description ||
             `Route ${route.number || route.routeId} is currently on diversion.`,
           affectedStops: route.diversion.stops || [],
           affectedRoutes: [route.routeId],

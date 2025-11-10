@@ -127,13 +127,13 @@ export default function AdminRoutesPage() {
       destination: '',
       description: '',
       stops: [],
-      diversion: { active: false, message: '', stops: [] },
+      diversion: { active: false, description: '', stops: [] },
     });
   };
 
   const toggleDiversionStop = (stopId) => {
     setForm((f) => {
-      const d = f.diversion || { active: false, message: '', stops: [] };
+      const d = f.diversion || { active: false, description: '', stops: [] };
       const updatedStops = d.stops.includes(stopId)
         ? d.stops.filter((x) => x !== stopId)
         : [...d.stops, stopId];
@@ -292,11 +292,11 @@ export default function AdminRoutesPage() {
                   <div className="mt-3 space-y-3">
                     <textarea
                       placeholder="Diversion message..."
-                      value={form.diversion.message}
+                      value={form.diversion.description}
                       onChange={(e) =>
                         setForm((f) => ({
                           ...f,
-                          diversion: { ...f.diversion, message: e.target.value },
+                          diversion: { ...f.diversion, description: e.target.value },
                         }))
                       }
                       className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
