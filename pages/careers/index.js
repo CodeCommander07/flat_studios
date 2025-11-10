@@ -72,10 +72,9 @@ export default function CareersPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 text-white">
       {/* 🏷️ Header */}
+      <div className="bg-[#283335] rounded-2xl p-6 shadow-lg border border-white/10 mb-16">
       <h1 className="text-4xl font-bold mb-10 text-center">Join Our Wonderful Team</h1>
 
-      {/* 🌀 Discord Staff Scroller */}
-      <div className="bg-[#283335] rounded-2xl p-6 shadow-lg border border-white/10 mb-16">
         {logos.length > 0 ? (
           <LogoLoop
             logos={logos} // ✅ correct prop name + shape

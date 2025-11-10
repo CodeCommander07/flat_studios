@@ -1,16 +1,24 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { Save, X, Loader2 } from 'lucide-react';
 
 export default function AdminStopsPage() {
   const [stops, setStops] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState(null);
-  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    stopId: '',
+    name: '',
+    town: '',
+    postcode: '',
+    location: '',
+    routes: [],
+  });
 
-  // 🚌 Load Stops
+  // 🧭 Load Stops
   async function loadStops() {
     setLoading(true);
     try {
@@ -24,7 +32,7 @@ export default function AdminStopsPage() {
     }
   }
 
-  // 🚏 Load Routes (to show route numbers)
+  // 🚍 Load Routes
   async function loadRoutes() {
     try {
       const res = await fetch('/api/ycc/routes');
@@ -45,22 +53,14 @@ export default function AdminStopsPage() {
     return () => clearTimeout(t);
   }, [query]);
 
-  const emptyStop = {
-    stopId: '',
-    name: '',
-    town: '',
-    postcode: '',
-    location: '',
-    routes: [],
-  };
-
   function generateStopId() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   }
 
-  const openCreate = () => {
-    setSelected({
+  const resetForm = () => {
+    setEditing(null);
+    setForm({
       stopId: generateStopId(),
       name: '',
       town: '',
@@ -68,230 +68,256 @@ export default function AdminStopsPage() {
       location: '',
       routes: [],
     });
-    setCreating(true);
   };
 
-  const openEdit = (s) => {
-    setSelected(s);
-    setCreating(false);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
   };
 
-  const closeModal = () => {
-    setSelected(null);
-    setSaving(false);
+  const toggleRoute = (routeId) => {
+    setForm((f) => {
+      const updated = f.routes.includes(routeId)
+        ? f.routes.filter((r) => r !== routeId)
+        : [...f.routes, routeId];
+      return { ...f, routes: updated };
+    });
   };
 
-  async function saveStop() {
-    if (!selected) return;
+  // 💾 Save Stop
+  async function handleSubmit(e) {
+    e.preventDefault();
     setSaving(true);
+    const payload = { ...form };
+
+    const method = editing ? 'PUT' : 'POST';
+    const url = editing ? `/api/ycc/stops/${editing}` : '/api/ycc/stops';
+
     try {
-      const res = await fetch(
-        creating ? '/api/ycc/stops' : `/api/ycc/stops/${selected._id}`,
-        {
-          method: creating ? 'POST' : 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(selected),
-        }
-      );
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
-      if (creating) setStops((prev) => [data.stop, ...prev]);
-      else setStops((prev) => prev.map((r) => (r._id === data.stop._id ? data.stop : r)));
-      closeModal();
+
+      if (editing)
+        setStops((prev) => prev.map((s) => (s._id === data.stop._id ? data.stop : s)));
+      else setStops((prev) => [data.stop, ...prev]);
+
+      resetForm();
     } catch (e) {
       console.error('Error saving stop:', e);
+    } finally {
       setSaving(false);
     }
   }
 
-  async function deleteStop(id) {
+  async function handleDelete(id) {
     if (!confirm('Delete this stop?')) return;
-    try {
-      await fetch(`/api/ycc/stops/${id}`, { method: 'DELETE' });
-      setStops((prev) => prev.filter((s) => s._id !== id));
-    } catch (e) {
-      console.error('Error deleting stop:', e);
-    }
+    await fetch(`/api/ycc/stops/${id}`, { method: 'DELETE' });
+    await loadStops();
   }
 
-  // 🧮 Convert route IDs → route numbers
+  async function handleEdit(stop) {
+    setEditing(stop._id);
+    setForm({
+      stopId: stop.stopId,
+      name: stop.name,
+      town: stop.town,
+      postcode: stop.postcode,
+      location: stop.location,
+      routes: stop.routes || [],
+    });
+  }
+
   const getRouteNumbers = (routeIds) => {
     if (!Array.isArray(routeIds) || routeIds.length === 0) return '—';
     const numbers = routeIds
       .map((id) => {
         const match = routes.find((r) => r.routeId === id || r._id === id);
-        return match ? match.number : null;
+        return match ? match.number : id;
       })
       .filter(Boolean);
     return numbers.length ? numbers.join(', ') : '—';
   };
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="mx-auto max-w-7xl p-6">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold">Admin · Bus Stops</h1>
-          <div className="flex items-center gap-2">
+    <main className="max-w-10xl mx-auto px-8 mt-8 text-white">
+      <div className="grid md:grid-cols-5 gap-8">
+        {/* LEFT — Add/Edit Stop Form */}
+        <div className="col-span-2 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">{editing ? 'Edit Stop' : 'Add Stop'}</h1>
+            {editing && (
+              <button onClick={resetForm} className="text-gray-400 hover:text-white transition">
+                <X size={18} />
+              </button>
+            )}
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10"
+          >
+            {/* Stop ID */}
+            <div>
+              <label className="block text-sm mb-1">Stop ID</label>
+              <input
+                readOnly
+                name="stopId"
+                value={form.stopId}
+                className="w-full p-2 rounded bg-white/5 border border-white/20 text-gray-400"
+              />
+            </div>
+
+            {/* Name + Town */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm mb-1">Name</label>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="e.g. Yapton Green"
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Town</label>
+                <input
+                  name="town"
+                  value={form.town}
+                  onChange={handleChange}
+                  placeholder="e.g. Yapton"
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+            </div>
+
+            {/* Postcode */}
+            <div>
+              <label className="block text-sm mb-1">Postcode</label>
+              <input
+                name="postcode"
+                value={form.postcode}
+                onChange={handleChange}
+                placeholder="Optional"
+                className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-sm mb-1">Location / Description</label>
+              <input
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                placeholder="e.g. near Yapton Green"
+                className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            {/* Routes */}
+            <div>
+              <label className="block text-sm mb-1">Routes Serving This Stop</label>
+              <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
+                {routes.map((r) => (
+                  <div
+                    key={r._id}
+                    onClick={() => toggleRoute(r._id)}
+                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.routes.includes(r._id)
+                        ? 'bg-green-600/40 border border-green-500/20'
+                        : ''
+                      }`}
+                  >
+                    {r.number} — {r.operator}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="bg-green-500 hover:bg-green-600 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              <Save size={18} />
+              {saving ? 'Saving...' : editing ? 'Update Stop' : 'Add Stop'}
+            </button>
+          </form>
+        </div>
+
+        {/* RIGHT — Stops List */}
+        <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">All Stops</h2>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search stop name or town..."
-              className="rounded-xl bg-neutral-900 px-4 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
+              placeholder="Search stops..."
+              className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
             />
-            <button
-              onClick={openCreate}
-              className="rounded-xl bg-emerald-600 px-4 py-2 font-semibold hover:bg-emerald-500"
-            >
-              Add Stop
-            </button>
           </div>
-        </div>
 
-        <div className="mt-6 overflow-x-auto rounded-2xl ring-1 ring-neutral-800">
-          <table className="min-w-full divide-y divide-neutral-800">
-            <thead className="bg-neutral-900">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Stop ID</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Town</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Routes</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Updated</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-800 bg-neutral-950">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center text-neutral-400">
-                    Loading stops…
-                  </td>
-                </tr>
-              ) : stops.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center text-neutral-400">
-                    No stops found.
-                  </td>
-                </tr>
-              ) : (
-                stops.map((s) => (
-                  <tr key={s._id} className="hover:bg-neutral-900/50">
-                    <td className="px-4 py-3 text-sm font-bold">{s.stopId}</td>
-                    <td className="px-4 py-3 text-sm">{s.name}</td>
-                    <td className="px-4 py-3 text-sm">{s.town}</td>
-                    <td className="px-4 py-3 text-sm max-w-[16rem] truncate">
-                      {getRouteNumbers(s.routes)}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-neutral-400">
-                      {new Date(s.updatedAt || s.createdAt).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => openEdit(s)}
-                          className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteStop(s._id)}
-                          className="rounded-lg bg-red-700 px-3 py-1.5 text-sm hover:bg-red-600"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <div className="overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
+            {loading ? (
+              <div className="flex items-center gap-2 text-gray-400">
+                <Loader2 className="animate-spin w-4 h-4" /> Loading stops...
+              </div>
+            ) : stops.length === 0 ? (
+              <p className="text-gray-400 text-sm">No stops found.</p>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {stops.map((s) => (
+                  <div
+                    key={s._id}
+                    className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="font-semibold text-green-400">{s.name}</p>
+                      <p className="text-xs text-gray-400">{s.stopId}</p>
+                    </div>
+                    <p className="text-sm text-gray-300">{s.town}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Routes: {getRouteNumbers(s.routes)}
+                    </p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => handleEdit(s)}
+                        className="bg-yellow-500 hover:bg-yellow-400 text-black px-3 py-1 rounded text-sm font-medium flex-1"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(s._id)}
+                        className="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm font-medium flex-1"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* 🪟 Modal */}
-      {selected && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-2xl bg-neutral-950 ring-1 ring-neutral-800 p-4">
-            <h2 className="text-xl font-semibold mb-3">
-              {creating ? 'Create Stop' : `Edit Stop ${selected.stopId}`}
-            </h2>
-
-            <div className="grid gap-4">
-              <label className="grid gap-1">
-                <span className="text-sm text-neutral-300">Stop ID</span>
-                <input
-                  readOnly
-                  className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 text-neutral-400"
-                  value={selected.stopId}
-                />
-              </label>
-
-              <label className="grid gap-1">
-                <span className="text-sm text-neutral-300">Name</span>
-                <input
-                  className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                  value={selected.name}
-                  onChange={(e) =>
-                    setSelected((s) => ({ ...s, name: e.target.value }))
-                  }
-                  placeholder="Stop name"
-                />
-              </label>
-
-              <label className="grid gap-1">
-                <span className="text-sm text-neutral-300">Town</span>
-                <input
-                  className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                  value={selected.town}
-                  onChange={(e) =>
-                    setSelected((s) => ({ ...s, town: e.target.value }))
-                  }
-                  placeholder="e.g. Yapton"
-                />
-              </label>
-
-              <label className="grid gap-1">
-                <span className="text-sm text-neutral-300">Postcode</span>
-                <input
-                  className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                  value={selected.postcode}
-                  onChange={(e) =>
-                    setSelected((s) => ({ ...s, postcode: e.target.value }))
-                  }
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label className="grid gap-1">
-                <span className="text-sm text-neutral-300">Location (coords or desc)</span>
-                <input
-                  className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                  value={selected.location}
-                  onChange={(e) =>
-                    setSelected((s) => ({ ...s, location: e.target.value }))
-                  }
-                  placeholder="e.g. near Yapton Green"
-                />
-              </label>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 border-t border-neutral-800 mt-5 pt-3">
-              <button
-                onClick={closeModal}
-                className="rounded-xl bg-neutral-800 px-4 py-2 text-sm font-semibold hover:bg-neutral-700"
-              >
-                Cancel
-              </button>
-              <button
-                disabled={saving}
-                onClick={saveStop}
-                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500 disabled:opacity-50"
-              >
-                {saving ? 'Saving…' : 'Save'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* 🧩 Custom Scrollbar */}
+      <style jsx global>{`
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 8px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background-color: rgba(255, 255, 255, 0.15);
+          border-radius: 8px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(255, 255, 255, 0.25);
+        }
+      `}</style>
+    </main>
   );
 }

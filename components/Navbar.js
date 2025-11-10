@@ -138,6 +138,7 @@ export default function Navbar() {
         { label: 'Manage Content', href: '/admin/content' },
         { label: 'Manage Operators', href: '/admin/operators' },
         { label: 'Manage Routes', href: '/admin/routes' },
+        { label: 'Manage Stops', href: '/admin/stops' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
       ],
     },

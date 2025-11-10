@@ -32,9 +32,9 @@ export default function OperatorPage() {
   const { operator, robloxGroup } = data;
 
   return (
-    <div className="max-w-7xl mx-auto p-6 text-white">
+    <div className="grid md:grid-cols-2 max-w-10xl gap-2 mx-auto p-6 text-white">
       {/* Header */}
-      <div className=" bg-[#283335] p-5 rounded-xl flex flex-col md:flex-row items-center md:items-start gap-6 mb-10">
+      <div className="bg-[#283335] p-5 rounded-xl flex flex-col md:flex-row items-center md:items-start gap-6 mb-10 max-h-[650px]">
         {operator.logo && (
           <Image
             src={operator.logo}
@@ -63,10 +63,8 @@ export default function OperatorPage() {
           </div>
         </div>
       </div>
-
-      {/* Roblox Group */}
       {robloxGroup && (
-        <div className="bg-[#283335] rounded-xl p-5 mb-8">
+        <div className="bg-[#283335] rounded-xl p-5 mb-8 col-span-1">
           <h2 className="text-xl font-semibold mb-3">Roblox Group</h2>
           <p><strong>Name:</strong> {robloxGroup.name}</p>
           <p><strong>Members:</strong> {robloxGroup.memberCount}</p>
@@ -81,6 +79,8 @@ export default function OperatorPage() {
           </a>
         </div>
       )}
+          <div className=''>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
-import { Plus, Save, Loader2, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Save, Loader2, X } from 'lucide-react';
 
 export default function AdminRoutesPage() {
   const [routes, setRoutes] = useState([]);
@@ -53,25 +53,16 @@ export default function AdminRoutesPage() {
     return () => clearTimeout(t);
   }, [query]);
 
-  const filterStops = (input) =>
-    stops.filter(
-      (s) =>
-        s.name.toLowerCase().includes(input.toLowerCase()) ||
-        (s.town || '').toLowerCase().includes(input.toLowerCase())
-    );
-
   const getStopName = (id) => {
     const s = stops.find((x) => x.stopId === id);
     return s ? `${s.name}${s.town ? ', ' + s.town : ''}` : id;
   };
 
-  // 🧾 Handle form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
   };
 
-  // 🧭 Add/remove stop
   const toggleStop = (stopId) => {
     setForm((s) => {
       const updated = s.stops.includes(stopId)
@@ -81,7 +72,6 @@ export default function AdminRoutesPage() {
     });
   };
 
-  // 💾 Save route
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -108,14 +98,12 @@ export default function AdminRoutesPage() {
     await loadRoutes();
   };
 
-  // 🗑️ Delete
   const handleDelete = async (id) => {
     if (!confirm('Delete this route?')) return;
     await fetch(`/api/ycc/routes/${id}`, { method: 'DELETE' });
     await loadRoutes();
   };
 
-  // ✏️ Edit
   const handleEdit = (r) => {
     setEditing(r._id);
     setForm({
@@ -128,7 +116,6 @@ export default function AdminRoutesPage() {
     });
   };
 
-  // 🔄 Reset
   const resetForm = () => {
     setEditing(null);
     setForm({
@@ -144,12 +131,10 @@ export default function AdminRoutesPage() {
   return (
     <main className="max-w-10xl mx-auto px-8 mt-8 text-white">
       <div className="grid md:grid-cols-5 gap-8">
-        {/* 🧱 LEFT — Add/Edit Route Form */}
-        <div className="col-span-2 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg">
+        {/* LEFT — Add/Edit Route Form */}
+        <div className="col-span-2 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">
-              {editing ? 'Edit Route' : 'Add Route'}
-            </h1>
+            <h1 className="text-2xl font-bold">{editing ? 'Edit Route' : 'Add Route'}</h1>
             {editing && (
               <button onClick={resetForm} className="text-gray-400 hover:text-white">
                 <X size={18} />
@@ -157,7 +142,7 @@ export default function AdminRoutesPage() {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1">Route Number</label>
@@ -263,8 +248,8 @@ export default function AdminRoutesPage() {
           </form>
         </div>
 
-        {/* 🧾 RIGHT — Routes List */}
-        <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg">
+        {/* RIGHT — Routes List */}
+        <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">All Routes</h2>
             <input
@@ -276,45 +261,60 @@ export default function AdminRoutesPage() {
             />
           </div>
 
-          {loading ? (
-            <div className="flex items-center gap-2 text-gray-400">
-              <Loader2 className="animate-spin w-4 h-4" /> Loading routes...
-            </div>
-          ) : routes.length === 0 ? (
-            <p className="text-gray-400 text-sm">No routes found.</p>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {routes.map((r) => (
-                <div
-                  key={r._id}
-                  className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
-                >
-                  <h3 className="text-xl font-bold text-green-400">{r.number}</h3>
-                  <p className="text-sm text-gray-300">
-                    {getStopName(r.origin)} → {getStopName(r.destination)}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">{r.description}</p>
-
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      onClick={() => handleEdit(r)}
-                      className="bg-yellow-500 hover:bg-yellow-400 text-black px-3 py-1 rounded text-sm font-medium flex-1"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(r._id)}
-                      className="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm font-medium flex-1"
-                    >
-                      Delete
-                    </button>
+          <div className="overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
+            {loading ? (
+              <div className="flex items-center gap-2 text-gray-400">
+                <Loader2 className="animate-spin w-4 h-4" /> Loading routes...
+              </div>
+            ) : routes.length === 0 ? (
+              <p className="text-gray-400 text-sm">No routes found.</p>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {routes.map((r) => (
+                  <div
+                    key={r._id}
+                    className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
+                  >
+                    <h3 className="text-xl font-bold text-green-400">{r.number}</h3>
+                    <p className="text-sm text-gray-300">
+                      {getStopName(r.origin)} → {getStopName(r.destination)}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{r.description}</p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => handleEdit(r)}
+                        className="bg-yellow-500 hover:bg-yellow-400 text-black px-3 py-1 rounded text-sm font-medium flex-1"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(r._id)}
+                        className="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm font-medium flex-1"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* 🧩 Custom Scrollbar */}
+      <style jsx global>{`
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 8px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background-color: rgba(255, 255, 255, 0.15);
+          border-radius: 8px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(255, 255, 255, 0.25);
+        }
+      `}</style>
     </main>
   );
 }
