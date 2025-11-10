@@ -1,7 +1,6 @@
 'use client';
-import Image from 'next/image';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import LogoLoop from '@/components/LogoLoop';
 
 export default function Home() {
@@ -20,16 +19,20 @@ export default function Home() {
         setLoading(false);
       }
     }
-
     fetchCompanies();
-  }, []); // ✅ Run only once
+  }, []);
 
-  const logos = [
-    { src: "https://yapton.vercel.app/operators/swb/swbHoloLeft.png", alt: "SWBLogo" },
-    { src: "https://yapton.vercel.app/operators/ic/IC.png", alt: "ICLogo" },
-    { src: "https://yapton.vercel.app/operators/ycb/YCB_simplifies.png", alt: "YCBLogo" },
-    { src: "https://yapton.vercel.app/operators/sc/sc.png", alt: "SCLogo" },
-  ]
+  // 🧩 Build logos array dynamically when companies update
+  const logos = useMemo(
+    () =>
+      companies
+        .filter((c) => c.logo) // only include ones with a logo
+        .map((c) => ({
+          src: c.logo,
+          alt: c.operatorName || 'Operator Logo',
+        })),
+    [companies]
+  );
 
   return (
     <main className="flex flex-col gap-16 items-center justify-center px-4 py-20 text-white max-w-7xl mx-auto">
@@ -39,20 +42,24 @@ export default function Home() {
         <p className="text-white/50">No active operators found.</p>
       )}
 
-      <LogoLoop
-        logos={logos}
-        speed={100}
-        direction="left"
-        fadeOut
-        fadeOutColor="rgb(15,23,42)"
-        scaleOnHover
-        className="max-w-4xl"
-      />
+      {!loading && logos.length > 0 && (
+        <LogoLoop
+          logos={logos}
+          speed={100}
+          direction="left"
+          fadeOut
+          fadeOutColor="rgb(15,23,42)"
+          scaleOnHover
+          className="max-w-7xl"
+        />
+      )}
+
       {companies.map((company, idx) => (
         <div
           key={company._id || idx}
-          className={`flex flex-col md:flex-row ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
-            } items-center gap-10 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
+          className={`flex flex-col md:flex-row ${
+            idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
+          } items-center gap-10 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
         >
           {/* 🖼️ Logo */}
           <div className="w-full md:w-1/2 flex justify-center">
@@ -72,8 +79,12 @@ export default function Home() {
           {/* 🧾 Text & Links */}
           <div className="w-full md:w-1/2 text-left space-y-4">
             <h2 className="text-3xl font-bold">{company.operatorName}</h2>
-            <p className="text-white/80">Owned & Operated by: {company.robloxUsername}</p>
-            {company.description && <p className="text-white/80">{company.description}</p>}
+            <p className="text-white/80">
+              Owned & Operated by: {company.robloxUsername}
+            </p>
+            {company.description && (
+              <p className="text-white/80">{company.description}</p>
+            )}
 
             {company.discordInvite && (
               <a
@@ -91,7 +102,7 @@ export default function Home() {
                 href={company.robloxGroup}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
+                className="md:ml-4 inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
               >
                 Visit Roblox Group
               </a>

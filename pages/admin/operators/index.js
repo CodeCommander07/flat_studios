@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit3, Save, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Save, Loader2, Image as ImageIcon } from 'lucide-react';
 import AuthWrapper from '@/components/AuthWrapper';
 
 export default function OperatorSubmissionsPage() {
@@ -15,8 +15,7 @@ export default function OperatorSubmissionsPage() {
     discordInvite: '',
     robloxGroup: '',
     description: '',
-    logo: null, // File
-    logoPreview: '', // Preview URL
+    logo: '', // now just a URL string
   });
   const [showForm, setShowForm] = useState(false);
 
@@ -36,18 +35,6 @@ export default function OperatorSubmissionsPage() {
   // 🧾 Handle text input
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  // 🖼️ Handle file upload + live preview
-  const handleLogoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setForm({
-        ...form,
-        logo: file,
-        logoPreview: URL.createObjectURL(file),
-      });
-    }
-  };
-
   // ➕ Add or Update
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,13 +43,12 @@ export default function OperatorSubmissionsPage() {
       ? `/api/ycc/operators/admin/${editing}`
       : '/api/ycc/operators/admin';
 
-    const data = new FormData();
-    for (const [key, value] of Object.entries(form)) {
-      if (key === 'logoPreview') continue;
-      if (value) data.append(key, value);
-    }
+    await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
 
-    await fetch(url, { method, body: data });
     setShowForm(false);
     setEditing(null);
     await load();
@@ -79,9 +65,14 @@ export default function OperatorSubmissionsPage() {
   const handleEdit = (item) => {
     setEditing(item._id);
     setForm({
-      ...item,
-      logo: null,
-      logoPreview: item.logo || '',
+      email: item.email || '',
+      robloxUsername: item.robloxUsername || '',
+      discordTag: item.discordTag || '',
+      operatorName: item.operatorName || '',
+      discordInvite: item.discordInvite || '',
+      robloxGroup: item.robloxGroup || '',
+      description: item.description || '',
+      logo: item.logo || '',
     });
     setShowForm(true);
   };
@@ -97,8 +88,7 @@ export default function OperatorSubmissionsPage() {
       discordInvite: '',
       robloxGroup: '',
       description: '',
-      logo: null,
-      logoPreview: '',
+      logo: '',
     });
   };
 
@@ -113,9 +103,10 @@ export default function OperatorSubmissionsPage() {
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-3">
+              {/* Standard fields */}
               {Object.keys(form).map(
                 (key) =>
-                  !['logo', 'logoPreview'].includes(key) && (
+                  key !== 'logo' && (
                     <div key={key}>
                       <label className="block text-sm capitalize mb-1">{key}</label>
                       <input
@@ -129,34 +120,48 @@ export default function OperatorSubmissionsPage() {
                   )
               )}
 
-              {/* 🖼️ Logo Upload + Preview */}
+              {/* 🖼️ Logo URL Input */}
               <div>
-                <label className="block text-sm mb-1">Logo</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoChange}
-                    className="w-full text-sm bg-white/10 border border-white/20 p-2 rounded"
-                  />
-                </div>
+                <label className="block text-sm mb-1">Logo URL</label>
+                <p className="text-xs text-gray-400 mb-2">
+                  Please upload your logo at{' '}
+                  <a
+                    href="/me/cdn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-green-400 hover:underline"
+                  >
+                    /me/cdn
+                  </a>{' '}
+                  and paste the <strong>share link</strong> below.
+                </p>
 
-                {form.logoPreview ? (
+                <input
+                  type="text"
+                  name="logo"
+                  placeholder="https://yapton.vercel.app/api/cdn/view?fileId=..."
+                  value={form.logo || ''}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500 text-sm"
+                />
+
+                {form.logo ? (
                   <div className="mt-3">
                     <p className="text-xs text-gray-400 mb-1">Preview:</p>
                     <img
-                      src={form.logoPreview}
+                      src={form.logo}
                       alt="Logo preview"
                       className="w-24 h-24 object-cover rounded-lg border border-white/10"
                     />
                   </div>
                 ) : (
                   <div className="mt-3 text-xs text-gray-500 flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4" /> No image selected
+                    <ImageIcon className="w-4 h-4" /> No logo link provided
                   </div>
                 )}
               </div>
 
+              {/* Buttons */}
               <div className="flex gap-3 pt-3">
                 <button
                   type="submit"
@@ -175,7 +180,7 @@ export default function OperatorSubmissionsPage() {
                 )}
               </div>
 
-              {/* Divider Line */}
+              {/* Divider */}
               <div className="flex items-center mt-6">
                 <div className="flex-grow border-t border-white/20"></div>
                 <span className="px-3 text-gray-300 text-sm">Operators</span>
@@ -230,8 +235,7 @@ export default function OperatorSubmissionsPage() {
                       <div>
                         <p className="font-semibold">{s.operatorName}</p>
                         <p className="text-xs text-gray-400">
-                          {s.discordTag || 'Unknown'} •{' '}
-                          {s.robloxUsername || 'No Roblox'}
+                          {s.discordTag || 'Unknown'} • {s.robloxUsername || 'No Roblox'}
                         </p>
                       </div>
                     </div>

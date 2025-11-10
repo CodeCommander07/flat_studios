@@ -8,10 +8,7 @@ const OperatorSubmissionSchema = new mongoose.Schema({
   discordInvite: String,
   robloxGroup: String,
   description: String,
-  logo: {
-    data: Buffer,
-    contentType: String,
-  },
+  logo: String,
 }, { timestamps: true });
 
 export default mongoose.models.OperatorSubmission ||

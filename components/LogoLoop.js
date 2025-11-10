@@ -266,11 +266,11 @@ const LogoLoop = memo(
         {fadeOut && (
           <>
             <div
-              className="pointer-events-none absolute inset-y-0 left-0 w-[clamp(24px,8%,120px)] bg-gradient-to-r from-[var(--logoloop-fadeColor,#ffffff)] to-transparent z-10"
+              className="pointer-events-none absolute inset-y-0 left-0 w-[clamp(24px,8%,120px)] to-transparent z-10"
               aria-hidden
             />
             <div
-              className="pointer-events-none absolute inset-y-0 right-0 w-[clamp(24px,8%,120px)] bg-gradient-to-l from-[var(--logoloop-fadeColor,#ffffff)] to-transparent z-10"
+              className="pointer-events-none absolute inset-y-0 right-0 w-[clamp(24px,8%,120px)] to-transparent z-10"
               aria-hidden
             />
           </>
