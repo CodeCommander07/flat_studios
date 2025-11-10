@@ -16,7 +16,7 @@ export default function AdminRoutesPage() {
     destination: '',
     description: '',
     stops: [],
-    diversion: { active: false, message: '', stops: [] },
+    diversion: { active: false, reason: '', stops: [] },
   });
 
   // 🧩 Load Routes
@@ -114,7 +114,7 @@ export default function AdminRoutesPage() {
       destination: r.destination || '',
       description: r.description || '',
       stops: r.stops || [],
-      diversion: r.diversion || { active: false, message: '', stops: [] },
+      diversion: r.diversion || { active: false, reason: '', stops: [] },
     });
   };
 
@@ -127,13 +127,13 @@ export default function AdminRoutesPage() {
       destination: '',
       description: '',
       stops: [],
-      diversion: { active: false, description: '', stops: [] },
+      diversion: { active: false, reason: '', stops: [] },
     });
   };
 
   const toggleDiversionStop = (stopId) => {
     setForm((f) => {
-      const d = f.diversion || { active: false, description: '', stops: [] };
+      const d = f.diversion || { active: false, reason: '', stops: [] };
       const updatedStops = d.stops.includes(stopId)
         ? d.stops.filter((x) => x !== stopId)
         : [...d.stops, stopId];
@@ -150,7 +150,6 @@ await fetch(`/api/ycc/routes/${editing}`, {
   body: JSON.stringify({
     diversion: {
       ...form.diversion,
-      message: form.diversion.description, // convert before sending
     },
   }),
 });
@@ -297,11 +296,11 @@ await fetch(`/api/ycc/routes/${editing}`, {
                   <div className="mt-3 space-y-3">
                     <textarea
                       placeholder="Diversion message..."
-                      value={form.diversion.description}
+                      value={form.diversion.reason}
                       onChange={(e) =>
                         setForm((f) => ({
                           ...f,
-                          diversion: { ...f.diversion, description: e.target.value },
+                          diversion: { ...f.diversion, reason: e.target.value },
                         }))
                       }
                       className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"

@@ -50,14 +50,16 @@ export default async function handler(req, res) {
         );
       }
 
+      
       // 🚨 Handle Diversion / Disruption Save
       if (route.diversion && route.diversion.active) {
+        console.log(route.diversion.reason)
         const incidentId = `R-${route.routeId}`;
         const disruptionData = {
           incidentId,
           incidentName: `Diversion on Route ${route.number || route.routeId}`,
           incidentDescription:
-            route.diversion.description ||
+            route.diversion.reason ||
             `Route ${route.number || route.routeId} is currently on diversion.`,
           affectedStops: route.diversion.stops || [],
           affectedRoutes: [route.routeId],
