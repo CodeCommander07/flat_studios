@@ -20,6 +20,7 @@ export default async function handler(req, res) {
 
       const submission = await OperatorSubmission.create({
         email,
+        slug,
         robloxUsername,
         discordTag,
         operatorName,

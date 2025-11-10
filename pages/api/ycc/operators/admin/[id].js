@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     case 'PUT': {
       try {
         const updateData = req.body; // expects JSON body with logo URL, etc.
+        
         const updated = await OperatorSubmission.findByIdAndUpdate(id, updateData, {
           new: true,
         });

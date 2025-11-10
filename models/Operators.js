@@ -9,6 +9,8 @@ const OperatorSubmissionSchema = new mongoose.Schema({
   robloxGroup: String,
   description: String,
   logo: String,
+  slug: String,
+  routes:Array, 
 }, { timestamps: true });
 
 export default mongoose.models.OperatorSubmission ||

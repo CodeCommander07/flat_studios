@@ -59,7 +59,7 @@ export default function Home() {
           key={company._id || idx}
           className={`flex flex-col md:flex-row ${
             idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
-          } items-center gap-10 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
+          } items-center gap-10 bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
         >
           {/* 🖼️ Logo */}
           <div className="w-full md:w-1/2 flex justify-center">
@@ -85,28 +85,35 @@ export default function Home() {
             {company.description && (
               <p className="text-white/80">{company.description}</p>
             )}
-
+<div className='grid grid-cols-3 sm:gid-cols-1 gap-2'>
+              <a
+                href={`/ycc/operators/${company.slug}`}
+                className="text-center inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
+              >
+                View Operator
+              </a>
             {company.discordInvite && (
               <a
-                href={company.discordInvite}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold transition"
+              href={company.discordInvite}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-center inline-block mt-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold transition"
               >
-                Join {company.operatorName} Discord
+                Discord
               </a>
             )}
 
             {company.robloxGroup && (
               <a
-                href={company.robloxGroup}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="md:ml-4 inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
+              href={company.robloxGroup}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-center inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
               >
-                Visit Roblox Group
+                Roblox Group
               </a>
             )}
+            </div>
           </div>
         </div>
       ))}

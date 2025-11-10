@@ -1,525 +1,320 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { Plus, Save, Loader2, X } from 'lucide-react';
 
 export default function AdminRoutesPage() {
-    const [routes, setRoutes] = useState([]);
-    const [stops, setStops] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [query, setQuery] = useState('');
-    const [selected, setSelected] = useState(null);
-    const [saving, setSaving] = useState(false);
-    const [creating, setCreating] = useState(false);
+  const [routes, setRoutes] = useState([]);
+  const [stops, setStops] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [query, setQuery] = useState('');
+  const [form, setForm] = useState({
+    number: '',
+    operator: '',
+    origin: '',
+    destination: '',
+    description: '',
+    stops: [],
+  });
 
-    // 🧭 Load Routes
-    async function loadRoutes() {
-        setLoading(true);
-        try {
-            const res = await fetch(`/api/ycc/routes${query ? `?q=${encodeURIComponent(query)}` : ''}`);
-            const data = await res.json();
-            setRoutes(data.routes || []);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setLoading(false);
-        }
+  // 🧩 Load Routes
+  async function loadRoutes() {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/ycc/routes${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+      const data = await res.json();
+      setRoutes(data.routes || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    // 🚏 Load Stops
-    async function loadStops() {
-        try {
-            const res = await fetch('/api/ycc/stops');
-            const data = await res.json();
-            setStops(data.stops || []);
-        } catch (e) {
-            console.error('Failed to load stops:', e);
-        }
+  // 🚏 Load Stops
+  async function loadStops() {
+    try {
+      const res = await fetch('/api/ycc/stops');
+      const data = await res.json();
+      setStops(data.stops || []);
+    } catch (e) {
+      console.error('Failed to load stops:', e);
     }
+  }
 
-    useEffect(() => {
-        loadRoutes();
-        loadStops();
-    }, []);
+  useEffect(() => {
+    loadRoutes();
+    loadStops();
+  }, []);
 
-    useEffect(() => {
-        const t = setTimeout(() => loadRoutes(), 300);
-        return () => clearTimeout(t);
-    }, [query]);
+  useEffect(() => {
+    const t = setTimeout(() => loadRoutes(), 300);
+    return () => clearTimeout(t);
+  }, [query]);
 
-    const emptyRoute = useMemo(
-        () => ({
-            number: '',
-            operator: '',
-            origin: '',
-            destination: '',
-            stops: [],
-            description: '',
-            diversion: {
-                active: false,
-                reason: '',
-                stops: [],
-            },
-        }),
-        []
+  const filterStops = (input) =>
+    stops.filter(
+      (s) =>
+        s.name.toLowerCase().includes(input.toLowerCase()) ||
+        (s.town || '').toLowerCase().includes(input.toLowerCase())
     );
 
-    const getStopName = (id) => {
-        const s = stops.find((x) => x.stopId === id);
-        return s ? `${s.name}${s.town ? ', ' + s.town : ''}` : id;
+  const getStopName = (id) => {
+    const s = stops.find((x) => x.stopId === id);
+    return s ? `${s.name}${s.town ? ', ' + s.town : ''}` : id;
+  };
+
+  // 🧾 Handle form inputs
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  // 🧭 Add/remove stop
+  const toggleStop = (stopId) => {
+    setForm((s) => {
+      const updated = s.stops.includes(stopId)
+        ? s.stops.filter((x) => x !== stopId)
+        : [...s.stops, stopId];
+      return { ...s, stops: updated };
+    });
+  };
+
+  // 💾 Save route
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+
+    const payload = {
+      ...form,
+      number: form.number.trim(),
+      operator: form.operator.trim(),
+      description: form.description.trim(),
     };
 
-    function openCreate() {
-        setSelected({ ...emptyRoute });
-        setCreating(true);
-    }
+    const method = editing ? 'PUT' : 'POST';
+    const url = editing ? `/api/ycc/routes/${editing}` : '/api/ycc/routes';
 
-    function openEdit(r) {
-        setSelected({
-            ...r,
-            diversion: r.diversion || { active: false, reason: '', stops: [] },
-        });
-        setCreating(false);
-    }
+    await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
 
-    function closeModal() {
-        setSelected(null);
-        setSaving(false);
-    }
+    setSaving(false);
+    setEditing(null);
+    resetForm();
+    await loadRoutes();
+  };
 
-    async function saveRoute() {
-        if (!selected) return;
-        setSaving(true);
+  // 🗑️ Delete
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this route?')) return;
+    await fetch(`/api/ycc/routes/${id}`, { method: 'DELETE' });
+    await loadRoutes();
+  };
 
-        const payload = {
-            number: selected.number?.trim(),
-            operator: selected.operator?.trim(),
-            origin: selected.origin?.trim(),
-            destination: selected.destination?.trim(),
-            description: selected.description?.trim(),
-            stops: selected.stops || [],
-            diversion: {
-                active: !!selected.diversion?.active,
-                reason: selected.diversion?.reason || '',
-                stops: selected.diversion?.stops || [],
-            },
-        };
+  // ✏️ Edit
+  const handleEdit = (r) => {
+    setEditing(r._id);
+    setForm({
+      number: r.number || '',
+      operator: r.operator || '',
+      origin: r.origin || '',
+      destination: r.destination || '',
+      description: r.description || '',
+      stops: r.stops || [],
+    });
+  };
 
-        try {
-            const res = await fetch(
-                creating ? '/api/ycc/routes' : `/api/ycc/routes/${selected._id}`,
-                {
-                    method: creating ? 'POST' : 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }
-            );
-            const data = await res.json();
-            if (creating) setRoutes((prev) => [data.route, ...prev]);
-            else setRoutes((prev) => prev.map((r) => (r._id === data.route._id ? data.route : r)));
-            closeModal();
-        } catch (e) {
-            console.error(e);
-            setSaving(false);
-        }
-    }
+  // 🔄 Reset
+  const resetForm = () => {
+    setEditing(null);
+    setForm({
+      number: '',
+      operator: '',
+      origin: '',
+      destination: '',
+      description: '',
+      stops: [],
+    });
+  };
 
-    async function deleteRoute(id) {
-        if (!confirm('Delete this route?')) return;
-        try {
-            await fetch(`/api/ycc/routes/${id}`, { method: 'DELETE' });
-            setRoutes((prev) => prev.filter((r) => r._id !== id));
-        } catch (e) {
-            console.error(e);
-        }
-    }
+  return (
+    <main className="max-w-10xl mx-auto px-8 mt-8 text-white">
+      <div className="grid md:grid-cols-5 gap-8">
+        {/* 🧱 LEFT — Add/Edit Route Form */}
+        <div className="col-span-2 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">
+              {editing ? 'Edit Route' : 'Add Route'}
+            </h1>
+            {editing && (
+              <button onClick={resetForm} className="text-gray-400 hover:text-white">
+                <X size={18} />
+              </button>
+            )}
+          </div>
 
-    // 🔍 Filter stops by name or town
-    const filterStops = (input) =>
-        stops.filter(
-            (s) =>
-                s.name.toLowerCase().includes(input.toLowerCase()) ||
-                (s.town || '').toLowerCase().includes(input.toLowerCase())
-        );
-
-    // 🧱 Add or remove stop
-    const toggleStop = (stopId, isDiversion = false) => {
-        setSelected((s) => {
-            const list = isDiversion ? s.diversion.stops : s.stops;
-            const updated = list.includes(stopId)
-                ? list.filter((x) => x !== stopId)
-                : [...list, stopId];
-            if (isDiversion)
-                return { ...s, diversion: { ...s.diversion, stops: updated } };
-            return { ...s, stops: updated };
-        });
-    };
-
-    // 💬 Stop Search Inputs
-    const [originSearch, setOriginSearch] = useState('');
-    const [destinationSearch, setDestinationSearch] = useState('');
-    const [stopsSearch, setStopsSearch] = useState('');
-    const [diversionStopsSearch, setDiversionStopsSearch] = useState('');
-
-    return (
-        <div className="min-h-screen text-neutral-100">
-            <style jsx global>{`
-        @keyframes flash {
-          0%, 100% { opacity: 1; filter: drop-shadow(0 0 0px rgba(255,0,0,0.5)); }
-          50% { opacity: 0.35; filter: drop-shadow(0 0 8px rgba(255,0,0,0.9)); }
-        }
-        .flash-box { animation: flash 1.2s infinite; }
-        .stop-item.removed { text-decoration: line-through; color: #f87171; }
-      `}</style>
-
-            <div className="mx-auto max-w-7xl p-6">
-                <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-2xl font-bold">Admin · Routes</h1>
-                    <div className="flex items-center gap-2">
-                        <input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search operator, number, start/end..."
-                            className="rounded-xl bg-neutral-900 px-4 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                        />
-                        <button
-                            onClick={openCreate}
-                            className="rounded-xl bg-emerald-600 px-4 py-2 font-semibold hover:bg-emerald-500"
-                        >
-                            Add Route
-                        </button>
-                    </div>
-                </div>
-
-                <div className="mt-6 overflow-x-auto rounded-2xl ring-1 ring-neutral-800">
-                    <table className="min-w-full divide-y divide-neutral-800">
-                        <thead className="bg-neutral-900">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">#</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Operator</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Start → End</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Stops</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Updated</th>
-                                <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-neutral-800 bg-neutral-950">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="6" className="px-4 py-8 text-center text-neutral-400">
-                                        Loading routes…
-                                    </td>
-                                </tr>
-                            ) : routes.length === 0 ? (
-                                <tr>
-                                    <td colSpan="6" className="px-4 py-8 text-center text-neutral-400">
-                                        No routes found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                routes.map((r) => (
-                                    <tr key={r._id} className="hover:bg-neutral-900/50">
-                                        <td className="px-4 py-3 text-sm font-bold">{r.number}</td>
-                                        <td className="px-4 py-3 text-sm">{r.operator}</td>
-                                        <td className="px-4 py-3 text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <span>{getStopName(r.origin)}</span>
-                                                <span className="text-neutral-500">→</span>
-                                                <span>{getStopName(r.destination)}</span>
-                                                {r.diversion?.active && (
-                                                    <span className="flash-box ml-3 rounded-lg bg-red-600/20 px-2 py-0.5 text-xs font-semibold text-red-400 ring-1 ring-red-700">
-                                                        DIVERSION
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 text-sm max-w-[28rem] truncate">
-                                            {(r.stops || []).slice(0, 6).map(getStopName).join(', ')}
-                                            {(r.stops || []).length > 6 ? '…' : ''}
-                                        </td>
-                                        <td className="px-4 py-3 text-xs text-neutral-400">
-                                            {new Date(r.updatedAt || r.createdAt).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => openEdit(r)}
-                                                    className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => deleteRoute(r._id)}
-                                                    className="rounded-lg bg-red-700 px-3 py-1.5 text-sm hover:bg-red-600"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm mb-1">Route Number</label>
+                <input
+                  type="text"
+                  name="number"
+                  value={form.number}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                  placeholder="e.g. 42A"
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Operator</label>
+                <input
+                  type="text"
+                  name="operator"
+                  value={form.operator}
+                  onChange={handleChange}
+                  placeholder="e.g. Yapton Buses"
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                />
+              </div>
             </div>
 
-            {/* 🪟 Modal */}
-            {selected && (
-                <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 overflow-y-auto">
-                    <div className="w-full max-w-3xl rounded-2xl bg-neutral-950 ring-1 ring-neutral-800 p-4">
-                        <h2 className="text-xl font-semibold mb-3">
-                            {creating ? 'Create Route' : `Edit Route ${selected.number}`}
-                        </h2>
+            {/* Origin / Destination */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm mb-1">Origin</label>
+                <select
+                  name="origin"
+                  value={form.origin}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select origin</option>
+                  {stops.map((stop) => (
+                    <option key={stop.stopId} value={stop.stopId}>
+                      {getStopName(stop.stopId)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                        <div className="grid gap-4">
-                            {/* 🧾 Route Details */}
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <label className="grid gap-1">
-                                    <span className="text-sm text-neutral-300">Route Number</span>
-                                    <input
-                                        className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                                        value={selected.number}
-                                        onChange={(e) => setSelected((s) => ({ ...s, number: e.target.value }))}
-                                        placeholder="e.g. 42A"
-                                    />
-                                </label>
-                                <label className="grid gap-1">
-                                    <span className="text-sm text-neutral-300">Operator</span>
-                                    <input
-                                        className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                                        value={selected.operator}
-                                        onChange={(e) => setSelected((s) => ({ ...s, operator: e.target.value }))}
-                                        placeholder="e.g. Yapton Buses"
-                                    />
-                                </label>
-                            </div>
+              <div>
+                <label className="block text-sm mb-1">Destination</label>
+                <select
+                  name="destination"
+                  value={form.destination}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select destination</option>
+                  {stops.map((stop) => (
+                    <option key={stop.stopId} value={stop.stopId}>
+                      {getStopName(stop.stopId)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-                            {/* ✏️ Description */}
-                            <label className="grid gap-1">
-                                <span className="text-sm text-neutral-300">Description</span>
-                                <textarea
-                                    className="rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                                    rows={3}
-                                    value={selected.description || ''}
-                                    onChange={(e) => setSelected((s) => ({ ...s, description: e.target.value }))}
-                                    placeholder="Optional notes or route details..."
-                                />
-                            </label>
+            {/* Description */}
+            <div>
+              <label className="block text-sm mb-1">Description</label>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                rows="3"
+                className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500 resize-none"
+              />
+            </div>
 
-                            {/* 🚏 Start Stop (Searchable) */}
-                            <div className="grid md:grid-cols-2 gap-4">
+            {/* Stops */}
+            <div>
+              <label className="block text-sm mb-1">Route Stops</label>
+              <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
+                {stops.map((stop) => (
+                  <div
+                    key={stop.stopId}
+                    onClick={() => toggleStop(stop.stopId)}
+                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${
+                      form.stops.includes(stop.stopId)
+                        ? 'bg-green-600/40 border border-green-500/20'
+                        : ''
+                    }`}
+                  >
+                    {getStopName(stop.stopId)}
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                                <div>
-                                    <span className="text-sm text-neutral-300">Start Stop</span>
-                                    <input
-                                        className="mt-1 w-full rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                                        placeholder="Search start stop..."
-                                        value={originSearch}
-                                        onChange={(e) => setOriginSearch(e.target.value)}
-                                    />
-                                    <div className="max-h-40 overflow-y-auto mt-1">
-                                        {filterStops(originSearch).map((stop) => (
-                                            <div
-                                                key={stop.stopId}
-                                                onClick={() => setSelected((s) => ({ ...s, origin: stop.stopId }))}
-                                                className={`px-3 py-1.5 rounded-md cursor-pointer hover:bg-neutral-800 ${selected.origin === stop.stopId ? 'bg-emerald-700/40' : ''
-                                                    }`}
-                                            >
-                                                {stop.name}
-                                                {stop.town ? `, ${stop.town}` : ''}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    {selected.origin && (
-                                        <p className="mt-1 text-xs text-neutral-400">
-                                            Selected: {getStopName(selected.origin)}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* 🏁 End Stop (Searchable) */}
-                                <div>
-                                    <span className="text-sm text-neutral-300">End Stop</span>
-                                    <input
-                                        className="mt-1 w-full rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                                        placeholder="Search destination stop..."
-                                        value={destinationSearch}
-                                        onChange={(e) => setDestinationSearch(e.target.value)}
-                                    />
-                                    <div className="max-h-40 overflow-y-auto mt-1">
-                                        {filterStops(destinationSearch).map((stop) => (
-                                            <div
-                                                key={stop.stopId}
-                                                onClick={() => setSelected((s) => ({ ...s, destination: stop.stopId }))}
-                                                className={`px-3 py-1.5 rounded-md cursor-pointer hover:bg-neutral-800 ${selected.destination === stop.stopId ? 'bg-red-700/40' : ''
-                                                    }`}
-                                            >
-                                                {stop.name}
-                                                {stop.town ? `, ${stop.town}` : ''}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    {selected.destination && (
-                                        <p className="mt-1 text-xs text-neutral-400">
-                                            Selected: {getStopName(selected.destination)}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* 🚍 Route Stops */}
-                            {/* 🚍 Route Stops */}
-                            <div>
-                                <span className="text-sm text-neutral-300">Route Stops</span>
-                                <input
-                                    className="mt-1 w-full rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                                    placeholder="Search and add stops..."
-                                    value={stopsSearch}
-                                    onChange={(e) => setStopsSearch(e.target.value)}
-                                />
-
-                                {/* 🟢 Selected stops visual list */}
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    {selected.stops.map((stopId) => (
-                                        <div
-                                            key={stopId}
-                                            onClick={() => toggleStop(stopId)}
-                                            className={`stop-item cursor-pointer rounded-lg px-3 py-1.5 text-sm ${stopId === selected.origin
-                                                    ? 'bg-emerald-700 text-white'
-                                                    : stopId === selected.destination
-                                                        ? 'bg-blue-700 text-white'
-                                                        : 'bg-neutral-800 hover:bg-neutral-700'
-                                                }`}
-                                        >
-                                            {getStopName(stopId)}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* 🔍 Search dropdown */}
-                                <div className="max-h-40 overflow-y-auto mt-2">
-                                    {filterStops(stopsSearch).map((stop) => {
-                                        const isSelected = selected.stops.includes(stop.stopId);
-                                        const isStart = selected.origin === stop.stopId;
-                                        const isEnd = selected.destination === stop.stopId;
-
-                                        return (
-                                            <div
-                                                key={stop.stopId}
-                                                onClick={() => toggleStop(stop.stopId)}
-                                                className={`${isStart ? "bg-emerald-700/40":""} ${isEnd ? "bg-red-700/40":""} px-3 py-1.5 rounded-md cursor-pointer flex justify-between items-center hover:bg-neutral-800  ${isSelected ? 'stop-item removed' : ''
-                                                    }`}
-                                            >
-                                                <span>
-                                                    {stop.name}
-                                                    {stop.town ? `, ${stop.town}` : ''}
-                                                </span>
-                                                {isStart && (
-                                                    <span className="text-xs font-semibold text-emerald-300">Start</span>
-                                                )}
-                                                {isEnd && (
-                                                    <span className="text-xs font-semibold text-red-300">End</span>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* ⚠️ Diversion Section */}
-                            <div className="bg-white/5 border border-white/10 p-4 rounded-lg mt-3">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">Diversion Settings</h3>
-                                    <label className="flex items-center gap-2 text-sm">
-                                        <input
-                                            type="checkbox"
-                                            checked={selected.diversion?.active || false}
-                                            onChange={(e) =>
-                                                setSelected((s) => ({
-                                                    ...s,
-                                                    diversion: { ...s.diversion, active: e.target.checked },
-                                                }))
-                                            }
-                                        />
-                                        Active
-                                    </label>
-                                </div>
-
-                                <label className="block mb-3">
-                                    <span className="block text-sm mb-1">Reason</span>
-                                    <input
-                                        value={selected.diversion?.reason || ''}
-                                        onChange={(e) =>
-                                            setSelected((s) => ({
-                                                ...s,
-                                                diversion: { ...s.diversion, reason: e.target.value },
-                                            }))
-                                        }
-                                        className="w-full bg-gray-900 border border-white/10 rounded p-2"
-                                        placeholder="e.g. Road closed at Main Street"
-                                    />
-                                </label>
-
-                                {/* 🚧 Diversion Stops */}
-                                <span className="text-sm text-neutral-300">Diversion Stops</span>
-                                <input
-                                    className="mt-1 w-full rounded-xl bg-neutral-900 px-3 py-2 outline-none ring-1 ring-neutral-800 focus:ring-neutral-600"
-                                    placeholder="Search and add diversion stops..."
-                                    value={diversionStopsSearch}
-                                    onChange={(e) => setDiversionStopsSearch(e.target.value)}
-                                />
-
-                                {/* 🟡 Only show stops from selected route */}
-                                <div className="max-h-40 overflow-y-auto mt-2">
-                                    {filterStops(diversionStopsSearch)
-                                        .filter((stop) => selected.stops.includes(stop.stopId)) // ✅ only route stops
-                                        .map((stop) => (
-                                            <div
-                                                key={stop.stopId}
-                                                onClick={() => toggleStop(stop.stopId, true)}
-                                                className={`px-3 py-1.5 rounded-md cursor-pointer hover:bg-neutral-800 ${selected.diversion?.stops.includes(stop.stopId)
-                                                        ? 'stop-item removed'
-                                                        : ''
-                                                    }`}
-                                            >
-                                                {stop.name}
-                                                {stop.town ? `, ${stop.town}` : ''}
-                                            </div>
-                                        ))}
-                                </div>
-
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    {selected.diversion?.stops.map((stopId) => (
-                                        <div
-                                            key={stopId}
-                                            onClick={() => toggleStop(stopId, true)}
-                                            className="stop-item cursor-pointer rounded-lg bg-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-700"
-                                        >
-                                            {getStopName(stopId)}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="flex items-center justify-end gap-2 border-t border-neutral-800 mt-5 pt-3">
-                            <button
-                                onClick={closeModal}
-                                className="rounded-xl bg-neutral-800 px-4 py-2 text-sm font-semibold hover:bg-neutral-700"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                disabled={saving}
-                                onClick={saveRoute}
-                                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500 disabled:opacity-50"
-                            >
-                                {saving ? 'Saving…' : 'Save'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <button
+              type="submit"
+              disabled={saving}
+              className="bg-green-500 hover:bg-green-600 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              <Save size={18} />
+              {saving ? 'Saving...' : editing ? 'Update Route' : 'Add Route'}
+            </button>
+          </form>
         </div>
-    );
+
+        {/* 🧾 RIGHT — Routes List */}
+        <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">All Routes</h2>
+            <input
+              type="text"
+              placeholder="Search routes..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          {loading ? (
+            <div className="flex items-center gap-2 text-gray-400">
+              <Loader2 className="animate-spin w-4 h-4" /> Loading routes...
+            </div>
+          ) : routes.length === 0 ? (
+            <p className="text-gray-400 text-sm">No routes found.</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {routes.map((r) => (
+                <div
+                  key={r._id}
+                  className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
+                >
+                  <h3 className="text-xl font-bold text-green-400">{r.number}</h3>
+                  <p className="text-sm text-gray-300">
+                    {getStopName(r.origin)} → {getStopName(r.destination)}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">{r.description}</p>
+
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => handleEdit(r)}
+                      className="bg-yellow-500 hover:bg-yellow-400 text-black px-3 py-1 rounded text-sm font-medium flex-1"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(r._id)}
+                      className="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm font-medium flex-1"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
 }
