@@ -27,10 +27,8 @@ export default async function handler(req, res) {
         message,
         linkText: 'View updates',
         linkUrl: '/ycc/travel',
-        style: {
-          bgColor: 'linear-gradient(90deg, #b5121b 0%, #c41e25 100%)', // Gatwick red
-          textColor: '#ffffff',
-        },
+        bgColor: 'linear-gradient(90deg, #b5121b 0%, #c41e25 100%)', // Gatwick red
+        textColor: '#ffffff',
         source: 'disruptions',
       });
     }
