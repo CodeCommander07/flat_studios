@@ -13,38 +13,42 @@ export default function ProfilePage() {
   const [passwordStatus, setPasswordStatus] = useState('');
 
   useEffect(() => {
-    const fetchUser = async (userId) => {
-      try {
-        const res = await axios.get(`/api/user/me?id=${userId}`);
-        setUser(res.data);
-        setEditedUser(res.data);
-        localStorage.setItem('User', JSON.stringify(res.data));
-      } catch (err) {
-        console.error('Failed to fetch user:', err.message);
-      }
-    };
+  const localUser = JSON.parse(localStorage.getItem('User'));
+  if (!localUser?._id) return;
 
-    const localUser = JSON.parse(localStorage.getItem('User'));
-    if (!localUser?._id) return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasOAuthParams =
-      urlParams.has('code') || urlParams.has('state') || urlParams.has('error');
-
-    fetchUser(localUser._id);
-
-    if (hasOAuthParams) {
-      window.history.replaceState({}, document.title, window.location.pathname);
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(`/api/user/me?id=${localUser._id}`);
+      setUser(res.data);
+      setEditedUser(res.data);
+      localStorage.setItem('User', JSON.stringify(res.data)); // ✅ keep in sync
+    } catch (err) {
+      console.error('Failed to fetch user:', err.message);
     }
-  }, []);
-
-
-  const handleDiscordConnect = () => {
-    const localUser = JSON.parse(localStorage.getItem('User'));
-    const userId = localUser?._id;
-    const scopes = encodeURIComponent('identify');
-    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=http://yapton.vercel.app/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
   };
+
+  // ✅ Always fetch latest on mount
+  fetchUser();
+
+  // ✅ Detect if we just returned from OAuth
+  const params = new URLSearchParams(window.location.search);
+  const hasOAuthParams =
+    params.has('code') || params.has('state') || params.has('refresh');
+
+  if (hasOAuthParams) {
+    fetchUser(); // force-refresh updated data
+    window.history.replaceState({}, document.title, window.location.pathname); // cleanup URL
+  }
+}, []);
+
+const handleDiscordConnect = () => {
+  const localUser = JSON.parse(localStorage.getItem('User'));
+  const userId = localUser?._id;
+  const scopes = encodeURIComponent('identify');
+  const redirect = encodeURIComponent('https://yapton.vercel.app/api/user/discord/callback');
+
+  window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=${redirect}&response_type=code&scope=${scopes}&state=${userId}`;
+};
 
   const handleRobloxConnect = () => {
     const localUser = JSON.parse(localStorage.getItem('User'));
