@@ -10,24 +10,10 @@ export default function NewsletterEditor() {
   const [design, setDesign] = useState(null);
   const [editing, setEditing] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  // Adjust height to exclude navbar/banner/footer dynamically
-  const [usableHeight, setUsableHeight] = useState('100vh');
-  useEffect(() => {
-    const calculateHeight = () => {
-      // adjust here if you know your navbar/banner/footer total height
-      const banner = document.getElementById('banner')?.offsetHeight || 0;
-      const navbar = document.getElementById('navbar')?.offsetHeight || 0;
-      const footer = document.getElementById('footer')?.offsetHeight || 0;
-      const totalOffset = banner + navbar + footer;
-      setUsableHeight(`calc(100vh - ${totalOffset}px)`);
-    };
-    calculateHeight();
-    window.addEventListener('resize', calculateHeight);
-    return () => window.removeEventListener('resize', calculateHeight);
-  }, []);
-
-  // Mobile detection
+  // 🔍 Mobile detection
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
     check();
@@ -35,6 +21,7 @@ export default function NewsletterEditor() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // 🧩 Load newsletter design
   useEffect(() => {
     if (!id) return;
     axios.get(`/api/news/${id}`).then((res) => {
@@ -42,6 +29,7 @@ export default function NewsletterEditor() {
     });
   }, [id]);
 
+  // Default starter layout
   const starterDesign = {
     backgroundColor: '#0f1420',
     contentWidth: '600px',
@@ -54,13 +42,13 @@ export default function NewsletterEditor() {
             contents: [
               {
                 id: uuidv4(),
-                type: 'heading',
+                type: 'text',
                 values: {
-                  text: '<h2>Welcome to our Newsletter</h2>',
+                  text: '<h2>Welcome!</h2><p>Your newsletter starts here.</p>',
                   align: 'center',
                   color: '#ffffff',
                   background: '#1f2937',
-                  fontSize: '22px',
+                  fontSize: '18px',
                   padding: '20px',
                 },
               },
@@ -71,40 +59,20 @@ export default function NewsletterEditor() {
     ],
   };
 
-  // 🧩 Block Types
-  const blockList = [
-    'heading',
-    'paragraph',
-    'image',
-    'button',
-    'divider',
-    'spacer',
-    'quote',
-    'social',
-  ];
-
+  // Add new block
   const addBlock = (type) => {
     const newBlock = {
       id: uuidv4(),
       type,
-      values: {
-        ...(type === 'heading'
+      values:
+        type === 'text'
           ? {
-              text: '<h2>Heading Title</h2>',
-              align: 'center',
+              text: '<p>New text block</p>',
+              align: 'left',
               color: '#ffffff',
               background: '#1f2937',
-              fontSize: '24px',
-              padding: '15px',
-            }
-          : type === 'paragraph'
-          ? {
-              text: '<p>Write your paragraph text here.</p>',
-              align: 'left',
-              color: '#dddddd',
-              background: 'transparent',
               fontSize: '16px',
-              padding: '10px',
+              padding: '15px',
             }
           : type === 'image'
           ? {
@@ -124,24 +92,8 @@ export default function NewsletterEditor() {
               padding: '14px 24px',
             }
           : type === 'divider'
-          ? { color: '#555', thickness: '1px', padding: '10px' }
-          : type === 'spacer'
-          ? { height: '30px' }
-          : type === 'quote'
-          ? {
-              text: '“This is a quote block.”',
-              color: '#ccc',
-              background: '#1f2937',
-              fontStyle: 'italic',
-              padding: '20px',
-              borderLeft: '4px solid #3b82f6',
-            }
-          : {
-              color: '#ffffff',
-              background: 'transparent',
-              align: 'center',
-            }),
-      },
+          ? { color: '#444', thickness: '1px', padding: '10px' }
+          : { height: '25px' },
     };
 
     setDesign((d) => ({
@@ -153,6 +105,7 @@ export default function NewsletterEditor() {
     }));
   };
 
+  // Update a field in block
   const updateBlock = (rowId, colId, blockId, field, value) => {
     setDesign((d) => ({
       ...d,
@@ -178,6 +131,7 @@ export default function NewsletterEditor() {
     }));
   };
 
+  // Delete a block
   const deleteBlock = (rowId, colId, blockId) => {
     setDesign((d) => ({
       ...d,
@@ -192,51 +146,77 @@ export default function NewsletterEditor() {
     setEditing(null);
   };
 
+  // Save current design
   const saveDesign = async () => {
     await axios.put(`/api/news/${id}`, { design });
-    alert('Newsletter saved!');
+    alert('✅ Newsletter saved!');
   };
 
+  // Render HTML
   const renderHTML = (d) => `
-  <div style="background:${d.backgroundColor};padding:30px;font-family:sans-serif;">
-    <div style="max-width:${d.contentWidth};margin:auto;background:#1f2937;border-radius:10px;overflow:hidden;">
-      ${d.rows
-        .map(
-          (r) =>
-            `<div>${r.columns
-              .map(
-                (c) =>
-                  `<div>${c.contents
-                    .map((b) => {
-                      switch (b.type) {
-                        case 'heading':
-                          return `<div style="padding:${b.values.padding};color:${b.values.color};text-align:${b.values.align};font-size:${b.values.fontSize};background:${b.values.background};">${b.values.text}</div>`;
-                        case 'paragraph':
-                          return `<div style="padding:${b.values.padding};color:${b.values.color};text-align:${b.values.align};font-size:${b.values.fontSize};">${b.values.text}</div>`;
-                        case 'image':
-                          return `<div style="padding:${b.values.padding};background:${b.values.background};"><img src="${b.values.src}" alt="${b.values.alt}" style="width:${b.values.width};border-radius:8px;"/></div>`;
-                        case 'button':
-                          return `<div style="text-align:${b.values.align};padding:20px;"><a href="#" style="display:inline-block;padding:${b.values.padding};background:${b.values.bg};color:${b.values.color};border-radius:${b.values.borderRadius};text-decoration:none;font-weight:600;">${b.values.label}</a></div>`;
-                        case 'divider':
-                          return `<div style="padding:${b.values.padding};"><hr style="border:none;height:${b.values.thickness};background:${b.values.color};"/></div>`;
-                        case 'spacer':
-                          return `<div style="height:${b.values.height};"></div>`;
-                        case 'quote':
-                          return `<blockquote style="padding:${b.values.padding};color:${b.values.color};background:${b.values.background};font-style:${b.values.fontStyle};border-left:${b.values.borderLeft};">${b.values.text}</blockquote>`;
-                        case 'social':
-                          return `<div style="text-align:center;padding:20px;"><a href="#" style="margin:0 5px;color:#fff;">Facebook</a> • <a href="#" style="margin:0 5px;color:#fff;">X</a> • <a href="#" style="margin:0 5px;color:#fff;">Instagram</a></div>`;
-                        default:
-                          return '';
-                      }
-                    })
-                    .join('')}</div>`
-              )
-              .join('')}</div>`
-        )
-        .join('')}
-    </div>
-  </div>`;
+    <div style="background:${d.backgroundColor};padding:30px;font-family:sans-serif;">
+      <div style="max-width:${d.contentWidth};margin:auto;background:#1f2937;border-radius:10px;overflow:hidden;">
+        ${d.rows
+          .map(
+            (r) =>
+              `<div>${r.columns
+                .map(
+                  (c) =>
+                    `<div>${c.contents
+                      .map((b) => {
+                        switch (b.type) {
+                          case 'text':
+                            return `<div style="padding:${b.values.padding};color:${b.values.color};text-align:${b.values.align};font-size:${b.values.fontSize};background:${b.values.background};">${b.values.text}</div>`;
+                          case 'image':
+                            return `<div style="padding:${b.values.padding};background:${b.values.background};"><img src="${b.values.src}" alt="${b.values.alt}" style="width:${b.values.width};border-radius:8px;"/></div>`;
+                          case 'button':
+                            return `<div style="text-align:${b.values.align};padding:20px;"><a href="#" style="display:inline-block;padding:${b.values.padding};background:${b.values.bg};color:${b.values.color};border-radius:${b.values.borderRadius};text-decoration:none;font-weight:600;">${b.values.label}</a></div>`;
+                          case 'divider':
+                            return `<div style="padding:${b.values.padding};"><hr style="border:none;height:${b.values.thickness};background:${b.values.color};"/></div>`;
+                          case 'spacer':
+                            return `<div style="height:${b.values.height};"></div>`;
+                          default:
+                            return '';
+                        }
+                      })
+                      .join('')}</div>`
+                )
+                .join('')}</div>`
+          )
+          .join('')}
+      </div>
+    </div>`;
 
+  // 📤 Send Newsletter to everyone
+  const sendNewsletter = async () => {
+    try {
+      setSending(true);
+      await axios.put(`/api/news/${id}`, { design }); // save first
+      const res = await axios.post(`/api/news/send`, { id });
+      alert(res.data.message || '✅ Newsletter sent to all subscribers!');
+      setShowMenu(false);
+    } catch (err) {
+      alert('❌ Failed to send newsletter.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // 👁️ View Newsletter
+  const viewNewsletter = async () => {
+    await saveDesign();
+    window.open(`/api/news/view/${id}`, '_blank');
+    setShowMenu(false);
+  };
+
+  // 📥 Export Newsletter
+  const exportNewsletter = async () => {
+    await saveDesign();
+    window.location.href = `/api/news/export/${id}`;
+    setShowMenu(false);
+  };
+
+  // --------------------------- Layout --------------------------------
   if (!design)
     return (
       <div className="flex items-center justify-center h-screen bg-[#0f1420] text-gray-300">
@@ -261,68 +241,78 @@ export default function NewsletterEditor() {
 
   return (
     <div
-      className="grid grid-cols-[300px_1fr_600px] overflow-hidden bg-[#0f1420] text-gray-200"
-      style={{ height: usableHeight }}
+      className="grid grid-cols-[300px_1fr_500px] w-full overflow-hidden bg-[#0f1420] text-gray-200"
+      style={{ maxHeight: 'calc(100vh - 100px)' }}
     >
-      {/* Left Panel: Blocks + Settings */}
-      <aside className="bg-[#1c2533] border-r border-white/10 p-4 flex flex-col overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4 text-white">Add Blocks</h2>
-        {blockList.map((type) => (
-          <button
-            key={type}
-            onClick={() => addBlock(type)}
-            className="w-full mb-2 bg-white/5 hover:bg-white/10 rounded-lg py-2 text-left px-3 capitalize"
-          >
-            + {type}
-          </button>
-        ))}
-
-        <hr className="my-4 border-white/10" />
-
-        <h3 className="text-lg font-semibold mb-2 text-white">Block Settings</h3>
-        {!editing && (
-          <p className="text-sm text-gray-400 mb-3">
-            Select a block to edit its properties.
-          </p>
-        )}
-        {editing &&
-          Object.keys(editing.block.values).map((key) => (
-            <div key={key} className="mb-3">
-              <label className="block text-sm text-gray-300 mb-1 capitalize">
-                {key}
-              </label>
-              <input
-                type={
-                  key.includes('color') || key.includes('bg')
-                    ? 'color'
-                    : 'text'
-                }
-                value={editing.block.values[key]}
-                onChange={(e) =>
-                  updateBlock(
-                    editing.rowId,
-                    editing.colId,
-                    editing.block.id,
-                    key,
-                    e.target.value
-                  )
-                }
-                className="w-full rounded-md bg-white/5 border border-white/10 text-white px-2 py-1 outline-none"
-              />
-            </div>
-          ))}
-
-        <div className="mt-auto pt-3 border-t border-white/10">
+      {/* Sidebar */}
+      <aside className="bg-[#1c2533] border-r border-white/10 flex flex-col overflow-y-auto">
+        {/* Top Controls */}
+        <div className="p-4 flex justify-between items-center border-b border-white/10">
           <button
             onClick={saveDesign}
-            className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg"
+            className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-white text-sm font-medium"
           >
-            Save
+            💾 Save
           </button>
+          <button
+            onClick={() => setShowMenu(true)}
+            className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm"
+          >
+            ⋮ Menu
+          </button>
+        </div>
+
+        {/* Block list */}
+        <div className="p-4 flex-1 overflow-y-auto">
+          <h2 className="text-lg font-semibold mb-3">Add Blocks</h2>
+          {['text', 'image', 'button', 'divider', 'spacer'].map((type) => (
+            <button
+              key={type}
+              onClick={() => addBlock(type)}
+              className="w-full mb-2 bg-white/5 hover:bg-white/10 rounded-lg py-2 text-left px-3"
+            >
+              + {type.charAt(0).toUpperCase() + type.slice(1)}
+            </button>
+          ))}
+
+          <hr className="my-4 border-white/10" />
+
+          <h3 className="text-lg font-semibold mb-2 text-white">Block Settings</h3>
+          {!editing && (
+            <p className="text-sm text-gray-400 mb-3">
+              Select a block to edit its properties.
+            </p>
+          )}
+          {editing &&
+            Object.keys(editing.block.values).map((key) => (
+              <div key={key} className="mb-3">
+                <label className="block text-sm text-gray-300 mb-1 capitalize">
+                  {key}
+                </label>
+                <input
+                  type={
+                    key.includes('color') || key.includes('bg')
+                      ? 'color'
+                      : 'text'
+                  }
+                  value={editing.block.values[key]}
+                  onChange={(e) =>
+                    updateBlock(
+                      editing.rowId,
+                      editing.colId,
+                      editing.block.id,
+                      key,
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-md bg-white/5 border border-white/10 text-white px-2 py-1 outline-none"
+                />
+              </div>
+            ))}
         </div>
       </aside>
 
-      {/* Middle Editor */}
+      {/* Editor */}
       <main className="overflow-y-auto p-8 bg-[#0f1420]">
         <div
           className="mx-auto max-w-[600px] bg-[#1f2937] rounded-xl border border-white/10 shadow-lg"
@@ -342,7 +332,7 @@ export default function NewsletterEditor() {
                     setEditing({ rowId: row.id, colId: col.id, block })
                   }
                 >
-                  {block.type === 'heading' || block.type === 'paragraph' ? (
+                  {block.type === 'text' && (
                     <div
                       contentEditable
                       suppressContentEditableWarning
@@ -367,8 +357,7 @@ export default function NewsletterEditor() {
                         __html: block.values.text,
                       }}
                     />
-                  ) : null}
-
+                  )}
                   {block.type === 'image' && (
                     <div
                       className="cursor-pointer text-center"
@@ -393,7 +382,6 @@ export default function NewsletterEditor() {
                       />
                     </div>
                   )}
-
                   {block.type === 'button' && (
                     <div className="text-center">
                       <button
@@ -408,7 +396,6 @@ export default function NewsletterEditor() {
                       </button>
                     </div>
                   )}
-
                   {block.type === 'divider' && (
                     <hr
                       style={{
@@ -421,25 +408,6 @@ export default function NewsletterEditor() {
                   {block.type === 'spacer' && (
                     <div style={{ height: block.values.height }}></div>
                   )}
-                  {block.type === 'quote' && (
-                    <blockquote
-                      style={{
-                        padding: block.values.padding,
-                        color: block.values.color,
-                        background: block.values.background,
-                        fontStyle: block.values.fontStyle,
-                        borderLeft: block.values.borderLeft,
-                      }}
-                    >
-                      {block.values.text}
-                    </blockquote>
-                  )}
-                  {block.type === 'social' && (
-                    <div className="text-center text-white/80 py-3">
-                      Facebook • X • Instagram
-                    </div>
-                  )}
-
                   <button
                     onClick={() => deleteBlock(row.id, col.id, block.id)}
                     className="absolute top-1 right-2 text-xs text-red-400 hover:text-red-300"
@@ -453,7 +421,7 @@ export default function NewsletterEditor() {
         </div>
       </main>
 
-      {/* Right Preview */}
+      {/* Preview */}
       <aside className="bg-[#0d111a] border-l border-white/10 p-4 overflow-y-auto">
         <h2 className="text-sm font-semibold mb-2 text-white/70">Preview</h2>
         <iframe
@@ -462,6 +430,48 @@ export default function NewsletterEditor() {
           srcDoc={renderHTML(design)}
         />
       </aside>
+
+      {/* Modal */}
+      {showMenu && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowMenu(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[#1c2533] text-white rounded-xl border border-white/10 p-6 w-[320px] shadow-xl"
+          >
+            <h2 className="text-lg font-semibold mb-4">Newsletter Options</h2>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={sendNewsletter}
+                disabled={sending}
+                className="bg-blue-600 hover:bg-blue-700 py-2 rounded-lg"
+              >
+                {sending ? '📤 Sending…' : '✉️ Send to Subscribers'}
+              </button>
+              <button
+                onClick={viewNewsletter}
+                className="bg-white/10 hover:bg-white/20 py-2 rounded-lg"
+              >
+                👁️ View Newsletter
+              </button>
+              <button
+                onClick={exportNewsletter}
+                className="bg-white/10 hover:bg-white/20 py-2 rounded-lg"
+              >
+                📥 Export Newsletter
+              </button>
+            </div>
+            <button
+              onClick={() => setShowMenu(false)}
+              className="mt-4 text-sm text-gray-400 hover:text-white"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
