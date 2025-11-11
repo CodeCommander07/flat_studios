@@ -33,7 +33,7 @@ export default function NewslettersList() {
 
         <div className="grid gap-4 md:grid-cols-2">
           {items.map((n) => (
-            <Link key={n._id} href={`/newsletters/editor/${n._id}`} className="block rounded-2xl p-4 bg-white/5 hover:bg-white/10 border border-white/10">
+            <Link key={n._id} href={`/admin/newsletters/editor/${n._id}`} className="block rounded-2xl p-4 bg-white/5 hover:bg-white/10 border border-white/10">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-semibold">{n.title || 'Untitled Newsletter'}</p>
                 <span className="text-xs px-2 py-1 rounded bg-white/10">{n.status}</span>
