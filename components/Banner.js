@@ -1,6 +1,25 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import {
+  CircleCheckBig,
+  TriangleAlert,
+  Megaphone,
+  Info,
+  OctagonAlert,
+  TreePine,
+  CalendarDays,
+} from 'lucide-react';
+
+const ICONS = {
+  'circle-check-big': CircleCheckBig,
+  'triangle-alert': TriangleAlert,
+  'megaphone': Megaphone,
+  'info': Info,
+  'octagon-alert': OctagonAlert,
+  'tree-pine': TreePine,
+  'calendar-days': CalendarDays,
+};
 
 export default function Banner() {
   const [banner, setBanner] = useState(null);
@@ -22,6 +41,8 @@ export default function Banner() {
 
   if (!banner || !banner.active) return null;
 
+  const IconComponent = ICONS[banner.icon] || TriangleAlert;
+
   return (
     <div
       className="w-full text-center py-2 px-3 shadow-md z-[50]"
@@ -33,7 +54,10 @@ export default function Banner() {
       }}
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-sm sm:text-base font-semibold">
-        <span>{banner.message}</span>
+        <div className="flex items-center gap-2">
+          <IconComponent className="w-5 h-5 flex-shrink-0" />
+          <span>{banner.message}</span>
+        </div>
         {banner.linkUrl && (
           <Link
             href={banner.linkUrl}
