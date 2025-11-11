@@ -29,14 +29,14 @@ export default function ProfilePage() {
     const localUser = JSON.parse(localStorage.getItem('User'));
     const userId = localUser?._id;
     const scopes = encodeURIComponent('identify');
-    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=https://yapton.vercel.app/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
+    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=http://yapton.vercel.app/api/user/discord/callback&response_type=code&scope=${scopes}&state=${userId}`;
   };
 
   const handleRobloxConnect = () => {
     const localUser = JSON.parse(localStorage.getItem('User'));
     const userId = localUser?._id;
     const base = process.env.BASE_URL;
-    const redirectUri = encodeURIComponent(`${base}/api/user/roblox/callback`);
+    const redirectUri = encodeURIComponent(`https://yapton.vercel.app/api/user/roblox/callback`);
     const url = `https://authorize.roblox.com/?client_id=4368704140483715858` +
       `&response_type=code` +
       `&redirect_uri=${redirectUri}` +
@@ -212,7 +212,7 @@ export default function ProfilePage() {
             {
               name: 'Discord',
               avatar: user.discordAvatar || '/black_logo.png',
-              username: user.discordUsername || 'Not connected',
+              username: user.discordUsername || 'Discord',
               id: user.discordId,
               onConnect: handleDiscordConnect,
               onDefault: () => handleSetDefaultAvatar(user.discordAvatar),
@@ -221,7 +221,7 @@ export default function ProfilePage() {
             {
               name: 'Roblox',
               avatar: user.robloxAvatar || '/black_logo.png',
-              username: user.robloxUsername || 'Not connected',
+              username: user.robloxUsername || 'Discord',
               id: user.robloxId,
               onConnect: handleRobloxConnect,
               onDefault: () => handleSetDefaultAvatar(user.robloxAvatar),
