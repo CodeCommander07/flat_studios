@@ -68,7 +68,8 @@ export default function ProfilePage() {
         ...editedUser,
       });
       setUser(res.data.user);
-      setEditMode(false);
+      setEditedUser(res.data.user);
+      localStorage.setItem('User', JSON.stringify(res.data.user));
     } catch (err) {
       console.error('Update failed:', err);
     }
@@ -277,8 +278,8 @@ export default function ProfilePage() {
                   onClick={svc.onDefault}
                   disabled={svc.isDefault}
                   className={`mt-2 self-start px-3 py-1 rounded text-sm border border-white/30 transition ${svc.isDefault
-                      ? 'bg-green-600 text-white'
-                      : 'bg-[#283335]/10 hover:bg-white/20 text-white'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-[#283335]/10 hover:bg-white/20 text-white'
                     }`}
                 >
                   {svc.isDefault ? '✔️ Default Avatar' : 'Set as Default'}
