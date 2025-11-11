@@ -1,64 +1,54 @@
 import dbConnect from '@/utils/db';
-import Newsletter from '@/models/News';
-import Subscriber from '@/models/Subscriber';
+import Newsletter from '@/models/Newsletter'; // assuming you have a Newsletter model
+import Subscriber from '@/models/Subscriber'; // and a Subscriber list
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
-  await dbConnect();
-
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
-  const { id } = req.body || {};
-  if (!id) return res.status(400).json({ error: 'Newsletter ID is required' });
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ error: 'Missing newsletter ID' });
 
-  // 📰 Load newsletter
-  const n = await Newsletter.findById(id).lean();
-  if (!n) return res.status(404).json({ error: 'Newsletter not found' });
+  await dbConnect();
 
-  // 📬 Get only active, verified subscribers
-  const subscribers = await Subscriber.find(
-    { isActive: true, isVerified: true },
-    'email -_id'
-  ).lean();
+  try {
+    // 🔹 Load newsletter and subscribers
+    const newsletter = await Newsletter.findById(id);
+    if (!newsletter)
+      return res.status(404).json({ error: 'Newsletter not found' });
 
-  if (!subscribers.length)
-    return res.status(404).json({ error: 'No active subscribers found' });
+    const subscribers = await Subscriber.find({ active: true });
+    if (!subscribers.length)
+      return res
+        .status(400)
+        .json({ error: 'No subscribers to send to!' });
 
-  // ✉️ Setup mail transporter
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+    // 🔹 Email transport (configure to your system)
+    const transporter = nodemailer.createTransport({
+      host:"gmail",
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
 
-  const results = [];
-  for (const s of subscribers) {
-    try {
-      const info = await transporter.sendMail({
-        from: process.env.SMTP_FROM,
-        to: s.email,
-        subject: n.title || 'Newsletter',
-        html: n.html || '<p>(No content)</p>',
+    // 🔹 Send to all
+    for (const sub of subscribers) {
+      await transporter.sendMail({
+        from: `"Yapton News" <${process.env.MAIL_USER}>`,
+        to: sub.email,
+        subject: newsletter.title || 'Latest Newsletter',
+        html: newsletter.html || '<p>No content.</p>',
       });
-
-      results.push({ email: s.email, messageId: info.messageId });
-      console.log(`✅ Sent newsletter to ${s.email}`);
-    } catch (err) {
-      console.error(`❌ Failed to send to ${s.email}:`, err.message);
-      results.push({ email: s.email, error: err.message });
     }
-  }
 
-  return res.status(200).json({
-    success: true,
-    total: subscribers.length,
-    sent: results.filter((r) => r.messageId).length,
-    failed: results.filter((r) => r.error).length,
-    results,
-  });
+    res.json({
+      success: true,
+      message: `✅ Newsletter sent to ${subscribers.length} subscribers.`,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to send newsletter.' });
+  }
 }

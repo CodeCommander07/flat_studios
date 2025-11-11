@@ -114,11 +114,11 @@ export default function DynamicYCCForm() {
           onChange={(e) => handleChange(q._id, e.target.value)}
           className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-orange-500"
         >
-          <option value="">Select...</option>
+          <option className="text-white bg-black" value="">Select...</option>
           {options.map((o, i) => {
             const display = getDisplay(o);
             return (
-              <option key={i} value={display} className="bg-black text-white">
+              <option className="text-white bg-black" key={i} value={display} className="bg-black text-white">
                 {display}
               </option>
             );
@@ -238,9 +238,9 @@ export default function DynamicYCCForm() {
                 onChange={(e) => handleChange(q._id, e.target.value)}
                 className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-orange-500"
               >
-                <option value="">Select...</option>
+                <option className="text-white bg-black" value="">Select...</option>
                 {q.options.map((opt, i) => (
-                  <option key={i} value={opt}>
+                  <option className="text-white bg-black" key={i} value={opt}>
                     {opt}
                   </option>
                 ))}

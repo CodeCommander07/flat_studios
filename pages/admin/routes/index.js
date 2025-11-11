@@ -211,9 +211,9 @@ await fetch(`/api/ycc/routes/${editing}`, {
                   onChange={handleChange}
                   className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="">Select origin</option>
+                  <option className="text-white bg-black" value="">Select origin</option>
                   {stops.map((stop) => (
-                    <option key={stop.stopId} value={stop.stopId}>
+                    <option className="text-white bg-black" key={stop.stopId} value={stop.stopId}>
                       {getStopName(stop.stopId)}
                     </option>
                   ))}
@@ -228,9 +228,9 @@ await fetch(`/api/ycc/routes/${editing}`, {
                   onChange={handleChange}
                   className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="">Select destination</option>
+                  <option className="text-white bg-black" value="">Select destination</option>
                   {stops.map((stop) => (
-                    <option key={stop.stopId} value={stop.stopId}>
+                    <option className="text-white bg-black" key={stop.stopId} value={stop.stopId}>
                       {getStopName(stop.stopId)}
                     </option>
                   ))}

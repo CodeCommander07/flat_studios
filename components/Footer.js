@@ -139,6 +139,9 @@ export default function Footer() {
           <Link href="/privacy" className="hover:underline hover:text-white/80 transition">
             Privacy
           </Link>
+          <Link href="/terms" className="hover:underline hover:text-white/80 transition">
+            Terms Of Service
+          </Link>
         </div>
       </div>
     </footer>

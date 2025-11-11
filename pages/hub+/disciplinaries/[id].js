@@ -163,10 +163,10 @@ export default function DisciplinaryDetail() {
                   }
                   className="bg-gray-950 border border-gray-700 rounded-lg px-2 py-1 ml-2"
                 >
-                  <option>Verbal Warning</option>
-                  <option>Warning</option>
-                  <option>Suspension</option>
-                  <option>Termination</option>
+                  <option className="text-white bg-black">Verbal Warning</option>
+                  <option className="text-white bg-black">Warning</option>
+                  <option className="text-white bg-black">Suspension</option>
+                  <option className="text-white bg-black">Termination</option>
                 </select>
               ) : (
                 <strong>{record.severity}</strong>

@@ -258,8 +258,8 @@ export default function UserActivityLogs() {
                   onChange={handleChange}
                   className="w-full rounded bg-gray-800 p-2"
                 >
-                  <option value="No">No</option>
-                  <option value="Yes">Yes</option>
+                  <option className="text-white bg-black" value="No">No</option>
+                  <option className="text-white bg-black" value="Yes">Yes</option>
                 </select>
               </div>
 

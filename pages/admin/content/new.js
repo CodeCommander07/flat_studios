@@ -286,7 +286,7 @@ function Select({ label, options, ...props }) {
         className="w-full p-2 rounded-lg bg-black/30 border border-white/10 focus:border-cyan-400 outline-none transition"
       >
         {options.map((o) => (
-          <option key={o}>{o}</option>
+          <option className="text-white bg-black" key={o}>{o}</option>
         ))}
       </select>
     </div>

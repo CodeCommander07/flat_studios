@@ -83,23 +83,23 @@ export default function AdminContentDashboard() {
             value={filter.type}
             onChange={(e) => setFilter({ ...filter, type: e.target.value })}
           >
-            <option value="all">All Types</option>
-            <option value="article">Article</option>
-            <option value="blog">Blog</option>
-            <option value="guide">Guide</option>
-            <option value="news">News</option>
-            <option value="changelog">Changelog</option>
+            <option className="text-white bg-black" value="all">All Types</option>
+            <option className="text-white bg-black" value="article">Article</option>
+            <option className="text-white bg-black" value="blog">Blog</option>
+            <option className="text-white bg-black" value="guide">Guide</option>
+            <option className="text-white bg-black" value="news">News</option>
+            <option className="text-white bg-black" value="changelog">Changelog</option>
           </select>
           <select
             className="bg-black/30 border border-white/10 p-2 rounded-md text-white/80"
             value={filter.status}
             onChange={(e) => setFilter({ ...filter, status: e.target.value })}
           >
-            <option value="all">All Statuses</option>
-            <option value="draft">Draft</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
+            <option className="text-white bg-black" value="all">All Statuses</option>
+            <option className="text-white bg-black" value="draft">Draft</option>
+            <option className="text-white bg-black" value="scheduled">Scheduled</option>
+            <option className="text-white bg-black" value="published">Published</option>
+            <option className="text-white bg-black" value="archived">Archived</option>
           </select>
         </div>
 

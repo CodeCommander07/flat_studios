@@ -46,10 +46,10 @@ export default function DisciplinaryList() {
               value={status}
               onChange={e => setStatus(e.target.value)}
             >
-              <option value="">All statuses</option>
-              <option>Active</option>
-              <option>Appealed</option>
-              <option>Resolved</option>
+              <option className="text-white bg-black" value="">All statuses</option>
+              <option className="text-white bg-black">Active</option>
+              <option className="text-white bg-black">Appealed</option>
+              <option className="text-white bg-black">Resolved</option>
             </select>
           </div>
 

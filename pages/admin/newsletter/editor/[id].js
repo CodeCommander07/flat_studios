@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/router';
@@ -13,7 +13,26 @@ export default function NewsletterEditor() {
   const [showMenu, setShowMenu] = useState(false);
   const [sending, setSending] = useState(false);
 
-  // 🔍 Mobile detection
+  // 🧠 Keybinds
+  useEffect(() => {
+    const handleKeys = (e) => {
+      if (e.ctrlKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveDesign();
+      }
+      if (e.key === 'Delete' && editing) {
+        deleteBlock(editing.rowId, editing.colId, editing.block.id);
+      }
+      if (e.key === 'Escape') {
+        setEditing(null);
+        setShowMenu(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeys);
+    return () => window.removeEventListener('keydown', handleKeys);
+  }, [editing]);
+
+  // 📱 Mobile Detection
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
     check();
@@ -29,10 +48,11 @@ export default function NewsletterEditor() {
     });
   }, [id]);
 
-  // Default starter layout
+  // 🎨 Default Design
   const starterDesign = {
-    backgroundColor: '#0f1420',
+    backgroundColor: '#283335',
     contentWidth: '600px',
+    fontFamily: 'sans-serif',
     rows: [
       {
         id: uuidv4(),
@@ -47,7 +67,7 @@ export default function NewsletterEditor() {
                   text: '<h2>Welcome!</h2><p>Your newsletter starts here.</p>',
                   align: 'center',
                   color: '#ffffff',
-                  background: '#1f2937',
+                  background: '#36424a',
                   fontSize: '18px',
                   padding: '20px',
                 },
@@ -59,7 +79,7 @@ export default function NewsletterEditor() {
     ],
   };
 
-  // Add new block
+  // ➕ Add new block
   const addBlock = (type) => {
     const newBlock = {
       id: uuidv4(),
@@ -67,33 +87,33 @@ export default function NewsletterEditor() {
       values:
         type === 'text'
           ? {
-              text: '<p>New text block</p>',
-              align: 'left',
-              color: '#ffffff',
-              background: '#1f2937',
-              fontSize: '16px',
-              padding: '15px',
-            }
+            text: '<p>New text block</p>',
+            align: 'left',
+            color: '#ffffff',
+            background: '#36424a',
+            fontSize: '16px',
+            padding: '15px',
+          }
           : type === 'image'
-          ? {
+            ? {
               src: 'https://placehold.co/600x200',
-              alt: '',
+              alt: 'Image',
               width: '100%',
               background: 'transparent',
               padding: '10px',
             }
-          : type === 'button'
-          ? {
-              label: 'Click Me',
-              bg: '#3b82f6',
-              color: '#fff',
-              borderRadius: '6px',
-              align: 'center',
-              padding: '14px 24px',
-            }
-          : type === 'divider'
-          ? { color: '#444', thickness: '1px', padding: '10px' }
-          : { height: '25px' },
+            : type === 'button'
+              ? {
+                label: 'Click Me',
+                bg: '#3b82f6',
+                color: '#fff',
+                borderRadius: '6px',
+                align: 'center',
+                padding: '14px 24px',
+              }
+              : type === 'divider'
+                ? { color: '#555', thickness: '1px', padding: '10px' }
+                : { height: '25px' },
     };
 
     setDesign((d) => ({
@@ -105,34 +125,39 @@ export default function NewsletterEditor() {
     }));
   };
 
-  // Update a field in block
+  // ✏️ Update block
   const updateBlock = (rowId, colId, blockId, field, value) => {
     setDesign((d) => ({
       ...d,
       rows: d.rows.map((r) =>
         r.id === rowId
           ? {
-              ...r,
-              columns: r.columns.map((c) =>
-                c.id === colId
-                  ? {
-                      ...c,
-                      contents: c.contents.map((b) =>
-                        b.id === blockId
-                          ? { ...b, values: { ...b.values, [field]: value } }
-                          : b
-                      ),
-                    }
-                  : c
-              ),
-            }
+            ...r,
+            columns: r.columns.map((c) =>
+              c.id === colId
+                ? {
+                  ...c,
+                  contents: c.contents.map((b) =>
+                    b.id === blockId
+                      ? { ...b, values: { ...b.values, [field]: value } }
+                      : b
+                  ),
+                }
+                : c
+            ),
+          }
           : r
       ),
     }));
   };
 
-  // Delete a block
-  const deleteBlock = (rowId, colId, blockId) => {
+  // 🌍 Update global
+  const updateGlobal = (key, value) => {
+    setDesign((d) => ({ ...d, [key]: value }));
+  };
+
+  // ❌ Delete block
+  const deleteBlock = useCallback((rowId, colId, blockId) => {
     setDesign((d) => ({
       ...d,
       rows: d.rows.map((r) => ({
@@ -144,89 +169,59 @@ export default function NewsletterEditor() {
       })),
     }));
     setEditing(null);
-  };
+  }, []);
 
-  // Save current design
+  // 💾 Save
   const saveDesign = async () => {
     await axios.put(`/api/news/${id}`, { design });
     alert('✅ Newsletter saved!');
   };
 
-  // Render HTML
+  // 🧾 HTML Render
   const renderHTML = (d) => `
-    <div style="background:${d.backgroundColor};padding:30px;font-family:sans-serif;">
-      <div style="max-width:${d.contentWidth};margin:auto;background:#1f2937;border-radius:10px;overflow:hidden;">
+    <div style="background:${d.backgroundColor};padding:30px;font-family:${d.fontFamily};">
+      <div style="max-width:${d.contentWidth};margin:auto;background:#36424a;border-radius:10px;overflow:hidden;">
         ${d.rows
-          .map(
-            (r) =>
-              `<div>${r.columns
-                .map(
-                  (c) =>
-                    `<div>${c.contents
-                      .map((b) => {
-                        switch (b.type) {
-                          case 'text':
-                            return `<div style="padding:${b.values.padding};color:${b.values.color};text-align:${b.values.align};font-size:${b.values.fontSize};background:${b.values.background};">${b.values.text}</div>`;
-                          case 'image':
-                            return `<div style="padding:${b.values.padding};background:${b.values.background};"><img src="${b.values.src}" alt="${b.values.alt}" style="width:${b.values.width};border-radius:8px;"/></div>`;
-                          case 'button':
-                            return `<div style="text-align:${b.values.align};padding:20px;"><a href="#" style="display:inline-block;padding:${b.values.padding};background:${b.values.bg};color:${b.values.color};border-radius:${b.values.borderRadius};text-decoration:none;font-weight:600;">${b.values.label}</a></div>`;
-                          case 'divider':
-                            return `<div style="padding:${b.values.padding};"><hr style="border:none;height:${b.values.thickness};background:${b.values.color};"/></div>`;
-                          case 'spacer':
-                            return `<div style="height:${b.values.height};"></div>`;
-                          default:
-                            return '';
-                        }
-                      })
-                      .join('')}</div>`
-                )
-                .join('')}</div>`
-          )
-          .join('')}
+      .map(
+        (r) =>
+          `<div>${r.columns
+            .map(
+              (c) =>
+                `<div>${c.contents
+                  .map((b) => {
+                    switch (b.type) {
+                      case 'text':
+                        return `<div style="padding:${b.values.padding};color:${b.values.color};text-align:${b.values.align};font-size:${b.values.fontSize};background:${b.values.background};">${b.values.text}</div>`;
+                      case 'image':
+                        return `<div style="padding:${b.values.padding};background:${b.values.background};"><img src="${b.values.src}" alt="${b.values.alt}" style="width:${b.values.width};border-radius:8px;"/></div>`;
+                      case 'button':
+                        return `<div style="text-align:${b.values.align};padding:20px;"><a href="#" style="display:inline-block;padding:${b.values.padding};background:${b.values.bg};color:${b.values.color};border-radius:${b.values.borderRadius};text-decoration:none;font-weight:600;">${b.values.label}</a></div>`;
+                      case 'divider':
+                        return `<div style="padding:${b.values.padding};"><hr style="border:none;height:${b.values.thickness};background:${b.values.color};"/></div>`;
+                      case 'spacer':
+                        return `<div style="height:${b.values.height};"></div>`;
+                      default:
+                        return '';
+                    }
+                  })
+                  .join('')}</div>`
+            )
+            .join('')}</div>`
+      )
+      .join('')}
       </div>
     </div>`;
 
-  // 📤 Send Newsletter to everyone
-  const sendNewsletter = async () => {
-    try {
-      setSending(true);
-      await axios.put(`/api/news/${id}`, { design }); // save first
-      const res = await axios.post(`/api/news/send`, { id });
-      alert(res.data.message || '✅ Newsletter sent to all subscribers!');
-      setShowMenu(false);
-    } catch (err) {
-      alert('❌ Failed to send newsletter.');
-    } finally {
-      setSending(false);
-    }
-  };
-
-  // 👁️ View Newsletter
-  const viewNewsletter = async () => {
-    await saveDesign();
-    window.open(`/api/news/view/${id}`, '_blank');
-    setShowMenu(false);
-  };
-
-  // 📥 Export Newsletter
-  const exportNewsletter = async () => {
-    await saveDesign();
-    window.location.href = `/api/news/export/${id}`;
-    setShowMenu(false);
-  };
-
-  // --------------------------- Layout --------------------------------
   if (!design)
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0f1420] text-gray-300">
+      <div className="flex items-center justify-center h-screen bg-[#283335] text-gray-300">
         Loading editor…
       </div>
     );
 
   if (isMobile)
     return (
-      <div className="h-screen flex items-center justify-center bg-[#0f1420] text-white text-center px-6">
+      <div className="h-screen flex items-center justify-center bg-[#283335] text-white text-center px-6">
         <div>
           <h2 className="text-2xl font-semibold mb-3">
             You cannot edit a newsletter on mobile!
@@ -241,81 +236,191 @@ export default function NewsletterEditor() {
 
   return (
     <div
-      className="grid grid-cols-[300px_1fr_500px] w-full overflow-hidden bg-[#0f1420] text-gray-200"
-      style={{ maxHeight: 'calc(100vh - 100px)' }}
+      className="grid grid-cols-[400px_1fr_400px_300px] w-full overflow-hidden bg-[#283335] text-gray-200 relative"
+      style={{ maxHeight: 'calc(100vh - 200px)' }}
     >
-      {/* Sidebar */}
-      <aside className="bg-[#1c2533] border-r border-white/10 flex flex-col overflow-y-auto">
-        {/* Top Controls */}
-        <div className="p-4 flex justify-between items-center border-b border-white/10">
+      {/* 🧱 LEFT SIDEBAR */}
+      <aside className="bg-[#1e2a2d] w-[400px] border-r border-white/10 flex flex-col overflow-hidden">
+        {/* Header Controls */}
+        <div className="p-4 flex justify-between items-center border-b border-white/10 gap-2">
           <button
-            onClick={saveDesign}
-            className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-white text-sm font-medium"
-          >
-            💾 Save
-          </button>
-          <button
-            onClick={() => setShowMenu(true)}
+            onClick={() => router.push('/admin/newsletter')}
             className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm"
           >
-            ⋮ Menu
+            ← Back
           </button>
+
+          <div className="flex gap-2 ml-auto">
+            <button
+              onClick={saveDesign}
+              className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-white text-sm font-medium"
+            >
+              💾 Save
+            </button>
+            <button
+              onClick={() => setShowMenu(true)}
+              className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm"
+            >
+              ⋮ Menu
+            </button>
+          </div>
         </div>
 
-        {/* Block list */}
-        <div className="p-4 flex-1 overflow-y-auto">
-          <h2 className="text-lg font-semibold mb-3">Add Blocks</h2>
-          {['text', 'image', 'button', 'divider', 'spacer'].map((type) => (
-            <button
-              key={type}
-              onClick={() => addBlock(type)}
-              className="w-full mb-2 bg-white/5 hover:bg-white/10 rounded-lg py-2 text-left px-3"
-            >
-              + {type.charAt(0).toUpperCase() + type.slice(1)}
-            </button>
-          ))}
+        {/* Two-column layout for Add + Settings */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Add Blocks */}
+          <div className="w-1/2 border-r border-white/10 p-4 overflow-y-auto">
+            <h2 className="text-lg font-semibold mb-3">Add Blocks</h2>
+            {['text', 'image', 'button', 'divider', 'spacer'].map((type) => (
+              <button
+                key={type}
+                onClick={() => addBlock(type)}
+                className="w-full mb-2 bg-white/5 hover:bg-white/10 rounded-lg py-2 text-left px-3"
+              >
+                + {type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
+            ))}
+          </div>
 
-          <hr className="my-4 border-white/10" />
+          {/* Block Settings */}
+          <div className="w-1/2 p-4 overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-3 text-white">Block Settings</h3>
 
-          <h3 className="text-lg font-semibold mb-2 text-white">Block Settings</h3>
-          {!editing && (
-            <p className="text-sm text-gray-400 mb-3">
-              Select a block to edit its properties.
-            </p>
-          )}
-          {editing &&
-            Object.keys(editing.block.values).map((key) => (
-              <div key={key} className="mb-3">
-                <label className="block text-sm text-gray-300 mb-1 capitalize">
-                  {key}
-                </label>
-                <input
-                  type={
+            {!editing && (
+              <p className="text-sm text-gray-400 mb-3">
+                Select a block to edit its properties.
+              </p>
+            )}
+
+            {editing && (
+              <div className="space-y-3">
+                {Object.entries(editing.block.values).map(([key, value]) => {
+                  const inputType =
                     key.includes('color') || key.includes('bg')
                       ? 'color'
-                      : 'text'
+                      : key.includes('fontSize') || key.includes('padding')
+                        ? 'text'
+                        : 'text';
+
+                  return (
+                    <div key={key}>
+                      <label className="block text-sm text-gray-300 mb-1 capitalize">
+                        {key}
+                      </label>
+
+                      {key === 'text' ? (
+                        <textarea
+                          value={value}
+                          onChange={(e) => {
+                            const newValue = e.target.value;
+                            updateBlock(
+                              editing.rowId,
+                              editing.colId,
+                              editing.block.id,
+                              key,
+                              newValue
+                            );
+                            setEditing((prev) =>
+                              prev
+                                ? {
+                                  ...prev,
+                                  block: {
+                                    ...prev.block,
+                                    values: {
+                                      ...prev.block.values,
+                                      [key]: newValue,
+                                    },
+                                  },
+                                }
+                                : prev
+                            );
+                          }}
+                          rows={5}
+                          className="w-full rounded-md bg-white/5 border border-white/10 text-white px-2 py-1 outline-none resize-y"
+                        />
+                      ) : inputType === 'color' ? (
+                        <input
+                          type="color"
+                          value={value}
+                          onChange={(e) => {
+                            const newValue = e.target.value;
+                            updateBlock(
+                              editing.rowId,
+                              editing.colId,
+                              editing.block.id,
+                              key,
+                              newValue
+                            );
+                            setEditing((prev) =>
+                              prev
+                                ? {
+                                  ...prev,
+                                  block: {
+                                    ...prev.block,
+                                    values: {
+                                      ...prev.block.values,
+                                      [key]: newValue,
+                                    },
+                                  },
+                                }
+                                : prev
+                            );
+                          }}
+                          className="w-full h-10 rounded-md border border-white/10 bg-white/5"
+                        />
+                      ) : (
+                        <input
+                          type={inputType}
+                          value={value}
+                          onChange={(e) => {
+                            const newValue = e.target.value;
+                            updateBlock(
+                              editing.rowId,
+                              editing.colId,
+                              editing.block.id,
+                              key,
+                              newValue
+                            );
+                            setEditing((prev) =>
+                              prev
+                                ? {
+                                  ...prev,
+                                  block: {
+                                    ...prev.block,
+                                    values: {
+                                      ...prev.block.values,
+                                      [key]: newValue,
+                                    },
+                                  },
+                                }
+                                : prev
+                            );
+                          }}
+                          className="w-full rounded-md bg-white/5 border border-white/10 text-white px-2 py-1 outline-none"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+
+                <button
+                  onClick={() =>
+                    deleteBlock(editing.rowId, editing.colId, editing.block.id)
                   }
-                  value={editing.block.values[key]}
-                  onChange={(e) =>
-                    updateBlock(
-                      editing.rowId,
-                      editing.colId,
-                      editing.block.id,
-                      key,
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-md bg-white/5 border border-white/10 text-white px-2 py-1 outline-none"
-                />
+                  className="w-full mt-3 bg-red-600 hover:bg-red-700 py-2 rounded-lg font-medium"
+                >
+                  🗑 Delete Block
+                </button>
               </div>
-            ))}
+            )}
+          </div>
         </div>
       </aside>
 
-      {/* Editor */}
-      <main className="overflow-y-auto p-8 bg-[#0f1420]">
+      {/* ✏️ EDITOR CENTER */}
+      <main className="overflow-y-auto p-8 bg-[#283335]">
         <div
-          className="mx-auto max-w-[600px] bg-[#1f2937] rounded-xl border border-white/10 shadow-lg"
+          className="mx-auto max-w-[600px] bg-[#36424a] rounded-xl border border-white/10 shadow-lg"
           style={{ minHeight: '80vh' }}
         >
           {design.rows.map((row) =>
@@ -323,11 +428,10 @@ export default function NewsletterEditor() {
               col.contents.map((block) => (
                 <div
                   key={block.id}
-                  className={`p-2 border ${
-                    editing?.block?.id === block.id
-                      ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-transparent'
-                  } rounded-md relative`}
+                  className={`p-2 border ${editing?.block?.id === block.id
+                    ? 'border-blue-500 bg-blue-500/10'
+                    : 'border-transparent'
+                    } rounded-md relative`}
                   onClick={() =>
                     setEditing({ rowId: row.id, colId: col.id, block })
                   }
@@ -344,27 +448,16 @@ export default function NewsletterEditor() {
                         fontSize: block.values.fontSize,
                         padding: block.values.padding,
                       }}
-                      onBlur={(e) =>
-                        updateBlock(
-                          row.id,
-                          col.id,
-                          block.id,
-                          'text',
-                          e.target.innerHTML
-                        )
-                      }
                       dangerouslySetInnerHTML={{
                         __html: block.values.text,
                       }}
                     />
                   )}
                   {block.type === 'image' && (
-                    <div
-                      className="cursor-pointer text-center"
-                      style={{
-                        background: block.values.background,
-                        padding: block.values.padding,
-                      }}
+                    <img
+                      src={block.values.src}
+                      alt={block.values.alt}
+                      className="rounded-md inline-block max-w-full cursor-pointer"
                       onClick={() =>
                         updateBlock(
                           row.id,
@@ -374,13 +467,7 @@ export default function NewsletterEditor() {
                           prompt('Image URL:', block.values.src)
                         )
                       }
-                    >
-                      <img
-                        src={block.values.src}
-                        alt=""
-                        className="rounded-md inline-block max-w-full"
-                      />
-                    </div>
+                    />
                   )}
                   {block.type === 'button' && (
                     <div className="text-center">
@@ -408,12 +495,6 @@ export default function NewsletterEditor() {
                   {block.type === 'spacer' && (
                     <div style={{ height: block.values.height }}></div>
                   )}
-                  <button
-                    onClick={() => deleteBlock(row.id, col.id, block.id)}
-                    className="absolute top-1 right-2 text-xs text-red-400 hover:text-red-300"
-                  >
-                    ✕
-                  </button>
                 </div>
               ))
             )
@@ -421,8 +502,8 @@ export default function NewsletterEditor() {
         </div>
       </main>
 
-      {/* Preview */}
-      <aside className="bg-[#0d111a] border-l border-white/10 p-4 overflow-y-auto">
+      {/* 👁 PREVIEW */}
+      <aside className="bg-[#1e2a2d] border-l border-white/10 p-4 overflow-y-auto">
         <h2 className="text-sm font-semibold mb-2 text-white/70">Preview</h2>
         <iframe
           title="preview"
@@ -431,7 +512,49 @@ export default function NewsletterEditor() {
         />
       </aside>
 
-      {/* Modal */}
+      {/* 🎨 RIGHT SIDEBAR - GLOBAL */}
+      <aside className="bg-[#1e2a2d] border-l border-white/10 p-4 overflow-y-auto">
+        <h2 className="text-lg font-semibold mb-3 text-white">Global Design</h2>
+
+        <div className="space-y-3">
+          <label className="block text-sm text-gray-300">
+            Background Color
+          </label>
+          <input
+            type="color"
+            value={design.backgroundColor}
+            onChange={(e) => updateGlobal('backgroundColor', e.target.value)}
+            className="w-full h-10 rounded border border-white/10 bg-white/5"
+          />
+
+          <label className="block text-sm text-gray-300">Font Family</label>
+          <select
+            value={design.fontFamily}
+            onChange={(e) => updateGlobal('fontFamily', e.target.value)}
+            className="w-full rounded-md bg-white/5 border border-white/10 text-white px-2 py-1"
+          >
+            <option value="sans-serif">Sans Serif</option>
+            <option value="serif">Serif</option>
+            <option value="monospace">Monospace</option>
+            <option value="Arial">Arial</option>
+            <option value="Roboto">Roboto</option>
+          </select>
+
+          <label className="block text-sm text-gray-300">
+            Content Width (px)
+          </label>
+          <input
+            type="number"
+            value={parseInt(design.contentWidth)}
+            onChange={(e) =>
+              updateGlobal('contentWidth', `${e.target.value}px`)
+            }
+            className="w-full rounded-md bg-white/5 border border-white/10 text-white px-2 py-1"
+          />
+        </div>
+      </aside>
+
+      {/* 🧭 MENU MODAL */}
       {showMenu && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
@@ -439,25 +562,39 @@ export default function NewsletterEditor() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-[#1c2533] text-white rounded-xl border border-white/10 p-6 w-[320px] shadow-xl"
+            className="bg-[#1e2a2d] text-white rounded-xl border border-white/10 p-6 w-[320px] shadow-xl"
           >
             <h2 className="text-lg font-semibold mb-4">Newsletter Options</h2>
             <div className="flex flex-col gap-2">
               <button
-                onClick={sendNewsletter}
+                onClick={async () => {
+                  try {
+                    setSending(true);
+                    await axios.put(`/api/news/${id}`, { design });
+                    const res = await axios.post(`/api/news/send`, { id });
+                    alert(res.data.message || '✅ Newsletter sent to all subscribers!');
+                  } catch (err) {
+                    console.error(err);
+                    alert('❌ Failed to send newsletter.');
+                  } finally {
+                    setSending(false);
+                    setShowMenu(false);
+                  }
+                }}
                 disabled={sending}
-                className="bg-blue-600 hover:bg-blue-700 py-2 rounded-lg"
+                className="bg-blue-600 hover:bg-blue-700 py-2 rounded-lg disabled:opacity-50"
               >
                 {sending ? '📤 Sending…' : '✉️ Send to Subscribers'}
               </button>
+
               <button
-                onClick={viewNewsletter}
+                onClick={() => window.open(`/api/news/view/${id}`, '_blank')}
                 className="bg-white/10 hover:bg-white/20 py-2 rounded-lg"
               >
                 👁️ View Newsletter
               </button>
               <button
-                onClick={exportNewsletter}
+                onClick={() => (window.location.href = `/api/news/export/${id}`)}
                 className="bg-white/10 hover:bg-white/20 py-2 rounded-lg"
               >
                 📥 Export Newsletter
@@ -474,4 +611,5 @@ export default function NewsletterEditor() {
       )}
     </div>
   );
+
 }

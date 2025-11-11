@@ -157,11 +157,11 @@ export default function SetTaskPage() {
             required
             className="w-full p-2 rounded bg-white/20 border border-white/30 text-white"
           >
-            <option value="">Select Priority</option>
-            <option className="bg-black" value="low">🟢 Low</option>
-            <option className="bg-black" value="medium">🟡 Medium</option>
-            <option className="bg-black" value="high">🟠 High</option>
-            <option className="bg-black" value="urgent">🔴 Urgent</option>
+            <option className="text-white bg-black" value="">Select Priority</option>
+            <option className="text-white bg-black" className="bg-black" value="low">🟢 Low</option>
+            <option className="text-white bg-black" className="bg-black" value="medium">🟡 Medium</option>
+            <option className="text-white bg-black" className="bg-black" value="high">🟠 High</option>
+            <option className="text-white bg-black" className="bg-black" value="urgent">🔴 Urgent</option>
           </select>
         </div>
 

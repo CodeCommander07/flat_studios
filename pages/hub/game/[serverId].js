@@ -692,9 +692,9 @@ export default function ServerDetailPage() {
                           onChange={(e) => setLogFilter(e.target.value)}
                           className="bg-transparent outline-none"
                         >
-                          <option value="all">All</option>
-                          <option value="online">Online Only</option>
-                          <option value="date">Specific Date</option>
+                          <option className="text-white bg-black" value="all">All</option>
+                          <option className="text-white bg-black" value="online">Online Only</option>
+                          <option className="text-white bg-black" value="date">Specific Date</option>
                         </select>
                       </div>
 

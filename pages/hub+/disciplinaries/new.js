@@ -102,11 +102,11 @@ export default function NewDisciplinary() {
                             }
                             disabled={loadingStaff}
                         >
-                            <option value="">
+                            <option className="text-white bg-black" value="">
                                 {loadingStaff ? 'Loading staff…' : 'Select a staff member'}
                             </option>
                             {staff.map((s) => (
-                                <option key={s._id} value={s._id}>
+                                <option className="text-white bg-black" key={s._id} value={s._id}>
                                     {s.name} {s.role ? `(${s.role})` : ''}{' '}
                                     {s.email ? `– ${s.email}` : ''}
                                 </option>
