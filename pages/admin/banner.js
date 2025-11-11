@@ -1,6 +1,25 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Save } from 'lucide-react';
+import {
+  Save,
+  CircleCheckBig,
+  TriangleAlert,
+  Megaphone,
+  Info,
+  OctagonAlert,
+  TreePine,
+  CalendarDays,
+} from 'lucide-react';
+
+const ICON_OPTIONS = [
+  { label: 'Circle Check', value: 'circle-check-big', icon: CircleCheckBig },
+  { label: 'Triangle Alert', value: 'triangle-alert', icon: TriangleAlert },
+  { label: 'Megaphone', value: 'megaphone', icon: Megaphone },
+  { label: 'Info', value: 'info', icon: Info },
+  { label: 'Octagon Alert', value: 'octagon-alert', icon: OctagonAlert },
+  { label: 'Tree Pine', value: 'tree-pine', icon: TreePine },
+  { label: 'Calendar Days', value: 'calendar-days', icon: CalendarDays },
+];
 
 export default function BannerSettings() {
   const [banner, setBanner] = useState({
@@ -8,14 +27,16 @@ export default function BannerSettings() {
     message: '',
     linkText: '',
     linkUrl: '',
-    bgColor: '#1b4332', textColor: '#ffffff' 
+    bgColor: '#1b4332',
+    textColor: '#ffffff',
+    icon: 'triangle-alert',
   });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetch('/api/banner')
       .then((res) => res.json())
-      .then((data) => data && setBanner(data));
+      .then((data) => data && setBanner((b) => ({ ...b, ...data })));
   }, []);
 
   const handleChange = (e) => {
@@ -33,8 +54,10 @@ export default function BannerSettings() {
     setSaving(false);
   };
 
+  const SelectedIcon = ICON_OPTIONS.find((opt) => opt.value === banner.icon)?.icon || Info;
+
   return (
-    <div className="bg-[#283335] p-6 m-10 rounded-2xl border border-white/10 backdrop-blur-lg">
+    <div className="bg-[#283335] p-6 m-10 rounded-2xl border border-white/10 backdrop-blur-lg text-white">
       <h2 className="text-xl font-semibold mb-4">Banner Settings</h2>
       <div className="space-y-4">
         <label className="block">
@@ -46,6 +69,7 @@ export default function BannerSettings() {
             className="w-full p-2 rounded bg-white/10 border border-white/20"
           />
         </label>
+
         <div className="grid grid-cols-2 gap-4">
           <label className="block">
             <span className="text-sm">Link Text</span>
@@ -66,6 +90,8 @@ export default function BannerSettings() {
             />
           </label>
         </div>
+
+        {/* 🎨 Colors */}
         <div className="grid grid-cols-2 gap-4">
           <label className="block">
             <span className="text-sm">Background Color</span>
@@ -89,6 +115,29 @@ export default function BannerSettings() {
           </label>
         </div>
 
+        {/* 🧩 Icon Selector */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <span className="block text-sm mb-2">Icon</span>
+          <div className="flex items-center gap-4">
+            <select
+              name="icon"
+              value={banner.icon}
+              onChange={handleChange}
+              className="flex-1 bg-white/10 border border-white/20 rounded p-2"
+            >
+              {ICON_OPTIONS.map((opt) => (
+                <option className='bg-black text-white' key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <div className="p-3 bg-white/10 rounded-lg border border-white/20 flex items-center justify-center">
+              <SelectedIcon className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </div>
+
+        {/* ✅ Active Checkbox */}
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -98,6 +147,7 @@ export default function BannerSettings() {
           <span>Active</span>
         </div>
 
+        {/* 💾 Save Button */}
         <button
           onClick={saveBanner}
           disabled={saving}
