@@ -37,7 +37,7 @@ export default function ProfilePage() {
     const userId = localUser?._id;
     const base = process.env.BASE_URL;
     const redirectUri = encodeURIComponent(`https://yapton.vercel.app/api/user/roblox/callback`);
-    const url = `https://authorize.roblox.com/?client_id=4368704140483715858` +
+    const url = `https://authorize.roblox.com/?client_id=3955231950419357724` +
       `&response_type=code` +
       `&redirect_uri=${redirectUri}` +
       `&scope=openid+profile+group:read` +
@@ -221,7 +221,7 @@ export default function ProfilePage() {
             {
               name: 'Roblox',
               avatar: user.robloxAvatar || '/black_logo.png',
-              username: user.robloxUsername || 'Discord',
+              username: user.robloxUsername || 'Roblox',
               id: user.robloxId,
               onConnect: handleRobloxConnect,
               onDefault: () => handleSetDefaultAvatar(user.robloxAvatar),
