@@ -1,143 +1,124 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, CheckCircle2, Clock } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
-/**
- * UnifiedHistoryBlock
- * - Displays all years as pills in a single block (all visible together)
- * - Center card below shows the currently active year details
- * - Auto-advances, click a year to jump
- * - Smooth animated transitions using Framer Motion
- *
- * Install framer-motion if you haven't:
- * npm install framer-motion
- */
+export default function YaptonHistory() {
+  const [openYear, setOpenYear] = useState(null);
 
-export default function UnifiedHistoryBlock() {
-  const historyData = [
+  const history = [
     {
       year: '2020',
-      title: 'The Beginning',
-      status: 'Completed',
-      desc: 'Yapton & District is conceived by Flatcar under Skyway Group. First public release of the game.',
+      events: [
+        ['August', 'Yapton v1 created in mid 2020 with V2 being released in beta in August with operators Go Ahead London, Transdev, Stagecoach Southdowns & Tower Transit.'],
+        ['September', 'Yapton officially becomes a Subsidiary of Skyway Group.'],
+        ['December', 'V2.6 released.'],
+      ],
     },
     {
       year: '2021',
-      title: 'Expansion & Growth',
-      status: 'Completed',
-      desc: 'Major map and UI upgrades in Version 3. Community tripled in size and new operators launched.',
+      events: [
+        ['January', 'Yapton hits 500 visits.'],
+        ['March', 'Yapton hits 1,000 visits.'],
+        ['April', 'Yapton’s first major operator Stagecoach (Initially Stagecoach Southdowns which merges into STUK) joins & sees the game’s first spike in activity. Yapton hits 1,500 visits.'],
+        ['May', "V2.6.7 released - 'The Olton Update'. Yapton has its first total monthly visits surpassing 1,000. Yapton suffers its first major leak."],
+        ['July', 'Yapton hits 3,000 visits.'],
+        ['August', 'Yapton Version 3 released with operators Foxstar (previously Tower Transit), VisionBus, EnsignBus & Sullivan Buses. Ends the month on 3,500 visits.'],
+        ['October', 'Yapton hits 4,000 visits.'],
+        ['November', 'V3.3 released. Yapton hits 5,000 visits.'],
+        ['December', 'V3.4 released. Yapton hits 6,000 visits.'],
+      ],
     },
     {
       year: '2022',
-      title: 'Version 4 Development',
-      status: 'Completed',
-      desc: 'Full rebuild from the ground up with new tech stack and enhanced realism.',
+      events: [
+        ['January', "The word 'Yapton' becomes blocked by Roblox for a month."],
+        ['February', 'Stagecoach & Vision Bus emergency contracts end; replaced by Blue Arrow Buses. V3.5 released. Yapton hits 7,000 visits.'],
+        ['March', 'Go Whippet replaces Stagecoach Southdowns.'],
+        ['April', 'South West Buses joins, replacing Sullivans. Foxstar announces closure.'],
+        ['May', 'Yapton hits 9,000 visits. NCT added.'],
+        ['June', 'Yapton hits 10,000 visits.'],
+        ['August', 'Yapton Version 4 development starts.'],
+        ['September', 'IRVING Coaches added.'],
+        ['December', "Yapton sees its second major spike from operator investments, regularly filling 30-player servers. Version 4 publicly announced & enters Alpha testing. Yapton hits 20,000 visits."],
+      ],
     },
     {
       year: '2023',
-      title: 'v4 Launch & Rebrand',
-      status: 'Completed',
-      desc: 'Public release of Version 4, rebranding, and reaching 300,000 total visits milestone.',
+      events: [
+        ['January', 'NCT removed. V3 enters dormant state while V4 development continues. V4 confirmed operators: IC & SWB.'],
+        ['April', 'First joins Yapton as a confirmed operator for V4.'],
+        ['July', 'West Coast Motors (Yapton Countrybus) joins as a confirmed operator for V4.'],
+        ['August', 'V3 becomes a legacy version in preparation for V4. Version 4 releases on August 25, almost one year after development started.'],
+        ['September', 'Yapton hits 30,000 visits and over 3,000 visits in a single day.'],
+        ['October', 'Yapton hits 200k visits in 17 days, then 250k and 300k just two days later.'],
+        ['November', 'Yapton hits 500k visits, then 600k within 20 days.'],
+        ['December', 'Yapton hits 750k visits, finishing the year on 809.3k. V4.1 announced.'],
+      ],
     },
     {
       year: '2024',
-      title: 'Modern Era',
-      status: 'Planned',
-      desc: '1M visits milestone, preparation for Version 4.1 with new live tracking system.',
+      events: [
+        ['February 23rd', 'Yapton hits 1,000,000 visits.'],
+        ['May', 'First removed.'],
+      ],
     },
   ];
 
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // auto-advance every 4.5s
-  useEffect(() => {
-    const t = setInterval(() => {
-      setActiveIndex((s) => (s + 1) % historyData.length);
-    }, 4500);
-    return () => clearInterval(t);
-  }, [historyData.length]);
-
   return (
-    <section className="max-w-6xl mx-auto py-12 px-4 text-white">
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">
-        History Timeline
-      </h2>
+    <section className="max-w-7xl mx-auto text-white">
+      <div className="bg-[#283335] border border-white/10 rounded-2xl shadow-lg overflow-hidden">
+        <div className="p-6 border-b border-white/10 bg-[#283335] text-center">
+          <h2 className="text-3xl font-bold">Yapton & District — Historical Timeline</h2>
+          <p className="text-white/60 mt-1">
+            Explore the evolution of Yapton & District from 2020 to 2024.
+          </p>
+        </div>
 
-      {/* Top row: all years displayed together as pills */}
-      <div className="flex gap-3 justify-center flex-wrap mb-8">
-        {historyData.map((h, i) => (
-          <button
-            key={h.year}
-            onClick={() => setActiveIndex(i)}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all
-              ${i === activeIndex ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-black shadow-lg' : 'bg-white/6 text-white/80 hover:bg-white/12'}`}
-            aria-current={i === activeIndex ? 'true' : 'false'}
-          >
-            {h.year}
-          </button>
-        ))}
-      </div>
+        {/* Inner dropdowns */}
+        <div className="divide-y divide-white/10">
+          {history.map((item, i) => {
+            const isOpen = openYear === i;
+            return (
+              <div key={i}>
+                <button
+                  onClick={() => setOpenYear(isOpen ? null : i)}
+                  className="w-full flex justify-between items-center p-5 text-left hover:bg-[#283335] transition-all"
+                >
+                  <h3 className="text-lg font-semibold">
+                    {item.year}
+                  </h3>
+                  <motion.span
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ChevronDown />
+                  </motion.span>
+                </button>
 
-      {/* Single centered block that animates between years */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-3xl">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={historyData[activeIndex].year}
-              initial={{ opacity: 0, y: 10, scale: 0.99 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.99 }}
-              transition={{ duration: 0.45, ease: 'easeInOut' }}
-              className="relative bg-[#0f1418] border border-white/8 rounded-2xl p-6 shadow-xl"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-3 mb-1">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-black font-bold">
-                      {historyData[activeIndex].year}
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-semibold leading-tight">
-                        {historyData[activeIndex].title}
-                      </h3>
-                      <p className="text-sm text-white/60 mt-1">Key milestone summary</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 text-white/80">
-                    <p className="leading-relaxed">{historyData[activeIndex].desc}</p>
-                  </div>
-                </div>
-
-                <div className="flex-shrink-0 text-right">
-                  {historyData[activeIndex].status === 'Completed' ? (
-                    <div className="inline-flex items-center gap-2 bg-white/6 px-3 py-1 rounded-full">
-                      <CheckCircle2 size={16} className="text-green-400" />
-                      <span className="text-sm text-green-300 font-medium">Completed</span>
-                    </div>
-                  ) : (
-                    <div className="inline-flex items-center gap-2 bg-white/6 px-3 py-1 rounded-full">
-                      <Clock size={16} className="text-yellow-400" />
-                      <span className="text-sm text-yellow-300 font-medium">Planned</span>
-                    </div>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: 'easeInOut' }}
+                      className="overflow-hidden bg-[#283335] border-t border-white/10"
+                    >
+                      <div className="p-5">
+                        {item.events.map(([month, desc], idx) => (
+                          <div key={idx} className="mb-3">
+                            <h4 className="text-green-400 font-semibold">{month}</h4>
+                            <p className="text-white/80">{desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
                   )}
-                </div>
+                </AnimatePresence>
               </div>
-
-              {/* small pagination dots centered under the card */}
-              <div className="mt-6 flex justify-center gap-2">
-                {historyData.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveIndex(i)}
-                    aria-label={`Go to ${historyData[i].year}`}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activeIndex ? 'bg-white' : 'bg-white/30'}`}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          </AnimatePresence>
+            );
+          })}
         </div>
       </div>
     </section>

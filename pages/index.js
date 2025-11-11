@@ -140,7 +140,7 @@ export default function Home() {
         </div>
 
         {/* 📊 Stats */}
-        <div className="relative w-full rounded-lg overflow-hidden mb-16">
+        <div className="relative w-full rounded-lg overflow-hidden mb-10">
           <div
             className="absolute inset-0 bg-[url('/statsbg.png')] bg-cover bg-center z-[0]"
             aria-hidden="true"

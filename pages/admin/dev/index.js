@@ -132,55 +132,61 @@ export default function AdminDevTasks() {
             </a>
           </div>
 
-          {/* Task Table */}
-          <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden max-h-[325px]">
-
+          <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden">
             {loading ? (
               <div className="p-6 text-center text-white/60">Loading tasks...</div>
             ) : tasks.length === 0 ? (
-              <div className="p-6 text-center text-white/60">
-                No tasks found.
-              </div>
+              <div className="p-6 text-center text-white/60">No tasks found.</div>
             ) : (
-              <table className="w-full text-left">
-                <thead className="bg-white/5 text-white/70 text-sm uppercase tracking-wide">
-                  <tr>
-                    <th className="py-3 px-6">Due Date</th>
-                    <th className="py-3 px-6">Task Name</th>
-                    <th className="py-3 px-6">Developer</th>
-                    <th className="py-3 px-6">Status</th>
-                    <th className="py-3 px-6">Last Updated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tasks
-                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-                    .map((task) => (
-                      <tr
-                        key={task.taskId}
-                        className="border-t border-white/10 hover:bg-white/5 transition"
-                      >
-                        <td className="py-3 px-6">
-                          {new Date(task.dueDate).toLocaleDateString('en-UK')}
-                        </td>
-                        <td className="py-3 px-6 font-medium">
-                          <a href={`/dev/tasks/${task.taskId}`} className="hover:underline">
-                            {task.taskName}
-                          </a>
-                        </td>
-                        <td className="py-3 px-6">{task.userName}</td>
-                        <td className={`py-3 px-6 font-semibold ${getStatusColor(task.taskStatus)}`}>
-                          {task.taskStatus}
-                        </td>
-                        <td className="py-3 px-6 text-white/60">
-                          {new Date(task.updatedAt).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              <div className="max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                <table className="w-full text-left">
+                  <thead className="sticky top-0 bg-white/5 backdrop-blur-md text-white/70 text-sm uppercase tracking-wide z-10">
+                    <tr>
+                      <th className="py-3 px-6">Due Date</th>
+                      <th className="py-3 px-6">Task Name</th>
+                      <th className="py-3 px-6">Developer</th>
+                      <th className="py-3 px-6">Status</th>
+                      <th className="py-3 px-6">Last Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tasks
+                      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                      .map((task) => (
+                        <tr
+                          key={task.taskId}
+                          className="border-t border-white/10 hover:bg-white/5 transition"
+                        >
+                          <td className="py-3 px-6">
+                            {new Date(task.dueDate).toLocaleDateString('en-UK')}
+                          </td>
+                          <td className="py-3 px-6 font-medium">
+                            <a
+                              href={`/dev/tasks/${task.taskId}`}
+                              className="hover:underline"
+                            >
+                              {task.taskName}
+                            </a>
+                          </td>
+                          <td className="py-3 px-6">{task.userName}</td>
+                          <td
+                            className={`py-3 px-6 font-semibold ${getStatusColor(
+                              task.taskStatus
+                            )}`}
+                          >
+                            {task.taskStatus}
+                          </td>
+                          <td className="py-3 px-6 text-white/60">
+                            {new Date(task.updatedAt).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
+
         </div>
       </main>
     </AuthWrapper>
