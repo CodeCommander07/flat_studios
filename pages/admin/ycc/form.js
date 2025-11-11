@@ -355,6 +355,12 @@ export default function ManageQuestions() {
                 </button>
               )}
               <button
+                onClick={() => router.push('/admin/ycc/routes')}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Route Submissions
+              </button>
+              <button
                 onClick={() => router.push('/admin/ycc/operators')}
                 className="bg-red-500 text-white px-4 py-2 rounded"
               >
