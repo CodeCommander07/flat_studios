@@ -13,11 +13,20 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     const { title, design, html, status } = req.body || {};
+
+    // 🧠 Build update object manually to avoid skipping falsy fields
+    const updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (design !== undefined) updateData.design = design;
+    if (html !== undefined) updateData.html = html; // ✅ always save html
+    if (status !== undefined) updateData.status = status;
+
     const updated = await Newsletter.findByIdAndUpdate(
       id,
-      { $set: { ...(title && { title }), ...(design && { design }), ...(html && { html }), ...(status && { status }) } },
+      { $set: updateData },
       { new: true }
     );
+
     if (!updated) return res.status(404).json({ error: 'Not found' });
     return res.status(200).json(updated);
   }

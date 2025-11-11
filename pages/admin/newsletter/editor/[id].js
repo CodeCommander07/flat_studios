@@ -173,7 +173,7 @@ export default function NewsletterEditor() {
 
   // 💾 Save
   const saveDesign = async () => {
-    await axios.put(`/api/news/${id}`, { design });
+     await axios.put(`/api/news/${id}`, { design, html: renderHTML(design) });
     alert('✅ Newsletter saved!');
   };
 
@@ -568,14 +568,22 @@ export default function NewsletterEditor() {
             <div className="flex flex-col gap-2">
               <button
                 onClick={async () => {
+                  if (!id) {
+                    alert('Newsletter ID not loaded yet. Try again in a second.');
+                    return;
+                  }
+
                   try {
                     setSending(true);
-                    await axios.put(`/api/news/${id}`, { design });
-                    const res = await axios.post(`/api/news/send`, { id });
+                    console.log('🛰 Sending newsletter with ID:', id);
+
+                    await axios.put(`/api/news/${id}`, { design, html: renderHTML(design) });
+
+                    const res = await axios.post('/api/news/send', { id: id.toString() });
                     alert(res.data.message || '✅ Newsletter sent to all subscribers!');
                   } catch (err) {
-                    console.error(err);
-                    alert('❌ Failed to send newsletter.');
+                    console.error('❌ Send failed:', err.response?.data || err.message);
+                    alert('❌ Failed to send newsletter: ' + (err.response?.data?.error || err.message));
                   } finally {
                     setSending(false);
                     setShowMenu(false);
