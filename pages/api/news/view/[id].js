@@ -1,5 +1,5 @@
 import dbConnect from '@/utils/db';
-import Newsletter from '@/models/Newsletter';
+import Newsletter from '@/models/News';
 
 export default async function handler(req, res) {
   const { id } = req.query;
