@@ -110,7 +110,7 @@ export default function RouteRequestDetail() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <Link
-              href="/admin/ycc/form"
+              href="/admin/ycc/routes"
               className="text-sm text-gray-400 hover:text-white"
             >
               ← Back to all requests

@@ -11,7 +11,7 @@ const OperatorRequestSchema = new mongoose.Schema({
   formData: { type: Object, required: true },
   uploadedFiles: [FileSchema],
   createdAt: { type: Date, default: Date.now },
-  status:{ type: String, enum: ['pending', 'approved', 'rejected', 'implemented'], default: 'pending' },
+  status:{ type: String, enum: ['Pending', 'Approved', 'Rejected', 'Implemented'], default: 'Pending' },
 });
 
 export default mongoose.models.OperatorRequest ||
