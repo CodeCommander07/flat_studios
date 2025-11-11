@@ -85,7 +85,7 @@ export default function Navbar() {
 
   const dropdowns = [
     {
-      name: 'Public',
+      name: 'Community',
       items: [
         { label: 'Home', href: '/' },
         { label: 'Content', href: '/content' },
