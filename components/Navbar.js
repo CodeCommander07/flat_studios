@@ -132,6 +132,7 @@ export default function Navbar() {
       items: [
         { label: 'Admin', href: '/admin' },
         { label: 'Ban Appeals', href: '/admin/appeals' },
+        { label: 'Banner Control', href: '/admin/banner' },
         { label: 'Dev Tasks', href: '/admin/dev' },
         { label: 'Hiring', href: '/admin/hiring' },
         { label: 'Leave Requests', href: '/admin/leave' },
