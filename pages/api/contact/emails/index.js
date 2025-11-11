@@ -48,13 +48,17 @@ function fetchRecentEmails() {
             stream.once('end', () => {
               const parsePromise = simpleParser(buffer)
                 .then(parsed => {
+                  const toAddresses = parsed.to?.text?.toLowerCase() || '';
+                  if (!toAddresses.includes('help@')) return;
+
                   emails.push({
                     from: parsed.from?.text || '',
+                    to: parsed.to?.text || '',
                     subject: parsed.subject || '',
                     date: parsed.date || new Date(),
                     text: parsed.text || '',
                     html: parsed.html || '',
-                    messageId: parsed.messageId || '', // For replying
+                    messageId: parsed.messageId || '',
                   });
                 })
                 .catch(err => {

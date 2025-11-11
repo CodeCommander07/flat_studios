@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     });
 
     const mailOptions = {
-      from: '"Flat Studios" <noreply@flatstudios.net>',
+      from: '"Flat Studios" <help@flatstudios.net>',
       to,
       subject,
       html: message,
