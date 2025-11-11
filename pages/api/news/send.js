@@ -17,8 +17,6 @@ export default async function handler(req, res) {
     if (!newsletter)
       return res.status(404).json({ error: 'Newsletter not found' });
 
-    console.log('Newsletter HTML length:', newsletter.html?.length || 0);
-
     const subscribers = await Subscriber.find({ isActive: true });
     if (!subscribers.length)
       return res.status(400).json({ error: 'No subscribers to send to!' });

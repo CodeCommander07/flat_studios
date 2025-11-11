@@ -43,12 +43,18 @@ export default function RoutesView() {
     return stop ? stop.name : stopId;
   };
 
+  // 🛑 Find closed stops within both directions
   const getClosedStops = (route) => {
-    return route.stops
-      ?.map((id) => stops.find((s) => s.stopId === id && s.closed))
+    const allStops = [
+      ...(route.stops?.forward || []),
+      ...(route.stops?.backward || []),
+    ];
+    return allStops
+      .map((id) => stops.find((s) => s.stopId === id && s.closed))
       .filter(Boolean);
   };
 
+  // 🔍 Filter search
   useEffect(() => {
     const term = searchTerm.toLowerCase();
 
@@ -57,9 +63,14 @@ export default function RoutesView() {
       const destName = getStopName(route.destination)?.toLowerCase() || '';
       const routeNumber = route.number?.toLowerCase() || '';
       const operator = route.operator?.toLowerCase() || '';
-      const stopNames = route.stops
-        ?.map((id) => getStopName(id)?.toLowerCase() || '')
-        .join(' ') || '';
+
+      const allStops = [
+        ...(route.stops?.forward || []),
+        ...(route.stops?.backward || []),
+      ];
+      const stopNames = allStops
+        .map((id) => getStopName(id)?.toLowerCase() || '')
+        .join(' ');
 
       return (
         routeNumber.includes(term) ||
@@ -97,6 +108,9 @@ export default function RoutesView() {
         {filteredRoutes.map((route, index) => {
           const closedStops = getClosedStops(route);
           const hasDiversion = route.diversion?.active;
+          const stopCount =
+            (route.stops?.forward?.length || 0) +
+            (route.stops?.backward?.length || 0);
 
           const bgColor = closedStops.length
             ? 'bg-red-900/30 ring-2 ring-red-500/40'
@@ -123,9 +137,7 @@ export default function RoutesView() {
               <p className="text-white/50 text-sm mt-1">
                 Operator: {route.operator || '—'}
               </p>
-              <p className="text-white/50 text-sm mt-1">
-                Stops: {route.stops?.length || 0}
-              </p>
+              <p className="text-white/50 text-sm mt-1">Stops: {stopCount}</p>
               {closedStops.length > 0 && (
                 <div className="mt-2 text-xs text-red-300 flex gap-1 items-center">
                   <AlertTriangle size={14} /> {closedStops.length} stop(s) closed

@@ -8,45 +8,59 @@ export default function AdminRoutesPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [operators, setOperators] = useState([]);
   const [query, setQuery] = useState('');
+
   const [form, setForm] = useState({
     number: '',
     operator: '',
     origin: '',
     destination: '',
     description: '',
-    stops: [],
+    stops: { forward: [], backward: [] },
     diversion: { active: false, reason: '', stops: [] },
   });
 
-  // 🧩 Load Routes
+  // 🚌 Load operators
+  async function loadOperators() {
+    try {
+      const res = await fetch('/api/ycc/operators/active');
+      const data = await res.json();
+      setOperators(data.submissions || data || []);
+    } catch (err) {
+      console.error('Failed to load operators:', err);
+    }
+  }
+
+  // 🧩 Load routes
   async function loadRoutes() {
     setLoading(true);
     try {
       const res = await fetch(`/api/ycc/routes${query ? `?q=${encodeURIComponent(query)}` : ''}`);
       const data = await res.json();
       setRoutes(data.routes || []);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error('Failed to load routes:', err);
     } finally {
       setLoading(false);
     }
   }
 
-  // 🚏 Load Stops
+  // 🚏 Load stops
   async function loadStops() {
     try {
       const res = await fetch('/api/ycc/stops');
       const data = await res.json();
       setStops(data.stops || []);
-    } catch (e) {
-      console.error('Failed to load stops:', e);
+    } catch (err) {
+      console.error('Failed to load stops:', err);
     }
   }
 
   useEffect(() => {
     loadRoutes();
     loadStops();
+    loadOperators();
   }, []);
 
   useEffect(() => {
@@ -54,6 +68,8 @@ export default function AdminRoutesPage() {
     return () => clearTimeout(t);
   }, [query]);
 
+
+  // ✨ Helpers
   const getStopName = (id) => {
     const s = stops.find((x) => x.stopId === id);
     return s ? `${s.name}${s.town ? ', ' + s.town : ''}` : id;
@@ -64,70 +80,14 @@ export default function AdminRoutesPage() {
     setForm((f) => ({ ...f, [name]: value }));
   };
 
-  const toggleStop = (stopId) => {
+  const toggleStop = (stopId, direction = 'forward') => {
     setForm((s) => {
-      const updated = s.stops.includes(stopId)
-        ? s.stops.filter((x) => x !== stopId)
-        : [...s.stops, stopId];
-      return { ...s, stops: updated };
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-
-    const payload = {
-      ...form,
-      number: form.number.trim(),
-      operator: form.operator.trim(),
-      description: form.description.trim(),
-    };
-
-    const method = editing ? 'PUT' : 'POST';
-    const url = editing ? `/api/ycc/routes/${editing}` : '/api/ycc/routes';
-
-    await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    setSaving(false);
-    setEditing(null);
-    resetForm();
-    await loadRoutes();
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this route?')) return;
-    await fetch(`/api/ycc/routes/${id}`, { method: 'DELETE' });
-    await loadRoutes();
-  };
-
-  const handleEdit = (r) => {
-    setEditing(r._id);
-    setForm({
-      number: r.number || '',
-      operator: r.operator || '',
-      origin: r.origin || '',
-      destination: r.destination || '',
-      description: r.description || '',
-      stops: r.stops || [],
-      diversion: r.diversion || { active: false, reason: '', stops: [] },
-    });
-  };
-
-  const resetForm = () => {
-    setEditing(null);
-    setForm({
-      number: '',
-      operator: '',
-      origin: '',
-      destination: '',
-      description: '',
-      stops: [],
-      diversion: { active: false, reason: '', stops: [] },
+      const safeStops = s.stops || { forward: [], backward: [] };
+      const current = safeStops[direction] || [];
+      const updated = current.includes(stopId)
+        ? current.filter((x) => x !== stopId)
+        : [...current, stopId];
+      return { ...s, stops: { ...safeStops, [direction]: updated } };
     });
   };
 
@@ -141,18 +101,85 @@ export default function AdminRoutesPage() {
     });
   };
 
+  // 💾 Submit new or edit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+
+    const payload = {
+      ...form,
+      number: form.number.trim(),
+      operator: Array.isArray(form.operator)
+        ? form.operator
+        : form.operator
+          ? [form.operator]
+          : [],
+      description: form.description.trim(),
+    };
+
+
+    const method = editing ? 'PUT' : 'POST';
+    const url = editing ? `/api/ycc/routes/${editing}` : '/api/ycc/routes';
+
+    await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    setSaving(false);
+    resetForm();
+    await loadRoutes();
+  };
+
+  // 🗑️ Delete route
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this route?')) return;
+    await fetch(`/api/ycc/routes/${id}`, { method: 'DELETE' });
+    await loadRoutes();
+  };
+
+  // ✏️ Edit route
+  const handleEdit = (r) => {
+    setEditing(r._id);
+    setForm({
+      number: r.number || '',
+      operator: r.operator || '',
+      origin: r.origin || '',
+      destination: r.destination || '',
+      description: r.description || '',
+      stops: {
+        forward: r.stops?.forward || [],
+        backward: r.stops?.backward || [],
+      },
+      diversion: r.diversion || { active: false, reason: '', stops: [] },
+    });
+  };
+
+
+  // 🔁 Reset form
+  const resetForm = () => {
+    setEditing(null);
+    setForm({
+      number: '',
+      operator: '',
+      origin: '',
+      destination: '',
+      description: '',
+      stops: { forward: [], backward: [] },
+      diversion: { active: false, reason: '', stops: [] },
+    });
+  };
+
+  // ⚠️ Save disruption info
   const handleDisruptionSave = async () => {
     if (!editing) return;
     setSaving(true);
-await fetch(`/api/ycc/routes/${editing}`, {
-  method: 'PUT',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    diversion: {
-      ...form.diversion,
-    },
-  }),
-});
+    await fetch(`/api/ycc/routes/${editing}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ diversion: { ...form.diversion } }),
+    });
     setSaving(false);
     alert('Disruption saved successfully.');
     await loadRoutes();
@@ -161,7 +188,7 @@ await fetch(`/api/ycc/routes/${editing}`, {
   return (
     <main className="max-w-10xl mx-auto px-8 mt-8 text-white">
       <div className="grid md:grid-cols-5 gap-8">
-        {/* LEFT — Add/Edit Route Form */}
+        {/* LEFT — Add/Edit Route */}
         <div className="col-span-2 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">{editing ? 'Edit Route' : 'Add Route'}</h1>
@@ -176,6 +203,7 @@ await fetch(`/api/ycc/routes/${editing}`, {
             onSubmit={handleSubmit}
             className="space-y-4 overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10"
           >
+            {/* Route Info */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1">Route Number</label>
@@ -184,20 +212,47 @@ await fetch(`/api/ycc/routes/${editing}`, {
                   name="number"
                   value={form.number}
                   onChange={handleChange}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
                   placeholder="e.g. 42A"
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">Operator</label>
-                <input
-                  type="text"
-                  name="operator"
-                  value={form.operator}
-                  onChange={handleChange}
-                  placeholder="e.g. Yapton Buses"
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
-                />
+                <label className="block text-sm mb-1">Operators</label>
+                <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2 mb-2">
+                  {operators.length > 0 ? (
+                    operators.map((op) => {
+                      const isSelected = form.operator.includes(op.operatorName);
+                      return (
+                        <div
+                          key={op._id || op.operatorName}
+                          onClick={() => {
+                            setForm((f) => {
+                              const current = f.operator || [];
+                              const updated = current.includes(op.operatorName)
+                                ? current.filter((x) => x !== op.operatorName)
+                                : [...current, op.operatorName];
+                              return { ...f, operator: updated };
+                            });
+                          }}
+                          className={`cursor-pointer px-2 py-1 rounded text-sm transition-all hover:bg-white/10 ${isSelected
+                              ? 'bg-green-600/40 border border-green-500/20'
+                              : ''
+                            }`}
+                        >
+                          {op.operatorName}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-xs text-gray-400">No operators found</p>
+                  )}
+                </div>
+
+                {form.operator?.length > 0 && (
+                  <p className="text-xs text-gray-300">
+                    Selected: {form.operator.join(', ')}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -219,7 +274,6 @@ await fetch(`/api/ycc/routes/${editing}`, {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm mb-1">Destination</label>
                 <select
@@ -250,19 +304,34 @@ await fetch(`/api/ycc/routes/${editing}`, {
               />
             </div>
 
-            {/* Stops */}
+            {/* Forward & Return Stops */}
             <div>
-              <label className="block text-sm mb-1">Route Stops</label>
+              <label className="block text-sm mb-1">Route Stops (Forward)</label>
+              <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2 mb-3">
+                {stops.map((stop) => (
+                  <div
+                    key={stop.stopId}
+                    onClick={() => toggleStop(stop.stopId, 'forward')}
+                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.stops.forward.includes(stop.stopId)
+                      ? 'bg-green-600/40 border border-green-500/20'
+                      : ''
+                      }`}
+                  >
+                    {getStopName(stop.stopId)}
+                  </div>
+                ))}
+              </div>
+
+              <label className="block text-sm mb-1">Route Stops (Return)</label>
               <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
                 {stops.map((stop) => (
                   <div
                     key={stop.stopId}
-                    onClick={() => toggleStop(stop.stopId)}
-                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${
-                      form.stops.includes(stop.stopId)
-                        ? 'bg-green-600/40 border border-green-500/20'
-                        : ''
-                    }`}
+                    onClick={() => toggleStop(stop.stopId, 'backward')}
+                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.stops.backward.includes(stop.stopId)
+                      ? 'bg-blue-600/40 border border-blue-500/20'
+                      : ''
+                      }`}
                   >
                     {getStopName(stop.stopId)}
                   </div>
@@ -270,7 +339,7 @@ await fetch(`/api/ycc/routes/${editing}`, {
               </div>
             </div>
 
-            {/* 🟠 Disruption / Diversion Section (only in edit mode) */}
+            {/* ⚠️ Diversion Section */}
             {editing && (
               <div className="mt-6 border-t border-white/10 pt-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -303,27 +372,23 @@ await fetch(`/api/ycc/routes/${editing}`, {
                           diversion: { ...f.diversion, reason: e.target.value },
                         }))
                       }
-                      className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
                       rows="3"
+                      className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
                     />
-
-                    <div>
-                      <p className="text-sm mb-1">Affected Stops</p>
-                      <div className="max-h-24 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
-                        {stops.map((stop) => (
-                          <div
-                            key={stop.stopId}
-                            onClick={() => toggleDiversionStop(stop.stopId)}
-                            className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${
-                              form.diversion.stops.includes(stop.stopId)
-                                ? 'bg-yellow-600/40 border border-yellow-400/20'
-                                : ''
+                    <p className="text-sm mb-1">Affected Stops</p>
+                    <div className="max-h-24 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
+                      {stops.map((stop) => (
+                        <div
+                          key={stop.stopId}
+                          onClick={() => toggleDiversionStop(stop.stopId)}
+                          className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.diversion.stops.includes(stop.stopId)
+                            ? 'bg-yellow-600/40 border border-yellow-400/20'
+                            : ''
                             }`}
-                          >
-                            {getStopName(stop.stopId)}
-                          </div>
-                        ))}
-                      </div>
+                        >
+                          {getStopName(stop.stopId)}
+                        </div>
+                      ))}
                     </div>
 
                     <button
@@ -340,6 +405,7 @@ await fetch(`/api/ycc/routes/${editing}`, {
               </div>
             )}
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={saving}
@@ -351,7 +417,7 @@ await fetch(`/api/ycc/routes/${editing}`, {
           </form>
         </div>
 
-        {/* RIGHT — Routes List */}
+        {/* RIGHT — Route List */}
         <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">All Routes</h2>
@@ -383,6 +449,9 @@ await fetch(`/api/ycc/routes/${editing}`, {
                       {getStopName(r.origin)} → {getStopName(r.destination)}
                     </p>
                     <p className="text-xs text-gray-400 mt-1 line-clamp-2">{r.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {r.stops?.forward?.length || 0} → {r.stops?.backward?.length || 0} stops
+                    </p>
                     {r.diversion?.active && (
                       <p className="text-xs text-yellow-400 mt-2">⚠️ Diversion Active</p>
                     )}

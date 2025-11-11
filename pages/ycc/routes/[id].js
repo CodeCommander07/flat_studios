@@ -14,7 +14,7 @@ export default function RouteDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch stops
+  // 🧩 Fetch all stops
   const fetchStops = async () => {
     try {
       const res = await axios.get('/api/ycc/stops');
@@ -24,7 +24,7 @@ export default function RouteDetailPage() {
     }
   };
 
-  // Fetch route
+  // 🚌 Fetch single route
   const fetchRoute = async () => {
     if (!id) return;
     try {
@@ -57,15 +57,16 @@ export default function RouteDetailPage() {
   if (error) return <p className="text-red-500 text-center mt-12">{error}</p>;
   if (!route) return <p className="text-white text-center mt-12">Route not found.</p>;
 
-  const stopsReverse = [...(route.stops || [])].reverse();
+  // 🧭 Extract stops safely
+  const forwardStops = route.stops?.forward || [];
+  const backwardStops = route.stops?.backward || [];
 
   return (
     <AuthWrapper requiredRole="admin">
       <main className="text-white px-6 py-12 flex flex-col items-center">
         <div className="max-w-5xl w-full bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
           <h1 className="text-2xl font-bold mb-4">
-            Route Details:{' '}
-            <span className="text-blue-400">{route.number}</span>
+            Route Details: <span className="text-blue-400">{route.number}</span>
           </h1>
 
           <p><strong>Operator:</strong> {route.operator || 'Unknown'}</p>
@@ -77,13 +78,9 @@ export default function RouteDetailPage() {
             <div className="mt-6 bg-yellow-400/20 border border-yellow-500/50 text-yellow-300 px-4 py-3 rounded-lg flex gap-3 items-start">
               <AlertTriangle className="mt-0.5 flex-shrink-0" size={20} />
               <div>
-                <p className="font-semibold text-yellow-200">
-                  Diversion in Place:
-                </p>
+                <p className="font-semibold text-yellow-200">Diversion in Place:</p>
                 <p className="text-sm mb-2">
-                  {route.diversion.message ||
-                    route.diversion.reason ||
-                    'Diversion active on this route.'}
+                  {route.diversion.reason || 'Diversion active on this route.'}
                 </p>
                 {route.diversion.stops?.length > 0 && (
                   <ul className="list-disc list-inside text-sm">
@@ -102,7 +99,7 @@ export default function RouteDetailPage() {
             <div>
               <h2 className="text-lg font-semibold mb-2">Stops (Forward):</h2>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                {route.stops.map((stopId, idx) => {
+                {forwardStops.map((stopId, idx) => {
                   const stopData = getStopData(stopId);
                   const isAffected = route.diversion?.stops?.includes(stopId);
                   const isClosed = stopData?.closed;
@@ -136,11 +133,11 @@ export default function RouteDetailPage() {
               </ul>
             </div>
 
-            {/* Reverse */}
+            {/* Backward */}
             <div>
-              <h2 className="text-lg font-semibold mb-2">Stops (In Reverse):</h2>
+              <h2 className="text-lg font-semibold mb-2">Stops (Return):</h2>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                {stopsReverse.map((stopId, idx) => {
+                {backwardStops.map((stopId, idx) => {
                   const stopData = getStopData(stopId);
                   const isAffected = route.diversion?.stops?.includes(stopId);
                   const isClosed = stopData?.closed;

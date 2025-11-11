@@ -2,12 +2,14 @@ import mongoose from 'mongoose';
 
 const BusRoutesSchema = new mongoose.Schema({
   routeId: { type: String, required: true, unique: true },
-  operator: { type: String, required: true },
+  operator: { type: [String], required: true, default: [] },
   number: { type: String, required: true },
   origin: { type: String, required: true },
   destination: { type: String, required: true },
-  stops: { type: [String], default: [] }, // Array of stopIds
-  stopsReverse: { type: [String], default: [] }, // Array of stopIds
+  stops: {
+    forward: { type: [String], default: [] },
+    backward: { type: [String], default: [] },
+  },
   description: { type: String },
 
   // 🚧 Diversion details
