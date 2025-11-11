@@ -39,7 +39,7 @@ export default function YCCIndex() {
         <div className="max-w-6xl w-full space-y-8">
 
           <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
-            <h1 className="text-3xl font-bold">Yapton Community Council</h1>
+            <h1 className="text-3xl font-bold">Yapton County Council</h1>
             <p className="text-sm text-white/60 mt-2">Overview of total routes and routes per company</p>
           </div>
 

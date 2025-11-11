@@ -1,12 +1,10 @@
 import mongoose from 'mongoose';
 
-const NewsSchema = new mongoose.Schema({
-    _id: { type: String, required: true },
-    title: { type: String, required: true },
-    content: { type: String, required: true },
-    editor: { type: String, required: true },
-    date: { type: Date, default: Date.now },
-    tags: { type: [String], default: [] },
-});
+const NewsletterSchema = new mongoose.Schema({
+  title: { type: String, default: 'Untitled Newsletter' },
+  design: { type: Object, default: {} },
+  html: { type: String, default: '' },
+  status: { type: String, enum: ['draft', 'sent'], default: 'draft' },
+}, { timestamps: true });
 
-export default mongoose.models.News || mongoose.model('News', NewsSchema);
+export default mongoose.models.Newsletter || mongoose.model('Newsletter', NewsletterSchema);

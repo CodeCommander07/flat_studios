@@ -1,12 +1,24 @@
 import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 
-import DeletedEmailModel from '@/models/DeletedEmail';
-import dbConnect from '@/utils/db';
-
 function normalizeSubject(subject) {
   if (!subject) return '';
   return subject.replace(/^(Re:\s*)+/i, '').trim();
+}
+
+function extractSenderName(fromField = '') {
+  const nameMatch = fromField.match(/^(.*?)\s*<.*?>$/);
+  if (nameMatch && nameMatch[1]) {
+    return nameMatch[1].replace(/"/g, '').trim();
+  }
+  return fromField.replace(/<.*?>/g, '').trim();
+}
+
+function removeSignature(text) {
+  if (!text) return '';
+  const signatureRegex =
+    /(CONFIDENTIALITY NOTICE|LEGAL DISCLAIMER|VIRUS CHECK|NO LIABILITY|COMPLIANCE WITH APPLICABLE LAWS|Flat Studios; Home to)[\s\S]*$/i;
+  return text.replace(signatureRegex, '').trim();
 }
 
 function fetchRecentEmails() {
@@ -20,125 +32,153 @@ function fetchRecentEmails() {
       tlsOptions: { rejectUnauthorized: false },
     });
 
-    function openInbox(cb) {
-      imap.openBox('INBOX', true, cb);
-    }
-
     const emails = [];
     const parsePromises = [];
 
-    imap.once('ready', () => {
-      openInbox((err, box) => {
-        if (err) {
-          imap.end();
-          return reject(err);
-        }
+    const openAndFetch = (boxName) =>
+      new Promise((res, rej) => {
+        imap.openBox(boxName, true, (err, box) => {
+          if (err) return rej(err);
+          if (!box.messages.total) return res();
 
-        const fetchRange = box.messages.total > 20 ? `${box.messages.total - 19}:*` : '1:*';
-        const fetch = imap.seq.fetch(fetchRange, { bodies: '', struct: true });
+          const fetchRange =
+            box.messages.total > 20 ? `${box.messages.total - 19}:*` : '1:*';
+          const fetch = imap.seq.fetch(fetchRange, { bodies: '', struct: true });
 
-        fetch.on('message', (msg) => {
-          let buffer = '';
+          fetch.on('message', (msg) => {
+            let buffer = '';
+            let attrs = null;
 
-          msg.on('body', (stream) => {
-            stream.on('data', (chunk) => {
-              buffer += chunk.toString('utf8');
+            msg.on('body', (stream) =>
+              stream.on('data', (chunk) => (buffer += chunk.toString('utf8')))
+            );
+
+            msg.once('attributes', (a) => {
+              attrs = a;
             });
 
-            stream.once('end', () => {
+            msg.once('end', () => {
+              const threadId = attrs?.['x-gm-thrid'];
+              const flags = attrs?.flags?.map((f) => f.toLowerCase()) || [];
+              const labels = (attrs?.['x-gm-labels'] || []).map((l) =>
+                l.toLowerCase()
+              );
+
+              if (
+                flags.includes('\\trash') ||
+                labels.includes('trash') ||
+                labels.includes('bin')
+              )
+                return;
+
               const parsePromise = simpleParser(buffer)
-                .then(parsed => {
+                .then((parsed) => {
                   const toAddresses = parsed.to?.text?.toLowerCase() || '';
-                  if (!toAddresses.includes('help@')) return;
+                  const fromAddress = parsed.from?.text?.toLowerCase() || '';
+
+                  let staffName
+                  let staffRole
+                  
+                  const isToHelp =
+                    toAddresses.includes('help@flatstudios.net') ||
+                    toAddresses.includes('help@');
+                  const isFromHelp =
+                    fromAddress.includes('help@flatstudios.net') ||
+                    fromAddress.includes('help@');
+
+                  if (isFromHelp) {
+                    const nameMatch = parsed.html?.match(/<strong>(.*?)<\/strong>/i);
+                    const roleMatch = parsed.html?.match(/color:#666;">(.*?)<\/p>/i);
+                    if (nameMatch) staffName = nameMatch[1].trim();
+                    if (roleMatch) staffRole = roleMatch[1].trim();
+                  }
+
+                  if (!isToHelp && !isFromHelp) return;
+
+                  const direction = isFromHelp ? 'sent' : 'received';
+                  const fromFull = parsed.from?.text || '';
+                  const senderName = extractSenderName(fromFull);
+
+                  const cleanText = removeSignature(
+                    (parsed.text || '')
+                      .split(
+                        /[-]{3,}\s*Please reply above this line\s*[-]{3,}/i
+                      )[0]
+                      .replace(/On\s.*wrote:/gis, '')
+                      .replace(/^>.*$/gm, '')
+                      .trim()
+                  );
+
+                  const cleanHtml = removeSignature(
+                    (parsed.html || '')
+                      .split(
+                        /[-]{3,}\s*Please reply above this line\s*[-]{3,}/i
+                      )[0]
+                      .replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '')
+                      .trim()
+                  );
 
                   emails.push({
                     from: parsed.from?.text || '',
                     to: parsed.to?.text || '',
+                    senderName,
                     subject: parsed.subject || '',
                     date: parsed.date || new Date(),
-                    text: parsed.text || '',
-                    html: parsed.html || '',
-                    messageId: parsed.messageId || '',
+                    text: cleanText,
+                    html: cleanHtml,
+                    messageId: parsed.messageId,
+                    direction,
+                    threadId,
+                    box: boxName,
+                    staffName,
+                    staffRole
                   });
                 })
-                .catch(err => {
-                  console.error('Email parse error:', err);
-                });
+                .catch(console.error);
+
               parsePromises.push(parsePromise);
             });
           });
-        });
 
-        fetch.once('error', (fetchErr) => {
-          imap.end();
-          reject(fetchErr);
-        });
-
-        fetch.once('end', async () => {
-          try {
-            await Promise.all(parsePromises);
-            imap.end();
-
-            // Group emails by normalized subject
-            const grouped = emails.reduce((acc, email) => {
-              const key = normalizeSubject(email.subject);
-              if (!acc[key]) acc[key] = [];
-              acc[key].push(email);
-              return acc;
-            }, {});
-
-            // Sort each group by date ascending
-            for (const key in grouped) {
-              grouped[key].sort((a, b) => new Date(a.date) - new Date(b.date));
-            }
-
-            resolve(grouped);
-          } catch (err) {
-            reject(err);
-          }
+          fetch.once('error', rej);
+          fetch.once('end', res);
         });
       });
+
+    imap.once('ready', async () => {
+      try {
+        await openAndFetch('INBOX');
+        await openAndFetch('[Gmail]/Sent Mail');
+        await Promise.all(parsePromises);
+        imap.end();
+
+        const grouped = emails.reduce((acc, email) => {
+          const key = normalizeSubject(email.subject);
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(email);
+          return acc;
+        }, {});
+
+        // Sort by date
+        for (const key in grouped) {
+          grouped[key].sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
+        resolve(grouped);
+      } catch (err) {
+        imap.end();
+        reject(err);
+      }
     });
 
-    imap.once('error', (err) => reject(err));
+    imap.once('error', reject);
     imap.connect();
   });
 }
 
 export default async function handler(req, res) {
-  await dbConnect();
-
   try {
-    // Fetch all email statuses from DB
-    const statuses = await DeletedEmailModel.find({});
-    const statusMap = new Map();
-    for (const status of statuses) {
-      statusMap.set(status.messageId, {
-        deleted: status.deleted || false,
-        flagged: status.flagged || false,
-        flags: status.flags || [],
-        tags: status.tags || [],
-      });
-    }
-
-    // Fetch recent emails from IMAP
     const groupedEmails = await fetchRecentEmails();
-
-    // Merge statuses + filter out deleted
-    for (const subject in groupedEmails) {
-      groupedEmails[subject] = groupedEmails[subject]
-        .map(email => {
-          const status = statusMap.get(email.messageId) || {};
-          return { ...email, ...status };
-        })
-        .filter(email => !email.deleted); // Exclude deleted ones
-
-      // Remove empty groups
-      if (groupedEmails[subject].length === 0) {
-        delete groupedEmails[subject];
-      }
-    }
-
     res.status(200).json({ conversations: groupedEmails });
   } catch (error) {
     console.error('Fetch error:', error);

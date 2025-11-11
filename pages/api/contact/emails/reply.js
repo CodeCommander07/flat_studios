@@ -5,41 +5,39 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed, use POST' });
   }
 
-  const { to, subject, message, inReplyTo } = req.body;
+  const {to, subject, message, inReplyTo, staff } = req.body;
 
-  if (!to || !subject || !message) {
-    return res.status(400).json({ error: 'Missing to, subject or message fields' });
+  if ( !subject || !message) {
+    return res.status(400).json({ error: 'Missing to, subject, or message fields' });
   }
 
   try {
-    // Gmail SMTP transporter on port 465 with secure connection
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
-      secure: true, // true for port 465
+      secure: true,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
     });
-
-    const mailOptions = {
-      from: '"Flat Studios" <help@flatstudios.net>',
-      to,
+        const mailOptions = {
+      from: `"Yapton & District - ${staff || 'Support'}" <help@flatstudios.net>`,
       subject,
+      to,
       html: message,
       headers: {},
     };
 
-    // Add reply headers only if inReplyTo is provided
     if (inReplyTo) {
-      mailOptions.headers['In-Reply-To'] = inReplyTo;
-      mailOptions.headers['References'] = inReplyTo;
+      mailOptions.inReplyTo = inReplyTo;
+      mailOptions.references = inReplyTo;
     }
 
     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({ message: 'Email sent successfully' });
+    console.log(`📩 Sent threaded reply to ${to}`);
+    return res.status(200).json({ message: 'Reply sent successfully', messageId });
   } catch (error) {
     console.error('Error sending email:', error);
     return res.status(500).json({ error: 'Failed to send email' });

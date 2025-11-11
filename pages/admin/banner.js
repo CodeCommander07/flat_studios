@@ -8,7 +8,7 @@ export default function BannerSettings() {
     message: '',
     linkText: '',
     linkUrl: '',
-    style: { bgColor: '#1b4332', textColor: '#ffffff' },
+    bgColor: '#1b4332', textColor: '#ffffff' 
   });
   const [saving, setSaving] = useState(false);
 
@@ -23,11 +23,6 @@ export default function BannerSettings() {
     setBanner((b) => ({ ...b, [name]: value }));
   };
 
-  const handleStyleChange = (e) => {
-    const { name, value } = e.target;
-    setBanner((b) => ({ ...b, style: { ...b.style, [name]: value } }));
-  };
-
   const saveBanner = async () => {
     setSaving(true);
     await fetch('/api/banner', {
@@ -39,7 +34,7 @@ export default function BannerSettings() {
   };
 
   return (
-    <div className="bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg">
+    <div className="bg-[#283335] p-6 m-10 rounded-2xl border border-white/10 backdrop-blur-lg">
       <h2 className="text-xl font-semibold mb-4">Banner Settings</h2>
       <div className="space-y-4">
         <label className="block">
@@ -77,8 +72,8 @@ export default function BannerSettings() {
             <input
               type="color"
               name="bgColor"
-              value={banner.style.bgColor}
-              onChange={handleStyleChange}
+              value={banner.bgColor}
+              onChange={handleChange}
               className="w-full p-1 h-10 rounded border border-white/20"
             />
           </label>
@@ -87,8 +82,8 @@ export default function BannerSettings() {
             <input
               type="color"
               name="textColor"
-              value={banner.style.textColor}
-              onChange={handleStyleChange}
+              value={banner.textColor}
+              onChange={handleChange}
               className="w-full p-1 h-10 rounded border border-white/20"
             />
           </label>
