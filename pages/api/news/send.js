@@ -1,5 +1,5 @@
 import dbConnect from '@/utils/db';
-import Newsletter from '@/models/Newsletter'; // assuming you have a Newsletter model
+import Newsletter from '@/models/News'; // assuming you have a Newsletter model
 import Subscriber from '@/models/Subscriber'; // and a Subscriber list
 import nodemailer from 'nodemailer';
 
