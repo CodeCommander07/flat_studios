@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     try {
       const {
         email,
+        slug,
         robloxUsername,
         discordTag,
         operatorName,
