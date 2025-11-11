@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { MailPlus, Reply, X, Loader2 } from 'lucide-react';
+import { MailPlus, Reply, X, Loader2, Trash, Search } from 'lucide-react';
 import EmailStatusControls from '@/components/EmailTags';
 import AuthWrapper from '@/components/AuthWrapper';
 
@@ -15,9 +15,10 @@ const tagColors = {
   'Feature Request': 'bg-orange-600 text-white',
 };
 
-const extractEmail = (address) => {
-  const match = address.match(/<(.+)>/);
-  return match ? match[1] : address;
+const extractEmail = (address = '') => {
+  // Handles "Name <email@...>" and plain "email@..."
+  const match = address.match(/<(.+?)>/);
+  return match ? match[1] : address.trim();
 };
 
 export default function ContactEmailsPage() {
@@ -29,6 +30,7 @@ export default function ContactEmailsPage() {
   const [replyTo, setReplyTo] = useState('');
   const [sending, setSending] = useState(false);
   const [isNewEmail, setIsNewEmail] = useState(false);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     fetchEmails();
@@ -37,9 +39,9 @@ export default function ContactEmailsPage() {
   async function fetchEmails() {
     try {
       const res = await axios.get('/api/contact/emails');
-      setConversations(res.data.conversations);
-      const subjects = Object.keys(res.data.conversations);
-      if (subjects.length) setSelectedSubject(subjects[subjects.length - 1]);
+      setConversations(res.data.conversations || {});
+      const subjects = Object.keys(res.data.conversations || {});
+      if (subjects.length) setSelectedSubject((prev) => prev ?? subjects[subjects.length - 1]);
     } catch (err) {
       console.error(err);
     }
@@ -55,9 +57,7 @@ export default function ContactEmailsPage() {
     if (!emails.length) return;
     const lastEmail = emails[emails.length - 1];
     setReplyMessage('');
-    setReplySubject(
-      lastEmail.subject.startsWith('Re:') ? lastEmail.subject : `Re: ${lastEmail.subject}`
-    );
+    setReplySubject(lastEmail.subject.startsWith('Re:') ? lastEmail.subject : `Re: ${lastEmail.subject}`);
     setReplyTo(extractEmail(lastEmail.from));
     setIsNewEmail(false);
     setShowReplyModal(true);
@@ -74,18 +74,14 @@ export default function ContactEmailsPage() {
   const handleSendReply = async () => {
     if (!replyMessage.trim()) return alert('Please enter a message');
 
-    const staff = JSON.parse(localStorage.getItem('user')) || {};
+    const staff = JSON.parse(localStorage.getItem('User')) || {};
     const staffName = staff.username || 'Staff Member';
     const staffRank = staff.role || 'Support';
 
     const fullMessage = `
       <p>Dear ${replyTo || 'User'},</p>
       <p>${replyMessage.replace(/\n/g, '<br>')}</p>
-      ${
-        isNewEmail
-          ? `<p style="color:#ff0000">To start this ticket please reply to this email!</p>`
-          : ''
-      }
+      ${isNewEmail ? `<p style="color:#ff0000">To start this ticket please reply to this email!</p>` : ''}
       <table style="margin-top: 2rem;">
         <tr>
           <td style="vertical-align: middle; padding-right: 10px;">
@@ -94,7 +90,7 @@ export default function ContactEmailsPage() {
           <td style="vertical-align: middle; font-family: sans-serif; color: #000;">
             <p style="margin: 0;"><strong>${staffName}</strong></p>
             <p style="margin: 0;">${staffRank}</p>
-            <p style="margin: 0; color:#283335;"><u>Flat Studios</u></p>
+            <p style="margin: 0; color:#283335;"><u><a href="https://yapton.vercel.app/">Flat Studios</a></u></p>
           </td>
         </tr>
       </table>
@@ -119,11 +115,66 @@ export default function ContactEmailsPage() {
     }
   };
 
+  const handleDeleteConversation = async () => {
+    if (!selectedSubject) return;
+    const confirmDelete = confirm(`Delete the entire conversation: "${selectedSubject}"?`);
+    if (!confirmDelete) return;
+    try {
+      await axios.post('/api/contact/emails/delete', { subject: selectedSubject });
+      alert('Conversation deleted.');
+      setSelectedSubject(null);
+      fetchEmails();
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      alert('Failed to delete conversation.');
+    }
+  };
+
+  // Build a searchable list of conversations (subject + latest email info)
+  const convoList = useMemo(() => {
+    const subjects = Object.keys(conversations || {});
+    return subjects
+      .map((subject) => {
+        const thread = conversations[subject] || [];
+        const latest = thread[thread.length - 1];
+        const tags = latest?.tags || [];
+        const sender = extractEmail(latest?.from || '');
+        return {
+          subject,
+          latestDate: latest?.date ? new Date(latest.date) : null,
+          latestFrom: sender,
+          tags,
+          count: thread.length,
+        };
+      })
+      // newest last like before; we’ll reverse in render if needed
+      .sort((a, b) => (a.latestDate?.getTime() || 0) - (b.latestDate?.getTime() || 0));
+  }, [conversations]);
+
+  // Filter by subject, sender, or tag
+  const filteredList = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return convoList;
+    return convoList.filter((c) => {
+      const inSubject = (c.subject || '').toLowerCase().includes(q);
+      const inFrom = (c.latestFrom || '').toLowerCase().includes(q);
+      const inTags = (c.tags || []).some((t) => (t || '').toLowerCase().includes(q));
+      return inSubject || inFrom || inTags;
+    });
+  }, [query, convoList]);
+
+  // Keep selected subject if it's still in the filtered set; otherwise clear selection
+  useEffect(() => {
+    if (!selectedSubject) return;
+    const stillPresent = filteredList.some((c) => c.subject === selectedSubject);
+    if (!stillPresent) setSelectedSubject(null);
+  }, [filteredList, selectedSubject]);
+
   return (
     <AuthWrapper requiredRole="devPhase">
       <main className="max-w-10xl mx-auto px-8 mt-8 text-white">
         <div className="grid md:grid-cols-5 gap-8">
-          {/* LEFT PANEL — Email list */}
+          {/* LEFT PANEL — Email list + Search */}
           <div className="col-span-2 bg-[#283335]/80 border border-white/10 rounded-2xl p-6 backdrop-blur-lg max-h-[666px] overflow-hidden flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold">Email Conversations</h1>
@@ -135,51 +186,59 @@ export default function ContactEmailsPage() {
               </button>
             </div>
 
+            {/* Search bar */}
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search subject, sender, or tag…"
+                className="w-full pl-9 pr-3 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
             <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 flex-grow pr-2">
               {Object.keys(conversations).length === 0 ? (
                 <p className="text-white/60 text-sm">No conversations found.</p>
+              ) : filteredList.length === 0 ? (
+                <p className="text-white/60 text-sm">No results.</p>
               ) : (
-                Object.keys(conversations)
-                  .reverse()
-                  .map((subject) => {
-                    const emails = conversations[subject];
-                    const latest = emails[emails.length - 1];
-                    const tags = latest?.tags || [];
-
-                    return (
-                      <button
-                        key={subject}
-                        onClick={() => setSelectedSubject(subject)}
-                        className={`w-full text-left mb-2 p-3 rounded-lg border border-white/10 transition-all ${
-                          selectedSubject === subject
-                            ? 'bg-white/10 border-white/20'
-                            : 'hover:bg-white/5'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <p className="font-semibold text-green-400 truncate">
-                            {subject || '(No Subject)'}
-                          </p>
-                          <div className="flex gap-1">
-                            {tags.map((tag) => {
-                              const style = tagColors[tag] || 'bg-gray-600 text-white';
-                              return (
-                                <span
-                                  key={tag}
-                                  className={`text-xs px-2 py-0.5 rounded-full ${style}`}
-                                >
-                                  {tag}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                        <p className="text-xs text-white/60 mt-1 truncate">
-                          {new Date(latest.date).toLocaleString()}
+                filteredList
+                  .slice() // keep a copy
+                  .reverse() // show most recent at top
+                  .map(({ subject, latestDate, latestFrom, tags, count }) => (
+                    <button
+                      key={subject}
+                      onClick={() => setSelectedSubject(subject)}
+                      className={`w-full text-left mb-2 p-3 rounded-lg border border-white/10 transition-all ${
+                        selectedSubject === subject ? 'bg-white/10 border-white/20' : 'hover:bg-white/5'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <p className="font-semibold text-green-400 truncate">
+                          {subject || '(No Subject)'}
                         </p>
-                      </button>
-                    );
-                  })
+                        <div className="ml-2 flex gap-1 flex-wrap">
+                          {tags.map((tag) => {
+                            const style = tagColors[tag] || 'bg-gray-600 text-white';
+                            return (
+                              <span key={tag} className={`text-xs px-2 py-0.5 rounded-full ${style}`}>
+                                {tag}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      {/* NEW: show sender + date + count */}
+                      <div className="mt-1 flex items-center justify-between text-xs text-white/60">
+                        <span className="truncate">
+                          From: {latestFrom || 'Unknown'}{count ? ` • ${count} msg${count > 1 ? 's' : ''}` : ''}
+                        </span>
+                        <span>{latestDate ? latestDate.toLocaleString() : ''}</span>
+                      </div>
+                    </button>
+                  ))
               )}
             </div>
           </div>
@@ -192,23 +251,17 @@ export default function ContactEmailsPage() {
                   <div>
                     <h2 className="text-2xl font-bold">{selectedSubject}</h2>
                     <p className="text-white/60 text-sm">
-                      From: {extractEmail(emails.at(-1).from)} ·{' '}
-                      {new Date(emails.at(-1).date).toLocaleString()}
+                      From: {extractEmail(emails.at(-1).from)} · {new Date(emails.at(-1).date).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <button
-                      onClick={handleReplyClick}
-                      className="hover:text-blue-400"
-                      title="Reply"
-                    >
+                    <button onClick={handleReplyClick} className="hover:text-blue-400" title="Reply">
                       <Reply size={18} />
                     </button>
-                    <button
-                      onClick={() => setSelectedSubject(null)}
-                      className="hover:text-gray-400"
-                      title="Close"
-                    >
+                    <button onClick={handleDeleteConversation} className="hover:text-red-400" title="Delete Conversation">
+                      <Trash size={18} />
+                    </button>
+                    <button onClick={() => setSelectedSubject(null)} className="hover:text-gray-400" title="Close">
                       <X size={18} />
                     </button>
                   </div>
@@ -224,18 +277,12 @@ export default function ContactEmailsPage() {
                     .slice()
                     .reverse()
                     .map((email, i) => (
-                      <div
-                        key={i}
-                        className="bg-white/10 p-4 rounded-xl border border-white/20"
-                      >
+                      <div key={i} className="bg-white/10 p-4 rounded-xl border border-white/20">
                         {email.flagged && (
-                          <div className="text-yellow-400 text-xs mb-1 font-semibold">
-                            ⚠ FLAGGED
-                          </div>
+                          <div className="text-yellow-400 text-xs mb-1 font-semibold">⚠ FLAGGED</div>
                         )}
                         <p className="text-sm text-white/70 mb-2">
-                          <strong>{extractEmail(email.from)}</strong> ·{' '}
-                          {new Date(email.date).toLocaleString()}
+                          <strong>{extractEmail(email.from)}</strong> · {new Date(email.date).toLocaleString()}
                         </p>
                         <div
                           className="prose prose-invert max-w-none text-white/90"
@@ -248,9 +295,7 @@ export default function ContactEmailsPage() {
                 </div>
               </>
             ) : (
-              <div className="text-white/60 text-center mt-24">
-                Select a conversation to view it.
-              </div>
+              <div className="text-white/60 text-center mt-24">Select a conversation to view it.</div>
             )}
           </div>
         </div>
