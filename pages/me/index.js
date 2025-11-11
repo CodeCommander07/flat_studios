@@ -13,17 +13,31 @@ export default function ProfilePage() {
   const [passwordStatus, setPasswordStatus] = useState('');
 
   useEffect(() => {
+    const fetchUser = async (userId) => {
+      try {
+        const res = await axios.get(`/api/user/me?id=${userId}`);
+        setUser(res.data);
+        setEditedUser(res.data);
+        localStorage.setItem('User', JSON.stringify(res.data));
+      } catch (err) {
+        console.error('Failed to fetch user:', err.message);
+      }
+    };
+
     const localUser = JSON.parse(localStorage.getItem('User'));
     if (!localUser?._id) return;
 
-    axios
-      .get(`/api/user/me?id=${localUser._id}`)
-      .then((res) => {
-        setUser(res.data);
-        setEditedUser(res.data);
-      })
-      .catch((err) => console.error('Failed to fetch user:', err.message));
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasOAuthParams =
+      urlParams.has('code') || urlParams.has('state') || urlParams.has('error');
+
+    fetchUser(localUser._id);
+
+    if (hasOAuthParams) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
+
 
   const handleDiscordConnect = () => {
     const localUser = JSON.parse(localStorage.getItem('User'));
@@ -262,11 +276,10 @@ export default function ProfilePage() {
                 <button
                   onClick={svc.onDefault}
                   disabled={svc.isDefault}
-                  className={`mt-2 self-start px-3 py-1 rounded text-sm border border-white/30 transition ${
-                    svc.isDefault
+                  className={`mt-2 self-start px-3 py-1 rounded text-sm border border-white/30 transition ${svc.isDefault
                       ? 'bg-green-600 text-white'
                       : 'bg-[#283335]/10 hover:bg-white/20 text-white'
-                  }`}
+                    }`}
                 >
                   {svc.isDefault ? '✔️ Default Avatar' : 'Set as Default'}
                 </button>
