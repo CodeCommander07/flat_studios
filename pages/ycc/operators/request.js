@@ -148,7 +148,6 @@ export default function MultiStepForm() {
     };
 
     return (
-        <AuthWrapper requiredRole="ycc">
             <main className="max-w-5xl mx-auto p-8 bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl mt-10 mb-10 shadow-lg text-white">
                 {/* Progress Bar */}
                 <div className="mb-8">
@@ -440,6 +439,5 @@ export default function MultiStepForm() {
                     )}
                 </form>
             </main>
-        </AuthWrapper>
     );
 }

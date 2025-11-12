@@ -1,9 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { AlertTriangle, CheckCircle, Clock, TrendingUpDown, RouteOff } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  TrendingUpDown,
+  RouteOff,
+} from 'lucide-react';
 
 export default function TravelUpdatesPage() {
   const [disruptions, setDisruptions] = useState([]);
@@ -32,17 +38,36 @@ export default function TravelUpdatesPage() {
     loadData();
   }, []);
 
-  // Helper: get readable route names from IDs
-  const getRouteNames = (affectedRoutes) => {
-    if (!affectedRoutes?.length) return 'N/A';
-    const names = affectedRoutes.map((id) => {
-      const route = routes.find((r) => r.routeId === id || r._id === id);
-      return route ? route.number || route.name || id : id;
+  // 🔍 Build a fast stopId → routes lookup map (including origin/destination)
+  const stopToRoutesMap = useMemo(() => {
+    const map = {};
+    routes.forEach((r) => {
+      const allStops = [
+        ...(r.stops?.forward || []),
+        ...(r.stops?.backward || []),
+        r.origin,
+        r.destination,
+      ].filter(Boolean);
+
+      allStops.forEach((sid) => {
+        if (!map[sid]) map[sid] = new Set();
+        map[sid].add(r._id);
+      });
+    });
+    return map;
+  }, [routes]);
+
+  // 🧠 Helper: readable route numbers
+  const getRouteNames = (ids) => {
+    if (!ids?.length) return 'N/A';
+    const names = ids.map((id) => {
+      const r = routes.find((x) => x._id === id || x.routeId === id);
+      return r ? r.number || r.name || id : id;
     });
     return names.join(', ');
   };
 
-  // 🧩 Choose icon + color for disruption type
+  // 🧩 Icon + color per type
   const getIconAndColor = (type) => {
     const lower = (type || '').toLowerCase();
     if (lower.includes('diversion'))
@@ -52,6 +77,24 @@ export default function TravelUpdatesPage() {
     return { Icon: AlertTriangle, color: 'text-yellow-400' };
   };
 
+  // 🚦 Expand affectedRoutes automatically
+  const enrichDisruptions = useMemo(() => {
+    return disruptions.map((d) => {
+      const affectedRouteIds = new Set(d.affectedRoutes || []);
+
+      // 🔗 Add routes that pass through any affected stop OR have it as origin/destination
+      (d.affectedStops || []).forEach((sid) => {
+        const routesUsingStop = stopToRoutesMap[sid];
+        if (routesUsingStop) {
+          routesUsingStop.forEach((rid) => affectedRouteIds.add(rid));
+        }
+      });
+
+      return { ...d, inferredRoutes: Array.from(affectedRouteIds) };
+    });
+  }, [disruptions, stopToRoutesMap]);
+
+  // 🌀 Loading/Error
   if (loading)
     return (
       <main className="flex items-center justify-center min-h-screen text-white">
@@ -66,6 +109,7 @@ export default function TravelUpdatesPage() {
       </main>
     );
 
+  // 🧭 Render
   return (
     <main className="text-white px-6 py-12">
       <div className="max-w-5xl mx-auto">
@@ -73,7 +117,7 @@ export default function TravelUpdatesPage() {
           Network Travel Updates
         </h1>
 
-        {disruptions.length === 0 ? (
+        {enrichDisruptions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <CheckCircle className="text-green-500 mb-4" size={48} />
             <p className="text-lg text-white/70">
@@ -82,7 +126,7 @@ export default function TravelUpdatesPage() {
           </div>
         ) : (
           <div className="grid gap-6">
-            {disruptions.map((d) => {
+            {enrichDisruptions.map((d) => {
               const { Icon, color } = getIconAndColor(d.incidentType);
               return (
                 <Link
@@ -105,9 +149,10 @@ export default function TravelUpdatesPage() {
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-3 text-sm">
-                    {d.affectedRoutes?.length > 0 && (
+                    {d.inferredRoutes?.length > 0 && (
                       <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full border border-yellow-400/30">
-                        <strong>Affected Routes:</strong> {getRouteNames(d.affectedRoutes)}
+                        <strong>Affected Routes:</strong>{' '}
+                        {getRouteNames(d.inferredRoutes)}
                       </span>
                     )}
                     {d.affectedStops?.length > 0 && (

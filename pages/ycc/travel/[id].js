@@ -1,21 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Link from 'next/link';
-import { AlertTriangle, Clock, ArrowLeft, MapPin, TrendingUpDown, RouteOff } from 'lucide-react';
+import {
+  AlertTriangle,
+  Clock,
+  ArrowLeft,
+  MapPin,
+  TrendingUpDown,
+  RouteOff,
+} from 'lucide-react';
 
 export default function DisruptionDetailPage() {
   const router = useRouter();
   const { id } = router.query;
+
   const [disruption, setDisruption] = useState(null);
   const [routes, setRoutes] = useState([]);
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch disruption, routes & stops
+  // 🧩 Fetch disruption, routes, and stops
   useEffect(() => {
     if (!id) return;
     async function loadData() {
@@ -40,11 +48,43 @@ export default function DisruptionDetailPage() {
 
   const findRoute = (rid) =>
     routes.find((r) => r.routeId === rid || r._id === rid);
-
   const findStop = (sid) =>
     stops.find((s) => s.stopId === sid || s._id === sid);
 
-  // 🧩 Determine icon and color based on disruption type
+  // 🧠 Build stop→routes map (including origin/destination)
+  const stopToRoutesMap = useMemo(() => {
+    const map = {};
+    routes.forEach((r) => {
+      const allStops = [
+        ...(r.stops?.forward || []),
+        ...(r.stops?.backward || []),
+        r.origin,
+        r.destination,
+      ].filter(Boolean);
+      allStops.forEach((sid) => {
+        if (!map[sid]) map[sid] = new Set();
+        map[sid].add(r._id);
+      });
+    });
+    return map;
+  }, [routes]);
+
+  // 🧩 Determine all affected routes (manual + inferred)
+  const inferredRoutes = useMemo(() => {
+    if (!disruption) return [];
+    const routeIds = new Set(disruption.affectedRoutes || []);
+
+    (disruption.affectedStops || []).forEach((sid) => {
+      const routesUsingStop = stopToRoutesMap[sid];
+      if (routesUsingStop) {
+        routesUsingStop.forEach((rid) => routeIds.add(rid));
+      }
+    });
+
+    return Array.from(routeIds);
+  }, [disruption, stopToRoutesMap]);
+
+  // 🧭 Icon & color
   const getIconAndColor = (type) => {
     const lower = (type || '').toLowerCase();
     if (lower.includes('diversion'))
@@ -75,7 +115,6 @@ export default function DisruptionDetailPage() {
       </main>
     );
 
-  // Get icon and color for this disruption
   const { Icon, color } = getIconAndColor(disruption.incidentType);
 
   return (
@@ -111,12 +150,12 @@ export default function DisruptionDetailPage() {
               <span className={color}>{disruption.incidentType}</span>
             </p>
 
-            {/* 🚌 Affected Routes */}
+            {/* 🚌 Affected Routes (auto-detected included) */}
             <div>
               <p className="font-semibold text-white/70 mb-1">Affected Routes:</p>
-              {disruption.affectedRoutes?.length ? (
+              {inferredRoutes.length > 0 ? (
                 <ul className="list-disc list-inside text-white/80 text-sm ml-2 space-y-1">
-                  {disruption.affectedRoutes.map((rid) => {
+                  {inferredRoutes.map((rid) => {
                     const route = findRoute(rid);
                     return (
                       <li key={rid}>
