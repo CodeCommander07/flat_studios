@@ -192,7 +192,7 @@ export default function ContactEmailsPage() {
   }, [conversations]);
 
   return (
-    <AuthWrapper requiredRole="devPhase">
+    <AuthWrapper requiredRole="hubPlus">
       <main className="max-w-10xl mx-auto px-4 sm:px-6 mt-6 text-white">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           {/* SIDEBAR */}

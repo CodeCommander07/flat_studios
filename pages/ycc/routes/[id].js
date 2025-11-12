@@ -139,7 +139,7 @@ export default function RouteDetailPage() {
         {/* Forward Stops */}
         <div className="order-2 lg:order-1 bg-[#283335] border border-white/20 rounded-2xl p-4 backdrop-blur-md shadow-lg">
           <h2 className="text-lg font-semibold mb-2 text-green-400">
-            Forward Stops
+            Outbound
           </h2>
           {renderStops(forwardStops)}
         </div>
@@ -225,7 +225,7 @@ export default function RouteDetailPage() {
         {/* Return Stops */}
         <div className="order-3 bg-[#283335] border border-white/20 rounded-2xl p-4 backdrop-blur-md shadow-lg">
           <h2 className="text-lg font-semibold mb-2 text-blue-400">
-            Return Stops
+            Inbound
           </h2>
           {renderStops(backwardStops)}
         </div>

@@ -381,7 +381,7 @@ export default function AdminRoutesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
                 <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
-                  Forward Stops
+                  Outbound
                 </label>
 
                 <input
@@ -466,7 +466,7 @@ export default function AdminRoutesPage() {
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
                 <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
-                  Return Stops
+                  Inbound
                 </label>
 
                 <input

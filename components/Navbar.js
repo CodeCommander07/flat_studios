@@ -88,9 +88,10 @@ export default function Navbar() {
       name: 'Community',
       items: [
         { label: 'Home', href: '/' },
+        { label: 'Advertising', href: '/advertising' },
         { label: 'Content', href: '/content' },
         { label: 'Make A Report', href: '/make-a-report' },
-        { label: 'Advertising', href: '/advertising' },
+        { label: 'Operators', href: '/ycc/operators/' },
       ],
     },
     {
@@ -99,7 +100,6 @@ export default function Navbar() {
       items: [
         { label: 'YCC Home', href: '/ycc/' },
         { label: 'Travel Updates', href: '/ycc/travel' },
-        { label: 'Operators', href: '/ycc/operators/' },
         { label: 'Stops', href: '/ycc/stops/' },
         { label: 'Routes', href: '/ycc/routes/' },
         { label: 'Route Editor', href: '/ycc/routes/request', roleKey: 'Operator' },
@@ -245,69 +245,69 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center">
-          <div
-            className="relative mr-3"
-            onMouseEnter={() => setNotifOpen(true)}
-            onMouseLeave={() => setNotifOpen(false)}
-          >
-            <div className="relative p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
-              <Bell className="w-5 h-5" />
-
-              {hasNew && (
-                <>
-                  <span className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 rounded-full opacity-75 animate-ping"></span>
-                  <span className="absolute top-0.5 right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-red-600 text-[8px] font-bold text-white">
-                    {notifications.filter((n) => !n.read).length}
-                  </span>
-                </>
-              )}
-            </div>
-
-            <AnimatePresence>
-              {notifOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-3 bg-[#2e3b3e] backdrop-blur-xl 
-                   rounded-xl shadow-2xl w-72 py-3 px-4 z-50"
-                >
-                  <p className="font-semibold text-white mb-2 text-sm">Notifications</p>
-                  {notifications.length === 0 ? (
-                    <p className="text-white/60 text-sm">No new notifications.</p>
-                  ) : (
-                    <ul className="max-h-60 overflow-y-auto space-y-2">
-                      {notifications.slice(0, 5).map((n, i) => (
-                        <li
-                          key={i}
-                          className={`text-sm p-2 rounded-lg ${n.read
-                            ? 'bg-white/5 text-white/70'
-                            : 'bg-blue-500/20 text-blue-100'
-                            }`}
-                        >
-                          <a
-                            href={n.link ? n.link : '/me/notifications'}
-                            className="hover:underline hover:text-blue-300 transition-colors"
-                          >
-                            {n.notification}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <Link
-                    href="/me/notifications"
-                    className="text-blue-400 hover:text-blue-300 text-xs mt-3 inline-block"
-                  >
-                    View all →
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
           {user ? (
             <div className="relative">
+              <div
+                className="relative mr-3"
+                onMouseEnter={() => setNotifOpen(true)}
+                onMouseLeave={() => setNotifOpen(false)}
+              >
+                <div className="relative p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                  <Bell className="w-5 h-5" />
+
+                  {hasNew && (
+                    <>
+                      <span className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 rounded-full opacity-75 animate-ping"></span>
+                      <span className="absolute top-0.5 right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-red-600 text-[8px] font-bold text-white">
+                        {notifications.filter((n) => !n.read).length}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <AnimatePresence>
+                  {notifOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-3 bg-[#2e3b3e] backdrop-blur-xl 
+                   rounded-xl shadow-2xl w-72 py-3 px-4 z-50"
+                    >
+                      <p className="font-semibold text-white mb-2 text-sm">Notifications</p>
+                      {notifications.length === 0 ? (
+                        <p className="text-white/60 text-sm">No new notifications.</p>
+                      ) : (
+                        <ul className="max-h-60 overflow-y-auto space-y-2">
+                          {notifications.slice(0, 5).map((n, i) => (
+                            <li
+                              key={i}
+                              className={`text-sm p-2 rounded-lg ${n.read
+                                ? 'bg-white/5 text-white/70'
+                                : 'bg-blue-500/20 text-blue-100'
+                                }`}
+                            >
+                              <a
+                                href={n.link ? n.link : '/me/notifications'}
+                                className="hover:underline hover:text-blue-300 transition-colors"
+                              >
+                                {n.notification}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <Link
+                        href="/me/notifications"
+                        className="text-blue-400 hover:text-blue-300 text-xs mt-3 inline-block"
+                      >
+                        View all →
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               <button
                 onClick={() =>
                   setOpenDropdown(openDropdown === 'user' ? null : 'user')

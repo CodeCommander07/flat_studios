@@ -12,13 +12,13 @@ import {
 } from 'lucide-react';
 
 const ICON_OPTIONS = [
-  { label: 'Circle Check', value: 'circle-check-big', icon: CircleCheckBig },
-  { label: 'Triangle Alert', value: 'triangle-alert', icon: TriangleAlert },
-  { label: 'Megaphone', value: 'megaphone', icon: Megaphone },
+  { label: 'No Disruption', value: 'circle-check-big', icon: CircleCheckBig },
+  { label: 'Minor Disruption', value: 'triangle-alert', icon: TriangleAlert },
+  { label: 'Sever Disruption', value: 'octagon-alert', icon: OctagonAlert },
+  { label: 'Updates', value: 'megaphone', icon: Megaphone },
   { label: 'Info', value: 'info', icon: Info },
-  { label: 'Octagon Alert', value: 'octagon-alert', icon: OctagonAlert },
-  { label: 'Tree Pine', value: 'tree-pine', icon: TreePine },
-  { label: 'Calendar Days', value: 'calendar-days', icon: CalendarDays },
+  { label: 'Festive', value: 'tree-pine', icon: TreePine },
+  { label: 'Calendar', value: 'calendar-days', icon: CalendarDays },
 ];
 
 export default function BannerSettings() {
@@ -29,7 +29,7 @@ export default function BannerSettings() {
     linkUrl: '',
     bgColor: '#1b4332',
     textColor: '#ffffff',
-    icon: 'triangle-alert',
+    icon: 'circle-check-big',
   });
   const [saving, setSaving] = useState(false);
 
