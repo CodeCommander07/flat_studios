@@ -109,11 +109,7 @@ export default function AdminRoutesPage() {
     const payload = {
       ...form,
       number: form.number.trim(),
-      operator: Array.isArray(form.operator)
-        ? form.operator
-        : form.operator
-          ? [form.operator]
-          : [],
+      operator: Array.isArray(form.operator) ? form.operator : [],
       description: form.description.trim(),
     };
 
@@ -232,7 +228,7 @@ export default function AdminRoutesPage() {
                     type="text"
                     required
                     placeholder="Search start stop..."
-                    value={getStopName(form.origin)||form.originSearch || ''}
+                    value={getStopName(form.origin) || form.originSearch || ''}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, originSearch: e.target.value }))
                     }
@@ -257,8 +253,8 @@ export default function AdminRoutesPage() {
                               }))
                             }
                             className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${form.origin === stop.stopId
-                                ? 'bg-green-600/40 border border-green-500/20'
-                                : ''
+                              ? 'bg-green-600/40 border border-green-500/20'
+                              : ''
                               }`}
                           >
                             {getStopName(stop.stopId)}
@@ -276,7 +272,7 @@ export default function AdminRoutesPage() {
                     type="text"
                     required
                     placeholder="Search end stop..."
-                    value={getStopName(form.destination)||form.destinationSearch || ''}
+                    value={getStopName(form.destination) || form.destinationSearch || ''}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, destinationSearch: e.target.value }))
                     }
@@ -301,8 +297,8 @@ export default function AdminRoutesPage() {
                               }))
                             }
                             className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${form.destination === stop.stopId
-                                ? 'bg-blue-600/40 border border-blue-500/20'
-                                : ''
+                              ? 'bg-blue-600/40 border border-blue-500/20'
+                              : ''
                               }`}
                           >
                             {getStopName(stop.stopId)}
@@ -315,51 +311,54 @@ export default function AdminRoutesPage() {
               </div>
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
-  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
-    Operators <span className="text-red-500">*</span>
-  </label>
+                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
+                  Operators <span className="text-red-500">*</span>
+                </label>
 
-  <div className="flex-1 overflow-y-auto bg-black/20 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10 max-h-72">
-    {operators.length > 0 ? (
-      operators.map((op) => {
-        const isSelected = form.operator.includes(op.operatorName);
-        return (
-          <div
-            key={op._id || op.operatorName}
-            onClick={() => {
-              setForm((f) => {
-                const current = f.operator || [];
-                const updated = current.includes(op.operatorName)
-                  ? current.filter((x) => x !== op.operatorName)
-                  : [...current, op.operatorName];
-                return { ...f, operator: updated };
-              });
-            }}
-            className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${
-              isSelected
-                ? 'bg-green-600/40 border border-green-500/20 text-white'
-                : 'hover:bg-white/10 text-gray-300'
-            }`}
-          >
-            {op.operatorName}
-          </div>
-        );
-      })
-    ) : (
-      <p className="text-xs text-gray-400 text-center py-2">
-        No operators found
-      </p>
-    )}
-  </div>
+                <div className="flex-1 overflow-y-auto bg-black/20 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10 max-h-72">
+                  {operators.length > 0 ? (
+                    operators.map((op) => {
+                      const isSelected = form.operator.includes(op._id);
+                      return (
+                        <div
+                          key={op._id || op.operatorName}
+                          onClick={() => {
+                            setForm((f) => {
+                              const current = f.operator || [];
+                              const updated = current.includes(op._id)
+                                ? current.filter((x) => x !== op._id)
+                                : [...current, op._id];
+                              return { ...f, operator: updated };
+                            });
+                          }}
+                          className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${isSelected
+                            ? 'bg-green-600/40 border border-green-500/20 text-white'
+                            : 'hover:bg-white/10 text-gray-300'
+                            }`}
+                        >
+                          {op.operatorName}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-xs text-gray-400 text-center py-2">
+                      No operators found
+                    </p>
+                  )}
+                </div>
 
-  {form.operator?.length > 0 ? (
-    <p className="text-xs text-gray-300 mt-2">
-      Selected: {form.operator.join(', ')}
-    </p>
-  ) : (
-    <p className="text-xs text-red-400 mt-2">Required — select at least one.</p>
-  )}
-</div>
+                {form.operator?.length > 0 ? (
+                  <p className="text-xs text-gray-300 mt-2">
+                    Selected:{' '}
+                    {form.operator
+                      .map((id) => operators.find((o) => o._id === id)?.operatorName || 'Unknown')
+                      .join(', ')}
+                  </p>
+
+                ) : (
+                  <p className="text-xs text-red-400 mt-2">Required — select at least one.</p>
+                )}
+              </div>
 
             </div>
 
