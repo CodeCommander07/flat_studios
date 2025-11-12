@@ -15,6 +15,22 @@ export default function OperatorPage() {
   const [stops, setStops] = useState([]);
   const [disruptions, setDisruptions] = useState([]);
   const [routesLoading, setRoutesLoading] = useState(true);
+  const [operators, setOperators] = useState([]);
+
+
+  // 🧩 Load all operators
+  useEffect(() => {
+    async function loadOperators() {
+      try {
+        const res = await fetch('/api/ycc/operators/active');
+        const json = await res.json();
+        setOperators(json.submissions || json || []);
+      } catch (e) {
+        console.error('Failed to load operators', e);
+      }
+    }
+    loadOperators();
+  }, []);
 
   // 🧩 Load operator
   useEffect(() => {
@@ -60,22 +76,21 @@ export default function OperatorPage() {
     loadDisruptions();
   }, []);
 
-  // 🚌 Load routes for this operator
   useEffect(() => {
-    if (!data?.operator?.operatorName) return;
-    const name = data.operator.operatorName;
+    if (!data?.operator?._id) return;
+    const operatorId = data.operator._id;
 
     async function loadRoutesForOperator() {
       setRoutesLoading(true);
       try {
-        const res = await fetch(`/api/ycc/routes?q=${encodeURIComponent(name)}`);
+        const res = await fetch(`/api/ycc/routes`);
         const json = await res.json();
         const all = json.routes || [];
 
         const filtered = all.filter((r) => {
           const op = r.operator;
-          if (Array.isArray(op)) return op.includes(name);
-          return op === name;
+          if (Array.isArray(op)) return op.includes(operatorId);
+          return op === operatorId;
         });
 
         setRoutes(filtered);
@@ -88,7 +103,7 @@ export default function OperatorPage() {
     }
 
     loadRoutesForOperator();
-  }, [data?.operator?.operatorName]);
+  }, [data?.operator?._id]);
 
   const getStopName = (stopId) => {
     const s = stops.find((x) => x.stopId === stopId);
@@ -109,11 +124,11 @@ export default function OperatorPage() {
     });
   };
 
-  const isSharedRoute = (route, operatorName) => {
+  const isSharedRoute = (route, operatorId) => {
     const op = route.operator;
     if (!op) return false;
     if (Array.isArray(op))
-      return op.length > 1 || (op.includes(operatorName) && op.some((o) => o !== operatorName));
+      return op.length > 1 || (op.includes(operatorId) && op.some((o) => o !== operatorId));
     return false;
   };
 
@@ -192,24 +207,26 @@ export default function OperatorPage() {
               const hasDiversion = r.diversion?.active;
               const disruptionsForRoute = getRouteDisruptions(r);
               const affected = disruptionsForRoute.length > 0;
-              const shared = isSharedRoute(r, operator.operatorName);
+              const shared = isSharedRoute(r, operator._id);
               const operatorText = Array.isArray(r.operator)
-                ? r.operator.join(', ')
-                : r.operator || 'Unknown';
+                ? r.operator
+                  .map((id) => operators.find((o) => o._id === id)?.operatorName || 'Unknown')
+                  .join(', ')
+                : operators.find((o) => o._id === r.operator)?.operatorName || 'Unknown';
+
 
               return (
                 <div key={r._id} className="relative group">
                   <a
                     href={`/ycc/routes/${r._id}`}
-                    className={`block backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200 ${
-                      affected
-                        ? 'bg-red-900/30 ring-2 ring-red-500/40'
-                        : hasDiversion
+                    className={`block backdrop-blur border border-white/20 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200 ${affected
+                      ? 'bg-red-900/30 ring-2 ring-red-500/40'
+                      : hasDiversion
                         ? 'bg-orange-900/30 ring-2 ring-orange-500/40'
                         : shared
-                        ? 'bg-blue-900/30 ring-2 ring-blue-500/40'
-                        : 'bg-white/5'
-                    }`}
+                          ? 'bg-blue-900/30 ring-2 ring-blue-500/40'
+                          : 'bg-white/5'
+                      }`}
                   >
                     <h3 className="text-lg font-semibold mb-1 flex items-center justify-between">
                       <span>
