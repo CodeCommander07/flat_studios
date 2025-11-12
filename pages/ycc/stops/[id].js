@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import AuthWrapper from '@/components/AuthWrapper';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Route, } from 'lucide-react';
 
 export default function StopDetailPage() {
   const router = useRouter();
@@ -119,7 +118,6 @@ export default function StopDetailPage() {
         )}
 
         {/* 🚌 Routes serving this stop */}
-        {/* 🚌 Routes serving this stop */}
         {routes.length > 0 ? (() => {
           // Find all routes where this stop is in forward/backward lists, or origin/destination
           const servingRoutes = routes.filter((r) => {
@@ -142,32 +140,38 @@ export default function StopDetailPage() {
               <h2 className="mt-6 mb-2 text-lg font-semibold">
                 Routes that stop here:
               </h2>
-              <ul className="list-disc list-inside ml-4">
-                {servingRoutes.map((route, idx) => {
-                  const isOrigin = route.origin === stop.stopId;
-                  const isDestination = route.destination === stop.stopId;
-                  return (
-                    <li key={idx}>
-                      <a
-                        href={`/ycc/routes/${route._id}`}
-                        className="underline text-blue-400 hover:text-blue-300"
-                      >
-                        {route.number || route.routeId}
-                      </a>
-                      {isOrigin && (
-                        <span className="ml-2 text-sm text-green-300">
-                          (Start of route)
-                        </span>
-                      )}
-                      {isDestination && (
-                        <span className="ml-2 text-sm text-purple-300">
-                          (End of route)
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+<ul className="ml-2 space-y-2">
+  {servingRoutes.map((route, idx) => {
+    const isOrigin = route.origin === stop.stopId;
+    const isDestination = route.destination === stop.stopId;
+
+    // 🧩 Determine icon color
+    const iconColor = isOrigin
+      ? 'text-green-400'
+      : isDestination
+      ? 'text-purple-400'
+      : 'text-white';
+
+    return (
+      <li key={idx} className="flex items-center gap-2">
+        <Route size={18} className={`${iconColor} flex-shrink-0`} />
+        <a
+          href={`/ycc/routes/${route._id}`}
+          className="underline text-blue-400 hover:text-blue-300"
+        >
+          {route.number || route.routeId}
+        </a>
+
+        {isOrigin && (
+          <span className="ml-2 text-sm text-green-300">(Start of route)</span>
+        )}
+        {isDestination && (
+          <span className="ml-2 text-sm text-purple-300">(End of route)</span>
+        )}
+      </li>
+    );
+  })}
+</ul>
             </>
           );
         })() : (

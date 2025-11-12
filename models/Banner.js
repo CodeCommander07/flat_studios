@@ -5,6 +5,7 @@ const BannerSchema = new mongoose.Schema({
   message: { type: String, required: true },
   linkText: { type: String },
   linkUrl: { type: String },
+  icon: {type: String},
   bgColor: { type: String, default: '#FFDD00' },   // example highlight color
   textColor: { type: String, default: '#000000' },
   updatedAt: { type: Date, default: Date.now }

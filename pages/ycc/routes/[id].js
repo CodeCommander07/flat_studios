@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { AlertTriangle } from 'lucide-react';
+import {
+  AlertTriangle,
+  MapPin,
+  MapPinOff,
+  MapPinX,
+  Bus,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function RouteDetailPage() {
   const router = useRouter();
@@ -14,21 +21,18 @@ export default function RouteDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 📦 Fetch stops
   useEffect(() => {
     axios.get('/api/ycc/stops')
       .then((res) => setStops(res.data.stops || []))
       .catch((err) => console.error('Failed to fetch stops', err));
   }, []);
 
-  // 🏢 Fetch all operators
   useEffect(() => {
     axios.get('/api/ycc/operators/active')
       .then((res) => setOperators(res.data.submissions || []))
       .catch((err) => console.error('Failed to fetch operators', err));
   }, []);
 
-  // 🚌 Fetch route
   useEffect(() => {
     if (!id) return;
     axios.get(`/api/ycc/routes/${id}`)
@@ -43,13 +47,11 @@ export default function RouteDetailPage() {
     return stop ? `${stop.name}${stop.town ? ', ' + stop.town : ''}` : stopId;
   };
 
-  // 🎯 Find operator
   const getOperator = () => {
     if (!route?.operator || operators.length === 0) return null;
     const routeOps = Array.isArray(route.operator)
       ? route.operator.map((o) => o.toLowerCase())
       : [route.operator.toLowerCase()];
-
     return (
       operators.find((op) =>
         routeOps.some(
@@ -63,12 +65,9 @@ export default function RouteDetailPage() {
     );
   };
 
-  if (loading)
-    return <p className="text-white text-center mt-12">Loading...</p>;
-  if (error)
-    return <p className="text-red-500 text-center mt-12">{error}</p>;
-  if (!route)
-    return <p className="text-white text-center mt-12">Route not found.</p>;
+  if (loading) return <p className="text-white text-center mt-12">Loading...</p>;
+  if (error) return <p className="text-red-500 text-center mt-12">{error}</p>;
+  if (!route) return <p className="text-white text-center mt-12">Route not found.</p>;
 
   const operator = getOperator();
   const forwardStops = route.stops?.forward || [];
@@ -82,209 +81,154 @@ export default function RouteDetailPage() {
   const originAffected = route.diversion?.stops?.includes(route.origin);
   const destAffected = route.diversion?.stops?.includes(route.destination);
 
-  return (
-    <main className="text-white px-6 py-12 flex flex-col items-center">
-      <div className="max-w-5xl w-full bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
-        <h1 className="text-2xl font-bold mb-4">
-          Route Details: <span className="text-blue-400">{route.number}</span>
-        </h1>
+  const StopIcon = ({ stopId }) => {
+    const stop = getStop(stopId);
+    const isClosed = stop?.closed;
+    const isAffected = route.diversion?.stops?.includes(stopId);
+    if (isClosed) return <MapPinOff className="text-red-500 w-4 h-4" />;
+    if (isAffected) return <MapPinX className="text-yellow-400 w-4 h-4" />;
+    return <MapPin className="text-green-500 w-4 h-4" />;
+  };
 
-        {/* 🏢 Operator */}
-        <p>
-          <strong>Operator:</strong>{' '}
-          {operator ? (
-            <a
-              href={`/ycc/operators/${operator.slug}`}
-              className="underline text-blue-400 hover:text-blue-300"
-            >
-              {operator.operatorName}
-            </a>
-          ) : (
-            Array.isArray(route.operator)
-              ? route.operator.join(', ')
-              : route.operator || 'Unknown'
-          )}
-        </p>
+  const AnimatedBus = () => (
+    <motion.div
+      className="flex justify-center py-1"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: [0, 5, 0] }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      <Bus className="text-blue-400 opacity-80 w-5 h-5" />
+    </motion.div>
+  );
 
-        {/* 🚏 Origin + Destination */}
-        <p>
-          <strong>Origin:</strong>{' '}
-          <a
-            href={`/ycc/stops/${originStop?._id || route.origin}`}
-            className={`underline ${
-              isOriginClosed
-                ? 'text-red-400'
-                : originAffected
-                ? 'text-yellow-400'
-                : 'hover:text-blue-300'
-            }`}
-          >
-            {getStopName(route.origin)}
-          </a>
-        </p>
+  const renderStops = (stopList = []) => (
+    <ul className="space-y-2 text-sm relative">
+      {stopList.length > 0 ? (
+        stopList.map((stopId, idx) => {
+          const stopData = getStop(stopId);
+          const isLast = idx === stopList.length - 1;
+          const showBus = Math.random() < 0.15 && !isLast;
 
-        <p>
-          <strong>Destination:</strong>{' '}
-          <a
-            href={`/ycc/stops/${destStop?._id || route.destination}`}
-            className={`underline ${
-              isDestClosed
-                ? 'text-red-400'
-                : destAffected
-                ? 'text-yellow-400'
-                : 'hover:text-blue-300'
-            }`}
-          >
-            {getStopName(route.destination)}
-          </a>
-        </p>
-
-        {/* 🚨 Start/End Warnings */}
-        {(isOriginClosed || isDestClosed || originAffected || destAffected) && (
-          <div className="mt-6 bg-yellow-400/20 border border-yellow-500/50 text-yellow-300 px-4 py-3 rounded-lg flex gap-3 items-start">
-            <AlertTriangle className="mt-0.5 flex-shrink-0" size={20} />
-            <div className="text-sm leading-snug">
-              <p className="font-semibold text-yellow-200">
-                Route Start/End Disruptions:
-              </p>
-              <ul className="list-disc list-inside">
-                {isOriginClosed && (
-                  <li>
-                    <span className="text-red-400 font-semibold">
-                      Origin Stop Closed:
-                    </span>{' '}
-                    {originStop?.closureReason ||
-                      'This stop is currently closed until further notice.'}
-                  </li>
-                )}
-                {originAffected && !isOriginClosed && (
-                  <li>⚠️ Origin stop affected by diversion.</li>
-                )}
-                {isDestClosed && (
-                  <li>
-                    <span className="text-red-400 font-semibold">
-                      Destination Stop Closed:
-                    </span>{' '}
-                    {destStop?.closureReason ||
-                      'This stop is currently closed until further notice.'}
-                  </li>
-                )}
-                {destAffected && !isDestClosed && (
-                  <li>⚠️ Destination stop affected by diversion.</li>
-                )}
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {/* ⚠️ Diversion warning */}
-        {route.diversion?.active && (
-          <div className="mt-6 bg-yellow-400/20 border border-yellow-500/50 text-yellow-300 px-4 py-3 rounded-lg flex gap-3 items-start">
-            <AlertTriangle className="mt-0.5 flex-shrink-0" size={20} />
-            <div>
-              <p className="font-semibold text-yellow-200">Diversion In Place:</p>
-              <p className="text-sm mb-2">
-                {route.diversion.reason || 'Diversion active on this route.'}
-              </p>
-              {route.diversion.stops?.length > 0 && (
-                <ul className="list-disc list-inside text-sm">
-                  {route.diversion.stops.map((stopId, idx) => (
-                    <li key={idx}>{getStopName(stopId)}</li>
-                  ))}
-                </ul>
+          return (
+            <div key={idx} className="relative">
+              {!isLast && (
+                <div className="absolute left-[9px] top-6 w-[2px] h-4 bg-white/15 z-0" />
               )}
+              <li className="flex items-center gap-2 relative z-10">
+                <StopIcon stopId={stopId} />
+                <a
+                  href={`/ycc/stops/${stopData?._id || stopId}`}
+                  className="underline hover:text-blue-300 transition"
+                >
+                  {getStopName(stopId)}
+                </a>
+              </li>
+              {showBus && !isLast && <AnimatedBus />}
             </div>
-          </div>
-        )}
+          );
+        })
+      ) : (
+        <p className="text-gray-400 text-xs">No stops available</p>
+      )}
+    </ul>
+  );
 
-        {/* 🚌 Stop lists */}
-        <div className="grid gap-8 md:grid-cols-2 mt-6">
-          {/* Forward */}
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Stops (Forward):</h2>
-            <ul className="list-disc list-inside ml-4 space-y-1">
-              {forwardStops.map((stopId, idx) => {
-                const stopData = getStop(stopId);
-                const isAffected = route.diversion?.stops?.includes(stopId);
-                const isClosed = stopData?.closed;
-
-                return (
-                  <li
-                    key={idx}
-                    className={`transition-all ${
-                      isClosed
-                        ? 'text-red-400 font-semibold'
-                        : isAffected
-                        ? 'text-yellow-400 font-semibold'
-                        : ''
-                    }`}
-                  >
-                    {isClosed ? '🚧 ' : isAffected ? '⚠️ ' : ''}
-                    <a
-                      href={`/ycc/stops/${stopData?._id || stopId}`}
-                      className="underline hover:text-blue-300"
-                    >
-                      {getStopName(stopId)}
-                    </a>
-                    {isClosed && stopData?.closureReason && (
-                      <span className="block text-xs text-red-300 ml-5">
-                        {stopData.closureReason}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Return */}
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Stops (Return):</h2>
-            <ul className="list-disc list-inside ml-4 space-y-1">
-              {backwardStops.map((stopId, idx) => {
-                const stopData = getStop(stopId);
-                const isAffected = route.diversion?.stops?.includes(stopId);
-                const isClosed = stopData?.closed;
-
-                return (
-                  <li
-                    key={idx}
-                    className={`transition-all ${
-                      isClosed
-                        ? 'text-red-400 font-semibold'
-                        : isAffected
-                        ? 'text-yellow-400 font-semibold'
-                        : ''
-                    }`}
-                  >
-                    {isClosed ? '🚧 ' : isAffected ? '⚠️ ' : ''}
-                    <a
-                      href={`/ycc/stops/${stopData?._id || stopId}`}
-                      className="underline hover:text-blue-300"
-                    >
-                      {getStopName(stopId)}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+  return (
+    <main className="text-white px-4 sm:px-6 py-8 flex flex-col items-center">
+      <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+        {/* Forward Stops */}
+        <div className="order-2 lg:order-1 bg-[#283335] border border-white/20 rounded-2xl p-4 backdrop-blur-md shadow-lg">
+          <h2 className="text-lg font-semibold mb-2 text-green-400">
+            Forward Stops
+          </h2>
+          {renderStops(forwardStops)}
         </div>
 
-        {/* 🗺️ Map */}
-        {route.map?.filename && (
-          <p className="mt-6">
-            <strong>Map:</strong>{' '}
+        {/* Route Info */}
+        <div className="order-1 lg:order-2 col-span-1 lg:col-span-2 bg-[#283335] border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-lg">
+          <h1 className="text-2xl font-bold mb-4">
+            Route Details: <span className="text-blue-400">{route.number}</span>
+          </h1>
+          <p>
+            <strong>Operator:</strong>{' '}
+            {operator ? (
+              <a
+                href={`/ycc/operators/${operator.slug}`}
+                className="underline text-blue-400 hover:text-blue-300"
+              >
+                {operator.operatorName}
+              </a>
+            ) : Array.isArray(route.operator)
+              ? route.operator.join(', ')
+              : route.operator || 'Unknown'}
+          </p>
+          <p>
+            <strong>Origin:</strong>{' '}
             <a
-              href={`/api/ycc/routes/file?id=${route._id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline text-blue-400 hover:text-blue-300"
+              href={`/ycc/stops/${originStop?._id || route.origin}`}
+              className={`underline ${
+                isOriginClosed
+                  ? 'text-red-400'
+                  : originAffected
+                  ? 'text-yellow-400'
+                  : 'hover:text-blue-300'
+              }`}
             >
-              {route.map.filename}
+              {getStopName(route.origin)}
             </a>
           </p>
-        )}
+          <p>
+            <strong>Destination:</strong>{' '}
+            <a
+              href={`/ycc/stops/${destStop?._id || route.destination}`}
+              className={`underline ${
+                isDestClosed
+                  ? 'text-red-400'
+                  : destAffected
+                  ? 'text-yellow-400'
+                  : 'hover:text-blue-300'
+              }`}
+            >
+              {getStopName(route.destination)}
+            </a>
+          </p>
+
+          {route.diversion?.active && (
+            <div className="mt-6 bg-yellow-400/20 border border-yellow-500/50 text-yellow-300 px-4 py-3 rounded-lg flex gap-3 items-start">
+              <AlertTriangle className="mt-0.5 flex-shrink-0" size={20} />
+              <div>
+                <p className="font-semibold text-yellow-200">
+                  Diversion In Place:
+                </p>
+                <p className="text-sm mb-2">
+                  {route.diversion.reason || 'Diversion active on this route.'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {route.map?.filename && (
+            <p className="mt-6">
+              <strong>Map:</strong>{' '}
+              <a
+                href={`/api/ycc/routes/file?id=${route._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-400 hover:text-blue-300"
+              >
+                {route.map.filename}
+              </a>
+            </p>
+          )}
+        </div>
+
+        {/* Return Stops */}
+        <div className="order-3 bg-[#283335] border border-white/20 rounded-2xl p-4 backdrop-blur-md shadow-lg">
+          <h2 className="text-lg font-semibold mb-2 text-blue-400">
+            Return Stops
+          </h2>
+          {renderStops(backwardStops)}
+        </div>
       </div>
     </main>
   );

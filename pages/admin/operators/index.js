@@ -230,7 +230,7 @@ export default function OperatorSubmissionsPage() {
                     className="w-full p-2 h-[120px] rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
                   >
                     {routes.map((r) => (
-                      <option className="text-white bg-black" key={r._id} value={r._id}>
+                      <option key={r._id} value={r._id}>
                         {r.number || r.id}
                       </option>
                     ))}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Filter } from 'lucide-react';
 
 export default function StopsView() {
   const [stops, setStops] = useState([]);
@@ -11,6 +11,7 @@ export default function StopsView() {
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sortBy, setSortBy] = useState('a-z');
 
   // 🧭 Fetch stops + routes
   useEffect(() => {
@@ -47,17 +48,53 @@ export default function StopsView() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // 🔍 Filter
+  // 🔍 Filter + Sort
   useEffect(() => {
     const term = debouncedTerm.toLowerCase();
-    const results = stops.filter(
-      (stop) =>
+
+    let results = stops.filter((stop) => {
+      const stopRoutes = stop.routes
+        ?.map((rid) => routes.find((r) => r._id === rid || r.routeId === rid))
+        .filter(Boolean);
+      const routeNumbers = stopRoutes.map((r) => (r.number || '').toLowerCase());
+
+      return (
         stop.name?.toLowerCase().includes(term) ||
         stop.town?.toLowerCase().includes(term) ||
-        stop.routes?.some((route) => route.toLowerCase().includes(term))
-    );
+        routeNumbers.some((num) => num.includes(term))
+      );
+    });
+
+    // 🔢 Sorting
+    results = [...results].sort((a, b) => {
+      switch (sortBy) {
+        case 'a-z':
+          return a.name.localeCompare(b.name);
+        case 'z-a':
+          return b.name.localeCompare(a.name);
+        case 'route-asc': {
+          const aRoute = routes.find((r) => a.routes?.includes(r._id))?.number || '';
+          const bRoute = routes.find((r) => b.routes?.includes(r._id))?.number || '';
+          return aRoute.localeCompare(bRoute);
+        }
+        case 'route-desc': {
+          const aRoute = routes.find((r) => a.routes?.includes(r._id))?.number || '';
+          const bRoute = routes.find((r) => b.routes?.includes(r._id))?.number || '';
+          return bRoute.localeCompare(aRoute);
+        }
+        case 'new':
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case 'old':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'updated':
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+        default:
+          return 0;
+      }
+    });
+
     setFilteredStops(results);
-  }, [debouncedTerm, stops]);
+  }, [debouncedTerm, stops, routes, sortBy]);
 
   // 🚨 Find active diversions affecting this stop
   const getStopDiversions = (stopId) =>
@@ -65,37 +102,64 @@ export default function StopsView() {
       .filter(
         (r) =>
           r.diversion?.active &&
-          Array.isArray(r.stops) &&
-          r.stops.includes(stopId)
+          Array.isArray(r.diversion?.stops) &&
+          r.diversion.stops.includes(stopId)
       )
       .map((r) => ({
         route: r.number || r.routeId,
-        message: r.diversion?.message || '',
+        message: r.diversion?.reason || r.diversion?.message || '',
       }));
 
   return (
-    <main className="p-6 text-white">
+    <main className="px-6 py-10 text-white max-w-10xl mx-auto">
       {/* 🔍 Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h1 className="text-3xl font-bold">Bus Stops</h1>
-        <input
-          type="text"
-          placeholder="Search by stop name, town, or route..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-white/10 border border-white/20 backdrop-blur-md text-white placeholder-white/50 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-80"
-        />
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight mb-1">Bus Stops</h1>
+          <p className="text-white/60 text-sm">
+            Browse stops by name, town, or route — filter by sorting options below.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search by stop name, town, or route..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-white/10 border border-white/20 backdrop-blur-md text-white placeholder-white/50 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-72"
+          />
+
+          {/* Sort */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-[#283335] border border-white/20 text-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-green-500 appearance-none pr-10"
+            >
+              <option className="bg-[#283335]" value="a-z">A–Z</option>
+              <option className="bg-[#283335]" value="z-a">Z–A</option>
+              <option className="bg-[#283335]" value="route-asc">Route Number ↑</option>
+              <option className="bg-[#283335]" value="route-desc">Route Number ↓</option>
+              <option className="bg-[#283335]" value="updated">Last Updated</option>
+              <option className="bg-[#283335]" value="new">Newest</option>
+              <option className="bg-[#283335]" value="old">Oldest</option>
+            </select>
+            <Filter className="absolute right-3 top-2.5 w-4 h-4 text-white/50 pointer-events-none" />
+          </div>
+        </div>
       </div>
 
       {/* 🌀 Loading / Error */}
-      {loading && <p className="text-white/60">Loading Stops...</p>}
-      {error && <p className="text-red-500">Error: {error}</p>}
+      {loading && <p className="text-white/60 animate-pulse">Loading Stops...</p>}
+      {error && <p className="text-red-500">{error}</p>}
       {!loading && filteredStops.length === 0 && (
         <p className="text-white/60">No stops found.</p>
       )}
 
       {/* 🚏 Stops Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {filteredStops.map((stop, index) => {
           const diversions = getStopDiversions(stop.stopId);
           const hasDiversion = diversions.length > 0;
@@ -105,55 +169,68 @@ export default function StopsView() {
             <a
               href={`/ycc/stops/${stop._id}`}
               key={stop.stopId}
-              className={`relative backdrop-blur border rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-200 
+              className={`relative bg-[#283335] border border-white/10 backdrop-blur-xl rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 
                 ${
                   isClosed
-                    ? 'bg-red-900/30 border-red-600/30 ring-2 ring-red-500/50'
+                    ? 'ring-2 ring-red-500/50 border-red-600/30'
                     : hasDiversion
-                    ? 'bg-yellow-900/30 border-yellow-600/30 ring-2 ring-yellow-500/50'
-                    : index % 2 === 0
-                    ? 'bg-gradient-to-tr from-blue-900/30 to-purple-900/30 border-white/20'
-                    : 'bg-gradient-to-tr from-purple-900/30 to-blue-900/30 border-white/20'
+                    ? 'ring-2 ring-yellow-500/50 border-yellow-600/30'
+                    : 'hover:ring-2 hover:ring-blue-500/40'
                 }`}
             >
-              {/* Stop Info */}
-              <h2 className="text-xl font-semibold mb-1">{stop.name}</h2>
-              {stop.town && <p className="text-white/70 mb-1">{stop.town}</p>}
-              {stop.routes?.length > 0 && (
-                <p className="text-white/50 text-sm mb-2">
-                  Routes: {stop.routes.join(', ')}
-                </p>
-              )}
+              <div className="flex flex-col h-full">
+                <h2 className="text-xl font-semibold mb-1">{stop.name}</h2>
+                {stop.town && (
+                  <p className="text-white/70 mb-1 text-sm">{stop.town}</p>
+                )}
 
-              {/* 🚧 Stop Closed */}
-              {isClosed && (
-                <div className="mt-3 bg-red-500/20 border border-red-600/50 text-red-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
-                  <AlertTriangle className="mt-0.5 flex-shrink-0 text-red-400" size={18} />
-                  <div className="text-sm leading-snug">
-                    <strong>Stop Closed:</strong>{' '}
-                    {stop.closureReason
-                      ? stop.closureReason
-                      : 'This stop is currently closed.'}
+                {/* Routes */}
+                {stop.routes?.length > 0 && (
+                  <div className="text-white/60 text-sm mb-2 flex flex-wrap gap-1">
+                    {stop.routes.map((rid) => {
+                      const route = routes.find(
+                        (r) => r._id === rid || r.routeId === rid
+                      );
+                      return route ? (
+                        <span
+                          key={rid}
+                          className="px-2 py-0.5 text-xs rounded-md bg-white/10 border border-white/20"
+                        >
+                          {route.number}
+                        </span>
+                      ) : null;
+                    })}
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* ⚠️ Diversion Warning */}
-              {!isClosed && hasDiversion && (
-                <div className="mt-3 bg-yellow-400/20 border border-yellow-500/40 text-yellow-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
-                  <AlertTriangle className="mt-0.5 flex-shrink-0" size={18} />
-                  <div className="text-sm leading-snug">
-                    <strong>Route Diversion Active:</strong>{' '}
-                    {diversions.map((d, i) => (
-                      <span key={i}>
-                        {d.route}
-                        {d.message ? ` – ${d.message}` : ''}
-                        {i < diversions.length - 1 ? ', ' : ''}
-                      </span>
-                    ))}
+                {/* 🚧 Stop Closed */}
+                {isClosed && (
+                  <div className="mt-auto bg-red-500/20 border border-red-600/50 text-red-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
+                    <AlertTriangle className="mt-0.5 flex-shrink-0 text-red-400" size={18} />
+                    <div className="text-sm leading-snug">
+                      <strong>Stop Closed:</strong>{' '}
+                      {stop.closureReason || 'This stop is currently closed.'}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* ⚠️ Diversion Warning */}
+                {!isClosed && hasDiversion && (
+                  <div className="mt-auto bg-yellow-400/20 border border-yellow-500/40 text-yellow-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
+                    <AlertTriangle className="mt-0.5 flex-shrink-0" size={18} />
+                    <div className="text-sm leading-snug">
+                      <strong>Route Diversion Active:</strong>{' '}
+                      {diversions.map((d, i) => (
+                        <span key={i}>
+                          {d.route}
+                          {d.message ? ` – ${d.message}` : ''}
+                          {i < diversions.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </a>
           );
         })}

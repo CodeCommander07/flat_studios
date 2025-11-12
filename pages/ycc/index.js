@@ -61,23 +61,23 @@ export default function YCCIndex() {
     d.incidentType?.toLowerCase().includes('diversion')
   );
 
-const getStopData = (stopId) => {
-  const s = stops.find((x) => x.stopId === stopId);
-  if (!s) return { name: stopId, id: stopId };
-  return {
-    name: `${s.name}${s.town ? ` (${s.town})` : ''}`,
-    id: s._id, // ✅ Use _id for href
+  const getStopData = (stopId) => {
+    const s = stops.find((x) => x.stopId === stopId);
+    if (!s) return { name: stopId, id: stopId };
+    return {
+      name: `${s.name}${s.town ? ` (${s.town})` : ''}`,
+      id: s._id, // ✅ Use _id for href
+    };
   };
-};
 
-// 🛑 Closed stops (store display name + MongoDB _id)
-const closedStopNames = Array.from(
-  new Set(
-    stopClosures.flatMap((c) =>
-      (c.affectedStops || []).map((sid) => getStopData(sid))
+  // 🛑 Closed stops (store display name + MongoDB _id)
+  const closedStopNames = Array.from(
+    new Set(
+      stopClosures.flatMap((c) =>
+        (c.affectedStops || []).map((sid) => getStopData(sid))
+      )
     )
-  )
-).filter((s) => s && s.name);
+  ).filter((s) => s && s.name);
 
   // 🧩 Affected routes (store name + ID)
   const affectedRoutes = Array.from(
@@ -114,176 +114,190 @@ const closedStopNames = Array.from(
 
 
   return (
-      <main className="text-white px-6 py-6 flex flex-col items-center">
-        <div className="max-w-6xl w-full space-y-8">
+    <main className="text-white px-6 py-6 flex flex-col items-center">
+      <div className="max-w-6xl w-full space-y-8">
 
-          {/* Header */}
-          <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
-            <h1 className="text-3xl font-bold">Yapton County Council</h1>
-            <p className="text-sm text-white/60 mt-2">
-              Overview of total routes and routes per company
+        {/* Header */}
+        <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
+          <h1 className="text-3xl font-bold">Yapton County Council</h1>
+          <p className="text-sm text-white/60 mt-2">
+            Overview of total routes and routes per company
+          </p>
+        </div>
+
+        {/* 🚨 Alerts Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* 🟥 Stop Closures Box (Left-aligned) */}
+          <div className="relative bg-[#283335]/95 backdrop-blur-md rounded-2xl shadow-lg flex flex-col justify-center p-5 overflow-hidden text-left">
+            {/* Red stripe (left edge) */}
+            <div className="absolute left-0 top-0 h-full w-[6px] bg-gradient-to-b from-red-500 to-red-700 rounded-l-2xl" />
+
+            <div className="pl-4 flex flex-col items-start text-left">
+              <h2 className="text-xl font-semibold text-red-300 mb-2 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+                Closed Stops
+              </h2>
+              <p className="text-sm text-white/70 mb-3">
+                The following stops are currently closed across the network:
+              </p>
+
+              {/* Rotating stop names */}
+              <div className="text-lg font-semibold text-white">
+                <RotatingText
+                  texts={closedStopNames.map(
+                    (s) => `<a href="/ycc/stops/${s.id}" class='text-red-300 hover:underline'>${s.name}</a>`
+                  )}
+                  splitBy="lines"
+                  staggerFrom="last"
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '-120%' }}
+                  staggerDuration={0.025}
+                  splitLevelClassName="overflow-hidden pb-1"
+                  transition={{
+                    type: 'spring',
+                    damping: 30,
+                    stiffness: 400,
+                  }}
+                  rotationInterval={5000}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="
+    relative bg-[#283335]/95 backdrop-blur-md rounded-2xl shadow-lg 
+    flex flex-col justify-center p-5 overflow-hidden
+    text-left md:text-right
+  "
+          >
+            <div
+              className="
+      absolute top-0 h-full w-[6px] 
+      bg-gradient-to-b from-orange-400 to-orange-600
+      rounded-l-2xl md:rounded-r-2xl md:rounded-l-none
+      left-0 md:left-auto md:right-0
+      transition-all duration-300
+    "
+            />
+
+            <div className="pl-4 md:pr-4 flex flex-col items-start md:items-end text-left md:text-right">
+              <h2 className="text-xl font-semibold text-orange-300 mb-2 flex items-center gap-2 md:justify-end">
+                Routes with Disruptions
+                <AlertTriangle className="w-5 h-5 text-orange-400" />
+              </h2>
+
+              <p className="text-sm text-white/70 mb-3">
+                These routes are affected by diversions or temporary changes:
+              </p>
+
+              <div className="text-lg font-semibold text-white">
+                <RotatingText
+                  texts={affectedRoutes.map(
+                    (r) =>
+                      `<a href="/ycc/routes/${r.id}" class='text-orange-300 hover:underline'>${r.name}</a>`
+                  )}
+                  splitBy="lines"
+                  staggerFrom="last"
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '-120%' }}
+                  staggerDuration={0.025}
+                  splitLevelClassName="overflow-hidden pb-1"
+                  transition={{
+                    type: 'spring',
+                    damping: 30,
+                    stiffness: 400,
+                  }}
+                  rotationInterval={5000}
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* 📊 Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Total Routes */}
+          <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="flex items-center gap-4 mb-4">
+              <a href="/ycc/routes">
+                <Route className="w-6 h-6 text-green-300" />
+              </a>
+              <h2 className="text-xl font-semibold">Total Routes</h2>
+            </div>
+            <p className="text-4xl font-bold text-green-300">
+              <CountUp
+                from={0}
+                to={stats?.length ?? 0}
+                separator=","
+                direction="up"
+                duration={1}
+                className="count-up-text"
+              />
             </p>
+            <p className="text-sm text-white/50">routes in total</p>
           </div>
 
-          {/* 🚨 Alerts Banner */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 🟥 Stop Closures Box (Left-aligned) */}
-            <div className="relative bg-[#283335]/95 backdrop-blur-md rounded-2xl shadow-lg flex flex-col justify-center p-5 overflow-hidden text-left">
-              {/* Red stripe (left edge) */}
-              <div className="absolute left-0 top-0 h-full w-[6px] bg-gradient-to-b from-red-500 to-red-700 rounded-l-2xl" />
-
-              <div className="pl-4 flex flex-col items-start text-left">
-                <h2 className="text-xl font-semibold text-red-300 mb-2 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-red-400" />
-                  Closed Stops
-                </h2>
-                <p className="text-sm text-white/70 mb-3">
-                  The following stops are currently closed across the network:
-                </p>
-
-                {/* Rotating stop names */}
-                <div className="text-lg font-semibold text-white">
-                  <RotatingText
-                    texts={closedStopNames.map(
-                      (s) => `<a href="/ycc/stops/${s.id}" class='text-red-300 hover:underline'>${s.name}</a>`
-                    )}
-                    splitBy="lines"
-                    staggerFrom="last"
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '-120%' }}
-                    staggerDuration={0.025}
-                    splitLevelClassName="overflow-hidden pb-1"
-                    transition={{
-                      type: 'spring',
-                      damping: 30,
-                      stiffness: 400,
-                    }}
-                    rotationInterval={5000}
-                  />
-                </div>
-              </div>
+          {/* Total Operators */}
+          <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="flex items-center gap-4 mb-4">
+              <a href="/ycc/operators">
+                <Bus className="w-6 h-6 text-purple-300" />
+              </a>
+              <h2 className="text-xl font-semibold">Total Operators</h2>
             </div>
-
-            {/* 🟧 Route Disruptions Box (Right-aligned) */}
-            <div className="relative bg-[#283335]/95 backdrop-blur-md rounded-2xl shadow-lg flex flex-col justify-center p-5 overflow-hidden text-right">
-              {/* Orange stripe (right edge) */}
-              <div className="absolute right-0 top-0 h-full w-[6px] bg-gradient-to-b from-orange-400 to-orange-600 rounded-r-2xl" />
-
-              <div className="pr-4 flex flex-col items-end text-right">
-                <h2 className="text-xl font-semibold text-orange-300 mb-2 flex items-center gap-2 justify-end">
-                  Routes with Disruptions
-                  <AlertTriangle className="w-5 h-5 text-orange-400" />
-                </h2>
-                <p className="text-sm text-white/70 mb-3 text-right">
-                  These routes are affected by diversions or temporary changes:
-                </p>
-
-                {/* Rotating affected route names */}
-                <div className="text-lg font-semibold text-white text-right">
-                  <RotatingText
-                    texts={affectedRoutes.map(
-                      (r) => `<a href="/ycc/routes/${r.id}" class='text-orange-300 hover:underline'>${r.name}</a>`
-                    )}
-                    splitBy="lines"
-                    staggerFrom="last"
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '-120%' }}
-                    staggerDuration={0.025}
-                    splitLevelClassName="overflow-hidden pb-1"
-                    transition={{
-                      type: 'spring',
-                      damping: 30,
-                      stiffness: 400,
-                    }}
-                    rotationInterval={5000}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 📊 Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Total Routes */}
-            <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <div className="flex items-center gap-4 mb-4">
-                <a href="/ycc/routes">
-                  <Route className="w-6 h-6 text-green-300" />
-                </a>
-                <h2 className="text-xl font-semibold">Total Routes</h2>
-              </div>
-              <p className="text-4xl font-bold text-green-300">
-                <CountUp
-                  from={0}
-                  to={stats?.length ?? 0}
-                  separator=","
-                  direction="up"
-                  duration={1}
-                  className="count-up-text"
-                />
-              </p>
-              <p className="text-sm text-white/50">routes in total</p>
-            </div>
-
-            {/* Total Operators */}
-            <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <div className="flex items-center gap-4 mb-4">
-                <a href="/ycc/operators">
-                  <Bus className="w-6 h-6 text-purple-300" />
-                </a>
-                <h2 className="text-xl font-semibold">Total Operators</h2>
-              </div>
-              <p className="text-4xl font-bold text-purple-300">
-                <CountUp
-                  from={0}
-                  to={stats3?.length ?? 0}
-                  separator=","
-                  direction="up"
-                  duration={1}
-                  className="count-up-text"
-                />
-              </p>
-              <p className="text-sm text-white/50">operators in total</p>
-            </div>
-
-            {/* Total Stops */}
-            <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <div className="flex items-center gap-4 mb-4">
-                <a href="/ycc/stops">
-                  <MapPin className="w-6 h-6 text-cyan-300" />
-                </a>
-                <h2 className="text-xl font-semibold">Total Stops</h2>
-              </div>
-              <p className="text-4xl font-bold text-cyan-300">
-                <CountUp
-                  from={0}
-                  to={stats2?.length ?? 0}
-                  separator=","
-                  direction="up"
-                  duration={1}
-                  className="count-up-text"
-                />
-              </p>
-              <p className="text-sm text-white/50">stops in total</p>
-            </div>
-          </div>
-
-          {/* 📋 Apply */}
-          <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
-            <h1 className="text-3xl font-bold">Want to be an operator?</h1>
-            <p className="text-sm text-white/60 mt-2 mb-5">
-              Apply to be an operator
+            <p className="text-4xl font-bold text-purple-300">
+              <CountUp
+                from={0}
+                to={stats3?.length ?? 0}
+                separator=","
+                direction="up"
+                duration={1}
+                className="count-up-text"
+              />
             </p>
-            <a
-              href="/ycc/operators/request"
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
-            >
-              Submit Operator
-            </a>
+            <p className="text-sm text-white/50">operators in total</p>
+          </div>
+
+          {/* Total Stops */}
+          <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+            <div className="flex items-center gap-4 mb-4">
+              <a href="/ycc/stops">
+                <MapPin className="w-6 h-6 text-cyan-300" />
+              </a>
+              <h2 className="text-xl font-semibold">Total Stops</h2>
+            </div>
+            <p className="text-4xl font-bold text-cyan-300">
+              <CountUp
+                from={0}
+                to={stats2?.length ?? 0}
+                separator=","
+                direction="up"
+                duration={1}
+                className="count-up-text"
+              />
+            </p>
+            <p className="text-sm text-white/50">stops in total</p>
           </div>
         </div>
-      </main>
+
+        {/* 📋 Apply */}
+        <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
+          <h1 className="text-3xl font-bold">Want to be an operator?</h1>
+          <p className="text-sm text-white/60 mt-2 mb-5">
+            Apply to be an operator
+          </p>
+          <a
+            href="/ycc/operators/request"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
+          >
+            Submit Operator
+          </a>
+        </div>
+      </div>
+    </main>
   );
 }

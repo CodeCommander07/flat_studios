@@ -131,12 +131,12 @@ export default function FilesPage() {
   const selectedFile = selectedIndex !== null ? files[selectedIndex] : null;
 
   return (
-    <main className="flex flex-col justify-center items-center min-h-screen bg-[#20282A] text-white px-4 py-12">
+    <main className="flex flex-col justify-center items-center text-white px-4 py-4">
       {/* Title */}
       <GradientText
         colors={['#40ffaa', '#4079ff', '#40ffaa']}
         animationSpeed={6}
-        className="rounded-2xl p-4 text-3xl mb-10 font-bold text-center w-full max-w-6xl"
+        className="rounded-2xl text-3xl font-bold text-center w-full max-w-6xl"
       >
         Welcome {user.username} — You currently have{' '}
         <CountUp from={0} to={files.length} duration={1} /> images
@@ -147,7 +147,7 @@ export default function FilesPage() {
       {/* Background box (full width) */}
       <div className="w-full max-w-7xl bg-[#283335] rounded-2xl border border-white/10 shadow-lg backdrop-blur-lg p-8 grid md:grid-cols-2 gap-8">
         {/* LEFT — Image preview */}
-        <div className="relative flex flex-col justify-center items-center h-[600px] border border-white/10 rounded-2xl overflow-hidden bg-[#1f2628]">
+        <div className="relative flex flex-col justify-center items-center max-h-[600px] border border-white/10 rounded-2xl overflow-hidden bg-[#1f2628]">
           <AnimatePresence mode="wait">
             {selectedFile ? (
               <motion.div

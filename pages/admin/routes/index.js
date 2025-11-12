@@ -188,158 +188,369 @@ export default function AdminRoutesPage() {
   return (
     <main className="max-w-10xl mx-auto px-8 mt-8 text-white">
       <div className="grid md:grid-cols-5 gap-8">
-        {/* LEFT — Add/Edit Route */}
-        <div className="col-span-2 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">{editing ? 'Edit Route' : 'Add Route'}</h1>
+        <div className="col-span-2 bg-[#1f282a]/90 p-6 rounded-2xl border border-white/10 backdrop-blur-xl shadow-xl flex flex-col max-h-[666px]">
+          <div className="flex justify-between items-center mb-5">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {editing ? 'Edit Route' : 'Add New Route'}
+            </h1>
             {editing && (
-              <button onClick={resetForm} className="text-gray-400 hover:text-white">
-                <X size={18} />
+              <button
+                onClick={resetForm}
+                className="text-gray-400 hover:text-white transition"
+              >
+                <X size={20} />
               </button>
             )}
           </div>
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-4 overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10"
+            className="space-y-5 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 flex-1 pr-2"
           >
-            {/* Route Info */}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm mb-1">Route Number</label>
-                <input
-                  type="text"
-                  name="number"
-                  value={form.number}
-                  onChange={handleChange}
-                  placeholder="e.g. 42A"
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Operators</label>
-                <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2 mb-2">
-                  {operators.length > 0 ? (
-                    operators.map((op) => {
-                      const isSelected = form.operator.includes(op.operatorName);
-                      return (
-                        <div
-                          key={op._id || op.operatorName}
-                          onClick={() => {
-                            setForm((f) => {
-                              const current = f.operator || [];
-                              const updated = current.includes(op.operatorName)
-                                ? current.filter((x) => x !== op.operatorName)
-                                : [...current, op.operatorName];
-                              return { ...f, operator: updated };
-                            });
-                          }}
-                          className={`cursor-pointer px-2 py-1 rounded text-sm transition-all hover:bg-white/10 ${isSelected
-                              ? 'bg-green-600/40 border border-green-500/20'
-                              : ''
-                            }`}
-                        >
-                          {op.operatorName}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-xs text-gray-400">No operators found</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                    Route Number
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    name="number"
+                    value={form.number}
+                    onChange={handleChange}
+                    placeholder="e.g. 42A"
+                    className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm placeholder:text-gray-500 text-white transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                    Start Stop
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Search start stop..."
+                    value={getStopName(form.origin)||form.originSearch || ''}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, originSearch: e.target.value }))
+                    }
+                    className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-green-500 outline-none text-sm placeholder:text-gray-500 text-white transition-all"
+                  />
+                  {form.originSearch && (
+                    <div className="max-h-32 overflow-y-auto mt-2 bg-black/40 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10">
+                      {stops
+                        .filter((stop) =>
+                          getStopName(stop.stopId)
+                            .toLowerCase()
+                            .includes((form.originSearch || '').toLowerCase())
+                        )
+                        .map((stop) => (
+                          <div
+                            key={stop.stopId}
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                origin: stop.stopId,
+                                originSearch: '',
+                              }))
+                            }
+                            className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${form.origin === stop.stopId
+                                ? 'bg-green-600/40 border border-green-500/20'
+                                : ''
+                              }`}
+                          >
+                            {getStopName(stop.stopId)}
+                          </div>
+                        ))}
+                    </div>
                   )}
                 </div>
 
-                {form.operator?.length > 0 && (
-                  <p className="text-xs text-gray-300">
-                    Selected: {form.operator.join(', ')}
-                  </p>
-                )}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                    End Stop
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Search end stop..."
+                    value={getStopName(form.destination)||form.destinationSearch || ''}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, destinationSearch: e.target.value }))
+                    }
+                    className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder:text-gray-500 text-white transition-all"
+                  />
+                  {form.destinationSearch && (
+                    <div className="max-h-32 overflow-y-auto mt-2 bg-black/40 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10">
+                      {stops
+                        .filter((stop) =>
+                          getStopName(stop.stopId)
+                            .toLowerCase()
+                            .includes((form.destinationSearch || '').toLowerCase())
+                        )
+                        .map((stop) => (
+                          <div
+                            key={stop.stopId}
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                destination: stop.stopId,
+                                destinationSearch: '',
+                              }))
+                            }
+                            className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${form.destination === stop.stopId
+                                ? 'bg-blue-600/40 border border-blue-500/20'
+                                : ''
+                              }`}
+                          >
+                            {getStopName(stop.stopId)}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
               </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
+  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
+    Operators <span className="text-red-500">*</span>
+  </label>
+
+  <div className="flex-1 overflow-y-auto bg-black/20 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10 max-h-72">
+    {operators.length > 0 ? (
+      operators.map((op) => {
+        const isSelected = form.operator.includes(op.operatorName);
+        return (
+          <div
+            key={op._id || op.operatorName}
+            onClick={() => {
+              setForm((f) => {
+                const current = f.operator || [];
+                const updated = current.includes(op.operatorName)
+                  ? current.filter((x) => x !== op.operatorName)
+                  : [...current, op.operatorName];
+                return { ...f, operator: updated };
+              });
+            }}
+            className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${
+              isSelected
+                ? 'bg-green-600/40 border border-green-500/20 text-white'
+                : 'hover:bg-white/10 text-gray-300'
+            }`}
+          >
+            {op.operatorName}
+          </div>
+        );
+      })
+    ) : (
+      <p className="text-xs text-gray-400 text-center py-2">
+        No operators found
+      </p>
+    )}
+  </div>
+
+  {form.operator?.length > 0 ? (
+    <p className="text-xs text-gray-300 mt-2">
+      Selected: {form.operator.join(', ')}
+    </p>
+  ) : (
+    <p className="text-xs text-red-400 mt-2">Required — select at least one.</p>
+  )}
+</div>
+
             </div>
 
-            {/* Origin / Destination */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm mb-1">Origin</label>
-                <select
-                  name="origin"
-                  value={form.origin}
-                  onChange={handleChange}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
-                >
-                  <option className="text-white bg-black" value="">Select origin</option>
-                  {stops.map((stop) => (
-                    <option className="text-white bg-black" key={stop.stopId} value={stop.stopId}>
-                      {getStopName(stop.stopId)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Destination</label>
-                <select
-                  name="destination"
-                  value={form.destination}
-                  onChange={handleChange}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
-                >
-                  <option className="text-white bg-black" value="">Select destination</option>
-                  {stops.map((stop) => (
-                    <option className="text-white bg-black" key={stop.stopId} value={stop.stopId}>
-                      {getStopName(stop.stopId)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
 
-            {/* Description */}
             <div>
-              <label className="block text-sm mb-1">Description</label>
+              <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={form.description}
+                required
                 onChange={handleChange}
                 rows="3"
-                className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500 resize-none"
+                className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-green-500 resize-none text-sm outline-none placeholder:text-gray-500 text-white transition-all"
+                placeholder="Describe the route..."
               />
             </div>
 
-            {/* Forward & Return Stops */}
-            <div>
-              <label className="block text-sm mb-1">Route Stops (Forward)</label>
-              <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2 mb-3">
-                {stops.map((stop) => (
-                  <div
-                    key={stop.stopId}
-                    onClick={() => toggleStop(stop.stopId, 'forward')}
-                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.stops.forward.includes(stop.stopId)
-                      ? 'bg-green-600/40 border border-green-500/20'
-                      : ''
-                      }`}
-                  >
-                    {getStopName(stop.stopId)}
-                  </div>
-                ))}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
+                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
+                  Forward Stops
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Search stops..."
+                  value={form.forwardSearch || ''}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, forwardSearch: e.target.value }))
+                  }
+                  className="w-full mb-3 p-2.5 rounded-lg bg-black/20 border border-white/15 focus:ring-2 focus:ring-green-500 text-sm outline-none placeholder:text-gray-400 text-white"
+                />
+
+                <div
+                  className="overflow-y-auto bg-black/30 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10"
+                  style={{ maxHeight: '10.5rem' }}
+                >
+                  {stops
+                    .filter((stop) =>
+                      getStopName(stop.stopId)
+                        .toLowerCase()
+                        .includes((form.forwardSearch || '').toLowerCase())
+                    )
+                    .map((stop) => (
+                      <div
+                        key={stop.stopId}
+                        onClick={() => toggleStop(stop.stopId, 'forward')}
+                        className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${form.stops.forward.includes(stop.stopId)
+                          ? 'bg-green-600/40 border border-green-500/20 text-white'
+                          : 'hover:bg-white/10 text-gray-300'
+                          }`}
+                      >
+                        {getStopName(stop.stopId)}
+                      </div>
+                    ))}
+                  {stops.filter((stop) =>
+                    getStopName(stop.stopId)
+                      .toLowerCase()
+                      .includes((form.forwardSearch || '').toLowerCase())
+                  ).length === 0 && (
+                      <p className="text-xs text-gray-400 text-center py-2">
+                        No stops found
+                      </p>
+                    )}
+                </div>
+
+                <div className="mt-3 text-xs text-gray-300 bg-black/20 border border-white/10 rounded-lg p-2">
+                  {form.origin ? (
+                    <>
+                      <span className="text-green-400 font-semibold">
+                        {getStopName(form.origin)}
+                      </span>{' '}
+                      →
+                      {form.stops.forward.length > 0 ? (
+                        <>
+                          {' '}
+                          {form.stops.forward
+                            .map((id) => getStopName(id))
+                            .slice(0, 3)
+                            .join(' → ')}
+                          {form.stops.forward.length > 3 && ' → ...'}
+                        </>
+                      ) : (
+                        ' (no intermediate stops)'
+                      )}{' '}
+                      →
+                      {form.destination ? (
+                        <>
+                          {' '}
+                          <span className="text-blue-400 font-semibold">
+                            {getStopName(form.destination)}
+                          </span>
+                        </>
+                      ) : (
+                        ' (no end stop)'
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-gray-500 italic">No route summary yet.</p>
+                  )}
+                </div>
               </div>
 
-              <label className="block text-sm mb-1">Route Stops (Return)</label>
-              <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
-                {stops.map((stop) => (
-                  <div
-                    key={stop.stopId}
-                    onClick={() => toggleStop(stop.stopId, 'backward')}
-                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.stops.backward.includes(stop.stopId)
-                      ? 'bg-blue-600/40 border border-blue-500/20'
-                      : ''
-                      }`}
-                  >
-                    {getStopName(stop.stopId)}
-                  </div>
-                ))}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
+                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
+                  Return Stops
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Search stops..."
+                  value={form.backwardSearch || ''}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, backwardSearch: e.target.value }))
+                  }
+                  className="w-full mb-3 p-2.5 rounded-lg bg-black/20 border border-white/15 focus:ring-2 focus:ring-blue-500 text-sm outline-none placeholder:text-gray-400 text-white"
+                />
+
+                <div
+                  className="overflow-y-auto bg-black/30 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10"
+                  style={{ maxHeight: '10.5rem' }}
+                >
+                  {stops
+                    .filter((stop) =>
+                      getStopName(stop.stopId)
+                        .toLowerCase()
+                        .includes((form.backwardSearch || '').toLowerCase())
+                    )
+                    .map((stop) => (
+                      <div
+                        key={stop.stopId}
+                        onClick={() => toggleStop(stop.stopId, 'backward')}
+                        className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${form.stops.backward.includes(stop.stopId)
+                          ? 'bg-blue-600/40 border border-blue-500/20 text-white'
+                          : 'hover:bg-white/10 text-gray-300'
+                          }`}
+                      >
+                        {getStopName(stop.stopId)}
+                      </div>
+                    ))}
+                  {stops.filter((stop) =>
+                    getStopName(stop.stopId)
+                      .toLowerCase()
+                      .includes((form.backwardSearch || '').toLowerCase())
+                  ).length === 0 && (
+                      <p className="text-xs text-gray-400 text-center py-2">
+                        No stops found
+                      </p>
+                    )}
+                </div>
+
+                <div className="mt-3 text-xs text-gray-300 bg-black/20 border border-white/10 rounded-lg p-2">
+                  {form.destination ? (
+                    <>
+                      <span className="text-blue-400 font-semibold">
+                        {getStopName(form.destination)}
+                      </span>{' '}
+                      →
+                      {form.stops.backward.length > 0 ? (
+                        <>
+                          {' '}
+                          {form.stops.backward
+                            .map((id) => getStopName(id))
+                            .slice(0, 3)
+                            .join(' → ')}
+                          {form.stops.backward.length > 3 && ' → ...'}
+                        </>
+                      ) : (
+                        ' (no intermediate stops)'
+                      )}{' '}
+                      →
+                      {form.origin ? (
+                        <>
+                          {' '}
+                          <span className="text-green-400 font-semibold">
+                            {getStopName(form.origin)}
+                          </span>
+                        </>
+                      ) : (
+                        ' (no start stop)'
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-gray-500 italic">No route summary yet.</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* ⚠️ Diversion Section */}
             {editing && (
               <div className="mt-6 border-t border-white/10 pt-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -362,57 +573,103 @@ export default function AdminRoutesPage() {
                 </label>
 
                 {form.diversion.active && (
-                  <div className="mt-3 space-y-3">
-                    <textarea
-                      placeholder="Diversion message..."
-                      value={form.diversion.reason}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          diversion: { ...f.diversion, reason: e.target.value },
-                        }))
-                      }
-                      rows="3"
-                      className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
-                    />
-                    <p className="text-sm mb-1">Affected Stops</p>
-                    <div className="max-h-24 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
-                      {stops.map((stop) => (
-                        <div
-                          key={stop.stopId}
-                          onClick={() => toggleDiversionStop(stop.stopId)}
-                          className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.diversion.stops.includes(stop.stopId)
-                            ? 'bg-yellow-600/40 border border-yellow-400/20'
-                            : ''
-                            }`}
-                        >
-                          {getStopName(stop.stopId)}
-                        </div>
-                      ))}
+                  <div className="mt-3 space-y-4 bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
+                        Diversion Message
+                      </label>
+                      <textarea
+                        placeholder="Describe the diversion or reason..."
+                        value={form.diversion.reason}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            diversion: { ...f.diversion, reason: e.target.value },
+                          }))
+                        }
+                        rows="3"
+                        className="w-full p-3 rounded-lg bg-black/20 border border-white/15 focus:ring-2 focus:ring-yellow-400 text-sm outline-none placeholder:text-gray-400 text-white resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
+                        Affected Stops
+                      </label>
+
+                      <input
+                        type="text"
+                        placeholder="Search stops..."
+                        value={form.diversionSearch || ''}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, diversionSearch: e.target.value }))
+                        }
+                        className="w-full mb-3 p-2.5 rounded-lg bg-black/20 border border-white/15 focus:ring-2 focus:ring-yellow-400 text-sm outline-none placeholder:text-gray-400 text-white"
+                      />
+
+                      <div
+                        className="overflow-y-auto bg-black/30 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10"
+                        style={{ maxHeight: '10.5rem' }}
+                      >
+                        {stops
+                          .filter((stop) =>
+                            getStopName(stop.stopId)
+                              .toLowerCase()
+                              .includes((form.diversionSearch || '').toLowerCase())
+                          )
+                          .map((stop) => (
+                            <div
+                              key={stop.stopId}
+                              onClick={() => toggleDiversionStop(stop.stopId)}
+                              className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${form.diversion.stops.includes(stop.stopId)
+                                ? 'bg-yellow-600/40 border border-yellow-400/20 text-white'
+                                : 'hover:bg-white/10 text-gray-300'
+                                }`}
+                            >
+                              {getStopName(stop.stopId)}
+                            </div>
+                          ))}
+                        {stops.filter((stop) =>
+                          getStopName(stop.stopId)
+                            .toLowerCase()
+                            .includes((form.diversionSearch || '').toLowerCase())
+                        ).length === 0 && (
+                            <p className="text-xs text-gray-400 text-center py-2">
+                              No stops found
+                            </p>
+                          )}
+                      </div>
                     </div>
 
                     <button
                       type="button"
                       disabled={saving}
                       onClick={handleDisruptionSave}
-                      className="bg-yellow-500 hover:bg-yellow-400 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
+                      className="bg-yellow-500 hover:bg-yellow-400 text-black w-full py-2.5 rounded-lg font-semibold flex justify-center items-center gap-2 transition disabled:opacity-50"
                     >
                       <Save size={18} />
                       {saving ? 'Saving...' : 'Save Disruption'}
                     </button>
                   </div>
                 )}
+
               </div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
-              disabled={saving}
-              className="mt-4 bg-green-500 hover:bg-green-600 text-black w-full py-2 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
+              disabled={saving || !form.operator || !form.number || !form.origin || !form.destination || !form.description}
+              className="mt-3 bg-green-500 hover:bg-green-400 text-black w-full py-2.5 rounded-xl font-semibold flex justify-center items-center gap-2 shadow-md transition disabled:opacity-50"
             >
-              <Save size={18} />
-              {saving ? 'Saving...' : editing ? 'Update Route' : 'Add Route'}
+              {saving ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" /> Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={18} /> {editing ? 'Update Route' : 'Add Route'}
+                </>
+              )}
             </button>
           </form>
         </div>

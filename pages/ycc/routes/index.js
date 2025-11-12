@@ -128,9 +128,7 @@ export default function RoutesView() {
             ? 'bg-red-900/30 ring-2 ring-red-500/40'
             : hasDiversion
             ? 'bg-orange-900/30 ring-2 ring-orange-500/40'
-            : index % 2 === 0
-            ? 'bg-gradient-to-tr from-blue-900/30 to-purple-900/30'
-            : 'bg-gradient-to-tr from-purple-900/30 to-blue-900/30';
+            : "bg-[#283335]";
 
           const showTooltip = closedStops.length > 0 || hasDiversion;
 

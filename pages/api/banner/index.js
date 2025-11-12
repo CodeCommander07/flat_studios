@@ -25,6 +25,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         active: true,
         message,
+        icon: "OctagonAlert",
         linkText: 'View updates',
         linkUrl: '/ycc/travel',
         bgColor: 'linear-gradient(90deg, #b5121b 0%, #c41e25 100%)', // Gatwick red
@@ -40,10 +41,11 @@ export default async function handler(req, res) {
 
   // 📝 Admin update
   if (req.method === 'PUT') {
-    const { message, linkText, linkUrl, bgColor, textColor, active } = req.body;
+    const { message, icon, linkText, linkUrl, bgColor, textColor, active } = req.body;
     let banner = await Banner.findOne();
     if (!banner) banner = new Banner();
     banner.message = message;
+    banner.icon = icon;
     banner.linkText = linkText;
     banner.linkUrl = linkUrl;
     banner.bgColor = bgColor;

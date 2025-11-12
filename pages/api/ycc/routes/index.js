@@ -42,10 +42,19 @@ export default async function handler(req, res) {
         reason: body.diversion?.reason || '',
         stops: body.diversion?.stops || [],
       };
+        function generateRouteId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
 
       const created = await Route.create({
+        routeId: generateRouteId(),
         number: body.number?.trim(),
-        operator: body.operator?.trim(),
+        operator: Array.isArray(body.operator)
+  ? body.operator
+  : body.operator
+  ? [body.operator.trim()]
+  : [],
         origin: body.origin || '',
         destination: body.destination || '',
         description: body.description || '',
