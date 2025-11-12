@@ -114,7 +114,6 @@ const closedStopNames = Array.from(
 
 
   return (
-    <AuthWrapper requiredRole="ycc">
       <main className="text-white px-6 py-6 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-8">
 
@@ -286,6 +285,5 @@ const closedStopNames = Array.from(
           </div>
         </div>
       </main>
-    </AuthWrapper>
   );
 }
