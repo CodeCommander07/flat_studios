@@ -172,7 +172,7 @@ export default function RouteDetailPage() {
                       <div className="animate-pulse">
                         {getStopName(stopId)}
                       </div>
-                      <div className="text-yellow-400 text-xs">
+                      <div className="animate-pulse text-yellow-400 text-xs">
                         Temporary Departure Point
                       </div>
                     </>
@@ -183,7 +183,7 @@ export default function RouteDetailPage() {
                       <div className="animate-pulse">
                         {getStopName(stopId)}
                       </div>
-                      <div className="text-yellow-400 text-xs">
+                      <div className="animate-pulse text-yellow-400 text-xs">
                         Temporary Terminus Point
                       </div>
                     </>
