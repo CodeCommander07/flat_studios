@@ -169,7 +169,7 @@ export default function RouteDetailPage() {
                 <td className={`${textPos}`}>
                   {isTempStart && (
                     <>
-                      <div className="text-gray-500 text-sm line-through opacity-60">
+                      <div className="animate-pulse">
                         {getStopName(stopId)}
                       </div>
                       <div className="text-yellow-400 text-xs">
@@ -195,7 +195,7 @@ export default function RouteDetailPage() {
                         <>
                           <Link
                             href={`/ycc/stops/${s?._id}`}
-                            className="animate-pulse"
+                            className="text-gray-500 text-sm line-through opacity-60"
                           >
                             {getStopName(stopId)}
                           </Link>
