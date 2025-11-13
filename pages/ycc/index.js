@@ -117,7 +117,6 @@ export default function YCCIndex() {
     <main className="text-white px-6 py-6 flex flex-col items-center">
       <div className="max-w-6xl w-full space-y-8">
 
-        {/* Header */}
         <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
           <h1 className="text-3xl font-bold">Yapton County Council</h1>
           <p className="text-sm text-white/60 mt-2">
@@ -125,11 +124,8 @@ export default function YCCIndex() {
           </p>
         </div>
 
-        {/* 🚨 Alerts Banner */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* 🟥 Stop Closures Box (Left-aligned) */}
           <div className="relative bg-[#283335]/95 backdrop-blur-md rounded-2xl shadow-lg flex flex-col justify-center p-5 overflow-hidden text-left">
-            {/* Red stripe (left edge) */}
             <div className="absolute left-0 top-0 h-full w-[6px] bg-gradient-to-b from-red-500 to-red-700 rounded-l-2xl" />
 
             <div className="pl-4 flex flex-col items-start text-left">
@@ -141,7 +137,6 @@ export default function YCCIndex() {
                 The following stops are currently closed across the network:
               </p>
 
-              {/* Rotating stop names */}
               <div className="text-lg font-semibold text-white">
                 <RotatingText
                   texts={closedStopNames.map(
@@ -218,9 +213,7 @@ export default function YCCIndex() {
 
         </div>
 
-        {/* 📊 Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Total Routes */}
           <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
             <div className="flex items-center gap-4 mb-4">
               <a href="/ycc/routes">
@@ -241,7 +234,6 @@ export default function YCCIndex() {
             <p className="text-sm text-white/50">routes in total</p>
           </div>
 
-          {/* Total Operators */}
           <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
             <div className="flex items-center gap-4 mb-4">
               <a href="/ycc/operators">
@@ -262,7 +254,6 @@ export default function YCCIndex() {
             <p className="text-sm text-white/50">operators in total</p>
           </div>
 
-          {/* Total Stops */}
           <div className="bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl transition">
             <div className="flex items-center gap-4 mb-4">
               <a href="/ycc/stops">
@@ -284,7 +275,6 @@ export default function YCCIndex() {
           </div>
         </div>
 
-        {/* 📋 Apply */}
         <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
           <h1 className="text-3xl font-bold">Want to be an operator?</h1>
           <p className="text-sm text-white/60 mt-2 mb-5">

@@ -9,23 +9,20 @@ export default async function handler(req, res) {
   const { method } = req;
 
   try {
-    // 🚌 GET stop info
+
     if (method === 'GET') {
       const stop = await BusStop.findById(id);
       if (!stop) return res.status(404).json({ error: 'Stop not found' });
       return res.status(200).json({ stop });
     }
 
-    // ✏️ Update stop (handles closures too)
     if (method === 'PUT' || method === 'PATCH') {
       const updates = req.body;
       const stop = await BusStop.findByIdAndUpdate(id, updates, { new: true });
       if (!stop) return res.status(404).json({ error: 'Stop not found' });
 
-      // 🧩 Find all routes that include this stop
       const affectedRoutes = await Route.find({ stops: stop.stopId });
 
-      // 🚫 If stop is closed, create or update disruption + route diversions
       if (stop.closed) {
         const incidentId = `STOP-${stop.stopId}`;
         const incidentData = {
@@ -46,19 +43,18 @@ export default async function handler(req, res) {
           { upsert: true, new: true }
         );
 
-        // 🔁 Mark routes as diverted
         for (const route of affectedRoutes) {
           route.diversion = {
             active: true,
             reason: `Stop ${stop.name} closed`,
-            stops: route.stops.filter((s) => s !== stop.stopId), // skip the closed stop
+            stops: route.stops.filter((s) => s !== stop.stopId),
           };
           await route.save();
         }
 
         console.log(`🚨 Stop closure disruption created for ${stop.stopId}`);
       } else {
-        // ✅ Stop reopened — remove disruption and clear route diversions if they only referenced this stop
+  
         await Disruption.findOneAndDelete({ incidentId: `STOP-${stop.stopId}` });
 
         const affectedRoutes = await Route.find({ 'diversion.reason': { $regex: stop.name, $options: 'i' } });
@@ -73,7 +69,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ stop });
     }
 
-    // ❌ DELETE stop
     if (method === 'DELETE') {
       const stop = await BusStop.findByIdAndDelete(id);
       if (stop) {

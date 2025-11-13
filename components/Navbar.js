@@ -86,6 +86,7 @@ export default function Navbar() {
   const dropdowns = [
     {
       name: 'Community',
+      id:1,
       items: [
         { label: 'Home', href: '/' },
         { label: 'Advertising', href: '/advertising' },
@@ -96,7 +97,7 @@ export default function Navbar() {
     },
     {
       name: 'Yapton Community Council',
-      roleKey: 'ycc',
+      id:2,
       items: [
         { label: 'YCC Home', href: '/ycc/' },
         { label: 'Travel Updates', href: '/ycc/travel' },
@@ -107,6 +108,7 @@ export default function Navbar() {
     },
     {
       name: 'Staff Hub',
+      id:3,
       roleKey: 'hub',
       items: [
         { label: 'Hub', href: '/hub/' },
@@ -119,6 +121,7 @@ export default function Navbar() {
     },
     {
       name: 'Hub+',
+      id:4,
       roleKey: 'hubPlus',
       items: [
         { label: 'Hub+', href: '/hub+/' },
@@ -130,6 +133,7 @@ export default function Navbar() {
     },
     {
       name: 'Admin',
+      id:5,
       roleKey: 'admin',
       items: [
         { label: 'Admin', href: '/admin' },
@@ -149,6 +153,7 @@ export default function Navbar() {
     },
     {
       name: 'Developer',
+      id:6,
       roleKey: 'dev',
       items: [
         { label: 'Dev Hub', href: '/dev/' },
@@ -164,7 +169,6 @@ export default function Navbar() {
       className="w-full bg-[#283335] backdrop-blur-xl text-white sticky top-0 z-50 shadow-md"
     >
       <div className="mx-auto flex justify-between items-center px-4 md:px-8 py-3">
-        {/* Left: Logo + info */}
         <div className="flex items-center gap-3">
           <Link href="/">
             <Image src={process.env.NODE_ENV === "development" ? "/orange_logo.png" : "/logo.png"} alt="Logo" width={40} height={40} />
@@ -200,11 +204,9 @@ export default function Navbar() {
           </div>
         </div>
 
-
-        {/* Center: Navigation */}
         <div className="hidden md:flex items-center gap-6">
           {dropdowns.map((dropdown, i) => {
-            if (dropdown.name === 'Public' || (user && (!dropdown.roleKey || hasAccessTo(dropdown.roleKey, role)))) {
+            if (dropdown.id === 1 || dropdown.id === 2 || (user && (!dropdown.roleKey || hasAccessTo(dropdown.roleKey, role)))) {
               return (
                 <div key={i} className="relative">
                   <button
@@ -226,16 +228,22 @@ export default function Navbar() {
                                    rounded-b-lg shadow-xl 
                                    overflow-hidden min-w-[180px] z-50"
                       >
-                        {dropdown.items.map((item, j) => (
-                          <Link
-                            key={j}
-                            href={item.href}
-                            onClick={() => setOpenDropdown(null)}
-                            className="block px-4 py-2 hover:bg-white/10 text-md transition"
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
+                        {dropdown.items
+                          .filter((item) => {
+                            if (!user && item.roleKey) return false;
+                            if (item.roleKey && user?.role !== item.roleKey) return false;
+                            return true;
+                          })
+                          .map((item, j) => (
+                            <Link
+                              key={j}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block px-4 py-2 hover:bg-white/10 text-md transition"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -246,120 +254,116 @@ export default function Navbar() {
           })}
         </div>
 
-<div className="hidden md:flex items-center gap-3">
-  {user ? (
-    <div className="flex items-center gap-3 relative">
-      {/* 🔔 Notification Bell */}
-      <div
-        className="relative"
-        onMouseEnter={() => setNotifOpen(true)}
-        onMouseLeave={() => setNotifOpen(false)}
-      >
-        <div className="relative p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
-          <Bell className="w-5 h-5" />
-          {hasNew && (
-            <>
-              <span className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 rounded-full opacity-75 animate-ping"></span>
-              <span className="absolute top-0.5 right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-red-600 text-[8px] font-bold text-white">
-                {notifications.filter((n) => !n.read).length}
-              </span>
-            </>
+        <div className="hidden md:flex items-center gap-3">
+          {user ? (
+            <div className="flex items-center gap-3 relative">
+              <div
+                className="relative"
+                onMouseEnter={() => setNotifOpen(true)}
+                onMouseLeave={() => setNotifOpen(false)}
+              >
+                <div className="relative p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                  <Bell className="w-5 h-5" />
+                  {hasNew && (
+                    <>
+                      <span className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 rounded-full opacity-75 animate-ping"></span>
+                      <span className="absolute top-0.5 right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-red-600 text-[8px] font-bold text-white">
+                        {notifications.filter((n) => !n.read).length}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <AnimatePresence>
+                  {notifOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-3 bg-[#2e3b3e]/95 backdrop-blur-xl rounded-xl shadow-2xl w-72 py-3 px-4 z-50 border border-white/10"
+                    >
+                      <p className="font-semibold text-white mb-2 text-sm">Notifications</p>
+                      {notifications.length === 0 ? (
+                        <p className="text-white/60 text-sm">No new notifications.</p>
+                      ) : (
+                        <ul className="max-h-60 overflow-y-auto space-y-2">
+                          {notifications.slice(0, 5).map((n, i) => (
+                            <li
+                              key={i}
+                              className={`text-sm p-2 rounded-lg ${n.read
+                                ? 'bg-white/5 text-white/70'
+                                : 'bg-blue-500/20 text-blue-100'
+                                }`}
+                            >
+                              <a
+                                href={n.link ? n.link : '/me/notifications'}
+                                className="hover:underline hover:text-blue-300 transition-colors"
+                              >
+                                {n.notification}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <Link
+                        href="/me/notifications"
+                        className="text-blue-400 hover:text-blue-300 text-xs mt-3 inline-block"
+                      >
+                        View all →
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className="relative">
+                <button
+                  onClick={() =>
+                    setOpenDropdown(openDropdown === 'user' ? null : 'user')
+                  }
+                  className="flex items-center gap-2 hover:bg-white/10 px-3 py-2 rounded-md transition"
+                >
+                  <Image
+                    src={user?.defaultAvatar || '/logo.png'}
+                    alt="Avatar"
+                    width={28}
+                    height={28}
+                    className="rounded-full"
+                  />
+                  <span className="text-md">{user.username}</span>
+                </button>
+
+                <AnimatePresence>
+                  {openDropdown === 'user' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-1 bg-[#283335]/95 backdrop-blur-lg 
+                         rounded-lg shadow-xl overflow-hidden w-44 border border-white/10 z-50"
+                    >
+                      <Link href="/me" className="block px-4 py-2 hover:bg-white/10 text-md">Profile</Link>
+                      <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-md">File Sharer</Link>
+                      <Link href="/me/applications" className="block px-4 py-2 hover:bg-white/10 text-md">My Applications</Link>
+                      <Link href="/me/appeals" className="block px-4 py-2 hover:bg-white/10 text-md">My Appeals</Link>
+                      <Link href="/me/notifications" className="block px-4 py-2 hover:bg-white/10 text-md">My Notifications</Link>
+                      <LogoutButton />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          ) : (
+            <Link
+              href="/auth/"
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm transition"
+            >
+              Login
+            </Link>
           )}
         </div>
-
-        {/* 🧾 Notifications dropdown */}
-        <AnimatePresence>
-          {notifOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -6, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.98 }}
-              transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-3 bg-[#2e3b3e]/95 backdrop-blur-xl rounded-xl shadow-2xl w-72 py-3 px-4 z-50 border border-white/10"
-            >
-              <p className="font-semibold text-white mb-2 text-sm">Notifications</p>
-              {notifications.length === 0 ? (
-                <p className="text-white/60 text-sm">No new notifications.</p>
-              ) : (
-                <ul className="max-h-60 overflow-y-auto space-y-2">
-                  {notifications.slice(0, 5).map((n, i) => (
-                    <li
-                      key={i}
-                      className={`text-sm p-2 rounded-lg ${
-                        n.read
-                          ? 'bg-white/5 text-white/70'
-                          : 'bg-blue-500/20 text-blue-100'
-                      }`}
-                    >
-                      <a
-                        href={n.link ? n.link : '/me/notifications'}
-                        className="hover:underline hover:text-blue-300 transition-colors"
-                      >
-                        {n.notification}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <Link
-                href="/me/notifications"
-                className="text-blue-400 hover:text-blue-300 text-xs mt-3 inline-block"
-              >
-                View all →
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 👤 User Dropdown */}
-      <div className="relative">
-        <button
-          onClick={() =>
-            setOpenDropdown(openDropdown === 'user' ? null : 'user')
-          }
-          className="flex items-center gap-2 hover:bg-white/10 px-3 py-2 rounded-md transition"
-        >
-          <Image
-            src={user?.defaultAvatar || '/logo.png'}
-            alt="Avatar"
-            width={28}
-            height={28}
-            className="rounded-full"
-          />
-          <span className="text-md">{user.username}</span>
-        </button>
-
-        <AnimatePresence>
-          {openDropdown === 'user' && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-1 bg-[#283335]/95 backdrop-blur-lg 
-                         rounded-lg shadow-xl overflow-hidden w-44 border border-white/10 z-50"
-            >
-              <Link href="/me" className="block px-4 py-2 hover:bg-white/10 text-md">Profile</Link>
-              <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-md">File Sharer</Link>
-              <Link href="/me/applications" className="block px-4 py-2 hover:bg-white/10 text-md">My Applications</Link>
-              <Link href="/me/appeals" className="block px-4 py-2 hover:bg-white/10 text-md">My Appeals</Link>
-              <Link href="/me/notifications" className="block px-4 py-2 hover:bg-white/10 text-md">My Notifications</Link>
-              <LogoutButton />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  ) : (
-    <Link
-      href="/auth/"
-      className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm transition"
-    >
-      Login
-    </Link>
-  )}
-</div>
 
 
         <div className="relative md:hidden">
@@ -390,7 +394,7 @@ export default function Navbar() {
           >
             {dropdowns.map((dropdown, i) => {
               if (
-                dropdown.name === 'Public' ||
+               dropdown.id === 1 || dropdown.id === 2 ||
                 (user && (!dropdown.roleKey || hasAccessTo(dropdown.roleKey, role)))
               ) {
                 const isOpen = openDropdown === dropdown.name;
@@ -420,7 +424,13 @@ export default function Navbar() {
                           transition={{ duration: 0.25 }}
                           className="ml-3 mt-1 space-y-1 overflow-hidden"
                         >
-                          {dropdown.items.map((item, j) => (
+                          {dropdown.items
+                          .filter((item) => {
+                            if (!user && item.roleKey) return false;
+                            if (item.roleKey && user?.role !== item.roleKey) return false;
+                            return true;
+                          })
+                          .map((item, j) => (
                             <Link
                               key={j}
                               href={item.href}

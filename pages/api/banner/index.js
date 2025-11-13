@@ -6,13 +6,11 @@ export default async function handler(req, res) {
   await dbConnect();
 
   if (req.method === 'GET') {
-    // 🔎 1. Find active disruptions in the last 48 hours (or adjust if you archive them)
     const recentDisruptions = await Disruption.find()
       .sort({ incidentUpdated: -1 })
       .limit(5);
 
     if (recentDisruptions.length > 0) {
-      // 🧩 Construct banner text dynamically
       let message;
 
       if (recentDisruptions.length === 1) {
@@ -28,18 +26,16 @@ export default async function handler(req, res) {
         icon: "OctagonAlert",
         linkText: 'View updates',
         linkUrl: '/ycc/travel',
-        bgColor: 'linear-gradient(90deg, #b5121b 0%, #c41e25 100%)', // Gatwick red
+        bgColor: 'linear-gradient(90deg, #b5121b 0%, #c41e25 100%)',
         textColor: '#ffffff',
         source: 'disruptions',
       });
     }
 
-    // 🪶 2. No disruptions — show your manual custom banner
     const banner = await Banner.findOne();
     return res.status(200).json(banner || null);
   }
 
-  // 📝 Admin update
   if (req.method === 'PUT') {
     const { message, icon, linkText, linkUrl, bgColor, textColor, active } = req.body;
     let banner = await Banner.findOne();

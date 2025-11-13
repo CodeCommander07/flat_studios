@@ -10,6 +10,9 @@ export default function AdminStopsPage() {
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [sortType, setSortType] = useState('az');
+  const [showAlerts, setShowAlerts] = useState(false);
+  const [operators, setOperators] = useState([]);
   const [form, setForm] = useState({
     stopId: generateStopId(),
     name: '',
@@ -21,7 +24,15 @@ export default function AdminStopsPage() {
     closureReason: '',
   });
 
-  // 🧭 Load Stops
+  async function loadOperators() {
+    try {
+      const res = await fetch('/api/ycc/operators/active');
+      const data = await res.json();
+      setOperators(data.submissions || data || []);
+    } catch (err) {
+      console.error('Failed to load operators:', err);
+    }
+  }
   async function loadStops() {
     setLoading(true);
     try {
@@ -35,7 +46,6 @@ export default function AdminStopsPage() {
     }
   }
 
-  // 🚍 Load Routes
   async function loadRoutes() {
     try {
       const res = await fetch('/api/ycc/routes');
@@ -49,6 +59,7 @@ export default function AdminStopsPage() {
   useEffect(() => {
     loadStops();
     loadRoutes();
+    loadOperators();
   }, []);
 
   useEffect(() => {
@@ -168,10 +179,33 @@ export default function AdminStopsPage() {
     return numbers.length ? numbers.join(', ') : '—';
   };
 
+  const sortedStops = [...stops]
+    .filter((s) => {
+      if (showAlerts) return s.closed === true;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortType) {
+        case 'az':
+          return a.name.localeCompare(b.name);
+        case 'za':
+          return b.name.localeCompare(a.name);
+        case 'routesAsc':
+          return (a.routes?.length || 0) - (b.routes?.length || 0);
+        case 'routesDesc':
+          return (b.routes?.length || 0) - (a.routes?.length || 0);
+        case 'closed':
+          return (b.closed ? 1 : 0) - (a.closed ? 1 : 0);
+        case 'active':
+          return (a.closed ? 1 : 0) - (b.closed ? 1 : 0);
+        default:
+          return 0;
+      }
+    });
+
   return (
     <main className="max-w-10xl mx-auto px-8 mt-8 text-white">
       <div className="grid md:grid-cols-5 gap-8">
-        {/* LEFT — Add/Edit Stop Form */}
         <div className="col-span-2 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">{editing ? 'Edit Stop' : 'Add Stop'}</h1>
@@ -186,7 +220,6 @@ export default function AdminStopsPage() {
             onSubmit={handleSubmit}
             className="space-y-4 overflow-y-auto max-h-[590px] pr-2 scrollbar-thin scrollbar-thumb-white/10"
           >
-            {/* Stop ID */}
             <div>
               <label className="block text-sm mb-1 text-white">Stop ID</label>
               <input
@@ -201,13 +234,13 @@ export default function AdminStopsPage() {
             </div>
 
 
-            {/* Name + Town */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1">Name</label>
                 <input
                   name="name"
                   value={form.name}
+                  required
                   onChange={handleChange}
                   placeholder="e.g. Yapton Green"
                   className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
@@ -218,6 +251,7 @@ export default function AdminStopsPage() {
                 <input
                   name="town"
                   value={form.town}
+                  required
                   onChange={handleChange}
                   placeholder="e.g. Yapton"
                   className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
@@ -225,7 +259,6 @@ export default function AdminStopsPage() {
               </div>
             </div>
 
-            {/* Postcode */}
             <div>
               <label className="block text-sm mb-1">Postcode</label>
               <input
@@ -237,34 +270,42 @@ export default function AdminStopsPage() {
               />
             </div>
 
-            {/* Location */}
             <div>
               <label className="block text-sm mb-1">Location / Description</label>
               <input
                 name="location"
                 value={form.location}
                 onChange={handleChange}
+                required
                 placeholder="e.g. near Yapton Green"
                 className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
               />
             </div>
 
-            {/* Routes */}
             <div>
               <label className="block text-sm mb-1">Routes Serving This Stop</label>
               <div className="max-h-32 overflow-y-auto bg-white/5 border border-white/10 rounded-lg p-2">
-                {routes.map((r) => (
-                  <div
-                    key={r._id}
-                    onClick={() => toggleRoute(r._id)}
-                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.routes.includes(r._id)
-                      ? 'bg-green-600/40 border border-green-500/20'
-                      : ''
-                      }`}
-                  >
-                    {r.number} — {r.operator}
-                  </div>
-                ))}
+                {routes.map((r) => {
+                  const operatorNames = Array.isArray(r.operator)
+                    ? r.operator
+                      .map((id) => operators.find((op) => op._id === id)?.operatorName)
+                      .filter(Boolean)
+                      .join(', ')
+                    : operators.find((op) => op._id === r.operator)?.operatorName || 'Unknown Operator';
+
+                  return (
+                    <div
+                      key={r._id}
+                      onClick={() => toggleRoute(r._id)}
+                      className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.routes.includes(r._id)
+                        ? 'bg-green-600/40 border border-green-500/20'
+                        : ''
+                        }`}
+                    >
+                      {r.number} — {operatorNames}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -321,15 +362,40 @@ export default function AdminStopsPage() {
         </div>
 
         <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h2 className="text-xl font-semibold">All Stops</h2>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search stops..."
-              className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
-            />
+
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search stops..."
+                className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500 text-sm"
+              />
+
+              <select
+                onChange={(e) => setSortType(e.target.value)}
+                className="p-2 rounded bg-white/10 border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
+              >
+                <option className="bg-[#283335]" value="az">Name (A–Z)</option>
+                <option className="bg-[#283335]" value="za">Name (Z–A)</option>
+                <option className="bg-[#283335]" value="routesAsc">Fewest Routes</option>
+                <option className="bg-[#283335]" value="routesDesc">Most Routes</option>
+                <option className="bg-[#283335]" value="closed">Closed Stops</option>
+                <option className="bg-[#283335]" value="active">Active Stops</option>
+              </select>
+
+              <label className="flex items-center gap-2 text-sm text-gray-300">
+                <input
+                  type="checkbox"
+                  checked={showAlerts}
+                  onChange={(e) => setShowAlerts(e.target.checked)}
+                />
+                Show Stops with Alerts
+              </label>
+            </div>
           </div>
+
 
           <div className="overflow-y-auto max-h-[550px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
             {loading ? (
@@ -340,7 +406,7 @@ export default function AdminStopsPage() {
               <p className="text-gray-400 text-sm">No stops found.</p>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {stops.map((s) => (
+                {sortedStops.map((s) => (
                   <div
                     key={s._id}
                     className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"

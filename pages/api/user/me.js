@@ -1,5 +1,6 @@
 import dbConnect from '@/utils/db';
 import User from '@/models/User';
+import Subscriber from '@/models/Subscriber';
 
 export default async function handler(req, res) {
   const { id, status } = req.query;
@@ -19,6 +20,10 @@ export default async function handler(req, res) {
     if (req.method === 'PUT') {
       if (status === 'edit') {
         const { username, email, newsletter } = req.body;
+
+        const newsSub = await Subscriber.findOne({email})
+        newsSub.isActive = newsletter;
+        await newsSub.save()
 
         if (username) user.username = username;
         if (email) user.email = email;

@@ -10,7 +10,8 @@ export default function AdminRoutesPage() {
   const [saving, setSaving] = useState(false);
   const [operators, setOperators] = useState([]);
   const [query, setQuery] = useState('');
-
+  const [sortType, setSortType] = useState('az');
+  const [filterType, setFilterType] = useState('all');
   const [form, setForm] = useState({
     number: '',
     operator: '',
@@ -21,7 +22,33 @@ export default function AdminRoutesPage() {
     diversion: { active: false, reason: '', stops: [] },
   });
 
-  // 🚌 Load operators
+  const filteredRoutes = [...routes]
+    .filter((r) => {
+      if (filterType === 'diversion') return r.diversion?.active;
+      if (filterType === 'noDiversion') return !r.diversion?.active;
+      if (filterType === 'operator' && form.operator)
+        return r.operator?.includes(form.operator);
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortType) {
+        case 'az':
+          return a.number.localeCompare(b.number);
+        case 'za':
+          return b.number.localeCompare(a.number);
+        case 'stopsAsc':
+          return (
+            (a.stops?.forward?.length || 0) - (b.stops?.forward?.length || 0)
+          );
+        case 'stopsDesc':
+          return (
+            (b.stops?.forward?.length || 0) - (a.stops?.forward?.length || 0)
+          );
+        default:
+          return 0;
+      }
+    });
+
   async function loadOperators() {
     try {
       const res = await fetch('/api/ycc/operators/active');
@@ -32,7 +59,6 @@ export default function AdminRoutesPage() {
     }
   }
 
-  // 🧩 Load routes
   async function loadRoutes() {
     setLoading(true);
     try {
@@ -46,7 +72,6 @@ export default function AdminRoutesPage() {
     }
   }
 
-  // 🚏 Load stops
   async function loadStops() {
     try {
       const res = await fetch('/api/ycc/stops');
@@ -69,7 +94,6 @@ export default function AdminRoutesPage() {
   }, [query]);
 
 
-  // ✨ Helpers
   const getStopName = (id) => {
     const s = stops.find((x) => x.stopId === id);
     return s ? `${s.name}${s.town ? ', ' + s.town : ''}` : id;
@@ -101,7 +125,6 @@ export default function AdminRoutesPage() {
     });
   };
 
-  // 💾 Submit new or edit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -128,14 +151,12 @@ export default function AdminRoutesPage() {
     await loadRoutes();
   };
 
-  // 🗑️ Delete route
   const handleDelete = async (id) => {
     if (!confirm('Delete this route?')) return;
     await fetch(`/api/ycc/routes/${id}`, { method: 'DELETE' });
     await loadRoutes();
   };
 
-  // ✏️ Edit route
   const handleEdit = (r) => {
     setEditing(r._id);
     setForm({
@@ -152,8 +173,6 @@ export default function AdminRoutesPage() {
     });
   };
 
-
-  // 🔁 Reset form
   const resetForm = () => {
     setEditing(null);
     setForm({
@@ -167,7 +186,6 @@ export default function AdminRoutesPage() {
     });
   };
 
-  // ⚠️ Save disruption info
   const handleDisruptionSave = async () => {
     if (!editing) return;
     setSaving(true);
@@ -765,67 +783,94 @@ export default function AdminRoutesPage() {
           </form>
         </div>
 
-        {/* RIGHT — Route List */}
-        <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">All Routes</h2>
-            <input
-              type="text"
-              placeholder="Search routes..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
-            />
-          </div>
+<div className="col-span-3 flex flex-col gap-4">
 
-          <div className="overflow-y-auto max-h-[550px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
-            {loading ? (
-              <div className="flex items-center gap-2 text-gray-400">
-                <Loader2 className="animate-spin w-4 h-4" /> Loading routes...
-              </div>
-            ) : routes.length === 0 ? (
-              <p className="text-gray-400 text-sm">No routes found.</p>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {routes.map((r) => (
-                  <div
-                    key={r._id}
-                    className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
-                  >
-                    <h3 className="text-xl font-bold text-green-400">{r.number}</h3>
-                    <p className="text-sm text-gray-300">
-                      {getStopName(r.origin)} → {getStopName(r.destination)}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{r.description}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {r.stops?.forward?.length || 0} → {r.stops?.backward?.length || 0} stops
-                    </p>
-                    {r.diversion?.active && (
-                      <p className="text-xs text-yellow-400 mt-2">⚠️ Diversion Active</p>
-                    )}
-                    <div className="flex gap-2 mt-3">
-                      <button
-                        onClick={() => handleEdit(r)}
-                        className="bg-yellow-500 hover:bg-yellow-400 text-black px-3 py-1 rounded text-sm font-medium flex-1"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(r._id)}
-                        className="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm font-medium flex-1"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+  <div className="bg-[#1f282a] rounded-2xl border border-white/10 backdrop-blur-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h2 className="text-xl font-semibold">All Routes</h2>
+
+    <div className="flex flex-wrap items-center gap-3">
+      <input
+        type="text"
+        placeholder="Search routes..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500 text-sm"
+      />
+
+      <select
+        value={sortType}
+        onChange={(e) => setSortType(e.target.value)}
+        className="p-2 rounded bg-white/10 border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
+      >
+        <option className="bg-[#283335]" value="az">Route (A–Z)</option>
+        <option className="bg-[#283335]" value="za">Route (Z–A)</option>
+        <option className="bg-[#283335]" value="stopsAsc">Fewest Stops</option>
+        <option className="bg-[#283335]" value="stopsDesc">Most Stops</option>
+      </select>
+
+      <select
+        value={filterType}
+        onChange={(e) => setFilterType(e.target.value)}
+        className="p-2 rounded bg-white/10 border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
+      >
+        <option className="bg-[#283335]" value="all">All Routes</option>
+        <option className="bg-[#283335]" value="diversion">With Diversions</option>
+        <option className="bg-[#283335]" value="noDiversion">Without Diversions</option>
+      </select>
+    </div>
+  </div>
+  <div className="bg-[#1f282a] rounded-2xl border border-white/10 backdrop-blur-xl p-5">
+    <div className="overflow-y-auto max-h-[530px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
+      {loading ? (
+        <div className="flex items-center gap-2 text-gray-400">
+          <Loader2 className="animate-spin w-4 h-4" /> Loading routes...
         </div>
+      ) : filteredRoutes.length === 0 ? (
+        <p className="text-gray-400 text-sm">No routes found.</p>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredRoutes.map((r) => (
+            <div
+              key={r._id}
+              className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
+            >
+              <h3 className="text-xl font-bold text-green-400">{r.number}</h3>
+              <p className="text-sm text-gray-300">
+                {getStopName(r.origin)} → {getStopName(r.destination)}
+              </p>
+              <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                {r.description}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {r.stops?.forward?.length || 0} → {r.stops?.backward?.length || 0} stops
+              </p>
+              {r.diversion?.active && (
+                <p className="text-xs text-yellow-400 mt-2">⚠️ Diversion Active</p>
+              )}
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => handleEdit(r)}
+                  className="bg-yellow-500 hover:bg-yellow-400 text-black px-3 py-1 rounded text-sm font-medium flex-1"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(r._id)}
+                  className="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm font-medium flex-1"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+  
+</div>
       </div>
 
-      {/* 🧩 Custom Scrollbar */}
       <style jsx global>{`
         .scrollbar-thin::-webkit-scrollbar {
           width: 8px;

@@ -35,7 +35,7 @@ export default function Banner() {
       }
     };
     loadBanner();
-    const interval = setInterval(loadBanner, 60000); // refresh every 60s
+    const interval = setInterval(loadBanner, 60000);
     return () => clearInterval(interval);
   }, []);
 

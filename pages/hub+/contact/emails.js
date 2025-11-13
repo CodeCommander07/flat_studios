@@ -9,8 +9,7 @@ import {
   Trash,
   Flag,
   X,
-  ChevronDown,
-  ChevronUp,
+Send
 } from 'lucide-react';
 import AuthWrapper from '@/components/AuthWrapper';
 
@@ -349,7 +348,7 @@ export default function ContactEmailsPage() {
                         className="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 text-sm"
                       >
                         {sending ? <Loader2 className="animate-spin w-4 h-4" /> : <Reply size={16} />}
-                        {sending ? 'Sending...' : 'Send Reply'}
+                        {sending ? 'Sending...' :  'Send Reply'}
                       </button>
                     </div>
 

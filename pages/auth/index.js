@@ -72,7 +72,7 @@ export default function AuthPage() {
 
     setStatus('Creating account...');
     try {
-      const res = await fetch('/api/auth/user-register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, username, role: roleParam, password }),
@@ -82,7 +82,7 @@ export default function AuthPage() {
       localStorage.setItem('User', JSON.stringify(data.safeUser));
       setStatus('✅ Account created! Redirecting...');
       setTimeout(() => {
-        window.location.href = data.role !== 'User' ? '/hub/' : '/me/';
+        window.location.href = data.role === 'User' ? '/me/' : '/hub/';
       }, 2500);
     } catch (err) {
       setStatus(`❌ ${err.message}`);
