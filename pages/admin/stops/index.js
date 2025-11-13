@@ -9,8 +9,9 @@ export default function AdminStopsPage() {
   const [query, setQuery] = useState('');
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [form, setForm] = useState({
-    stopId: '',
+    stopId: generateStopId(),
     name: '',
     town: '',
     postcode: '',
@@ -120,8 +121,8 @@ export default function AdminStopsPage() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Delete this stop?')) return;
+  async function handleDeleteConfirmed(id) {
+    setConfirmDelete(null);
     await fetch(`/api/ycc/stops/${id}`, { method: 'DELETE' });
     await loadStops();
   }
@@ -187,14 +188,18 @@ export default function AdminStopsPage() {
           >
             {/* Stop ID */}
             <div>
-              <label className="block text-sm mb-1">Stop ID</label>
+              <label className="block text-sm mb-1 text-white">Stop ID</label>
               <input
                 readOnly
                 name="stopId"
                 value={form.stopId}
-                className="w-full p-2 rounded bg-white/5 border border-white/20 text-gray-400"
+                className="w-full p-2 rounded bg-white/5 border border-white/20 text-gray-400 cursor-not-allowed"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                This is an uneditable box — Stop IDs are generated automatically.
+              </p>
             </div>
+
 
             {/* Name + Town */}
             <div className="grid grid-cols-2 gap-4">
@@ -252,11 +257,10 @@ export default function AdminStopsPage() {
                   <div
                     key={r._id}
                     onClick={() => toggleRoute(r._id)}
-                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${
-                      form.routes.includes(r._id)
-                        ? 'bg-green-600/40 border border-green-500/20'
-                        : ''
-                    }`}
+                    className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${form.routes.includes(r._id)
+                      ? 'bg-green-600/40 border border-green-500/20'
+                      : ''
+                      }`}
                   >
                     {r.number} — {r.operator}
                   </div>
@@ -264,7 +268,6 @@ export default function AdminStopsPage() {
               </div>
             </div>
 
-            {/* 🟠 Manage Disruption (Stop Closure) */}
             {editing && (
               <div className="mt-6 border-t border-white/10 pt-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -317,7 +320,6 @@ export default function AdminStopsPage() {
           </form>
         </div>
 
-        {/* RIGHT — Stops List */}
         <div className="col-span-3 bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg max-h-[666px] overflow-hidden">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">All Stops</h2>
@@ -362,7 +364,7 @@ export default function AdminStopsPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(s._id)}
+                        onClick={() => setConfirmDelete(s)}
                         className="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm font-medium flex-1"
                       >
                         Delete
@@ -376,7 +378,40 @@ export default function AdminStopsPage() {
         </div>
       </div>
 
-      {/* 🧩 Custom Scrollbar */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[#283335] border border-white/10 rounded-xl p-6 w-[90%] sm:w-[400px] shadow-xl">
+            <h3 className="text-lg font-semibold text-red-400 mb-2">
+              Confirm Deletion
+            </h3>
+            <p className="text-white/70 text-sm mb-4">
+              Are you sure you want to permanently delete the stop{" "}
+              <span className="font-semibold text-white">
+                {confirmDelete.name || "Unnamed Stop"}
+              </span>
+              ?
+              <br />
+              This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteConfirmed(confirmDelete._id)}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition"
+              >
+                Delete Stop
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx global>{`
         .scrollbar-thin::-webkit-scrollbar {
           width: 8px;

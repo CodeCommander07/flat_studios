@@ -203,7 +203,7 @@ export default function AdminRoutesPage() {
             onSubmit={handleSubmit}
             className="space-y-5 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 flex-1 pr-2"
           >
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
@@ -228,19 +228,27 @@ export default function AdminRoutesPage() {
                     type="text"
                     required
                     placeholder="Search start stop..."
-                    value={getStopName(form.origin) || form.originSearch || ''}
+                    value={
+                      form.originSearch !== undefined && form.originSearch !== ''
+                        ? form.originSearch
+                        : getStopName(form.origin) || ''
+                    }
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, originSearch: e.target.value }))
+                      setForm((f) => ({
+                        ...f,
+                        originSearch: e.target.value,
+                      }))
                     }
                     className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-green-500 outline-none text-sm placeholder:text-gray-500 text-white transition-all"
                   />
+
                   {form.originSearch && (
                     <div className="max-h-32 overflow-y-auto mt-2 bg-black/40 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10">
                       {stops
                         .filter((stop) =>
                           getStopName(stop.stopId)
                             .toLowerCase()
-                            .includes((form.originSearch || '').toLowerCase())
+                            .includes(form.originSearch.toLowerCase())
                         )
                         .map((stop) => (
                           <div
@@ -262,6 +270,20 @@ export default function AdminRoutesPage() {
                         ))}
                     </div>
                   )}
+
+                  {form.origin && (
+                    <div className="mt-2 bg-green-600/10 border border-green-500/30 text-green-300 rounded-md px-3 py-1.5 text-sm flex justify-between items-center">
+                      <span className="truncate">{getStopName(form.origin)}</span>
+                      <button
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, origin: '', originSearch: '' }))}
+                        className="ml-2 text-green-400 hover:text-red-400 transition"
+                        title="Clear selected stop"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -272,19 +294,28 @@ export default function AdminRoutesPage() {
                     type="text"
                     required
                     placeholder="Search end stop..."
-                    value={getStopName(form.destination) || form.destinationSearch || ''}
+                    value={
+                      form.destinationSearch !== undefined && form.destinationSearch !== ''
+                        ? form.destinationSearch
+                        : getStopName(form.destination) || ''
+                    }
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, destinationSearch: e.target.value }))
+                      setForm((f) => ({
+                        ...f,
+                        destinationSearch: e.target.value,
+                      }))
                     }
                     className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder:text-gray-500 text-white transition-all"
                   />
+
+
                   {form.destinationSearch && (
                     <div className="max-h-32 overflow-y-auto mt-2 bg-black/40 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10">
                       {stops
                         .filter((stop) =>
                           getStopName(stop.stopId)
                             .toLowerCase()
-                            .includes((form.destinationSearch || '').toLowerCase())
+                            .includes(form.destinationSearch.toLowerCase())
                         )
                         .map((stop) => (
                           <div
@@ -306,8 +337,23 @@ export default function AdminRoutesPage() {
                         ))}
                     </div>
                   )}
-                </div>
 
+                  {form.destination && (
+                    <div className="mt-2 bg-blue-600/10 border border-blue-500/30 text-blue-300 rounded-md px-3 py-1.5 text-sm flex justify-between items-center">
+                      <span className="truncate">{getStopName(form.destination)}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((f) => ({ ...f, destination: '', destinationSearch: '' }))
+                        }
+                        className="ml-2 text-blue-400 hover:text-red-400 transition"
+                        title="Clear selected stop"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
@@ -378,7 +424,7 @@ export default function AdminRoutesPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col">
                 <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
                   Outbound
@@ -655,21 +701,67 @@ export default function AdminRoutesPage() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={saving || !form.operator || !form.number || !form.origin || !form.destination || !form.description}
-              className="mt-3 bg-green-500 hover:bg-green-400 text-black w-full py-2.5 rounded-xl font-semibold flex justify-center items-center gap-2 shadow-md transition disabled:opacity-50"
-            >
-              {saving ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" /> Saving...
-                </>
-              ) : (
-                <>
-                  <Save size={18} /> {editing ? 'Update Route' : 'Add Route'}
-                </>
-              )}
-            </button>
+            {editing && (
+              <div className="flex gap-3 mt-3">
+                <button
+                  type="submit"
+                  disabled={
+                    saving ||
+                    !form.operator ||
+                    !form.number ||
+                    !form.origin ||
+                    !form.destination ||
+                    !form.description
+                  }
+                  className="flex-1 bg-green-500 hover:bg-green-400 text-black py-2.5 rounded-xl font-semibold flex justify-center items-center gap-2 shadow-md transition disabled:opacity-50"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" /> Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} /> Update Route
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  disabled={saving}
+                  className="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl font-semibold flex justify-center items-center gap-2 shadow-md transition disabled:opacity-50"
+                >
+                  <X size={18} /> Cancel
+                </button>
+              </div>
+            )}
+
+            {!editing && (
+              <button
+                type="submit"
+                disabled={
+                  saving ||
+                  !form.operator ||
+                  !form.number ||
+                  !form.origin ||
+                  !form.destination ||
+                  !form.description
+                }
+                className="mt-3 bg-green-500 hover:bg-green-400 text-black w-full py-2.5 rounded-xl font-semibold flex justify-center items-center gap-2 shadow-md transition disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} /> Add Route
+                  </>
+                )}
+              </button>
+            )}
+
           </form>
         </div>
 
