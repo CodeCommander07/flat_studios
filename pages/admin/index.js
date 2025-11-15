@@ -134,12 +134,6 @@ export default function Dashboard() {
                   View system-wide staff metrics below.
                 </p>
               </div>
-              <a
-                href="/admin/announcements"
-                className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
-              >
-                Manage Announcements
-              </a>
             </div>
           </div>
 
