@@ -1,6 +1,6 @@
 import dbConnect from '@/utils/db';
 import DeveloperTasks from '@/models/DeveloperTasks';
-import notifyUser from '@/utils/notifyUser';
+import {notifyUser} from '@/utils/notifyUser';
 
 export default async function handler(req, res) {
   if (req.method !== 'DELETE')
