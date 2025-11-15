@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 export default function ManageSubscriptionPage() {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
@@ -46,6 +47,14 @@ export default function ManageSubscriptionPage() {
             placeholder="Enter your email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full px-4 py-2 rounded-md bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+                    <input
+            type="text"
+            placeholder="Enter your name (Roblox username, Discord username, etc)"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             className="w-full px-4 py-2 rounded-md bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
