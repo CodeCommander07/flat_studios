@@ -115,7 +115,7 @@ export default function AuthPage() {
                 transition={{ delay: 0.15 }}
               >
                 <h2 className="text-3xl font-semibold text-center">Create Account ✨</h2>
-                <p className="text-white/60 text-sm text-center">Join the Hub</p>
+                <p className="text-white/60 text-sm text-center">Join the Community</p>
 
                 <InputField
                   label="Username"

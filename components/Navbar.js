@@ -138,7 +138,6 @@ export default function Navbar() {
       items: [
         { label: 'Admin', href: '/admin' },
         { label: 'Ban Appeals', href: '/admin/appeals' },
-        { label: 'Banner Control', href: '/admin/banner' },
         { label: 'Dev Tasks', href: '/admin/dev' },
         { label: 'Hiring', href: '/admin/hiring' },
         { label: 'Leave Requests', href: '/admin/leave' },
@@ -147,6 +146,7 @@ export default function Navbar() {
         { label: 'Manage Routes', href: '/admin/routes' },
         { label: 'Manage Stops', href: '/admin/stops' },
         { label: 'Newsletters', href: '/admin/newsletter' },
+        { label: 'Notice Control', href: '/admin/notice-control' },
         { label: 'Routes Submission Requests', href: '/admin/ycc/routes' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
       ],

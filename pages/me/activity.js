@@ -157,7 +157,7 @@ export default function ActivityPage() {
     setSuccessMsg('');
 
     if (
-      isInvalid('date') || isInvalid('timeJoined') || isInvalid('timeLeft') || isInvalid('extraNotes') ||
+      isInvalid('date') || isInvalid('timeJoined') || isInvalid('timeLeft') ||
       (form.notable === 'Yes' && (isInvalid('host') || isInvalid('participants')))
     ) {
       setError('Please fill all required fields.');
