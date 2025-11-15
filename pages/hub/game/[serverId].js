@@ -20,6 +20,7 @@ export default function ServerDetailPage() {
   const [logSearch, setLogSearch] = useState('');
   const [logFilter, setLogFilter] = useState('all');
   const [logDate, setLogDate] = useState('');
+  const [isStaff, setIsStaff] = useState(false);
 
   const robloxCacheRef = useRef({});
 
@@ -164,6 +165,11 @@ export default function ServerDetailPage() {
     }, {});
   }
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("User") || "{}");
+    const allowed = ["Human-Resources", "Owner", "Community-Director"];
+    setIsStaff(allowed.includes(user?.role));
+  }, []);
 
   return (
     <AuthWrapper requiredRole="hub">
@@ -331,15 +337,7 @@ export default function ServerDetailPage() {
                           <h3 className="text-lg font-semibold text-white flex items-center gap-2 flex-wrap">
                             {selectedPlayer.username}
                             <span className="text-sm text-gray-400">
-                              {selectedPlayer.role} ({selectedPlayer.rank}) • Team: {selectedPlayer.team}
-                            </span>
-                            <span
-                              className="text-blue-400 cursor-pointer text-xs"
-                              onClick={() =>
-                                navigator.clipboard.writeText(selectedPlayer.playerId)
-                              }
-                            >
-                              {selectedPlayer.playerId}
+                              {selectedPlayer.role} ({selectedPlayer.rank})
                             </span>
                           </h3>
                           <p className="text-xs text-gray-500 mt-0.5">
@@ -371,7 +369,12 @@ export default function ServerDetailPage() {
                             });
                           }}
                           title="Kick Player"
-                          className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-md hover:bg-yellow-500/30 transition text-sm"
+                          disabled={!isStaff}
+                          className={`
+    flex items-center gap-1 px-3 py-1 rounded-md text-sm transition
+    bg-yellow-500/20 border border-yellow-500/40 hover:bg-yellow-500/30
+    ${!isStaff ? "opacity-40 cursor-not-allowed hover:bg-transparent hover:border-yellow-500/20" : ""}
+  `}
                         >
                           <LogOut className="text-yellow-400" size={16} /> Kick
                         </button>
@@ -385,8 +388,13 @@ export default function ServerDetailPage() {
                               issuedBy: "Web Dashboard",
                             });
                           }}
+                          disabled={!isStaff}
                           title="Ban Player"
-                          className="flex items-center gap-1 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-md hover:bg-red-500/30 transition text-sm"
+                          className={`
+    flex items-center gap-1 px-3 py-1 rounded-md text-sm transition
+    bg-red-500/20 border border-red-500/40 hover:bg-red-500/30
+    ${!isStaff ? "opacity-40 cursor-not-allowed hover:bg-transparent hover:border-red-500/20" : ""}
+  `}
                         >
                           <Ban className="text-red-400" size={16} /> Ban
                         </button>
@@ -401,7 +409,10 @@ export default function ServerDetailPage() {
                             });
                           }}
                           title="Mute Player"
-                          className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-md hover:bg-orange-500/30 transition text-sm"
+                          className={`
+    flex items-center gap-1 px-3 py-1 rounded-md text-sm transition
+    bg-orange-500/20 border border-orange-500/40 hover:bg-orange-500/30
+  `}
                         >
                           <VolumeX className="text-orange-400" size={16} /> Mute
                         </button>
@@ -416,10 +427,14 @@ export default function ServerDetailPage() {
                             });
                           }}
                           title="Unmute Player"
-                          className="flex items-center gap-1 px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-md hover:bg-green-500/30 transition text-sm"
+                          className={`
+    flex items-center gap-1 px-3 py-1 rounded-md text-sm transition
+    bg-green-500/20 border border-green-500/40 hover:bg-green-500/30
+  `}
                         >
                           <Volume2 className="text-green-400" size={16} /> Unmute
                         </button>
+
 
                         <button
                           onClick={() => {

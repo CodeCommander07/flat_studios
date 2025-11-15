@@ -363,12 +363,12 @@ export default function RouteDetailPage() {
           </h2>
 
           <div className="route-container max-h-[550px] overflow-y-auto scroll-smooth pr-2">
-            <StopsListWithDiversion
-              stopList={[route.origin, ...forwardList, route.destination]}
-              route={route}
-              stops={stops}
-              direction="forward"
-            />
+<StopsListWithDiversion
+  stopList={forwardList}
+  route={route}
+  stops={stops}
+  direction="forward"
+/>
           </div>
         </div>
 
@@ -383,12 +383,12 @@ export default function RouteDetailPage() {
           </h2>
 
           <div className="route-container max-h-[550px] overflow-y-auto scroll-smooth pl-2">
-            <StopsListWithDiversion
-              stopList={[route.destination, ...backwardList, route.origin]}
-              route={route}
-              stops={stops}
-              direction="backward"
-            />
+<StopsListWithDiversion
+  stopList={backwardList}
+  route={route}
+  stops={stops}
+  direction="backward"
+/>
           </div>
         </div>
 

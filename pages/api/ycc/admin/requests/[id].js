@@ -36,15 +36,23 @@ export default async function handler(req, res) {
     try {
       const { status } = req.body || {};
       const allowed = ['Pending', 'Approved', 'Rejected', 'Implemented'];
+
       if (!allowed.includes(status)) {
         return res.status(400).json({ success: false, error: 'Invalid status' });
       }
+
       const updated = await OperatorRequest.findByIdAndUpdate(
         id,
-        { status },
+        {
+          status,
+          updatedAt: new Date()   // ✅ Add timestamp
+        },
         { new: true }
       ).lean();
-      if (!updated) return res.status(404).json({ success: false, message: 'Not found' });
+
+      if (!updated)
+        return res.status(404).json({ success: false, message: 'Not found' });
+
       res.status(200).json({ success: true, request: updated });
     } catch (err) {
       res.status(500).json({ success: false, error: err.message });
