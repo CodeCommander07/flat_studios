@@ -9,7 +9,7 @@ export default function SetTaskPage() {
   const [form, setForm] = useState({
     taskName: '',
     taskDescription: '',
-    userId: '',
+    user: '',
     dueDate: '',
     priority: '',
   });
@@ -46,7 +46,7 @@ export default function SetTaskPage() {
   }, [search]);
 
   const handleSelectUser = (user) => {
-    setForm({ ...form, userId: user._id });
+    setForm({ ...form, user });
     setSearch(`${user.username}`);
     setResults([]);
   };
@@ -56,7 +56,7 @@ export default function SetTaskPage() {
     try {
       await axios.post('/api/developers/tasks/set', form);
       setMessage('✅ Task created successfully!');
-      setForm({ taskName: '', taskDescription: '', userId: '', dueDate: '', priority: '' });
+      setForm({ taskName: '', taskDescription: '', user: '', dueDate: '', priority: '' });
       setSearch('');
     } catch (err) {
       console.error('Error creating task:', err.message);
@@ -158,10 +158,10 @@ export default function SetTaskPage() {
             className="w-full p-2 rounded bg-white/20 border border-white/30 text-white"
           >
             <option className="text-white bg-black" value="">Select Priority</option>
-            <option className="text-white bg-black" className="bg-black" value="low">🟢 Low</option>
-            <option className="text-white bg-black" className="bg-black" value="medium">🟡 Medium</option>
-            <option className="text-white bg-black" className="bg-black" value="high">🟠 High</option>
-            <option className="text-white bg-black" className="bg-black" value="urgent">🔴 Urgent</option>
+            <option className="text-white bg-black" value="low">🟢 Low</option>
+            <option className="text-white bg-black" value="medium">🟡 Medium</option>
+            <option className="text-white bg-black" value="high">🟠 High</option>
+            <option className="text-white bg-black" value="urgent">🔴 Urgent</option>
           </select>
         </div>
 

@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       await leave.save();
 
       const notReason = `Leave Request form ${startDate} to ${endDate} is pending.`
-      notifyUser(userId, notReason, "/me/leave")
+      notifyUser(leave.userId, notReason, "/me/leave")
 
               const to = leave.userId.email;
         const userName = leave.userId.username;

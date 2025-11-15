@@ -12,7 +12,7 @@ export default function AuthWrapper({ children, requiredRole = null }) {
     const storedUser = JSON.parse(localStorage.getItem('User'));
 
     if (!storedUser) {
-      router.replace('/auth/login');
+      router.replace('/auth/');
     } else if (
       requiredRole &&
       !hasAccessTo(requiredRole, storedUser.role)

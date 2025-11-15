@@ -6,7 +6,7 @@ const ActivityLogSchema = new mongoose.Schema({
   timeJoined: { type: String, required: true },
   timeLeft: { type: String, required: true },
   duration: { type: String, required: true },
-  description: { type: String, required: true },  // <-- this must be included!
+  description: { type: String, required: false },  // <-- this must be included!
   notable: { type: String, enum: ['Yes', 'No'], default: 'No' },
   host: { type: String },
   participants: { type: String },

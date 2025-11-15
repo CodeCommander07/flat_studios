@@ -159,7 +159,7 @@ export default async function handler(req, res) {
           });
 
           const user = await User.findOne({ email: sub.applicantEmail })
-          notifyUser(user?._id, `Application for ${app.Title} unfortunatly has been denied.`, '/me/applications')
+          if(user)notifyUser(user, `Application for ${app.Title} unfortunatly has been denied.`, '/me/applications')
         }, 5 * 60 * 1000);
       }
 
@@ -217,7 +217,7 @@ export default async function handler(req, res) {
         html,
       });
       const user = await User.findOne({ email: applicantEmail })
-      notifyUser(user?._id, `Application for ${app.Title} recived.`, '/me/applications')
+      if(user)notifyUser(user, `Application for ${app.Title} recived.`, '/me/applications')
 
 
       return res.status(201).json({

@@ -74,6 +74,7 @@ const handleDiscordConnect = () => {
       setUser(res.data.user);
       setEditedUser(res.data.user);
       localStorage.setItem('User', JSON.stringify(res.data.user));
+      setEditMode(false)
     } catch (err) {
       console.error('Update failed:', err);
     }

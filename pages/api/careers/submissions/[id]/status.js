@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       if (status === 'talented') status = 'Held';
 
       const user = await User.findOne({ email: submission.applicantEmail })
-      notifyUser(user?._id, `Application for ${applicationName} has been ${status}.`, '/me/applications')
+      if(user)notifyUser(user, `Application for ${applicationName} has been ${status}.`, '/me/applications')
 
       // Send email if email exists
       if (submission.applicantEmail) {

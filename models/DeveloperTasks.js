@@ -25,7 +25,10 @@ const TaskSchema = new mongoose.Schema({
   priority: { type: String, enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  user: Object,
   completedAt: Date,
+  reviewedAt: Date,
+  implementedAt: Date,
   files: [FileSchema],
   notes: [NoteSchema],
 });

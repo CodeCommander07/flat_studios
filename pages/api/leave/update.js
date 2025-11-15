@@ -108,9 +108,8 @@ export default async function handler(req, res) {
         };
 
         await mailHub.sendMail(mailOptions);
-        const userId = leave.userId._id
-                const notMessage = `Your leave request from ${new Date(leave.startDate).toLocaleDateString('en-UK')} to ${new Date(leave.endDate).toLocaleDateString('en-UK')} has been ${status}`
-        await notifyUser(userId, notMessage, '/me/leave');
+        const notMessage = `Your leave request from ${new Date(leave.startDate).toLocaleDateString('en-UK')} to ${new Date(leave.endDate).toLocaleDateString('en-UK')} has been ${status}`
+        await notifyUser(leave.userId, notMessage, '/me/leave');
 
         return res.status(200).json(leave);
     } catch (err) {

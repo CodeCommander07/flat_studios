@@ -2,6 +2,7 @@ import dbConnect from '@/utils/db';
 import DeveloperTasks from '@/models/DeveloperTasks';
 import { v4 as uuidv4 } from 'uuid';
 import mongoose from 'mongoose';
+import { notifyUser } from '@/utils/notifyUser';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST')
@@ -9,24 +10,25 @@ export default async function handler(req, res) {
 
   await dbConnect();
 
-  const { taskName, taskDescription, userId, dueDate, priority } = req.body;
+  const { taskName, taskDescription, user, dueDate, priority } = req.body;
 
   // Validate fields
-  if (!taskName || !taskDescription || !userId || !dueDate) {
+  if (!taskName || !taskDescription || !user || !dueDate) {
     return res.status(400).json({ error: 'Missing required fields.' });
   }
 
   try {
-    const objectId = new mongoose.Types.ObjectId(userId);
+    const objectId = new mongoose.Types.ObjectId(user._id);
     const newTask = {
       taskId: uuidv4(),
       taskName,
       taskDescription,
       dueDate: new Date(dueDate),
-      priority: priority || 'medium',
+      priority: priority || 'low',
       taskStatus: 'not-started',
       createdAt: new Date(),
       updatedAt: new Date(),
+      user
     };
 
     // Find or create developer’s task list
@@ -42,6 +44,7 @@ export default async function handler(req, res) {
     }
 
     await developerTasks.save();
+    notifyUser(user, `A new task has been added to you to do list.`, '/dev/tasks')
 
     return res.status(201).json({
       message: 'Task created successfully!',

@@ -13,6 +13,7 @@ export default function AdminStopsPage() {
   const [sortType, setSortType] = useState('az');
   const [showAlerts, setShowAlerts] = useState(false);
   const [operators, setOperators] = useState([]);
+  const [tempStopSearch, setTempStopSearch] = useState('');
   const [form, setForm] = useState({
     stopId: generateStopId(),
     name: '',
@@ -22,6 +23,7 @@ export default function AdminStopsPage() {
     routes: [],
     closed: false,
     closureReason: '',
+    tempStopId: ''
   });
 
   async function loadOperators() {
@@ -83,6 +85,7 @@ export default function AdminStopsPage() {
       routes: [],
       closed: false,
       closureReason: '',
+      tempStopId: ''
     });
   };
 
@@ -120,9 +123,18 @@ export default function AdminStopsPage() {
       });
       const data = await res.json();
 
-      if (editing)
-        setStops((prev) => prev.map((s) => (s._id === data.stop._id ? data.stop : s)));
-      else setStops((prev) => [data.stop, ...prev]);
+      if (!data || !data.stop) {
+        console.error("Invalid response from API:", data);
+        return;
+      }
+
+      if (editing) {
+        setStops((prev) =>
+          prev.map((s) => (s._id === data.stop._id ? data.stop : s))
+        );
+      } else {
+        setStops((prev) => [data.stop, ...prev]);
+      }
 
       resetForm();
     } catch (e) {
@@ -149,6 +161,7 @@ export default function AdminStopsPage() {
       routes: stop.routes || [],
       closed: stop.closed || false,
       closureReason: stop.closureReason || '',
+      tempStopId: stop.tempStopId || '',
     });
   }
 
@@ -161,6 +174,7 @@ export default function AdminStopsPage() {
       body: JSON.stringify({
         closed: form.closed,
         closureReason: form.closureReason,
+        tempStopId: form.tempStopId
       }),
     });
     setSaving(false);
@@ -276,7 +290,6 @@ export default function AdminStopsPage() {
                 name="location"
                 value={form.location}
                 onChange={handleChange}
-                required
                 placeholder="e.g. near Yapton Green"
                 className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
               />
@@ -328,6 +341,7 @@ export default function AdminStopsPage() {
 
                 {form.closed && (
                   <div className="mt-3 space-y-3">
+                    {/* closure reason */}
                     <textarea
                       placeholder="Closure reason..."
                       name="closureReason"
@@ -336,6 +350,73 @@ export default function AdminStopsPage() {
                       className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
                       rows="3"
                     />
+
+                    {/* ⭐ TEMP STOP SELECTOR ⭐ */}
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                        Temporary Replacement Stop
+                      </label>
+
+                      <input
+                        type="text"
+                        placeholder="Search for a temporary stop..."
+                        value={tempStopSearch}
+                        onChange={(e) => setTempStopSearch(e.target.value)}
+                        className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-yellow-400 outline-none text-sm placeholder:text-gray-500 text-white transition-all"
+                      />
+
+                      {tempStopSearch && (
+                        <div className="max-h-36 overflow-y-auto mt-2 bg-black/40 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10">
+                          {stops
+                            .filter((stop) =>
+                              `${stop.name}${stop.town ? ', ' + stop.town : ''}`
+                                .toLowerCase()
+                                .includes(tempStopSearch.toLowerCase())
+                            )
+                            .map((stop) => (
+                              <div
+                                key={stop.stopId}
+                                onClick={() => {
+                                  setForm((f) => ({
+                                    ...f,
+                                    tempStopId: stop.stopId,
+                                  }));
+                                  setTempStopSearch('');
+                                }}
+                                className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${form.tempStopId === stop.stopId
+                                  ? 'bg-yellow-600/40 border border-yellow-500/20'
+                                  : ''
+                                  }`}
+                              >
+                                {stop.name}
+                                {stop.town ? `, ${stop.town}` : ''}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+
+                      {form.tempStopId && (
+                        <div className="mt-2 bg-yellow-600/10 border border-yellow-500/30 text-yellow-300 rounded-md px-3 py-1.5 text-sm flex justify-between items-center">
+                          <span className="truncate">
+                            {
+                              stops.find((s) => s.stopId === form.tempStopId)?.name
+                            }
+                            {stops.find((s) => s.stopId === form.tempStopId)?.town
+                              ? `, ${stops.find((s) => s.stopId === form.tempStopId).town}`
+                              : ''}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setForm((f) => ({ ...f, tempStopId: '' }))}
+                            className="ml-2 text-yellow-400 hover:text-red-400 transition"
+                            title="Clear temp stop"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     <button
                       type="button"
                       disabled={saving}
@@ -347,6 +428,7 @@ export default function AdminStopsPage() {
                     </button>
                   </div>
                 )}
+
               </div>
             )}
 

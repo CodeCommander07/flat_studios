@@ -171,25 +171,38 @@ export default function ServerDetailPage() {
         <div className="relative bg-[#283335]/80 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 mb-3">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 relative z-10">
             <div>
-              <p className="text-sm mt-1 font-mono">
-                <a href="/hub/game/" className='text-gray-300 underline hover:text-blue-400 transition'>View All Servers</a>
-                {" "}
-                |{" "}Join The Server:{" "}
+              <p className="text-sm mt-1 font-mono flex items-center gap-2 flex-wrap">
                 <a
-                  href={`roblox://placeId=112732882456453&launchData={"jobId":"${serverId}"}`}
+                  href="/hub/game/"
+                  className="text-gray-300 underline hover:text-blue-400 transition"
+                >
+                  View All Servers
+                </a>
+                <span className="text-white/40">|</span>
+                <span>Join Server:</span>
+                <a
+                  href={`roblox://placeId=5883938795&launchData=${encodeURIComponent(
+                    JSON.stringify({ jobId: serverId })
+                  )}`}
                   className="text-gray-300 underline hover:text-blue-400 transition"
                 >
                   {serverId}
-                </a>{" "}
-                |{" "}
+                </a>
                 <a
-                  href={`https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District`}
+                  href={`/join?server=${serverId}`}
+                  className="text-blue-300 hover:text-blue-400"
+                  title="Shareable Join Link"
+                >
+                  <Link2 className="inline-block w-4 h-4" />
+                </a>
+                <span className="text-white/40">|</span>
+                <a
+                  href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District"
                   className="text-gray-300 underline hover:text-blue-400 transition"
                 >
                   Join The Game
                 </a>
               </p>
-
               {serverMeta && (
                 <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:gap-6 text-sm text-gray-400">
                   <p>
@@ -420,7 +433,7 @@ export default function ServerDetailPage() {
                           title="Deselect Player"
                           className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 border border-blue-500/40 rounded-md hover:bg-blue-500/30 transition text-sm"
                         >
-                          <BrushCleaning  className="text-gray-300" size={16} /> Deselect
+                          <BrushCleaning className="text-gray-300" size={16} /> Deselect
                         </button>
                       </div>
                     </div>

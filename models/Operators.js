@@ -11,6 +11,7 @@ const OperatorSubmissionSchema = new mongoose.Schema({
   logo: String,
   slug: String,
   routes:Array, 
+  operatorColour: String,
 }, { timestamps: true });
 
 export default mongoose.models.OperatorSubmission ||

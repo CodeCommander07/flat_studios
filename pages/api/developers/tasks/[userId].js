@@ -16,5 +16,5 @@ export default async function handler(req, res) {
   const doc = await DeveloperTasks.findOne({ user: userId });
   if (!doc) return res.status(200).json({ tasks: [] });
 
-  return res.status(200).json({ user:userId, tasks: doc.tasks });
+  return res.status(200).json({ tasks: doc.tasks });
 }

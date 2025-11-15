@@ -17,6 +17,7 @@ const BusRoutesSchema = new mongoose.Schema({
     active: { type: Boolean, default: false },
     reason: { type: String, default: '' },
     stops: { type: [String], default: [] }, // affected stops or altered route
+     tempStops: { type: Map, of: String, default: {} } 
   },
 
   map: {

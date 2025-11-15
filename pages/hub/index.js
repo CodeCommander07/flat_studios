@@ -268,14 +268,14 @@ useEffect(() => {
             </div>
 
             {/* Staff Online */}
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
+            {/* <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
                 <Users className="w-6 h-6 text-cyan-300" />
                 <h2 className="text-xl font-semibold">Staff Online</h2>
               </div>
               <p className="text-4xl font-bold text-cyan-300"> <CountUp from={0} to={staffCount} duration={1.5} /></p>
               <p className="text-sm text-white/50">verified accounts</p>
-            </div>
+            </div> */}
 
             {/* Activity Summary + Weekly */}
             <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">

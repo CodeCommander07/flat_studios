@@ -178,7 +178,7 @@ try {
       };
 
       await mailHub.sendMail(mailOptions);
-      notifyUser(user._id, `Activity Log Submitted Succesffuly on ${date} for a duration of ${duration} between ${timeJoined} & ${timeLeft}`, '/me/activity')
+      notifyUser(user, `Activity Log Submitted Succesfuly on ${date} for a duration of ${duration} between ${timeJoined} & ${timeLeft}`, '/me/activity')
 
       return res.status(201).json(newLog);
     } catch (error) {

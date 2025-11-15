@@ -140,7 +140,7 @@ export default function AdminDevTasks() {
             ) : (
               <div className="max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                 <table className="w-full text-left">
-                  <thead className="sticky top-0 bg-white/5 backdrop-blur-md text-white/70 text-sm uppercase tracking-wide z-10">
+                  <thead className="sticky bg-[#283335] top-0 backdrop-blur-md text-white/70 text-sm uppercase tracking-wide z-10">
                     <tr>
                       <th className="py-3 px-6">Due Date</th>
                       <th className="py-3 px-6">Task Name</th>
@@ -155,7 +155,7 @@ export default function AdminDevTasks() {
                       .map((task) => (
                         <tr
                           key={task.taskId}
-                          className="border-t border-white/10 hover:bg-white/5 transition"
+                          className="bg-[#283335] transition"
                         >
                           <td className="py-3 px-6">
                             {new Date(task.dueDate).toLocaleDateString('en-UK')}

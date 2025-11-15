@@ -11,6 +11,9 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(true);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [developer, setDeveloper] = useState(null);
   const [tasksCount, setTasksCount] = useState(0);
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [loadingLeaves, setLoadingLeaves] = useState(true);
@@ -27,14 +30,32 @@ export default function Dashboard() {
     }
   }
 
-  const fetchTaskCount = async () => {
-    try {
-      const res = await axios.get('/api/developers/tasks');
-      setTasksCount(res.data.incompleteCount || 0);
-    } catch (err) {
-      console.error('Failed to fetch task count:', err.message);
-    }
-  }
+
+  useEffect(() => {
+    const stored = localStorage.getItem('User');
+    if (stored) setUser(JSON.parse(stored));
+  }, []);
+
+  useEffect(() => {
+    if (!user?._id) return;
+
+    const fetchTasks = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`/api/developers/tasks/${user._id}`);
+        setTasks(res.data.tasks || []);
+        setDeveloper(res.data.user || null);
+        setTasksCount(res.data.tasks.length || 0)
+      } catch (err) {
+        console.error('Failed to fetch tasks:', err.message);
+        setTasks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, [user]);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('User'));
@@ -107,7 +128,6 @@ export default function Dashboard() {
     fetchLeaderboard();
     fetchLeaves();
     fetchStaffCount();
-    fetchTaskCount();
     fetchNotices();
 
 
@@ -117,7 +137,6 @@ export default function Dashboard() {
       fetchLeaderboard();
       fetchLeaves();
       fetchStaffCount();
-      fetchTaskCount();
       fetchNotices();
 
     }, 30000);
@@ -149,17 +168,6 @@ export default function Dashboard() {
       default:
         return 'text-blue-400';
     }
-  };
-
-  // Compute total shifts and total time in hours from activityLogs
-  const totalShifts = activityLogs.length;
-  const totalTimeHours = activityLogs.reduce((acc, log) => acc + parseFloat(log.duration || 0), 0);
-
-  // Format totalTimeHours into "Xh Ym" string
-  const formatTime = (hoursFloat) => {
-    const hours = Math.floor(hoursFloat);
-    const minutes = Math.round((hoursFloat - hours) * 60);
-    return `${hours}h ${minutes}m`;
   };
 
   // Helper to render leave status with icon and color
@@ -258,19 +266,75 @@ export default function Dashboard() {
             </div>
 
             {/* Notices Box */}
-            <div className="bg-[#283335] border backdrop-blur-md border-white/20 p-6 col-span-2 rounded-2xl shadow-md flex items-start gap-4">
-              <Info className="w-6 h-6 text-blue-400 mt-1" />
-              <div>
-                <h3 className="text-xl font-semibold mb-1">Staff Notice</h3>
-                <p className="text-white/70">
-                  Make sure to log all activity and check for updates to the moderation guide.
-                  Leave requests will now require approval via the <span className="underline">Community Team</span>.
-                </p>
-              </div>
+            <div className="bg-[#283335] border backdrop-blur-md border-white/20 p-6 col-span-2 rounded-2xl shadow-md">
+              <h3 className="text-xl font-semibold mb-4">Your Tasks</h3>
+
+              {loading ? (
+                <p className="text-white/60 text-sm">Loading tasks...</p>
+              ) : tasks.length === 0 ? (
+                <p className="text-white/60 text-sm">You currently have no tasks assigned.</p>
+              ) : (
+                <div className="overflow-y-auto max-h-[260px] scrollbar-hidden">
+                  <table className="min-w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="text-white/70 border-b border-white/10">
+                        <th className="text-left py-2 px-2">Task</th>
+                        <th className="text-left py-2 px-2">Status</th>
+                        <th className="text-left py-2 px-2">Due Date</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {[...tasks]
+                        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                        .map((task) => (
+                          <tr
+                            key={task.taskId}
+                            className="border-b border-white/5 hover:bg-white/5 transition"
+                          >
+                            {/* Task Name */}
+                            <td className="py-2 px-2 text-white">
+                              <Link
+                                href={`/dev/tasks/${task.taskId}`}
+                                className="hover:underline underline-offset-2"
+                              >
+                                {task.taskName || "Untitled Task"}
+                              </Link>
+                            </td>
+
+                            {/* STATUS with new colours */}
+                            <td className="py-2 px-2">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-semibold tracking-wide
+                      ${task.taskStatus === "completed"
+                                    ? "bg-green-500/20 text-green-300 border border-green-400/20"
+                                    : task.taskStatus === "in-progress"
+                                      ? "bg-blue-500/20 text-blue-300 border border-blue-400/20"
+                                      : task.taskStatus === "review"
+                                        ? "bg-purple-500/20 text-purple-300 border border-purple-400/20"
+                                        : task.taskStatus === "not-started"
+                                          ? "bg-gray-500/20 text-gray-300 border border-gray-400/20"
+                                          : "bg-purple-500/20 text-purple-300 border border-purple-400/20"
+                                  }
+                    `}
+                              >
+                                {task.taskStatus.replace("-", " ")}
+                              </span>
+                            </td>
+
+                            {/* Due Date */}
+                            <td className="py-2 px-2 text-white/80">
+                              {task.dueDate
+                                ? new Date(task.dueDate).toLocaleDateString()
+                                : "No due date"}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-
-            {/* Shift Activity */}
-
 
             {/* Leave Requests */}
             <div className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
@@ -309,6 +373,15 @@ export default function Dashboard() {
           </div>
 
         </div>
+        <style jsx global>{`
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+`}</style>
       </main>
     </AuthWrapper>
   );

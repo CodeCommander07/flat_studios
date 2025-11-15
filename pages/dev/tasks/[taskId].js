@@ -17,6 +17,8 @@ export default function TaskDetailPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewFile, setViewFile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
 
   const statusOptions = [
     { value: 'not-started', label: 'Not Started', color: 'bg-red-600' },
@@ -56,13 +58,6 @@ export default function TaskDetailPage() {
       await axios.patch(`/api/developers/tasks/status`, { taskId, taskStatus: newStatus });
       const refreshed = await axios.get(`/api/developers/tasks/task/${taskId}`);
       setTask(refreshed.data.task || refreshed.data);
-
-      await axios.post('/api/developers/notes', {
-        taskId,
-        noteText: `Status changed to ${newStatus.replace('-', ' ')}`,
-        system: true,
-      });
-
       const notesRes = await axios.get(`/api/developers/notes?taskId=${taskId}`);
       setNotes(notesRes.data.notes || []);
     } catch (error) {
@@ -116,6 +111,7 @@ export default function TaskDetailPage() {
     return (
       <div className="flex items-center justify-center h-[calc(95vh-7rem)] text-white/80 text-xl">
         Task not found
+        <a href="/dev/tasks">Return Back To Tasks</a>
       </div>
     );
 
@@ -123,60 +119,116 @@ export default function TaskDetailPage() {
 
   return (
     <div className="p-6 text-white/90 max-h-screen flex flex-col">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-wrap justify-between items-center mb-6"
-      >
-        <div className="bg-[#283335] border border-white/20 rounded-2xl px-4 py-2 shadow-md">
-          <span className="text-red-400 font-semibold text-sm">
-            Due: {new Date(task.dueDate).toLocaleDateString('en-UK')}
-          </span>
-        </div>
-        <h1 className="text-2xl font-bold text-blue-400">{task.taskName}</h1>
-        <div className={`px-5 py-2 rounded-xl font-semibold text-white ${currentStatus?.color || 'bg-gray-600'}`}>
-          {currentStatus?.label || task.taskStatus.replace('-', ' ')}
-        </div>
-      </motion.div>
-
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-hidden">
         {/* LEFT SIDE */}
         <div className="flex flex-col gap-6 overflow-hidden">
-          {/* Status Buttons */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg flex-1 max-h-[300px]"
           >
-            <h2 className="text-lg font-semibold text-blue-300 mb-4">Task Status</h2>
-            <div className="flex flex-wrap gap-2 mb-6">
-              {statusOptions.map((status) => (
-                <button
-                  key={status.value}
-                  onClick={() => handleStatusUpdate(status.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                    task.taskStatus === status.value
-                      ? `${status.color} text-white`
-                      : 'bg-white/10 text-white/70 hover:bg-white/20'
-                  }`}
-                >
-                  {status.label}
-                </button>
-              ))}
+
+            {/* HEADER: Title + Status Selector */}
+            {/* TITLE */}
+            <h1 className="text-2xl font-bold text-blue-300 mb-2">{task.taskName}</h1>
+
+            {/* 🔥 ANIMATED STATUS BAR */}
+            <div className='w-full border border-gray-400/50 mb-2' />
+            <div className="mb-2 status-bar">
+
+              {/* Animated slider background */}
+              <div
+                className={`status-slider ${currentStatus?.color}`}
+                style={{
+                  width: `${100 / statusOptions.length}%`,
+                  transform: `translateX(${statusOptions.findIndex(s => s.value === task.taskStatus) * 100}%)`,
+                }}
+              />
+
+              {/* Render each status segment */}
+              {statusOptions.map((status) => {
+                const active = task.taskStatus === status.value;
+
+                return (
+                  <button
+                    key={status.value}
+                    onClick={() => handleStatusUpdate(status.value)}
+                    className={`flex-1 text-center py-2 rounded-lg text-sm font-medium transition-all relative z-10
+          ${active ? "text-white" : "text-white/60 hover:text-white"}
+        `}
+                  >
+                    {status.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className='w-full border border-gray-400/50 mb-2' />
+            {/* DESCRIPTION */}
+            <h3 className="text-lg font-semibold text-blue-300 mb-1">Details</h3>
+            <p className="text-white/80 leading-relaxed whitespace-pre-wrap mb-2">
+              {task.taskDescription}
+            </p>
+            <div className='w-full border border-gray-400/50 mb-2' />
+            {/* METADATA ROW */}
+            <div className="flex flex-wrap gap-4 text-sm text-white/70">
+
+              <span className="text-red-400 font-semibold text-sm">
+                Due: {new Date(task.dueDate).toLocaleDateString("en-UK")}
+              </span>
+
+              <span>
+                Priority: <span className="font-semibold text-white">{task.priority}</span>
+              </span>
+
+              <span>
+                Created:
+                <span className="text-white font-medium"> {new Date(task.createdAt).toLocaleDateString("en-UK")}</span>
+              </span>
+
+              {task.completedAt && (
+                <span>
+                  Completed:
+                  <span className="text-green-300 font-medium"> {new Date(task.completedAt).toLocaleDateString("en-UK")}</span>
+                </span>
+              )}
+
+              {task.reviewedAt && (
+                <span>
+                  Reviewed:
+                  <span className="text-blue-300 font-medium"> {new Date(task.reviewedAt).toLocaleDateString("en-UK")}</span>
+                </span>
+              )}
+
+              {task.implementedAt && (
+                <span>
+                  Implemented:
+                  <span className="text-purple-300 font-medium"> {new Date(task.implementedAt).toLocaleDateString("en-UK")}</span>
+                </span>
+              )}
+
+              {(() => {
+                const storedUser = JSON.parse(localStorage.getItem("User") || "{}");
+                const allowedRoles = ["Human-Resources", "Web-Developer", "Owner"];
+
+                if (!allowedRoles.includes(storedUser?.role)) return null;
+
+                return (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="text-red-300 hover:text-red-400 font-semibold"
+                  >
+                    <Trash2 size={14} className="inline mr-1" />
+                    Delete Task
+                  </button>
+                );
+              })()}
+
             </div>
 
-            <h3 className="text-lg font-semibold text-blue-300 mb-3">Details</h3>
-            <p className="text-white/80 leading-relaxed whitespace-pre-wrap mb-4">{task.taskDescription}</p>
-            <div className="flex flex-wrap gap-4 text-sm text-white/70">
-              <span>Priority: <span className="font-semibold text-white">{task.priority}</span></span>
-              <span>Created: {new Date(task.createdAt).toLocaleDateString('en-UK')}</span>
-              {task.completedAt && (
-                <span>Completed: {new Date(task.completedAt).toLocaleDateString('en-UK')}</span>
-              )}
-            </div>
           </motion.div>
+
+
 
           {/* Files */}
           <motion.div
@@ -270,9 +322,8 @@ export default function TaskDetailPage() {
               [...notes].reverse().map((n, i) => (
                 <div
                   key={i}
-                  className={`p-4 rounded-lg border ${
-                    n.system ? 'bg-blue-900/20 border-blue-500/30' : 'bg-white/5 border-white/10'
-                  }`}
+                  className={`p-4 rounded-lg border ${n.system ? 'bg-blue-900/20 border-blue-500/30' : 'bg-white/5 border-white/10'
+                    }`}
                 >
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium text-sm text-white/90">
@@ -343,6 +394,102 @@ export default function TaskDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#182022] border border-white/20 rounded-2xl p-6 w-[92%] max-w-md text-white shadow-xl"
+            >
+              {/* Title */}
+              <h2 className="text-xl font-bold text-red-400 mb-3">Delete Task</h2>
+
+              {/* Body */}
+              <p className="text-white/70 mb-4">
+                To confirm deletion of:
+                <br />
+                <span className="font-semibold text-white">
+                  “{task.taskName}”
+                </span>
+                <br /><br />
+                Please type <span className="text-red-400 font-semibold">DELETE TASK</span> below:
+              </p>
+
+              {/* Text Input */}
+              <input
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="Type DELETE TASK to confirm..."
+                className="w-full bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm mb-6 focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+
+              {/* Buttons */}
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setConfirmText("");
+                  }}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  disabled={confirmText !== "DELETE TASK"}
+                  onClick={async () => {
+                    try {
+                      await axios.delete(`/api/developers/tasks/deleteTask?taskId=${taskId}`);
+                      setShowDeleteConfirm(false);
+                      router.push("/dev/tasks");
+                    } catch (err) {
+                      console.error(err);
+                      alert("Failed to delete task.");
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2
+              ${confirmText === "DELETE TASK"
+                      ? "bg-red-600 hover:bg-red-700 text-gray-100"
+                      : "bg-red-900/40 text-gray-400 cursor-not-allowed"
+                    }
+            `}
+                >
+                  <Trash2 size={16} />
+                  Confirm Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <style jsx>{`
+  .status-bar {
+    position: relative;
+    background: rgba(0,0,0,0.35);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    overflow: hidden;
+  }
+
+  .status-slider {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    border-radius: 10px;
+    transition: all 0.35s cubic-bezier(.2,1,.22,1);
+    z-index: 0;
+  }
+`}</style>
     </div>
   );
 }

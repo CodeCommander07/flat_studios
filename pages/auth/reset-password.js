@@ -22,7 +22,7 @@ export default function ResetPasswordPage() {
 
       setStatus(res.data.message || 'Password reset successfully');
       setTimeout(() => {
-        window.location.href = '/auth/login';
+        window.location.href = '/auth/';
       }, 1500);
     } catch (err) {
       setStatus(err.response?.data?.message || 'Failed to reset password');

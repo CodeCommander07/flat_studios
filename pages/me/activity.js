@@ -173,7 +173,7 @@ export default function ActivityPage() {
       date: form.date,
       timeJoined: form.timeJoined,
       timeLeft: form.timeLeft,
-      description: form.extraNotes,
+      description: form.extraNotes || "N/A",
       notable: form.notable,
       host: form.host,
       participants: form.participants,
@@ -321,7 +321,6 @@ export default function ActivityPage() {
               <textarea
                 rows={3}
                 value={form.extraNotes}
-                required
                 onChange={(e) => handleChange('extraNotes', e.target.value)}
                 className={`w-full p-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition`}
                 placeholder="Write anything notable..."

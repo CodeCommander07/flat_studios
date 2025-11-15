@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         subject: 'Activity Log Edited',
         type: 'edit',
       });
-            notifyUser(user._id, `Activity Log Upadted! Logged on ${date} for a duration of ${duration} between ${timeJoined} & ${timeLeft}`, '/me/activity')
+            notifyUser(user, `Activity Log Upadted! Logged on ${date} for a duration of ${duration} between ${timeJoined} & ${timeLeft}`, '/me/activity')
       
 
       res.status(200).json(updated);
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
         subject: 'Activity Log Deleted',
         type: 'delete',
       });
-            notifyUser(user._id, `Activity Log Deleted! Logged on ${deleted.date} for a duration of ${deleted.duration} between ${deleted.timeJoined} & ${deleted.timeLeft}`, '/me/activity')
+            notifyUser(user, `Activity Log Deleted! Logged on ${deleted.date} for a duration of ${deleted.duration} between ${deleted.timeJoined} & ${deleted.timeLeft}`, '/me/activity')
 
 
       res.status(200).json({ message: 'Deleted successfully' });

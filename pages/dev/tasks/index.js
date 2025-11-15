@@ -57,7 +57,7 @@ export default function AllTasksPage() {
       await axios.post('/api/developers/tasks/set', {
         taskName: newTask.taskName,
         taskDescription: newTask.taskDescription,
-        userId: user?._id,
+        user: user,
         dueDate: newTask.dueDate,
       });
 
@@ -77,7 +77,7 @@ export default function AllTasksPage() {
   };
 
   if (loading) return <p className="text-white p-8">Loading tasks...</p>;
-
+  
   return (
     <div className="p-8 text-white max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -87,7 +87,7 @@ export default function AllTasksPage() {
         <button
           onClick={() => setShowModal(true)}
           className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition"
-        >
+          >
           New Task
         </button>
       </div>
@@ -114,7 +114,7 @@ export default function AllTasksPage() {
                   </span>
                 </div>
                 <div className="text-sm text-white/70">
-                  Assigned to: {developer}<br />
+                  Assigned to: {task.user?.username || "Me" }<br />
                   Due: {new Date(task.dueDate).toLocaleDateString('en-UK')}
                 </div>
               </div>

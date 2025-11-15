@@ -14,6 +14,7 @@ const OperatorApplicationSchema = new mongoose.Schema(
     operatorDiscord: String,
     operatorRoblox: String,
     reason: String,
+    operatorColor: String,
 
     status: {
       type: String,

@@ -10,6 +10,7 @@ const BusStopsSchema = new mongoose.Schema({
   notes: { type: String },
   closed: { type: Boolean, default: false },
   closureReason: { type: String },
+  tempStopId: { type: String, default: null }
 });
 
 export default mongoose.models.BusStops ||
