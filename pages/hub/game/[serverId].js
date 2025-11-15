@@ -188,13 +188,17 @@ export default function ServerDetailPage() {
                 >
                   {serverId}
                 </a>
-                <a
-                  href={`/join?server=${serverId}`}
+                <button
                   className="text-blue-300 hover:text-blue-400"
                   title="Shareable Join Link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const url = `${window.location.origin}/join?server=${serverId}`;
+                    navigator.clipboard.writeText(url);
+                  }}
                 >
                   <Link2 className="inline-block w-4 h-4" />
-                </a>
+                </button>
                 <span className="text-white/40">|</span>
                 <a
                   href="https://www.roblox.com/games/5883938795/UPDATE-Yapton-and-District"

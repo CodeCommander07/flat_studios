@@ -33,14 +33,14 @@ export default function JoinServerPage() {
 
   if (!server) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-white text-xl">
+      <div className="flex items-center justify-center bg-[#283335] min-h-screen text-white text-xl">
         Missing server ID (?server=jobId)
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#0b0f13] text-white flex flex-col items-center justify-center p-6">
+    <main className="min-h-screen bg-[#283335] text-white flex flex-col items-center justify-center p-6">
       <h1 className="text-3xl font-bold mb-2">Joining Server…</h1>
       <p className="text-white/60 mb-6">
         Trying to open Roblox with job ID: <span className="text-yellow-400">{server}</span>
