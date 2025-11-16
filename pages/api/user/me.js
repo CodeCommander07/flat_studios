@@ -23,6 +23,7 @@ export default async function handler(req, res) {
 
         const newsSub = await Subscriber.findOne({email})
         newsSub.isActive = newsletter;
+        if(username) newsSub.username= username;
         await newsSub.save()
 
         if (username) user.username = username;

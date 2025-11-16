@@ -11,44 +11,46 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
+
 
   useEffect(() => {
-  const localUser = JSON.parse(localStorage.getItem('User'));
-  if (!localUser?._id) return;
+    const localUser = JSON.parse(localStorage.getItem('User'));
+    if (!localUser?._id) return;
 
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(`/api/user/me?id=${localUser._id}`);
-      setUser(res.data);
-      setEditedUser(res.data);
-      localStorage.setItem('User', JSON.stringify(res.data)); // ✅ keep in sync
-    } catch (err) {
-      console.error('Failed to fetch user:', err.message);
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`/api/user/me?id=${localUser._id}`);
+        setUser(res.data);
+        setEditedUser(res.data);
+        localStorage.setItem('User', JSON.stringify(res.data)); // ✅ keep in sync
+      } catch (err) {
+        console.error('Failed to fetch user:', err.message);
+      }
+    };
+
+    // ✅ Always fetch latest on mount
+    fetchUser();
+
+    // ✅ Detect if we just returned from OAuth
+    const params = new URLSearchParams(window.location.search);
+    const hasOAuthParams =
+      params.has('code') || params.has('state') || params.has('refresh');
+
+    if (hasOAuthParams) {
+      fetchUser(); // force-refresh updated data
+      window.history.replaceState({}, document.title, window.location.pathname); // cleanup URL
     }
+  }, []);
+
+  const handleDiscordConnect = () => {
+    const localUser = JSON.parse(localStorage.getItem('User'));
+    const userId = localUser?._id;
+    const scopes = encodeURIComponent('identify');
+    const redirect = encodeURIComponent('https://yapton.vercel.app/api/user/discord/callback');
+
+    window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=${redirect}&response_type=code&scope=${scopes}&state=${userId}`;
   };
-
-  // ✅ Always fetch latest on mount
-  fetchUser();
-
-  // ✅ Detect if we just returned from OAuth
-  const params = new URLSearchParams(window.location.search);
-  const hasOAuthParams =
-    params.has('code') || params.has('state') || params.has('refresh');
-
-  if (hasOAuthParams) {
-    fetchUser(); // force-refresh updated data
-    window.history.replaceState({}, document.title, window.location.pathname); // cleanup URL
-  }
-}, []);
-
-const handleDiscordConnect = () => {
-  const localUser = JSON.parse(localStorage.getItem('User'));
-  const userId = localUser?._id;
-  const scopes = encodeURIComponent('identify');
-  const redirect = encodeURIComponent('https://yapton.vercel.app/api/user/discord/callback');
-
-  window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=${redirect}&response_type=code&scope=${scopes}&state=${userId}`;
-};
 
   const handleRobloxConnect = () => {
     const localUser = JSON.parse(localStorage.getItem('User'));
@@ -79,6 +81,30 @@ const handleDiscordConnect = () => {
       console.error('Update failed:', err);
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    const unsub = params.get('newsletter');
+    const targetEmail = params.get('email');
+
+    if (unsub === 'false' && targetEmail) {
+      axios
+        .post('/api/user/me', {
+          email: targetEmail,
+          newsletter: false,
+        })
+        .then(() => {
+          setStatusMessage('❌ You have been unsubscribed from newsletters.');
+        })
+        .catch(() => {
+          setStatusMessage('❌ Failed to unsubscribe.');
+        });
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
 
   const handleSetDefaultAvatar = async (avatarUrl) => {
     const localUser = JSON.parse(localStorage.getItem('User'));
@@ -307,6 +333,14 @@ const handleDiscordConnect = () => {
             <span className="font-semibold">Total Time In Game:</span> 0
           </p>
         </div>
+
+        {statusMessage && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 
+                  bg-red-600 text-white px-6 py-3 rounded-xl 
+                  shadow-lg z-50 animate-fade-in-down">
+            {statusMessage}
+          </div>
+        )}
       </div>
     </main>
   );

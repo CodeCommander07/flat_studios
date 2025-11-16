@@ -1,6 +1,6 @@
 import dbConnect from '@/utils/db';
 import Newsletter from '@/models/News';
-import Subscriber from '@/models/Subscriber'; // ✅ make sure this model exists
+import Subscriber from '@/models/Subscriber';
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
@@ -12,18 +12,16 @@ export default async function handler(req, res) {
   const { id } = req.body || {};
   if (!id) return res.status(400).json({ error: 'Newsletter ID is required' });
 
-  // 📰 Fetch newsletter content
+  // Get newsletter
   const n = await Newsletter.findById(id).lean();
   if (!n) return res.status(404).json({ error: 'Newsletter not found' });
 
-  // 📬 Fetch all subscriber emails
-  const subscribers = await Subscriber.find({}, 'email -_id').lean();
+  // Get subscribers with username
+  const subscribers = await Subscriber.find({}, 'email username').lean();
   if (!subscribers.length)
     return res.status(404).json({ error: 'No subscribers found' });
 
-  const emails = subscribers.map((s) => s.email);
-
-  // ✉️ Setup SMTP
+  // SMTP Transport
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
@@ -34,30 +32,49 @@ export default async function handler(req, res) {
     },
   });
 
-  // 🧩 Send in batches (optional to prevent rate limits)
-  const BATCH_SIZE = 50;
+  // Personalized emails (batch size 1)
   const results = [];
 
-  for (let i = 0; i < emails.length; i += BATCH_SIZE) {
-    const batch = emails.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < subscribers.length; i++) {
+    const sub = subscribers[i];
+
+    // Personalised greeting
+    const greeting = sub.username
+      ? `Dear ${sub.username},`
+      : `Dear user,`;
+
+    const html = `
+      <p style="margin-bottom: 16px; font-size: 16px;">${greeting}</p>
+      ${n.html || '<p>(No content)</p>'}
+      <a href="https://yapton.vercel.app/me?newsletter=false&email={${sub.email}}">
+  Unsubscribe instantly
+</a>
+    `;
+
     try {
       const info = await transporter.sendMail({
         from: process.env.SMTP_FROM,
-        to: batch.join(','), // send to multiple
+        to: process.env.SMTP_FROM,    // still required
+        bcc: sub.email,               // safe — does not expose emails
         subject: n.title || 'Newsletter',
-        html: n.html || '<p>(No content)</p>',
+        html,
       });
-      results.push({ batchStart: i, messageId: info.messageId });
-      console.log(`✅ Sent batch ${i / BATCH_SIZE + 1}: ${batch.length} emails`);
+
+      results.push({
+        email: sub.email,
+        username: sub.username,
+        messageId: info.messageId,
+      });
+
+      console.log(`✅ Sent to ${sub.email}`);
     } catch (err) {
-      console.error(`❌ Failed batch ${i / BATCH_SIZE + 1}`, err.message);
+      console.error(`❌ Failed for: ${sub.email}`, err.message);
     }
   }
 
   return res.status(200).json({
     success: true,
-    totalSubscribers: emails.length,
-    batches: results.length,
+    sent: results.length,
     results,
   });
 }
