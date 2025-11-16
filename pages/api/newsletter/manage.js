@@ -44,12 +44,17 @@ export default async function handler(req, res) {
       : `Dear user,`;
 
     const html = `
-      <p style="margin-bottom: 16px; font-size: 16px;">${greeting}</p>
-      ${n.html || '<p>(No content)</p>'}
-      <a href="https://yapton.vercel.app/me?newsletter=false&email={${sub.email}}">
-  Unsubscribe instantly
-</a>
-    `;
+  <p style="margin-bottom: 16px; font-size: 16px;">${greeting}</p>
+  ${n.html || '<p>(No content)</p>'}
+
+  <hr style="margin: 24px 0; opacity: .3;" />
+
+  <p style="font-size: 13px; opacity: .7;">
+    <a href="https://yapton.vercel.app/me?newsletter=false&email=${sub.email}">
+      Unsubscribe instantly
+    </a>
+  </p>
+`;
 
     try {
       const info = await transporter.sendMail({
