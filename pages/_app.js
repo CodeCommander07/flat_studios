@@ -4,14 +4,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { useRouter } from "next/router";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import DotGridWrapper from '@/components/DotGridWrapper'; 
 import Banner from '@/components/Banner'; // 🆕 import the banner
 
 export default function App({ Component, pageProps }) {
-  const router = useRouter();
-  const hideNavbarRoutes = ["/auth", "/auth/login", "/auth/register", "/auth/reset-password", "/auth/staff/register"];
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -24,7 +21,6 @@ export default function App({ Component, pageProps }) {
   }, []);
 
   const title = `Yapton | Flat Studios`;
-  const shouldHideNavbar = hideNavbarRoutes.includes(router.pathname);
 
   return (
     <>
@@ -56,12 +52,12 @@ export default function App({ Component, pageProps }) {
           {/* 🟢 Global banner at very top */}
           <Banner />
 
-          {!shouldHideNavbar ? <Navbar role={user?.role} user={user?.username} /> : <div />}
+          <Navbar role={user?.role} user={user?.username} />
           <main className="flex-1">
             <Component {...pageProps} />
             <SpeedInsights/>
           </main>
-          {!shouldHideNavbar ? <Footer /> : <div />}
+         <Footer />
         </div>
       </div>
     </>

@@ -168,7 +168,7 @@ export default function SubmissionDetailPage() {
         className={`max-w-10xl mx-auto w-full grid ${showNotes ? 'md:grid-cols-2' : 'grid-cols-1'} gap-6 transition-all duration-500`}
       >
         {/* Left Panel */}
-        <motion.div layout className={`bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl flex flex-col`}>
+        <motion.div layout className={`bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-xl flex flex-col`}>
           <Breadcrumb />
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-white">Application Details</h2>
@@ -198,7 +198,7 @@ export default function SubmissionDetailPage() {
 
           <div className="space-y-3 overflow-y-auto max-h-[500px] pr-2">
             {[...sub.answers].reverse().map((ans, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <div key={i} className="bg-white/5 border border-white/10 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out p-4">
                 <p className="font-semibold text-blue-300">{ans.questionLabel}</p>
                 <p className="text-white/80 mt-1">
                   {Array.isArray(ans.answer) ? ans.answer.join(', ') : ans.answer || '—'}
@@ -210,25 +210,25 @@ export default function SubmissionDetailPage() {
           <div className="mt-auto flex flex-wrap gap-3 justify-between pt-6">
             <button
               onClick={() => handleStatusChange('accepted')}
-              className="flex items-center gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-semibold px-4 py-2 rounded-lg transition"
+              className="flex items-center gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-semibold px-4 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out "
             >
               <CheckCircle className="w-5 h-5" /> Accept
             </button>
             <button
               onClick={() => handleStatusChange('talented')}
-              className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 font-semibold px-4 py-2 rounded-lg transition"
+              className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 font-semibold px-4 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out "
             >
               <Flag className="w-5 h-5" /> Talent Pool
             </button>
             <button
               onClick={() => setShowDenyModal(true)} // 🆕 open popup
-              className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-4 py-2 rounded-lg transition"
+              className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-4 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out "
             >
               <XCircle className="w-5 h-5" /> Deny
             </button>
             <button
               onClick={handleDeleteApplication}
-              className="flex items-center gap-2 bg-red-700/20 hover:bg-red-700/30 text-red-500 font-semibold px-4 py-2 rounded-lg transition"
+              className="flex items-center gap-2 bg-red-700/20 hover:bg-red-700/30 text-red-500 font-semibold px-4 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out "
             >
               <Trash className="w-5 h-5" /> Delete
             </button>
@@ -244,13 +244,13 @@ export default function SubmissionDetailPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 100 }}
               transition={{ duration: 0.4 }}
-              className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl h-full flex flex-col"
+              className="bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-xl h-full flex flex-col"
             >
               <h2 className="text-2xl font-semibold mb-4 text-white">Staff Notes</h2>
 
               <div className="flex gap-2 mb-4">
                 <textarea
-                  className="flex-1 px-3 py-2 rounded-md bg-white/10 border border-white/20 text-white resize-none"
+                  className="flex-1 px-3 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out bg-white/10 border border-white/20 text-white resize-none"
                   rows={3}
                   placeholder="Add a note..."
                   value={newNote}
@@ -259,7 +259,7 @@ export default function SubmissionDetailPage() {
                 <button
                   onClick={handleAddNote}
                   disabled={addingNote}
-                  className="bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-md text-white"
+                  className="bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out text-white"
                 >
                   {addingNote ? 'Adding...' : 'Add'}
                 </button>
@@ -274,7 +274,7 @@ export default function SubmissionDetailPage() {
                     const { bgColor, textColor } = getNoteStyles(note);
 
                     return (
-                      <li key={idx} className={`p-3 rounded-md border ${bgColor} flex items-start gap-3`}>
+                      <li key={idx} className={`p-3 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out border ${bgColor} flex items-start gap-3`}>
                         {staff?.defaultAvatar ? (
                           <Image width={40} height={40} src={staff.defaultAvatar || '/default-avatar.png'} alt={staff.username} className="w-8 h-8 rounded-full" />
                         ) : (

@@ -1,14 +1,36 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const BannerSchema = new mongoose.Schema({
-  active: { type: Boolean, default: false },
-  message: { type: String, required: true },
-  linkText: { type: String },
-  linkUrl: { type: String },
-  icon: {type: String},
-  bgColor: { type: String, default: '#FFDD00' },   // example highlight color
-  textColor: { type: String, default: '#000000' },
-  updatedAt: { type: Date, default: Date.now }
-});
+const BannerSchema = new mongoose.Schema(
+  {
+    active: { type: Boolean, default: false },
+    message: { type: String, default: "" },
+    linkText: { type: String, default: "" },
+    linkUrl: { type: String, default: "" },
+    icon: { type: String, default: "circle-check-big" },
+    bgColor: { type: String, default: "#1b4332" },
+    textColor: { type: String, default: "#ffffff" },
+  },
+  { _id: false }
+);
 
-export default mongoose.models.Banner || mongoose.model('Banner', BannerSchema);
+const BannerConfigSchema = new mongoose.Schema(
+  {
+    displayMode: {
+      type: String,
+      enum: ["stack", "rotate"],
+      default: "rotate",
+    },
+    banners: {
+      type: [BannerSchema],
+      default: [
+        {}, // slot 1
+        {}, // slot 2
+        {}, // slot 3
+      ],
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.BannerConfig ||
+  mongoose.model("BannerConfig", BannerConfigSchema);

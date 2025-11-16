@@ -121,7 +121,7 @@ export default function NewContentPage() {
   /* ---------------------------------------------------------------------- */
   return (
     <main className="p-8 max-w-6xl mx-auto text-white space-y-8">
-      <h1 className="text-4xl font-bold text-center mb-6 flex items-center justify-center gap-3">
+      <h1 className="text-4xl font-bold text-center mb-6 flex items-center bg-[#283335] rounded-b-2xl rounded-r-2xl p-2 justify-center gap-3">
         <PenTool className="w-7 h-7 text-cyan-400" /> Create Blog Post
       </h1>
 
@@ -242,7 +242,7 @@ function Section({ icon, title, children }) {
     <motion.section
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/5 border border-white/10 backdrop-blur-lg p-6 rounded-2xl shadow-lg"
+      className="bg-[#283335] rounded-b-2xl rounded-r-2xl backdrop-blur-lg p-6 shadow-lg"
     >
       <div className="flex items-center gap-3 mb-4">
         {icon}

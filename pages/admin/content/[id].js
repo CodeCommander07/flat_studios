@@ -107,21 +107,25 @@ export default function EditContentPage() {
 
     return (
         <main className="p-8 max-w-6xl mx-auto text-white space-y-8">
-            <Breadcrumb />
-            <h1 className="text-4xl font-bold text-center mb-4">✏️ Edit Post</h1>
+            <div className='bg-[#283335] rounded-b-2xl rounded-r-2xl'>
+                <div className='p-2'>
+                <Breadcrumb />
+                </div>
+                <h1 className="text-4xl font-bold text-center mb-4">✏️ Edit Post</h1>
 
-            {/* Status Indicator */}
-            <div className="text-center mb-6">
-                <span
-                    className={`px-4 py-1 rounded-full text-sm font-semibold ${form.status === 'published'
-                        ? 'bg-green-700'
-                        : form.status === 'scheduled'
-                            ? 'bg-yellow-600'
-                            : 'bg-gray-700'
-                        }`}
-                >
-                    {form.status.toUpperCase()}
-                </span>
+                {/* Status Indicator */}
+                <div className="text-center mb-6 pb-6">
+                    <span
+                        className={`px-4 py-1 rounded-full text-sm font-semibold ${form.status === 'published'
+                            ? 'bg-green-700'
+                            : form.status === 'scheduled'
+                                ? 'bg-yellow-600'
+                                : 'bg-gray-700'
+                            }`}
+                    >
+                        {form.status.toUpperCase()}
+                    </span>
+                </div>
             </div>
 
             {/* Basic Info */}
@@ -265,7 +269,7 @@ function Section({ icon, title, children }) {
         <motion.section
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/5 border border-white/10 backdrop-blur-lg p-6 rounded-2xl shadow-lg"
+            className="bg-[#283335] rounded-b-2xl rounded-r-2xl backdrop-blur-lg p-6 shadow-lg"
         >
             <div className="flex items-center gap-3 mb-4">
                 {icon}

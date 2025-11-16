@@ -87,7 +87,7 @@ export default function Dashboard() {
                 <p className="text-white/60">Loading notices...</p>
               ) : notices.length === 0 ? (
                 <div className="border-l-4 border-r-4 rounded-md border-purple-500 space-y-4 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
-                  <div className='bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 p-4'>
+                  <div className='bg-[#283335] backdrop-blur-sm transition-colors duration-300 p-4'>
                     <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
                       <Info
                         className={`w-6 h-6 text-purple-500`}
@@ -102,7 +102,7 @@ export default function Dashboard() {
                   {notices.map((notice) => (
                     <li
                       key={notice._id}
-                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors duration-300 ${noticeColorClass(notice.type)}`}
+                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-[#283335] backdrop-blur-sm transition-colors duration-300 ${noticeColorClass(notice.type)}`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
@@ -124,7 +124,7 @@ export default function Dashboard() {
             </div>
           </div>
           {/* Page Header */}
-          <div className="relative bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl text-center sm:text-left sm:p-8">
+          <div className="relative bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl text-center sm:text-left sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold">
@@ -140,7 +140,7 @@ export default function Dashboard() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Cards */}
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl">
+            <div className="bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl">
               <div className="flex items-center gap-4 mb-4">
                 <a href='/admin/accounts'><Users className="w-6 h-6 text-blue-400" /></a>
                 <h2 className="text-xl font-semibold">Current Staff</h2>
@@ -149,7 +149,7 @@ export default function Dashboard() {
               <p className="text-sm text-white/50">Active accounts with staff access</p>
             </div>
 
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl">
+            <div className="bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl">
               <div className="flex items-center gap-4 mb-4">
                 <a href='/admin/appeals'><CalendarMinus className="w-6 h-6 text-yellow-300" /></a>
                 <h2 className="text-xl font-semibold">Appeals</h2>
@@ -158,7 +158,7 @@ export default function Dashboard() {
               <p className="text-sm text-white/50">Appeals to be read</p>
             </div>
 
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl">
+            <div className="bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl">
               <div className="flex items-center gap-4 mb-4">
                 <a href='/admin/leave'><Clock className="w-6 h-6 text-green-300" /></a>
                 <h2 className="text-xl font-semibold">Leave Requests</h2>
@@ -167,7 +167,7 @@ export default function Dashboard() {
               <p className="text-sm text-white/50">Requests to be read</p>
             </div>
 
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl">
+            <div className="bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl">
               <div className="flex items-center gap-4 mb-4">
                 <a href='/admin/hiring'><Sparkles className="w-6 h-6 text-red-300" /></a>
                 <h2 className="text-xl font-semibold">Applications</h2>

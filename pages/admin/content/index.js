@@ -60,8 +60,8 @@ export default function AdminContentDashboard() {
 
   /* ---------------------------------------------------------------------- */
   return (
-    <main className="p-8 max-w-6xl mx-auto text-white space-y-6">
-      <div className="flex justify-between items-center mb-4">
+    <main className="mt-5 p-8 max-w-6xl mx-auto text-white space-y-6 bg-[#283335] rounded-b-2xl rounded-r-2xl">
+      <div className="flex justify-between items-center mb-4 ">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <FileText className="text-cyan-400 w-7 h-7" /> Content Manager
         </h1>

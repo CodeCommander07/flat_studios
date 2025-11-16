@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import AuthWrapper from '@/components/AuthWrapper';
 
-
 const ICON_OPTIONS = [
   { label: 'No Disruption', value: 'circle-check-big', icon: CircleCheckBig },
   { label: 'Minor Disruption', value: 'triangle-alert', icon: TriangleAlert },
@@ -26,7 +25,6 @@ const ICON_OPTIONS = [
   { label: 'Festive', value: 'tree-pine', icon: TreePine },
   { label: 'Calendar', value: 'calendar-days', icon: CalendarDays },
 ];
-
 
 function ModeDropdown({ value, onChange }) {
   const [open, setOpen] = useState(false);
@@ -47,7 +45,7 @@ function ModeDropdown({ value, onChange }) {
           hover:bg-white/20 transition
         "
       >
-        {OPTIONS.find(o => o.value === value)?.label}
+        {OPTIONS.find((o) => o.value === value)?.label}
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.2 }}
@@ -78,9 +76,11 @@ function ModeDropdown({ value, onChange }) {
                 }}
                 className={`
                   w-full text-left px-4 py-2 text-sm transition
-                  ${value === opt.value
-                    ? "bg-blue-600/40 text-blue-200"
-                    : "hover:bg-white/10 text-white/80"}
+                  ${
+                    value === opt.value
+                      ? 'bg-blue-600/40 text-blue-200'
+                      : 'hover:bg-white/10 text-white/80'
+                  }
                 `}
               >
                 {opt.label}
@@ -93,37 +93,101 @@ function ModeDropdown({ value, onChange }) {
   );
 }
 
-
 export default function NoticeControlPage() {
   const [mode, setMode] = useState('banner');
 
-  const [banner, setBanner] = useState({
-    active: false,
-    message: '',
-    linkText: '',
-    linkUrl: '',
-    bgColor: '#1b4332',
-    textColor: '#ffffff',
-    icon: 'circle-check-big',
+  const [bannerConfig, setBannerConfig] = useState({
+    displayMode: 'rotate', // 'stack' | 'rotate'
+    banners: [
+      {
+        active: false,
+        message: '',
+        linkText: '',
+        linkUrl: '',
+        bgColor: '#1b4332',
+        textColor: '#ffffff',
+        icon: 'circle-check-big',
+      },
+      {
+        active: false,
+        message: '',
+        linkText: '',
+        linkUrl: '',
+        bgColor: '#1b4332',
+        textColor: '#ffffff',
+        icon: 'circle-check-big',
+      },
+      {
+        active: false,
+        message: '',
+        linkText: '',
+        linkUrl: '',
+        bgColor: '#1b4332',
+        textColor: '#ffffff',
+        icon: 'circle-check-big',
+      },
+    ],
   });
+  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const [saving, setSaving] = useState(false);
 
+  // 🔁 Backwards-compatible load from /api/banner
   useEffect(() => {
     fetch('/api/banner')
       .then((res) => res.json())
-      .then((data) => data && setBanner((b) => ({ ...b, ...data })));
+      .then((data) => {
+        if (!data) return;
+
+        // New shape: { displayMode, banners: [...] }
+        if (Array.isArray(data.banners)) {
+          setBannerConfig((prev) => ({
+            displayMode: data.displayMode || prev.displayMode || 'rotate',
+            banners: [
+              ...data.banners,
+              ...prev.banners.slice(data.banners.length), // pad up to 3
+            ].slice(0, 3),
+          }));
+          return;
+        }
+
+        setBannerConfig((prev) => ({
+          ...prev,
+          banners: [
+            {
+              ...prev.banners[0],
+              ...data,
+            },
+            prev.banners[1],
+            prev.banners[2],
+          ],
+        }));
+      })
+      .catch(() => {});
   }, []);
 
-  const saveBanner = async () => {
-    setSaving(true);
-    await fetch('/api/banner', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(banner),
+  const updateBannerField = (index, field, value) => {
+    setBannerConfig((cfg) => {
+      const banners = [...cfg.banners];
+      banners[index] = {
+        ...banners[index],
+        [field]: value,
+      };
+      return { ...cfg, banners };
     });
-    setSaving(false);
   };
 
+  const saveBannerConfig = async () => {
+    setSaving(true);
+    try {
+      await fetch('/api/banner', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bannerConfig),
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const [alerts, setAlerts] = useState([]);
   const [notices, setNotices] = useState([]);
@@ -131,7 +195,7 @@ export default function NoticeControlPage() {
   const [announcement, setAnnouncement] = useState({
     title: '',
     type: 'announcement',
-    content: ''
+    content: '',
   });
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -159,7 +223,10 @@ export default function NoticeControlPage() {
     if (!announcement.title || !announcement.content) return;
 
     if (editingId) {
-      await axios.put('/api/admin/alerts/update', { id: editingId, ...announcement });
+      await axios.put('/api/admin/alerts/update', {
+        id: editingId,
+        ...announcement,
+      });
     } else {
       await axios.post('/api/admin/alerts/set', announcement);
     }
@@ -171,19 +238,19 @@ export default function NoticeControlPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete?")) return;
+    if (!confirm('Delete?')) return;
     await axios.delete('/api/admin/alerts/delete', { data: { id } });
     fetchAlerts();
   };
 
+  const current = bannerConfig.banners[activeBannerIndex];
 
   return (
     <AuthWrapper requiredRole="admin">
       <main className="p-8 max-w-6xl mx-auto text-white">
-
         <h1 className="text-3xl font-bold mb-6">Notice & Banner Control</h1>
 
-        {/* Custom Dropdown */}
+        {/* Top mode switch (banner vs announcements) */}
         <div className="mb-8">
           <ModeDropdown value={mode} onChange={setMode} />
         </div>
@@ -194,7 +261,70 @@ export default function NoticeControlPage() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-[#283335] p-6 rounded-2xl border border-white/10 backdrop-blur-lg"
           >
-            <h2 className="text-xl font-semibold mb-4">Banner Settings</h2>
+            <div className="flex items-center justify-between mb-4 gap-4">
+              <h2 className="text-xl font-semibold">Banner Settings</h2>
+
+              {/* Display mode selector: Stack vs Rotate */}
+              <div className="flex items-center gap-3 text-sm">
+                <span className="text-white/70">Display Mode:</span>
+                <div className="inline-flex bg-black/40 rounded-lg border border-white/10 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBannerConfig((cfg) => ({
+                        ...cfg,
+                        displayMode: 'stack',
+                      }))
+                    }
+                    className={`px-3 py-1.5 ${
+                      bannerConfig.displayMode === 'stack'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-white/70 hover:bg-white/10'
+                    }`}
+                  >
+                    Stack
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBannerConfig((cfg) => ({
+                        ...cfg,
+                        displayMode: 'rotate',
+                      }))
+                    }
+                    className={`px-3 py-1.5 ${
+                      bannerConfig.displayMode === 'rotate'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-white/70 hover:bg-white/10'
+                    }`}
+                  >
+                    Rotate (30s)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Tabs for Banner 1–3 */}
+            <div className="flex gap-2 mb-4">
+              {['Banner 1', 'Banner 2', 'Banner 3'].map((label, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveBannerIndex(idx)}
+                  className={`px-4 py-2 rounded-lg text-sm border transition ${
+                    activeBannerIndex === idx
+                      ? 'bg-blue-600 border-blue-400 text-white'
+                      : 'bg-black/30 border-white/20 text-white/70 hover:bg-white/10'
+                  }`}
+                >
+                  {label}
+                  {bannerConfig.banners[idx]?.active && (
+                    <span className="ml-2 text-xs text-emerald-300">
+                      ● active
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
 
             <div className="grid gap-4">
               <label>
@@ -202,8 +332,10 @@ export default function NoticeControlPage() {
                 <input
                   name="message"
                   className="w-full bg-white/10 border border-white/20 p-2 rounded-lg mt-1"
-                  value={banner.message}
-                  onChange={(e) => setBanner({ ...banner, message: e.target.value })}
+                  value={current.message}
+                  onChange={(e) =>
+                    updateBannerField(activeBannerIndex, 'message', e.target.value)
+                  }
                 />
               </label>
 
@@ -213,8 +345,14 @@ export default function NoticeControlPage() {
                   <input
                     name="linkText"
                     className="w-full bg-white/10 border border-white/20 p-2 rounded-lg mt-1"
-                    value={banner.linkText}
-                    onChange={(e) => setBanner({ ...banner, linkText: e.target.value })}
+                    value={current.linkText}
+                    onChange={(e) =>
+                      updateBannerField(
+                        activeBannerIndex,
+                        'linkText',
+                        e.target.value
+                      )
+                    }
                   />
                 </label>
 
@@ -223,8 +361,14 @@ export default function NoticeControlPage() {
                   <input
                     name="linkUrl"
                     className="w-full bg-white/10 border border-white/20 p-2 rounded-lg mt-1"
-                    value={banner.linkUrl}
-                    onChange={(e) => setBanner({ ...banner, linkUrl: e.target.value })}
+                    value={current.linkUrl}
+                    onChange={(e) =>
+                      updateBannerField(
+                        activeBannerIndex,
+                        'linkUrl',
+                        e.target.value
+                      )
+                    }
                   />
                 </label>
               </div>
@@ -237,8 +381,14 @@ export default function NoticeControlPage() {
                     type="color"
                     name="bgColor"
                     className="w-full h-10 bg-white/10 border border-white/20 rounded-lg mt-1"
-                    value={banner.bgColor}
-                    onChange={(e) => setBanner({ ...banner, bgColor: e.target.value })}
+                    value={current.bgColor}
+                    onChange={(e) =>
+                      updateBannerField(
+                        activeBannerIndex,
+                        'bgColor',
+                        e.target.value
+                      )
+                    }
                   />
                 </label>
 
@@ -248,8 +398,14 @@ export default function NoticeControlPage() {
                     type="color"
                     name="textColor"
                     className="w-full h-10 bg-white/10 border border-white/20 rounded-lg mt-1"
-                    value={banner.textColor}
-                    onChange={(e) => setBanner({ ...banner, textColor: e.target.value })}
+                    value={current.textColor}
+                    onChange={(e) =>
+                      updateBannerField(
+                        activeBannerIndex,
+                        'textColor',
+                        e.target.value
+                      )
+                    }
                   />
                 </label>
               </div>
@@ -260,52 +416,67 @@ export default function NoticeControlPage() {
                 <div className="flex items-center gap-4 mt-2">
                   <select
                     className="flex-1 bg-white/10 border border-white/20 rounded p-2"
-                    value={banner.icon}
-                    onChange={(e) => setBanner({ ...banner, icon: e.target.value })}
+                    value={current.icon}
+                    onChange={(e) =>
+                      updateBannerField(
+                        activeBannerIndex,
+                        'icon',
+                        e.target.value
+                      )
+                    }
                   >
                     {ICON_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="bg-black text-white">
+                      <option
+                        key={opt.value}
+                        value={opt.value}
+                        className="bg-black text-white"
+                      >
                         {opt.label}
                       </option>
                     ))}
                   </select>
 
                   <div className="p-3 bg-white/10 border border-white/20 rounded-lg">
-                    {
-                      (() => {
-                        const Comp = ICON_OPTIONS.find(o => o.value === banner.icon)?.icon;
-                        return Comp ? <Comp className="w-6 h-6 text-white" /> : null;
-                      })()
-                    }
+                    {(() => {
+                      const Comp = ICON_OPTIONS.find(
+                        (o) => o.value === current.icon
+                      )?.icon;
+                      return Comp ? (
+                        <Comp className="w-6 h-6 text-white" />
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </label>
 
-              {/* Active toggle */}
+              {/* Active toggle for this banner */}
               <label className="flex items-center gap-2 mt-4">
                 <input
                   type="checkbox"
-                  checked={banner.active}
-                  onChange={(e) => setBanner({ ...banner, active: e.target.checked })}
+                  checked={current.active}
+                  onChange={(e) =>
+                    updateBannerField(
+                      activeBannerIndex,
+                      'active',
+                      e.target.checked
+                    )
+                  }
                 />
-                Active
+                <span>Active</span>
               </label>
 
               <button
-                onClick={saveBanner}
+                onClick={saveBannerConfig}
                 disabled={saving}
                 className="px-4 py-2 bg-green-500 hover:bg-green-600 text-black rounded-lg font-semibold flex items-center gap-2 mt-4"
               >
                 <Save size={18} />
-                {saving ? 'Saving...' : 'Save Banner'}
+                {saving ? 'Saving...' : 'Save Banners'}
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* -----------------------------
-            MODE: ANNOUNCEMENTS
-        ----------------------------- */}
         {mode === 'announcements' && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -327,13 +498,18 @@ export default function NoticeControlPage() {
 
             {/* Form */}
             {showForm && (
-              <form onSubmit={handleSubmit} className="bg-black/40 p-6 rounded-xl border border-white/10 mb-8">
+              <form
+                onSubmit={handleSubmit}
+                className="bg-black/40 p-6 rounded-xl border border-white/10 mb-8"
+              >
                 <input
                   type="text"
                   className="w-full bg-white/10 border border-white/20 rounded p-2 mb-4"
                   placeholder="Title"
                   value={announcement.title}
-                  onChange={(e) => setAnnouncement({ ...announcement, title: e.target.value })}
+                  onChange={(e) =>
+                    setAnnouncement({ ...announcement, title: e.target.value })
+                  }
                 />
 
                 <textarea
@@ -341,14 +517,26 @@ export default function NoticeControlPage() {
                   className="w-full bg-white/10 border border-white/20 rounded p-2 mb-4"
                   placeholder="Announcement text..."
                   value={announcement.content}
-                  onChange={(e) => setAnnouncement({ ...announcement, content: e.target.value })}
+                  onChange={(e) =>
+                    setAnnouncement({
+                      ...announcement,
+                      content: e.target.value,
+                    })
+                  }
                 />
 
                 <div className="flex gap-4">
-                  <button type="submit" className="bg-green-600 px-4 py-2 rounded-lg">
+                  <button
+                    type="submit"
+                    className="bg-green-600 px-4 py-2 rounded-lg"
+                  >
                     {editingId ? 'Update' : 'Post'}
                   </button>
-                  <button onClick={() => setShowForm(false)} type="button" className="bg-zinc-700 px-4 py-2 rounded-lg">
+                  <button
+                    onClick={() => setShowForm(false)}
+                    type="button"
+                    className="bg-zinc-700 px-4 py-2 rounded-lg"
+                  >
                     Cancel
                   </button>
                 </div>
@@ -368,14 +556,20 @@ export default function NoticeControlPage() {
                   </div>
 
                   <div className="flex gap-4 text-sm">
-                    <button className="text-blue-400" onClick={() => {
-                      setEditingId(a._id);
-                      setAnnouncement(a);
-                      setShowForm(true);
-                    }}>
+                    <button
+                      className="text-blue-400"
+                      onClick={() => {
+                        setEditingId(a._id);
+                        setAnnouncement(a);
+                        setShowForm(true);
+                      }}
+                    >
                       Edit
                     </button>
-                    <button className="text-red-400" onClick={() => handleDelete(a._id)}>
+                    <button
+                      className="text-red-400"
+                      onClick={() => handleDelete(a._id)}
+                    >
                       Delete
                     </button>
                   </div>

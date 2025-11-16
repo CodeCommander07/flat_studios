@@ -13,8 +13,8 @@ const OperatorApplicationSchema = new mongoose.Schema(
     operatorFleet: String,
     operatorDiscord: String,
     operatorRoblox: String,
-    reason: String,
     operatorColor: String,
+    reason: String,
 
     status: {
       type: String,

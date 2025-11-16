@@ -35,7 +35,7 @@ export default function AdminApps() {
   return (
     <main className="max-w-6xl mx-auto p-6 text-white">
       <Breadcrumb />
-      <h1 className="bg-white/10 shadow-lg p-4 rounded-md text-3xl font-bold mb-6 border border-white/20 backdrop-blur-md">Applications Overview</h1>
+      <h1 className="rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg p-4 text-3xl font-bold mb-6 border border-white/20 backdrop-blur-md">Applications Overview</h1>
 
       {loading ? (
         <p className="text-white/70">Loading...</p>
@@ -52,7 +52,7 @@ export default function AdminApps() {
             return (
               <div
                 key={app._id}
-                className={`rounded-2xl shadow-lg p-6 border glassy bg-gradient-to-br ${bgColor} transition hover:scale-[1.02] hover:shadow-xl`}
+                className={`shadow-lg p-6 border glassy bg-gradient-to-br ${bgColor} rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out`}
               >
                 <h2 className="text-2xl font-bold mb-3">{app.title || 'Untitled Role'}</h2>
 

@@ -13,9 +13,8 @@ const StatusBadge = ({ status }) => {
   };
   return (
     <span
-      className={`px-2 py-0.5 text-xs rounded border ${
-        map[status] || 'bg-white/10 text-white/70 border-white/20'
-      }`}
+      className={`px-2 py-0.5 text-xs rounded border ${map[status] || 'bg-white/10 text-white/70 border-white/20'
+        }`}
     >
       {status || 'Pending'}
     </span>
@@ -26,6 +25,7 @@ export default function RouteRequestDetail() {
   const router = useRouter();
   const { id } = router.query;
   const [request, setRequest] = useState(null);
+  const [user, setUser] = useState('');
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -44,13 +44,17 @@ export default function RouteRequestDetail() {
   useEffect(() => {
     load();
   }, [id]);
+  useEffect(()=>{
+    const localUser = JSON.parse(localStorage.getItem('User'));
+    setUser(localUser)
+  }, [])
 
   const updateStatus = async (status) => {
     try {
       const res = await fetch(`/api/ycc/admin/requests/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, updatedBy: user}),
       });
       const data = await res.json();
       if (data.success)
@@ -115,15 +119,20 @@ export default function RouteRequestDetail() {
             >
               ← Back to all requests
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 text-xs text-gray-400">
               <StatusBadge status={request.status} />
-              <span className="text-xs text-gray-400">
-                Updated{' '}
-                {new Date(
-                  request.updatedAt || request.createdAt
-                ).toLocaleString('en-GB')}
+
+              <span>
+                Updated {new Date(request.updatedAt || request.createdAt).toLocaleString('en-GB')}
               </span>
+
+              {request.updatedBy && (
+                <span className="text-blue-300 ">
+                  by <span className="font-semibold">{request.updatedBy.username}</span>
+                </span>
+              )}
             </div>
+
           </div>
 
           <div>

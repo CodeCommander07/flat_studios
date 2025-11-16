@@ -39,7 +39,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
     <li
       ref={setNodeRef}
       style={style}
-      className="flex flex-col gap-3 p-3 rounded-lg cursor-default select-none"
+      className="flex flex-col gap-3 p-3 rounded-bl-lg rounded-tr-lg cursor-default select-none"
     >
       <div className="flex justify-between items-center">
         <div
@@ -305,21 +305,21 @@ export default function EditForm() {
     <AuthWrapper requiredRole="admin">
       <main className="max-w-8xl mx-auto px-4 py-5 text-white grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <div className="glass bg-[#283335] p-4 rounded-2xl shadow-lg flex items-center justify-between">
+          <div className=" bg-[#283335] p-4 rounded-bl-2xl rounded-tr-2xl shadow-lg flex items-center justify-between">
             <h2 className="text-xl font-bold p-2">Title:</h2>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={updateTitle}
               placeholder="Enter title..."
-              className="bg-white/10 rounded-md p-2 text-white w-[95%] focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
+              className="bg-white/10 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out p-2 text-white w-[95%] focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>
 
 
           {/* Description (modal-based) */}
           <div
-            className="glass bg-[#283335] p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-[#283335]/80 transition relative"
+            className=" bg-[#283335] p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg cursor-pointer hover:bg-[#283335]/80 transition relative"
             onClick={() => setShowDescModal(true)}
           >
             <h2 className="text-xl font-bold mb-2">Description</h2>
@@ -328,7 +328,7 @@ export default function EditForm() {
 
           {/* Requirements (modal-based) */}
           <div
-            className="glass bg-[#283335] p-6 rounded-2xl shadow-lg cursor-pointer hover:bg-[#283335]/80 transition relative"
+            className=" bg-[#283335] p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg cursor-pointer hover:bg-[#283335]/80 transition relative"
             onClick={() => setShowReqModal(true)}
           >
             <h2 className="text-xl font-bold mb-2">Requirements</h2>
@@ -338,7 +338,7 @@ export default function EditForm() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="glass bg-[#283335] p-4 rounded-2xl shadow-lg flex items-center justify-between">
+            <div className=" bg-[#283335] p-4 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold">Status:</h2>
                 <span
@@ -359,10 +359,10 @@ export default function EditForm() {
             </div>
 
 
-            <div className="glass bg-[#283335] p-4 rounded-2xl shadow-lg flex items-center justify-between">
+            <div className=" bg-[#283335] p-4 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg flex items-center justify-between">
               <h2 className="text-xl font-bold">Applications</h2>
               <button
-                onClick={() => window.open(`/hub+/hiring/`, '_blank')}
+                onClick={() => window.open(`/admin/hiring/review`, '_blank')}
                 className="text-blue-400 hover:text-blue-500 text-sm transition"
               >
                 View {appCount ?? '...'} Applications
@@ -373,24 +373,24 @@ export default function EditForm() {
           </div>
 
           {/* Add Question Section (unchanged) */}
-          <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg space-y-2">
+          <div className=" bg-[#283335] p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg space-y-2">
             <h2 className="text-xl font-bold mb-2">Add Question</h2>
             <input
               placeholder="Question Label"
               value={qLabel}
               onChange={(e) => setQLabel(e.target.value)}
-              className="w-full p-2 rounded-md bg-white/10 placeholder-white/50"
+              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/50"
               disabled={saving}
             />
             <textarea
               value={qInfo}
               onChange={(e) => setQInfo(e.target.value)}
               placeholder="Additional information about this question..."
-              className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 text-sm resize-none"
+              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60 text-sm resize-none"
               rows={2}
             />
             <select
-              className="w-full p-2 rounded-md bg-white/10 text-white"
+              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 text-white"
               value={qType}
               onChange={(e) => setQType(e.target.value)}
               disabled={saving}
@@ -414,7 +414,7 @@ export default function EditForm() {
                         prev.map((v, idx) => (idx === i ? e.target.value : v))
                       )
                     }
-                    className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                    className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60"
                   />
                 ))}
                 <button
@@ -436,7 +436,7 @@ export default function EditForm() {
           </div>
         </div>
 
-        <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg">
+        <div className="bg-[#283335] p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg">
           <h2 className="text-xl font-bold mb-2">Questions</h2>
           <div className="max-h-[624px] overflow-y-auto overscroll-contain">
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -462,7 +462,7 @@ export default function EditForm() {
 
         {showDescModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
+            <div className="bg-[#283335] p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg max-w-5xl max-h-5xl w-full relative">
               <h2 className="text-xl font-bold mb-4">Edit Description</h2>
               <textarea
                 value={tempDesc}
@@ -494,7 +494,7 @@ export default function EditForm() {
 
         {showReqModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="glass bg-[#283335] p-6 rounded-2xl shadow-lg max-w-5xl max-h-5xl w-full relative">
+            <div className="bg-[#283335] p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg max-w-5xl max-h-5xl w-full relative">
               <h2 className="text-xl font-bold mb-4">Edit Requirements</h2>
               <textarea
                 value={tempReq}

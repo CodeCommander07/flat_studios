@@ -30,7 +30,7 @@ export default function AppealsListPage() {
     <AuthWrapper requiredRole="admin">
       <main className="text-white px-6 py-12 flex flex-col items-center">
         <div className="max-w-7xl w-full space-y-10">
-          <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
+          <div className="bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
             <div className="flex items-center gap-3 mb-6">
               <Users className="text-yellow-300" />
               <h1 className="text-2xl font-bold">Ban Appeals</h1>

@@ -12,6 +12,7 @@ const OperatorRequestSchema = new mongoose.Schema({
   uploadedFiles: [FileSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, },
+  updatedBy: { type: Object, },
   status:{ type: String, enum: ['Pending', 'Approved', 'Rejected', 'Implemented'], default: 'Pending' },
 });
 

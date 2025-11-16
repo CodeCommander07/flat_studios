@@ -86,7 +86,7 @@ export default function Footer() {
         </div>
 
         {/* Center: Newsletter */}
-        <div className="max-w-3xl mx-auto text-center">
+        {/* <div className="max-w-3xl mx-auto text-center">
           <h3 className="text-xl font-semibold mb-2">Subscribe to our Newsletter</h3>
           <form
             onSubmit={handleSubscribe}
@@ -117,7 +117,7 @@ export default function Footer() {
               ❌ There was a problem subscribing. Please try again.
             </p>
           )}
-        </div>
+        </div> */}
 
         {/* Right: Links */}
         <div className="flex flex-col md:flex-row gap-2 md:gap-6 text-sm text-center md:text-left">

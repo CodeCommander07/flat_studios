@@ -24,7 +24,7 @@ export default function ReturnedTasksPage() {
       ) : (
         <ul className="space-y-4">
           {returnedTasks.map(task => (
-            <li key={task.taskId} className="bg-white/10 border border-white/20 p-4 rounded-xl">
+            <li key={task.taskId} className="bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 p-4 ">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="font-semibold text-lg">{task.taskName}</h2>

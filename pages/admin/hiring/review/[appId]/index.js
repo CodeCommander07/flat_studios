@@ -77,13 +77,13 @@ export default function ViewApplication() {
   return (
     <main className="max-w-6xl mx-auto p-6 text-white space-y-6">
       < Breadcrumb />
-      <div className={`glassy p-6 rounded-2xl shadow-lg border border-white/10 bg-gradient-to-br ${bgColor}`}>
+      <div className={`p-6 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg border border-white/10 bg-gradient-to-br ${bgColor}`}>
   <div className="flex flex-wrap justify-between items-center mb-2">
     <h1 className="text-3xl font-bold">{app.title}</h1>
 
     <button
       onClick={() => router.push(`/admin/hiring/${app._id}`)} 
-      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out text-sm font-semibold transition"
     >
       Manage Application
     </button>
@@ -96,7 +96,7 @@ export default function ViewApplication() {
 
   <div className="flex items-center gap-3">
     <span
-      className={`text-sm font-semibold px-3 py-1 rounded-full ${
+      className={`text-sm font-semibold px-3 py-1 rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out ${
         app.open ? 'bg-green-700' : 'bg-red-700'
       }`}
     >
@@ -121,7 +121,7 @@ export default function ViewApplication() {
               return (
                 <div
                   key={s._id}
-                  className={`rounded-2xl shadow-lg p-5 border glassy backdrop-blur-md bg-gradient-to-br ${colorClasses} transition hover:scale-[1.02] hover:shadow-xl`}
+                  className={`rounded-bl-2xl rounded-tr-2xl hover:rounded-2xl focus:rounded-2xl transition-all duration-300 ease-in-out shadow-lg p-5 border backdrop-blur-md bg-gradient-to-br ${colorClasses}`}
                 >
                   <h3 className="font-semibold text-lg break-all mb-2">
                     {s.applicantEmail || 'Unknown Email'}
@@ -143,7 +143,7 @@ export default function ViewApplication() {
 
                   <Link
                     href={`/admin/hiring/review/${appId}/${s._id}`}
-                    className="block text-center bg-white/10 hover:bg-white/20 transition text-sm font-medium py-2 rounded-md"
+                    className="block text-center bg-white/10 hover:bg-white/20 transition text-sm font-medium py-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out"
                   >
                     Manage
                   </Link>

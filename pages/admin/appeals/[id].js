@@ -151,7 +151,7 @@ export default function AppealDetailPage() {
                         layout
                         animate={{ x: showNotes ? 0 : 0, scale: showNotes ? 1 : 1.05 }}
                         transition={{ type: 'spring', duration: 0.5 }}
-                        className={`bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl h-full flex flex-col ${showNotes ? '' : 'mx-auto max-w-xl'
+                        className={`bg-[#283335] rounded-bl-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl h-full flex flex-col ${showNotes ? '' : 'mx-auto max-w-xl'
                             }`}
                     >
 
@@ -191,30 +191,30 @@ export default function AppealDetailPage() {
 
                         <div className="mt-4">
                             <strong>Ban Reason:</strong>
-                            <div className="bg-black/30 p-2 rounded-lg mt-2 min-h-[100px] overflow-hidden">{appeal.banReason}</div>
+                            <div className="bg-black/30 p-2 rounded-bl-lg rounded-tr-lg mt-2 min-h-[100px] overflow-hidden">{appeal.banReason}</div>
                         </div>
 
                         <div className="mt-4">
                             <strong>Unban Justification:</strong>
-                            <div className="bg-black/30 p-2 rounded-lg mt-2 min-h-[100px] overflow-hidden">{appeal.unbanReason || 'N/A'}</div>
+                            <div className="bg-black/30 p-2 rounded-bl-lg rounded-tr-lg mt-2 min-h-[100px] overflow-hidden">{appeal.unbanReason || 'N/A'}</div>
                         </div>
 
                         {appeal.status === 'Denied' && (
                             <div className="mt-4">
                                 <strong>Deny Reason:</strong>
-                                <div className="bg-black/30 p-2 rounded-lg mt-2 min-h-[100px] overflow-hidden">{appeal.denyReason || 'N/A'}</div>
+                                <div className="bg-black/30 p-2 rounded-bl-lg rounded-tr-lg mt-2 min-h-[100px] overflow-hidden">{appeal.denyReason || 'N/A'}</div>
                             </div>
                         )}
 
                         {/* Action Buttons */}
                         <div className="mt-auto flex justify-between pt-6">
-                            <button onClick={() => handleStatusChange('Accepted')} className="flex items-center gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-semibold px-4 py-2 rounded-lg transition">
+                            <button onClick={() => handleStatusChange('Accepted')} className="flex items-center gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-semibold px-4 py-2 rounded-bl-lg rounded-tr-lg transition">
                                 <CheckCircle className="w-5 h-5" /> Accept
                             </button>
-                            <button onClick={() => handleStatusChange('Flagged')} className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 font-semibold px-4 py-2 rounded-lg transition">
+                            <button onClick={() => handleStatusChange('Flagged')} className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 font-semibold px-4 py-2 rounded-bl-lg rounded-tr-lg transition">
                                 <Flag className="w-5 h-5" /> Flag
                             </button>
-                            <button onClick={() => handleStatusChange('Denied')} className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-4 py-2 rounded-lg transition">
+                            <button onClick={() => handleStatusChange('Denied')} className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-4 py-2 rounded-bl-lg rounded-tr-lg transition">
                                 <XCircle className="w-5 h-5" /> Deny
                             </button>
                         </div>
@@ -229,7 +229,7 @@ export default function AppealDetailPage() {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 100 }}
                                 transition={{ duration: 0.4 }}
-                                className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl h-full flex flex-col"
+                                className="bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 bg-[#283335] rounded-b-2xl rounded-r-2xl shadow-xl h-full flex flex-col"
                             >
                                 <h2 className="text-lg font-semibold mb-3">Notes</h2>
 
@@ -237,14 +237,14 @@ export default function AppealDetailPage() {
                                     <input
                                         type="text"
                                         placeholder="Add a note..."
-                                        className="flex-1 px-3 py-2 rounded-md bg-white/10 border border-white/20 text-white"
+                                        className="flex-1 px-3 py-2 rounded-bl-md rounded-tr-md bg-white/10 border border-white/20 text-white"
                                         value={noteText}
                                         onChange={(e) => setNoteText(e.target.value)}
                                     />
                                     <button
                                         onClick={handleAddNote}
                                         disabled={addingNote}
-                                        className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md text-white"
+                                        className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-bl-md rounded-tr-md text-white"
                                     >
                                         {addingNote ? 'Saving...' : 'Add'}
                                     </button>

@@ -298,7 +298,6 @@ function StopsListWithDiversion({ stopList, disruption, stops, direction }) {
   );
 }
 
-
 function LiveRouteImpactPanel({ liveRoutes, stops, lastUpdated }) {
   const [activeId, setActiveId] = useState(
     liveRoutes[0]?.id || null
@@ -329,42 +328,41 @@ function LiveRouteImpactPanel({ liveRoutes, stops, lastUpdated }) {
     liveRoutes.find((r) => r.id === activeId) || liveRoutes[0];
 
   return (
-    <div className="bg-[#283335] border border-white/20 rounded-b-2xl rounded-r-2xl p-4 backdrop-blur-md shadow-lg">
-      <div className="flex items-center justify-between mb-3">
+    <div className="w-full h-full flex flex-col">
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <h2 className="text-lg font-semibold">Live route impact</h2>
         <p className="text-xs text-white/50">
           Updated: {lastUpdated?.toLocaleTimeString()}
         </p>
       </div>
 
-
-      {/* Tabs (horizontally scrollable) */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-custom pb-1 mb-3">
+      {/* Horizontal scrollable route tabs */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-custom pb-2 mb-3 flex-shrink-0">
         {liveRoutes.map((rd) => {
           const isActive = rd.id === active.id;
           return (
             <button
               key={rd.id}
               onClick={() => setActiveId(rd.id)}
-              className={`
-                whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium
-                border transition-all
-                ${isActive
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium border transition-all
+              ${isActive
                   ? 'bg-white text-black border-white/80'
                   : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
-                }
-              `}
+                }`}
             >
-              {rd.route.number || rd.route.routeId || 'Route'}{' '}
+              {rd.route.number || rd.route.routeId}{' '}
               <span className="opacity-70">({rd.label})</span>
             </button>
           );
         })}
       </div>
 
-      {/* Active stops list */}
-      <div className="mt-2">
-        <p className="text-xs text-white/60 mb-2">
+      {/* This whole area takes remaining height */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+
+        <p className="text-xs text-white/60 mb-2 flex-shrink-0">
           Showing{' '}
           <span className="font-semibold">
             {active.route.number || active.route.routeId}
@@ -372,17 +370,23 @@ function LiveRouteImpactPanel({ liveRoutes, stops, lastUpdated }) {
           – {active.label}
         </p>
 
-        <div className="route-container relative max-h-[460px] overflow-y-auto rounded-xl scrollbar-none scroll-smooth pr-2">
-          <StopsListWithDiversion
-            stopList={active.stopList}
-            disruption={active.disruption}
-            stops={stops}
-            direction={active.direction}
-          />
+        {/* Vertical scroll for stops */}
+        <div className="flex-1 overflow-y-auto pr-2 scrollbar-custom">
+
+          {/* Horizontal scroll for route layout */}
+          <div className="overflow-x-auto">
+            <StopsListWithDiversion
+              stopList={active.stopList}
+              disruption={active.disruption}
+              stops={stops}
+              direction={active.direction}
+            />
+          </div>
         </div>
       </div>
     </div>
   );
+
 }
 
 
@@ -459,20 +463,6 @@ export default function TravelUpdatesPage() {
     return map;
   }, [routes]);
 
-  // 🧠 Helper: readable route numbers
-  const getRouteNames = (ids) => {
-    if (!ids?.length) return 'N/A';
-    const names = ids.map((id) => {
-      const r = routes.find(
-        (x) =>
-          String(x._id) === String(id) ||
-          String(x.routeId) === String(id)
-      );
-      return r ? r.number || r.name || id : id;
-    });
-    return names.join(', ');
-  };
-
   const getIconAndColor = (type, hasStops) => {
     if (hasStops) {
       return { Icon: MapPinOff, color: 'text-red-500' };
@@ -494,20 +484,33 @@ export default function TravelUpdatesPage() {
   // 🚦 Expand affectedRoutes automatically per disruption
   const enrichDisruptions = useMemo(() => {
     return disruptions.map((d) => {
-      const affectedRouteIds = new Set(
-        (d.affectedRoutes || []).map(String)
-      );
+      if (!routes.length) return { ...d, inferredRoutes: [] };
 
+      const affectedRouteIds = new Set();
+
+      const normalise = (rid) => String(rid).trim().toLowerCase();
+
+      // Add manual affectedRoutes
+      (d.affectedRoutes || []).forEach((rid) => {
+        affectedRouteIds.add(normalise(rid));
+      });
+
+      // Add routes via affected stops
       (d.affectedStops || []).forEach((sid) => {
         const routesUsingStop = stopToRoutesMap[sid];
         if (routesUsingStop) {
-          routesUsingStop.forEach((rid) => affectedRouteIds.add(rid));
+          routesUsingStop.forEach((rid) => {
+            affectedRouteIds.add(normalise(rid));
+          });
         }
       });
 
-      return { ...d, inferredRoutes: Array.from(affectedRouteIds) };
+      return {
+        ...d,
+        inferredRoutes: Array.from(affectedRouteIds)
+      };
     });
-  }, [disruptions, stopToRoutesMap]);
+  }, [disruptions, stopToRoutesMap, routes]);
 
   // 🌐 Build combined "live route impact" across ALL disruptions
   const liveRouteDirections = useMemo(() => {
@@ -588,8 +591,6 @@ export default function TravelUpdatesPage() {
     }));
   }, [enrichDisruptions, routes]);
 
-
-
   // 🌀 Loading/Error
   if (loading)
     return (
@@ -663,7 +664,7 @@ export default function TravelUpdatesPage() {
                         <p className="font-semibold text-white/70 mb-2">Affected Routes</p>
 
                         {d.inferredRoutes?.length > 0 ? (
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-2 mb-2">
 
                             {[...new Set(d.inferredRoutes.map(String))].map((rid) => {
 
@@ -719,7 +720,7 @@ export default function TravelUpdatesPage() {
                             {d.affectedStops.length}
                           </span>
                         )}
-                        <span className="px-3 py-1 bg-white/10 text-white/70 rounded-full border border-white/20">
+                        <span className="ml-2 px-3 py-1 bg-white/10 text-white/70 rounded-full border border-white/20">
                           Type: {d.incidentType}
                         </span>
                       </div>
@@ -731,7 +732,7 @@ export default function TravelUpdatesPage() {
           </div>
 
           <div className="hidden lg:block sticky top-8 self-start">
-            <div className="max-h-[60vh] min-h-[50vh] overflow-y-auto scrollbar-hidden rounded-2xl p-4">
+            <div className="h-[60vh] rounded-b-2xl rounded-r-2xl overflow-hidden bg-[#283335] border border-white/20 p-4">
               <LiveRouteImpactPanel
                 liveRoutes={liveRouteDirections}
                 stops={stops}
@@ -741,7 +742,7 @@ export default function TravelUpdatesPage() {
           </div>
         </div>
 
-        <div className="lg:hidden mt-8 rounded-2xl p-4 max-h-[60vh] min-h-[60vh] overflow-y-auto no-scrollbar">
+        <div className="lg:hidden mt-8 rounded-b-2xl rounded-r-2xl p-4 max-h-[60vh] min-h-[60vh] overflow-y-auto no-scrollbar">
           <LiveRouteImpactPanel
             liveRoutes={liveRouteDirections}
             stops={stops}

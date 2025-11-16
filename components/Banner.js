@@ -1,6 +1,8 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CircleCheckBig,
   TriangleAlert,
@@ -12,62 +14,102 @@ import {
 } from 'lucide-react';
 
 const ICONS = {
-  'circle-check-big': CircleCheckBig,
-  'triangle-alert': TriangleAlert,
-  'megaphone': Megaphone,
-  'info': Info,
-  'octagon-alert': OctagonAlert,
-  'tree-pine': TreePine,
-  'calendar-days': CalendarDays,
+  "circle-check-big": CircleCheckBig,
+  "triangle-alert": TriangleAlert,
+  "megaphone": Megaphone,
+  "info": Info,
+  "octagon-alert": OctagonAlert,
+  "tree-pine": TreePine,
+  "calendar-days": CalendarDays,
 };
 
 export default function Banner() {
-  const [banner, setBanner] = useState(null);
+  const [config, setConfig] = useState(null);
+  const [index, setIndex] = useState(0);
 
+  // Load banner config from API
   useEffect(() => {
-    const loadBanner = async () => {
+    const load = async () => {
       try {
         const res = await fetch('/api/banner');
         const data = await res.json();
-        setBanner(data);
+        setConfig(data);
       } catch {
-        setBanner(null);
+        setConfig(null);
       }
     };
-    loadBanner();
-    const interval = setInterval(loadBanner, 60000);
+
+    load();
+    const interval = setInterval(load, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  if (!banner || !banner.active) return null;
+  // Compute active banners safely
+  const active = config?.banners?.filter((b) => b.active) || [];
+  const mode = config?.displayMode || "rotate";
 
-  const IconComponent = ICONS[banner.icon] || TriangleAlert;
+  // Rotation hook — ALWAYS declared
+  useEffect(() => {
+    if (!active.length) return;
+    if (mode !== "rotate") return;
+    if (active.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setIndex((i) => (i + 1) % active.length);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [active.length, mode]);
+
+  // SAFE return checks AFTER hooks
+  if (!active.length) return null;
+
+  const renderBanner = (b, key) => {
+    const Icon = ICONS[b.icon];
+    return (
+      <div
+        key={key}
+        className="w-full text-center py-2 px-3 shadow-md z-[50]"
+        style={{ background: b.bgColor, color: b.textColor }}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
+          {Icon && <Icon className="w-5 h-5" />}
+          <span className="font-semibold">{b.message}</span>
+          {b.linkUrl && (
+            <Link
+              href={b.linkUrl}
+              className="underline underline-offset-4 font-medium"
+              style={{ color: b.textColor }}
+            >
+              {b.linkText}
+            </Link>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // STACK MODE
+  if (mode === "stack") {
+    return <div className="w-full space-y-1">{active.map(renderBanner)}</div>;
+  }
+
+  // ROTATE MODE
+  const current = active[index];
 
   return (
-    <div
-      className="w-full text-center py-2 px-3 shadow-md z-[50]"
-      style={{
-        background:
-          banner.bgColor ||
-          'linear-gradient(90deg, #b5121b 0%, #c41e25 100%)',
-        color: banner.textColor || '#ffffff',
-      }}
-    >
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-sm sm:text-base font-semibold">
-        <div className="flex items-center gap-2">
-          <IconComponent className="w-5 h-5 flex-shrink-0" />
-          <span>{banner.message}</span>
-        </div>
-        {banner.linkUrl && (
-          <Link
-            href={banner.linkUrl}
-            className="underline underline-offset-4 hover:opacity-80 font-medium"
-            style={{ color: banner.textColor || '#ffffff' }}
-          >
-            {banner.linkText || 'View updates'}
-          </Link>
-        )}
-      </div>
+    <div className="w-full">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.3 }}
+        >
+          {renderBanner(current, index)}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

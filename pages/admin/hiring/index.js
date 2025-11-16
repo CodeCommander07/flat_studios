@@ -39,7 +39,7 @@ export default function ManageForms() {
     <AuthWrapper requiredRole="admin">
 
       <main className="max-w-4xl mx-auto px-4 py-10 text-white">
-        <div className="glass p-6 rounded-2xl shadow-lg space-y-6">
+        <div className="bg-[#283335] rounded-b-2xl rounded-r-2xl p-6 shadow-lg space-y-6">
           <h1 className="text-3xl font-bold">Manage Applications</h1>
 
           {/* Create Form */}
@@ -49,29 +49,29 @@ export default function ManageForms() {
               placeholder="Application Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-3 rounded-md bg-white/10 placeholder-white/60"
+              className="w-full p-3 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60"
             />
             <textarea
               placeholder="Short Description"
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full p-3 rounded-md bg-white/10 placeholder-white/60 resize-none h-28"
+              className="w-full p-3 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60 resize-none h-28"
             />
             <button
               onClick={create}
-              className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-md font-semibold"
+              className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out font-semibold"
             >
               Create New Form
             </button>
             <button
               onClick={() => router.push('/admin/ycc/form')}
-              className="bg-green-600 hover:bg-green-700 ml-2 px-5 py-2 rounded-md font-semibold"
+              className="bg-green-600 hover:bg-green-700 ml-2 px-5 py-2 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out font-semibold"
             >
               Manage Route Form
             </button>
             <button
               onClick={() => router.push('/admin/hiring/review')}
-              className="bg-orange-600 hover:bg-orange-700 ml-2 px-5 py-2 rounded-md font-semibold"
+              className="bg-orange-600 hover:bg-orange-700 ml-2 px-5 py-2 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out font-semibold"
             >
               Review Applications
             </button>
@@ -82,7 +82,7 @@ export default function ManageForms() {
             {forms.map((f) => (
               <div
                 key={f._id}
-                className="bg-white/5 hover:bg-white/10 p-4 rounded-xl border border-white/10 transition relative group"
+                className="rounded-bl-2xl rounded-tr-2xl hover:rounded-br-2xl hover:rounded-tl-2xl transition-all duration-300 ease-in-out p-4 border border-white/10 relative group"
               >
                 <Link href={`/admin/hiring/${f._id}`} className="block">
                   <h2 className="text-xl font-semibold mb-1 flex justify-between items-center gap-2">

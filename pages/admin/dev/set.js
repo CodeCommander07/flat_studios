@@ -66,13 +66,13 @@ export default function SetTaskPage() {
 
   return (
     <div className="p-4 sm:p-8 text-white max-w-3xl mx-auto">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center sm:text-left bg-[#283335] p-2 border border-3 border-white/20 border-b-blue-400/20 rounded-tr-2xl">
         Set New Developer Task
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 bg-white/10 border border-white/20 p-6 rounded-2xl backdrop-blur-md"
+        className="space-y-5 bg-[#283335] rounded-bl-2xl border-3 border-t-0 border-white/20 p-6 backdrop-blur-md"
       >
         {/* 🧾 Task Name */}
         <div>

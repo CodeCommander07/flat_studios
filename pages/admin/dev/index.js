@@ -68,7 +68,7 @@ export default function AdminDevTasks() {
       <main className="text-white px-6 py-12 flex flex-col items-center">
         <div className="max-w-6xl w-full space-y-10">
           {/* Page Header */}
-          <div className="relative bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl text-center sm:text-left sm:p-8">
+          <div className="relative bg-[#283335] rounded-b-2xl rounded-r-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl text-center sm:text-left sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold">
@@ -91,7 +91,7 @@ export default function AdminDevTasks() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <a
               href="/admin/dev/set"
-              className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl"
+              className="bg-[#283335] rounded-bl-2xl rounded-tr-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl"
             >
               <div className="flex items-center gap-4 mb-4">
                 <ClipboardList className="w-6 h-6 text-blue-400" />
@@ -105,7 +105,7 @@ export default function AdminDevTasks() {
 
             <a
               href="/admin/dev/review"
-              className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl"
+              className="bg-[#283335] rounded-bl-2xl rounded-tr-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl"
             >
               <div className="flex items-center gap-4 mb-4">
                 <RotateCcw className="w-6 h-6 text-yellow-400" />
@@ -119,7 +119,7 @@ export default function AdminDevTasks() {
 
             <a
               href="/admin/dev/assets"
-              className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl transition hover:shadow-2xl"
+              className="bg-[#283335] rounded-bl-2xl rounded-tr-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl"
             >
               <div className="flex items-center gap-4 mb-4">
                 <CheckCircle2 className="w-6 h-6 text-purple-400" />
@@ -132,7 +132,7 @@ export default function AdminDevTasks() {
             </a>
           </div>
 
-          <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden">
+          <div className="border border-white/20 backdrop-blur-md rounded-b-2xl rounded-r-2xl shadow-xl overflow-hidden">
             {loading ? (
               <div className="p-6 text-center text-white/60">Loading tasks...</div>
             ) : tasks.length === 0 ? (

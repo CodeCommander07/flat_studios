@@ -34,18 +34,23 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'PATCH') {
     try {
-      const { status } = req.body || {};
+      const { status, updatedBy } = req.body || {};
       const allowed = ['Pending', 'Approved', 'Rejected', 'Implemented'];
 
       if (!allowed.includes(status)) {
         return res.status(400).json({ success: false, error: 'Invalid status' });
       }
 
+      if (!updatedBy) {
+        return res.status(400).json({ success: false, error: 'Missing updatedBy user' });
+      }
+
       const updated = await OperatorRequest.findByIdAndUpdate(
         id,
         {
           status,
-          updatedAt: new Date()   // ✅ Add timestamp
+          updatedBy,              // ✔ Save who changed it
+          updatedAt: new Date()
         },
         { new: true }
       ).lean();
@@ -54,10 +59,12 @@ export default async function handler(req, res) {
         return res.status(404).json({ success: false, message: 'Not found' });
 
       res.status(200).json({ success: true, request: updated });
+
     } catch (err) {
       res.status(500).json({ success: false, error: err.message });
     }
-  } else if (req.method === 'DELETE') {
+  }
+  else if (req.method === 'DELETE') {
     try {
       await OperatorRequest.findByIdAndDelete(id);
       res.status(200).json({ success: true, message: 'Deleted' });
