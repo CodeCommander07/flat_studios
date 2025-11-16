@@ -17,6 +17,10 @@ export default function AuthPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [status, setStatus] = useState('');
   const [strength, setStrength] = useState(0);
+  const [tos, setTos] = useState(false);
+  const [newsletter, setNewsletter] = useState(true);
+  const [usernameAvailable, setUsernameAvailable] = useState(null);
+  const [checkingUsername, setCheckingUsername] = useState(false)
   const [criteria, setCriteria] = useState({
     length: false,
     upper: false,
@@ -75,7 +79,7 @@ export default function AuthPage() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, username, role: roleParam, password }),
+        body: JSON.stringify({ email, username, role: roleParam, password, newsletter }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Registration failed');
@@ -88,6 +92,35 @@ export default function AuthPage() {
       setStatus(`❌ ${err.message}`);
     }
   };
+
+  // 🔍 Live username availability check
+  useEffect(() => {
+    if (!username || username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const check = async () => {
+      setCheckingUsername(true);
+      try {
+        const res = await fetch(`/api/users/username?username=${username}`, {
+          signal: controller.signal,
+        });
+        const data = await res.json();
+        setUsernameAvailable(data.available);
+      } catch (e) {
+        setUsernameAvailable(null);
+      }
+      setCheckingUsername(false);
+    };
+
+    const delay = setTimeout(check, 350); // debounce typing
+    return () => {
+      controller.abort();
+      clearTimeout(delay);
+    };
+  }, [username]);
 
   return (
     <main className="flex items-center justify-center min-h-screen text-white p-4 overflow-hidden">
@@ -117,13 +150,68 @@ export default function AuthPage() {
                 <h2 className="text-3xl font-semibold text-center">Create Account ✨</h2>
                 <p className="text-white/60 text-sm text-center">Join the Community</p>
 
-                <InputField
-                  label="Username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  color="emerald"
-                />
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    placeholder=" "
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="peer w-full rounded-lg border border-white/20 bg-white/5 px-3 pt-5 pb-2 text-sm text-white placeholder-transparent
+      focus:outline-none focus:ring-0 focus:border-emerald-400 transition-all duration-300"
+                  />
+
+                  <label
+                    className={`absolute left-3 top-3 text-sm text-white/60 transition-all duration-300
+      peer-placeholder-shown:top-4 peer-placeholder-shown:text-white/40
+      peer-focus:-translate-y-2 peer-focus:text-xs peer-focus:text-emerald-300
+      
+      ${username ? '-translate-y-2 text-xs' : 'top-4'}`}
+                    style={{
+                      top: username ? '0.4rem' : undefined,
+                    }}
+                  >
+                    Username
+                  </label>
+
+                  {/* 🔎 Status Icon */}
+                  {username.length > 0 && (
+                    <div className="absolute right-3 top-3 text-lg">
+                      {/* Loading spinner */}
+                      {checkingUsername && (
+                        <span className="animate-spin text-white/40">⏳</span>
+                      )}
+
+                      {/* Available ✔ */}
+                      {!checkingUsername && usernameAvailable === true && (
+                        <span className="text-green-400 font-bold">✔</span>
+                      )}
+
+                      {/* Unavailable ✖ */}
+                      {!checkingUsername && usernameAvailable === false && (
+                        <span className="text-red-400 font-bold">✖</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Status Message */}
+                  {!checkingUsername && username.length > 0 && usernameAvailable === false && (
+                    <p className="text-red-400 text-xs mt-1">
+                      This username is already taken.
+                    </p>
+                  )}
+
+                  {username.length > 0 && username.length < 3 && (
+                    <p className="text-yellow-400 text-xs mt-1">
+                      Username must be at least 3 characters.
+                    </p>
+                  )}
+
+                  {!checkingUsername && usernameAvailable === true && username.length >= 3 && (
+                    <p className="text-green-400 text-xs mt-1">
+                      Username is available!
+                    </p>
+                  )}
+                </div>
                 <InputField
                   label="Email"
                   type="email"
@@ -169,6 +257,43 @@ export default function AuthPage() {
                     )}
                   </AnimatePresence>
                 </div>
+                {/* TOS + Newsletter Checkboxes */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col gap-3 mt-1"
+                >
+                  {/* Terms of Service */}
+                  <label className="flex items-center gap-3 text-sm text-white/80">
+                    <input
+                      type="checkbox"
+                      checked={tos}
+                      onChange={(e) => setTos(e.target.checked)}
+                      className="h-4 w-4 accent-emerald-500"
+                    />
+                    I agree to the{' '}
+                    <a
+                      href="/terms"
+                      className="text-emerald-400 hover:text-emerald-300 underline"
+                      target="_blank"
+                    >
+                      Terms of Service
+                    </a>
+                  </label>
+
+                  {/* Newsletter Subscriptions */}
+                  <label className="flex items-center gap-3 text-sm text-white/80">
+                    <input
+                      type="checkbox"
+                      checked={newsletter}
+                      onChange={(e) => setNewsletter(e.target.checked)}
+                      className="h-4 w-4 accent-emerald-500"
+                    />
+                    Subscribe to newsletter updates
+                  </label>
+                </motion.div>
+
 
                 {password && (
                   <motion.div
@@ -237,15 +362,24 @@ export default function AuthPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   disabled={
-                    strength < 5 || password !== confirmPassword || !username || !email
+                    strength < 5 ||
+                    password !== confirmPassword ||
+                    !username ||
+                    !email ||
+                    tos !== true
                   }
-                  className={`w-full transition rounded-lg py-2 font-medium ${strength < 5 || password !== confirmPassword
+                  className={`w-full transition rounded-lg py-2 font-medium ${strength < 5 ||
+                    password !== confirmPassword ||
+                    !username ||
+                    !email ||
+                    tos !== true
                     ? 'bg-emerald-800/40 cursor-not-allowed'
                     : 'bg-emerald-500 hover:bg-emerald-600'
                     }`}
                 >
                   Register
                 </motion.button>
+
               </motion.form>
             ) : (
               <motion.form
@@ -275,7 +409,7 @@ export default function AuthPage() {
 
                 <div className="flex justify-end">
                   <Link
-                    href="/forgot-password"
+                    href="/auth/forgot-password"
                     className="text-xs text-blue-300 hover:text-blue-400 transition"
                   >
                     Forgot password?
@@ -352,6 +486,8 @@ function InputField({ label, type, value, onChange, color }) {
       ? 'focus:border-emerald-400 peer-focus:text-emerald-300'
       : 'focus:border-blue-400 peer-focus:text-blue-300';
 
+  const isFilled = value && value.length > 0;
+
   return (
     <div className="relative w-full">
       <input
@@ -362,10 +498,19 @@ function InputField({ label, type, value, onChange, color }) {
         required
         className={`peer w-full rounded-lg border border-white/20 bg-white/5 px-3 pt-5 pb-2 text-sm text-white placeholder-transparent focus:outline-none focus:ring-0 transition-all duration-300 ${focusColor}`}
       />
+
       <label
-        className={`absolute left-3 top-3 text-sm text-white/60 transition-all duration-300 ease-in-out
-        peer-placeholder-shown:top-4 peer-placeholder-shown:text-white/40
-        peer-focus:-translate-y-2 peer-focus:text-xs ${focusColor}`}
+        className={`
+          absolute left-3 text-sm text-white/60 transition-all duration-300 ease-in-out
+          
+          ${isFilled ? '-translate-y-2 text-xs' : 'top-4'}
+          
+          peer-focus:-translate-y-2 peer-focus:text-xs
+          ${focusColor}
+        `}
+        style={{
+          top: isFilled ? '0.4rem' : undefined,
+        }}
       >
         {label}
       </label>

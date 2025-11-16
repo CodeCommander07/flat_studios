@@ -12,7 +12,9 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     const localUser = JSON.parse(localStorage.getItem('User'));
@@ -81,30 +83,6 @@ export default function ProfilePage() {
       console.error('Update failed:', err);
     }
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-
-    const unsub = params.get('newsletter');
-    const targetEmail = params.get('email');
-
-    if (unsub === 'false' && targetEmail) {
-      axios
-        .post('/api/user/me', {
-          email: targetEmail,
-          newsletter: false,
-        })
-        .then(() => {
-          setStatusMessage('❌ You have been unsubscribed from newsletters.');
-        })
-        .catch(() => {
-          setStatusMessage('❌ Failed to unsubscribe.');
-        });
-
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
-
 
   const handleSetDefaultAvatar = async (avatarUrl) => {
     const localUser = JSON.parse(localStorage.getItem('User'));
@@ -182,7 +160,7 @@ export default function ProfilePage() {
 
             {['username', 'email'].map((field) => (
               <div key={field}>
-                <p className="font-semibold capitalize text-sm text-white/70">{field}</p>
+                <p className="font-semibold">{field}</p>
                 {!editMode ? (
                   <p className="text-white/90">{user[field]}</p>
                 ) : (
@@ -209,13 +187,11 @@ export default function ProfilePage() {
                 <label className="flex items-center gap-2 mt-1">
                   <input
                     type="checkbox"
-                    checked={editedUser.newsletter || false}
-                    onChange={(e) =>
-                      setEditedUser({ ...editedUser, newsletter: e.target.checked })
-                    }
+                    checked={false}
+                    disabled
                     className="accent-blue-600 w-4 h-4"
                   />
-                  <span className="text-sm text-white/80">Subscribed</span>
+                  <span className="text-sm text-white/80">Not Subscribed</span>
                 </label>
               )}
             </div>
@@ -322,26 +298,86 @@ export default function ProfilePage() {
 
         {/* 🔹 Metadata Section */}
         <div className="bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-          <h2 className="text-2xl font-bold mb-4">User Metadata</h2>
-          <p className="text-white/90">
-            <span className="font-semibold">Role:</span> {user.role}
-          </p>
-          <p className="text-white/90">
-            <span className="font-semibold">Total Shifts Hosted:</span> 0
-          </p>
-          <p className="text-white/90">
-            <span className="font-semibold">Total Time In Game:</span> 0
-          </p>
-        </div>
+  <div className="flex justify-between items-start mb-4">
+    <h2 className="text-2xl font-bold">User Metadata</h2>
 
-        {statusMessage && (
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 
-                  bg-red-600 text-white px-6 py-3 rounded-xl 
-                  shadow-lg z-50 animate-fade-in-down">
-            {statusMessage}
-          </div>
-        )}
+    <button
+      onClick={() => setShowDeleteModal(true)}
+      className="text-red-300 hover:text-red-400 font-semibold"
+    >
+      Delete Account
+    </button>
+  </div>
+
+  <p className="text-white/90">
+    <span className="font-semibold">Role:</span> {user.role}
+  </p>
+  <p className="text-white/90">
+    <span className="font-semibold">Total Shifts Hosted:</span> 0
+  </p>
+  <p className="text-white/90">
+    <span className="font-semibold">Total Time In Game:</span> 0
+  </p>
+</div>
+
       </div>
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="bg-[#1e2a2d] border border-white/10 rounded-2xl p-8 w-full max-w-md shadow-2xl relative animate-[fadeIn_0.25s_ease]">
+
+            <h2 className="text-xl font-bold text-white mb-2">Delete Account</h2>
+            <p className="text-white/70 text-sm mb-4">
+              This action is permanent and cannot be undone.
+              To confirm, type <span className="font-semibold text-red-400">{user.username}</span> below.
+            </p>
+
+            <input
+              type="text"
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              placeholder={`Type "${user.username}"`}
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:ring-2 focus:ring-red-400 outline-none"
+            />
+
+            <button
+              className={`w-full mt-4 py-2 rounded-lg font-semibold transition
+          ${deleteInput === user.username
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-red-900/40 cursor-not-allowed'
+                }`}
+              disabled={deleteInput !== user.username || deleteLoading}
+              onClick={async () => {
+                setDeleteLoading(true);
+
+                try {
+                  await axios.delete(`/api/user/delete?id=${user._id}`);
+                  localStorage.removeItem("User");
+                  window.location.href = '/';
+                } catch (err) {
+                  console.error(err);
+                  alert('Failed to delete account.');
+                } finally {
+                  setDeleteLoading(false);
+                }
+              }}
+            >
+              {deleteLoading ? "Deleting…" : "Confirm Delete"}
+            </button>
+
+            <button
+              className="mt-3 w-full text-center text-white/50 text-sm hover:text-white"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeleteInput('');
+              }}
+            >
+              Cancel
+            </button>
+
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }

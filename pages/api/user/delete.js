@@ -1,8 +1,7 @@
+// /api/user/delete.js
 import dbConnect from '@/utils/db';
 import User from '@/models/User';
-import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import fetch from "node-fetch";
 
 const mailHub = nodemailer.createTransport({
   service: 'gmail',
@@ -14,31 +13,15 @@ const mailHub = nodemailer.createTransport({
 })
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'DELETE')
+    return res.status(405).json({ error: 'Method not allowed' });
 
-  const { email, username, role, password, newsletter } = req.body;
   await dbConnect();
+  const { id } = req.query;
 
-  const existing = await User.findOne({ email });
-  if (existing) return res.status(409).json({ message: 'User already exists' });
-
-  const hashed = await bcrypt.hash(password, 10);
-
-  const id = new Date().getTime().toString(36) + Math.random().toString(36).substring(2, 15);
-
-  const existingUsername = await User.findOne({ username: username });
-  if (existingUsername) return res.status(409).json({ message: 'Username already taken' });
-
-  await User.create({
-    id,
-    email,
-    username,
-    role: role || 'User',
-    password: hashed,
-    defaultAvatar: 'https://yapton.vercel.app/cdn/image/logo.png',
-  });
-
-  const html = `
+  try {
+    const u = await User.findById(id)
+    const html = `
   <!DOCTYPE html>
 <html>
   <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; color: #333;">
@@ -51,7 +34,7 @@ export default async function handler(req, res) {
                 <img src="https://yapton.vercel.app/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
               </td>
               <td align="center" style="vertical-align: middle;">
-                <h1 style="font-size: 24px; margin: 0; color: #ffffff;">Account Creation</h1>
+                <h1 style="font-size: 24px; margin: 0; color: #ffffff;">Account Deletion</h1>
               </td>
               <td style="width: 50px;"></td>
             </tr>
@@ -60,12 +43,11 @@ export default async function handler(req, res) {
       </tr>
       <tr>
         <td style="padding: 20px;">
-          <p style="font-size: 18px;">Hi <strong>${username}</strong>,</p>
+          <p style="font-size: 18px;">Hi <strong>${u.username}</strong>,</p>
           <table cellpadding="6" cellspacing="0" width="100%" style="font-size: 16px; line-height: 1.6;">
-          <tr><td><strong>Email</strong></td><td>${email}</td></tr>
-          <tr><td><strong>Role:</strong></td><td>${role}</td></tr>
-          <tr><td><strong>Newsletter:</strong></td><td>${newsletter ? "Yes" : "No"}</td></tr>
-          <tr><td><strong>Manage Account</strong></td><td><a href="https://yapton.vercel.app/me">https://yapton.vercel.app/me</a></td></tr>
+          <tr><td><strong>Email</strong></td><td>${u.email}</td></tr>
+          <tr><td><strong>Role:</strong></td><td>${u.role}</td></tr>
+          <tr><td><strong>Account Created</strong></td><td>${new Date(u.createdAt).toLocaleDateString('en-UK')}</td></tr>
           <tr><td><strong>Date</strong></td><td>${new Date().toLocaleDateString('en-UK')}</td></tr>
           </table>
         </td>
@@ -86,34 +68,14 @@ export default async function handler(req, res) {
 
   const mailOptions = {
     from: '"Flat Studios" <notification@flatstudios.net>',
-    to: email,
-    subject: "Account Creation",
+    to: u.email,
+    subject: "Account Deletion",
     html,
   };
   await mailHub.sendMail(mailOptions);
-  const user = await User.findOne({ id })
-  const { password: _, ...safeUser } = user.toObject();
-
-  if (newsletter === true) {
-    const url = `https://us10.api.mailchimp.com/3.0/lists/890f788c56/members`;
-
-    const body = {
-      email_address: email,
-      status: "subscribed",
-      merge_fields: {
-        FNAME: username || "",
-      },
-    };
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `apikey ${API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    await User.findByIdAndDelete(id);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
-
-  res.status(200).json({ success: true, safeUser });
 }
