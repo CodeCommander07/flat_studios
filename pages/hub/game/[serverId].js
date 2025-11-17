@@ -365,29 +365,21 @@ export default function ServerDetailPage() {
                       </div>
                       <div className="flex flex-wrap justify-end gap-2 ml-auto">
                         <button
-                          onClick={() =>
-                            confirmAction(
-                              "Kick Player",
-                              `Are you sure you want to kick ${selectedPlayer.username}?`,
-                              async () => {
-                                await axios.post(`/api/game/servers/${serverId}/commands`, {
-                                  type: "kick",
-                                  targetId: selectedPlayer.playerId,
-                                  reason: "Kicked by web admin",
-                                  issuedBy: user.username,
-                                });
-
-                                await axios.post("/api/moderation/log", {
-                                  action: "kick",
-                                  targetId: selectedPlayer.playerId,
-                                  moderator: user,
-                                  reason: "Kicked by web admin",
-                                  serverId,
-                                });
-                              }
-                            )
-                          }
-
+                          onClick={async () => {
+                            await axios.post(`/api/game/servers/${serverId}/commands`, {
+                              type: "kick",
+                              targetId: selectedPlayer.playerId,
+                              reason: "Kicked by web admin",
+                              issuedBy: "Web Dashboard",
+                            });
+                          }}
+                          title="Kick Player"
+                          disabled={!isStaff}
+                          className={`
+    flex items-center gap-1 px-3 py-1 rounded-md text-sm transition
+    bg-yellow-500/20 border border-yellow-500/40 hover:bg-yellow-500/30
+    ${!isStaff ? "opacity-40 cursor-not-allowed hover:bg-transparent hover:border-yellow-500/20" : ""}
+  `}
                         >
                           <LogOut className="text-yellow-400" size={16} /> Kick
                         </button>
