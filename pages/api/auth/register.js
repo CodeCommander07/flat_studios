@@ -3,6 +3,7 @@ import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import fetch from "node-fetch";
+import mailchimp from "@mailchimp/mailchimp_marketing";
 
 const mailHub = nodemailer.createTransport({
   service: 'gmail',
@@ -12,6 +13,11 @@ const mailHub = nodemailer.createTransport({
   },
   secure: true,
 })
+
+mailchimp.setConfig({
+  apiKey: process.env.MAILCHIMP_API_KEY,
+  server: "us10", // e.g. "us10"
+});
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -95,25 +101,23 @@ export default async function handler(req, res) {
   const { password: _, ...safeUser } = user.toObject();
 
   if (newsletter === true) {
-    const url = `https://us10.api.mailchimp.com/3.0/lists/890f788c56/members`;
+  try {
+    const response = await mailchimp.lists.addListMember(
+      "890f788c56", // Your list ID
+      {
+        email_address: email,
+        status: "pending", // pending = double opt-in recommended
+        merge_fields: {
+          FNAME: username || "",
+        },
+      }
+    );
 
-    const body = {
-      email_address: email,
-      status: "subscribed",
-      merge_fields: {
-        FNAME: username || "",
-      },
-    };
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `apikey ${API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    console.log("Mailchimp added:", response.id);
+  } catch (err) {
+    console.error("Mailchimp error:", err.response?.body || err.message);
   }
+}
 
   res.status(200).json({ success: true, safeUser });
 }

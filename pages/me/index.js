@@ -25,25 +25,38 @@ export default function ProfilePage() {
         const res = await axios.get(`/api/user/me?id=${localUser._id}`);
         setUser(res.data);
         setEditedUser(res.data);
-        localStorage.setItem('User', JSON.stringify(res.data)); // ✅ keep in sync
+        localStorage.setItem('User', JSON.stringify(res.data));
       } catch (err) {
         console.error('Failed to fetch user:', err.message);
       }
     };
 
-    // ✅ Always fetch latest on mount
     fetchUser();
 
-    // ✅ Detect if we just returned from OAuth
+    // 🔹 Handle newsletter unsubscribe link: /me?newsletter=false
     const params = new URLSearchParams(window.location.search);
+    if (params.has("newsletter")) {
+      const value = params.get("newsletter") === "true";
+
+      axios.put(`/api/user/me?id=${localUser._id}&status=edit`, {
+        newsletter: value
+      })
+        .then(() => fetchUser())
+        .finally(() => {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        });
+    }
+
+    // Detect OAuth params
     const hasOAuthParams =
       params.has('code') || params.has('state') || params.has('refresh');
 
     if (hasOAuthParams) {
-      fetchUser(); // force-refresh updated data
-      window.history.replaceState({}, document.title, window.location.pathname); // cleanup URL
+      fetchUser();
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
+
 
   const handleDiscordConnect = () => {
     const localUser = JSON.parse(localStorage.getItem('User'));
@@ -182,19 +195,24 @@ export default function ProfilePage() {
             <div>
               <span className="font-semibold">Newsletter:</span>{' '}
               {!editMode ? (
-                user.newsletter ? 'Subscribed' : 'Not Subscribed'
+                user.newsletter ? "Subscribed" : "Not Subscribed"
               ) : (
                 <label className="flex items-center gap-2 mt-1">
                   <input
                     type="checkbox"
-                    checked={false}
-                    disabled
+                    checked={editedUser.newsletter}
+                    onChange={(e) =>
+                      setEditedUser({ ...editedUser, newsletter: e.target.checked })
+                    }
                     className="accent-blue-600 w-4 h-4"
                   />
-                  <span className="text-sm text-white/80">Not Subscribed</span>
+                  <span className="text-sm text-white/80">
+                    {editedUser.newsletter ? "Subscribed" : "Not Subscribed"}
+                  </span>
                 </label>
               )}
             </div>
+
           </div>
 
           {/* Password Reset */}
@@ -298,27 +316,27 @@ export default function ProfilePage() {
 
         {/* 🔹 Metadata Section */}
         <div className="bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-  <div className="flex justify-between items-start mb-4">
-    <h2 className="text-2xl font-bold">User Metadata</h2>
+          <div className="flex justify-between items-start mb-4">
+            <h2 className="text-2xl font-bold">User Metadata</h2>
 
-    <button
-      onClick={() => setShowDeleteModal(true)}
-      className="text-red-300 hover:text-red-400 font-semibold"
-    >
-      Delete Account
-    </button>
-  </div>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="text-red-300 hover:text-red-400 font-semibold"
+            >
+              Delete Account
+            </button>
+          </div>
 
-  <p className="text-white/90">
-    <span className="font-semibold">Role:</span> {user.role}
-  </p>
-  <p className="text-white/90">
-    <span className="font-semibold">Total Shifts Hosted:</span> 0
-  </p>
-  <p className="text-white/90">
-    <span className="font-semibold">Total Time In Game:</span> 0
-  </p>
-</div>
+          <p className="text-white/90">
+            <span className="font-semibold">Role:</span> {user.role}
+          </p>
+          <p className="text-white/90">
+            <span className="font-semibold">Total Shifts Hosted:</span> 0
+          </p>
+          <p className="text-white/90">
+            <span className="font-semibold">Total Time In Game:</span> 0
+          </p>
+        </div>
 
       </div>
       {showDeleteModal && (

@@ -21,6 +21,11 @@ export default function ServerDetailPage() {
   const [logFilter, setLogFilter] = useState('all');
   const [logDate, setLogDate] = useState('');
   const [isStaff, setIsStaff] = useState(false);
+  const [confirmData, setConfirmData] = useState(null);
+
+  function confirmAction(title, message, onConfirm) {
+    setConfirmData({ title, message, onConfirm });
+  }
 
   const robloxCacheRef = useRef({});
 
@@ -360,21 +365,29 @@ export default function ServerDetailPage() {
                       </div>
                       <div className="flex flex-wrap justify-end gap-2 ml-auto">
                         <button
-                          onClick={async () => {
-                            await axios.post(`/api/game/servers/${serverId}/commands`, {
-                              type: "kick",
-                              targetId: selectedPlayer.playerId,
-                              reason: "Kicked by web admin",
-                              issuedBy: "Web Dashboard",
-                            });
-                          }}
-                          title="Kick Player"
-                          disabled={!isStaff}
-                          className={`
-    flex items-center gap-1 px-3 py-1 rounded-md text-sm transition
-    bg-yellow-500/20 border border-yellow-500/40 hover:bg-yellow-500/30
-    ${!isStaff ? "opacity-40 cursor-not-allowed hover:bg-transparent hover:border-yellow-500/20" : ""}
-  `}
+                          onClick={() =>
+                            confirmAction(
+                              "Kick Player",
+                              `Are you sure you want to kick ${selectedPlayer.username}?`,
+                              async () => {
+                                await axios.post(`/api/game/servers/${serverId}/commands`, {
+                                  type: "kick",
+                                  targetId: selectedPlayer.playerId,
+                                  reason: "Kicked by web admin",
+                                  issuedBy: user.username,
+                                });
+
+                                await axios.post("/api/moderation/log", {
+                                  action: "kick",
+                                  targetId: selectedPlayer.playerId,
+                                  moderator: user,
+                                  reason: "Kicked by web admin",
+                                  serverId,
+                                });
+                              }
+                            )
+                          }
+
                         >
                           <LogOut className="text-yellow-400" size={16} /> Kick
                         </button>
@@ -839,6 +852,34 @@ export default function ServerDetailPage() {
             </AnimatePresence>
           </div>
         )}
+        {confirmData && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[999] backdrop-blur">
+            <div className="bg-[#1f2a2e] border border-white/10 rounded-xl p-6 w-full max-w-sm text-white shadow-xl">
+              <h2 className="text-xl font-bold mb-2">{confirmData.title}</h2>
+              <p className="text-white/70 mb-4">{confirmData.message}</p>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700"
+                  onClick={() => setConfirmData(null)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="px-4 py-2 rounded bg-red-600 hover:bg-red-700"
+                  onClick={() => {
+                    confirmData.onConfirm();
+                    setConfirmData(null);
+                  }}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </AuthWrapper>
   );
