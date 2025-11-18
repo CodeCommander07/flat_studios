@@ -449,7 +449,7 @@ export default function TaskDetailPage() {
                     try {
                       await axios.delete(`/api/developers/tasks/deleteTask?taskId=${taskId}`);
                       setShowDeleteConfirm(false);
-                      router.push("/dev/tasks");
+                      router.push("/admin/dev/");
                     } catch (err) {
                       console.error(err);
                       alert("Failed to delete task.");

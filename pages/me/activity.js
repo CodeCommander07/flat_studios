@@ -317,7 +317,7 @@ export default function ActivityPage() {
             )}
 
             <div>
-              <label>Notes<span className="text-red-500">*</span></label>
+              <label>Notes</label>
               <textarea
                 rows={3}
                 value={form.extraNotes}
