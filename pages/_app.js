@@ -20,7 +20,7 @@ export default function App({ Component, pageProps }) {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  const title = `Dev | Yapton | Flat Studios`;
+  const title = `${process.env.NODE_ENV === "development" ? "Dev | " :""}Yapton | Flat Studios`;
 
   return (
     <>
