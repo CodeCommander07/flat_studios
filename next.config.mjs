@@ -13,6 +13,10 @@ const nextConfig = {
       'tr.rbxcdn.com',
       'yapton.vercel.app',
       'flat-studios.vercel.app',
+      'yapton.flatstudios.net',
+      'test.flatstudios.net',
+      'dev.flatstudios.net',
+      'server.flatstudios.net',
     ],
     formats: ['image/avif', 'image/webp'],
     // ✅ CDN image caching is fine — only images
