@@ -37,8 +37,8 @@ export default function App({ Component, pageProps }) {
           <DotGridWrapper
             dotSize={10}
             gap={28}
-            baseColor="#283335"
-            activeColor="#B49BFF"
+            baseColor="#4d4d4d"
+            activeColor="#123456"
             proximity={180}
             className="h-full w-full opacity-30"
           />
