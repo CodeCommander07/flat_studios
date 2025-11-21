@@ -20,7 +20,7 @@ export default function App({ Component, pageProps }) {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  const title = `Yapton | Flat Studios`;
+  const title = `Dev | Yapton | Flat Studios`;
 
   return (
     <>
