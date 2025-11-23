@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     role:  role || 'User',
     password: hashed,
     newsletter,
-    defaultAvatar: 'https://yapton.vercel.app/cdn/image/logo.png',
+    defaultAvatar: 'https://yapton.flatstudios.net/cdn/image/logo.png',
   });
 
   invite.used = true;

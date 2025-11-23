@@ -103,7 +103,7 @@ export default function ContactEmailsPage() {
         <table style="margin-top:1rem;">
           <tr>
             <td style="vertical-align:middle;padding-right:10px;">
-              <img src="https://yapton.vercel.app/cdn/image/colour_logo.png" width="48" height="48" style="border-radius:10px;" />
+              <img src="https://yapton.flatstudios.net/cdn/image/colour_logo.png" width="48" height="48" style="border-radius:10px;" />
             </td>
             <td style="vertical-align:middle;font-family:'Segoe UI',sans-serif;color:#222;">
               <p style="margin:0;font-size:15px;"><strong>${staffName}</strong></p>
@@ -378,7 +378,7 @@ export default function ContactEmailsPage() {
                           <tbody>
                             <tr>
                               <td style={{ verticalAlign: 'middle', paddingRight: '10px' }}>
-                                <img src="https://yapton.vercel.app/cdn/image/colour_logo.png" width="48" height="48" style={{ borderRadius: '10px' }} alt="Flat Studios" />
+                                <img src="https://yapton.flatstudios.net/cdn/image/colour_logo.png" width="48" height="48" style={{ borderRadius: '10px' }} alt="Flat Studios" />
                               </td>
                               <td style={{ verticalAlign: 'middle', fontFamily: 'Segoe UI, sans-serif', color: '#fff' }}>
                                 <p style={{ margin: 0, fontSize: '15px' }}>

@@ -6,9 +6,10 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import DotGridWrapper from '@/components/DotGridWrapper'; 
-import Banner from '@/components/Banner'; // 🆕 import the banner
+import Banner from '@/components/Banner';
+import ConsentAndNewsletter from '@/components/ConsentAndNewsletter';
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps, router }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -22,11 +23,24 @@ export default function App({ Component, pageProps }) {
 
   const title = `${process.env.NODE_ENV === "development" ? "Dev | " :""}Yapton | Flat Studios`;
 
+const privateRoutes = [
+    '/hub',
+    '/hub+',
+    '/dev',
+    '/admin',
+    '/me',
+  ];
+
+  const isPrivate = privateRoutes.some(path =>
+    router.pathname.startsWith(path)
+  );
+
   return (
     <>
       <Head>
         <title>{title}</title>
       </Head>
+       {!isPrivate && <ConsentAndNewsletter />}
 
       <div className="relative flex flex-col min-h-screen text-white overflow-hidden">
         {/* 🚌 Background image */}

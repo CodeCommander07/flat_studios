@@ -55,7 +55,7 @@ export default async function handler(req, res) {
           <table border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td align="left" style="vertical-align: middle; width: 50px;">
-                <Image src="https://yapton.vercel.app/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
+                <Image src="https://yapton.flatstudios.net/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
               </td>
               <td align="center" style="vertical-align: middle;">
                 <h1 style="font-size: 24px; margin: 0; color: #ffffff;">Authorsied Leave Update</h1>

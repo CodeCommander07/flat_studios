@@ -29,7 +29,7 @@ export async function notifyUser(user, notification, link = null) {
           <table border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td align="left" style="vertical-align: middle; width: 50px;">
-                <Image src="https://yapton.vercel.app/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
+                <Image src="https://yapton.flatstudios.net/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
               </td>
               <td align="center" style="vertical-align: middle;">
                 <h1 style="font-size: 24px; margin: 0; color: #ffffff;">Notification</h1>
@@ -44,7 +44,7 @@ export async function notifyUser(user, notification, link = null) {
           <p style="font-size: 18px;">Hi <strong>${u.username}</strong>,</p>
           <table cellpadding="6" cellspacing="0" width="100%" style="font-size: 16px; line-height: 1.6;">
           <tr><td><strong>Notification</strong></td><td>${notification}</td></tr>
-          <tr><td><strong>Link</strong></td><td><a href="https://yapton.vercel.app/${link}">https://yapton.vercel.app/${link}</a></td></tr>
+          <tr><td><strong>Link</strong></td><td><a href="https://yapton.flatstudios.net/${link}">https://yapton.flatstudios.net/${link}</a></td></tr>
           <tr><td><strong>Date</strong></td><td>${new Date().toLocaleDateString('en-UK')}</td></tr>
           </table>
         </td>

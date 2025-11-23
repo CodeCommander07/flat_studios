@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   try {
     let defaultAvatar
     const userAvatar = await User.findById(userId);
-    if(userAvatar.defaultAvatar === 'https://yapton.vercel.app/cdn/image/colour_logo.png') {
+    if(userAvatar.defaultAvatar === 'https://yapton.flatstudios.net/cdn/image/colour_logo.png') {
       defaultAvatar = discordAvatar
     }
     const updated = await User.findByIdAndUpdate(

@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         );
         avatarUrl = avatarRes.data.data?.[0]?.imageUrl || "";
       } catch {
-        avatarUrl = "https://yapton.vercel.app/cdn/image/black_logo.png";
+        avatarUrl = "https://yapton.flatstudios.net/cdn/image/black_logo.png";
       }
 
       // Add a system log in chat

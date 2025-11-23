@@ -3,7 +3,7 @@ import Disciplinary from '@/models/Disciplinary';
 import User from '@/models/User';
 import nodemailer from 'nodemailer';
 
-const SITE = process.env.BASE_URL || 'https://yapton.vercel.app';
+const SITE = process.env.BASE_URL || 'https://yapton.flatstudios.net';
 const FROM = process.env.MAIL_FROM || process.env.MAIL_USER;
 
 // ✅ Setup nodemailer transporter
@@ -40,7 +40,7 @@ function disciplinaryEmailTemplate({ title, subtitle, reason, severity, notes, s
     <!-- Header -->
     <tr>
       <td align="center" style="background-color:#283335; padding:20px;">
-        <img src="https://yapton.vercel.app/logo.png" width="80" alt="FlatStudios" style="display:block; margin-bottom:10px;" />
+        <img src="https://yapton.flatstudios.net/logo.png" width="80" alt="FlatStudios" style="display:block; margin-bottom:10px;" />
         <h1 style="color:#ffffff; font-size:20px; margin:0;">${title}</h1>
       </td>
     </tr>

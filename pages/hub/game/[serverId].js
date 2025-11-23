@@ -75,7 +75,7 @@ export default function ServerDetailPage() {
     } catch {
       return {
         username: 'System',
-        icon: 'https://yapton.vercel.app/cdn/image/black_logo.png',
+        icon: 'https://yapton.flatstudios.net/cdn/image/black_logo.png',
         rank: 0,
         role: 'Automation',
       };

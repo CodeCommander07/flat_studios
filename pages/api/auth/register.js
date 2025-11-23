@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     username,
     role: role || 'User',
     password: hashed,
-    defaultAvatar: 'https://yapton.vercel.app/cdn/image/logo.png',
+    defaultAvatar: 'https://yapton.flatstudios.net/cdn/image/logo.png',
   });
 
   const html = `
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
           <table border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td align="left" style="vertical-align: middle; width: 50px;">
-                <img src="https://yapton.vercel.app/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
+                <img src="https://yapton.flatstudios.net/cdn/image/logo.png" alt="Yapton & District Logo" style="max-width: 50px; height: auto; margin-right: 10px;">
               </td>
               <td align="center" style="vertical-align: middle;">
                 <h1 style="font-size: 24px; margin: 0; color: #ffffff;">Account Creation</h1>
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
           <tr><td><strong>Email</strong></td><td>${email}</td></tr>
           <tr><td><strong>Role:</strong></td><td>${role}</td></tr>
           <tr><td><strong>Newsletter:</strong></td><td>${newsletter ? "Yes" : "No"}</td></tr>
-          <tr><td><strong>Manage Account</strong></td><td><a href="https://yapton.vercel.app/me">https://yapton.vercel.app/me</a></td></tr>
+          <tr><td><strong>Manage Account</strong></td><td><a href="https://yapton.flatstudios.net/me">https://yapton.flatstudios.net/me</a></td></tr>
           <tr><td><strong>Date</strong></td><td>${new Date().toLocaleDateString('en-UK')}</td></tr>
           </table>
         </td>

@@ -373,7 +373,7 @@ export default function OperatorSubmissionsPage() {
                     name="logo"
                     value={form.logo}
                     onChange={handleChange}
-                    placeholder="https://yapton.vercel.app/api/cdn/view?fileId=..."
+                    placeholder="https://yapton.flatstudios.net/api/cdn/view?fileId=..."
                     className="form-field bg-black/20 border border-white/15"
                   />
 
