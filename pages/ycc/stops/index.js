@@ -13,7 +13,28 @@ export default function StopsView() {
   const [error, setError] = useState('');
   const [sortBy, setSortBy] = useState('a-z');
 
-  // 🧭 Fetch stops + routes
+  const formatTimeAgo = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    const now = new Date();
+    const diff = now - d;
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (seconds < 60) return 'just now';
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    if (days < 2) return 'yesterday';
+    if (days < 30) return `${days} days ago`;
+    if (months < 12) return `${months} month${months !== 1 ? 's' : ''} ago`;
+    return `${years} year${years !== 1 ? 's' : ''} ago`;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,36 +63,41 @@ export default function StopsView() {
     fetchData();
   }, []);
 
-  // ⌛ Debounce search
+  // Debounce search
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedTerm(searchTerm), 300);
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // 🔍 Filter + Sort
+  // Filter + sort
   useEffect(() => {
     const term = debouncedTerm.toLowerCase();
 
     let results = stops.filter((stop) => {
+      const primaryName = stop.name || '';
+      const primaryTown = stop.town || '';
+
       const stopRoutes = stop.routes
         ?.map((rid) => routes.find((r) => r._id === rid || r.routeId === rid))
         .filter(Boolean);
       const routeNumbers = stopRoutes.map((r) => (r.number || '').toLowerCase());
 
       return (
-        stop.name?.toLowerCase().includes(term) ||
-        stop.town?.toLowerCase().includes(term) ||
+        primaryName.toLowerCase().includes(term) ||
+        primaryTown.toLowerCase().includes(term) ||
         routeNumbers.some((num) => num.includes(term))
       );
     });
 
-    // 🔢 Sorting
     results = [...results].sort((a, b) => {
+      const aName = a.name;
+      const bName = b.name;
+
       switch (sortBy) {
         case 'a-z':
-          return a.name.localeCompare(b.name);
+          return aName.localeCompare(bName);
         case 'z-a':
-          return b.name.localeCompare(a.name);
+          return bName.localeCompare(aName);
         case 'route-asc': {
           const aRoute = routes.find((r) => a.routes?.includes(r._id))?.number || '';
           const bRoute = routes.find((r) => b.routes?.includes(r._id))?.number || '';
@@ -82,12 +108,12 @@ export default function StopsView() {
           const bRoute = routes.find((r) => b.routes?.includes(r._id))?.number || '';
           return bRoute.localeCompare(aRoute);
         }
+        case 'updated':
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
         case 'new':
           return new Date(b.createdAt) - new Date(a.createdAt);
         case 'old':
           return new Date(a.createdAt) - new Date(b.createdAt);
-        case 'updated':
-          return new Date(b.updatedAt) - new Date(a.updatedAt);
         default:
           return 0;
       }
@@ -96,7 +122,6 @@ export default function StopsView() {
     setFilteredStops(results);
   }, [debouncedTerm, stops, routes, sortBy]);
 
-  // 🚨 Find active diversions affecting this stop
   const getStopDiversions = (stopId) =>
     routes
       .filter(
@@ -112,7 +137,6 @@ export default function StopsView() {
 
   return (
     <main className="px-6 py-10 text-white max-w-10xl mx-auto">
-      {/* 🔍 Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-1">Bus Stops</h1>
@@ -122,7 +146,6 @@ export default function StopsView() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          {/* Search */}
           <input
             type="text"
             placeholder="Search by stop name, town, or route..."
@@ -131,36 +154,47 @@ export default function StopsView() {
             className="bg-white/10 border border-white/20 backdrop-blur-md text-white placeholder-white/50 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-72"
           />
 
-          {/* Sort */}
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="bg-[#283335] border border-white/20 text-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-green-500 appearance-none pr-10"
             >
-              <option className="bg-[#283335]" value="a-z">A–Z</option>
-              <option className="bg-[#283335]" value="z-a">Z–A</option>
-              <option className="bg-[#283335]" value="route-asc">Route Number ↑</option>
-              <option className="bg-[#283335]" value="route-desc">Route Number ↓</option>
-              <option className="bg-[#283335]" value="updated">Last Updated</option>
-              <option className="bg-[#283335]" value="new">Newest</option>
-              <option className="bg-[#283335]" value="old">Oldest</option>
+              <option className="bg-[#283335]" value="a-z">
+                A–Z
+              </option>
+              <option className="bg-[#283335]" value="z-a">
+                Z–A
+              </option>
+              <option className="bg-[#283335]" value="route-asc">
+                Route Number ↑
+              </option>
+              <option className="bg-[#283335]" value="route-desc">
+                Route Number ↓
+              </option>
+              <option className="bg-[#283335]" value="updated">
+                Last Updated
+              </option>
+              <option className="bg-[#283335]" value="new">
+                Newest
+              </option>
+              <option className="bg-[#283335]" value="old">
+                Oldest
+              </option>
             </select>
             <Filter className="absolute right-3 top-2.5 w-4 h-4 text-white/50 pointer-events-none" />
           </div>
         </div>
       </div>
 
-      {/* 🌀 Loading / Error */}
       {loading && <p className="text-white/60 animate-pulse">Loading Stops...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && filteredStops.length === 0 && (
         <p className="text-white/60">No stops found.</p>
       )}
 
-      {/* 🚏 Stops Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {filteredStops.map((stop, index) => {
+        {filteredStops.map((stop) => {
           const diversions = getStopDiversions(stop.stopId);
           const hasDiversion = diversions.length > 0;
           const isClosed = stop.closed;
@@ -168,8 +202,8 @@ export default function StopsView() {
           return (
             <a
               href={`/ycc/stops/${stop._id}`}
-              key={stop.stopId}
-              className={`relative bg-[#283335] border border-white/10 backdrop-blur-xl rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 
+              key={stop._id}
+              className={`relative bg-[#283335] border border-white/10 backdrop-blur-xl rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1
                 ${
                   isClosed
                     ? 'ring-2 ring-red-500/50 border-red-600/30'
@@ -179,31 +213,65 @@ export default function StopsView() {
                 }`}
             >
               <div className="flex flex-col h-full">
-                <h2 className="text-xl font-semibold mb-1">{stop.name}</h2>
+                <div className="flex justify-between items-start mb-2">
+                  <p className="text-xl font-semibold text-green-400">
+                    {stop.name}
+                  </p>
+
+                  <div className="text-right">
+                    <p className="text-[10px] text-white/40 mb-0.5">
+                      Updated {formatTimeAgo(stop.updatedAt)}
+                    </p>
+
+                    <p className="text-xs text-gray-400">
+                      {stop.stopId}
+                    </p>
+                  </div>
+                </div>
+
                 {stop.town && (
                   <p className="text-white/70 mb-1 text-sm">{stop.town}</p>
                 )}
 
-                {/* Routes */}
-                {stop.routes?.length > 0 && (
-                  <div className="text-white/60 text-sm mb-2 flex flex-wrap gap-1">
-                    {stop.routes.map((rid) => {
-                      const route = routes.find(
-                        (r) => r._id === rid || r.routeId === rid
-                      );
-                      return route ? (
+                {stop.branding && (
+                  <p className="text-xs text-gray-400">{stop.branding}</p>
+                )}
+
+                {routes && (
+                  <div className="text-white/60 text-sm mt-1 flex flex-wrap gap-1">
+                    {routes
+                      .filter((r) => {
+                        const stopsInRoute = [
+                          ...(r.stops?.forward || []),
+                          ...(r.stops?.backward || []),
+                          r.origin,
+                          r.destination,
+                        ].filter(Boolean);
+
+                        return stopsInRoute.includes(stop.stopId);
+                      })
+                      .sort((a, b) => {
+                        const A = a.number || a.routeId || '';
+                        const B = b.number || b.routeId || '';
+
+                        const numA = parseInt(A);
+                        const numB = parseInt(B);
+
+                        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+
+                        return A.localeCompare(B, undefined, { numeric: true });
+                      })
+                      .map((r) => (
                         <span
-                          key={rid}
-                          className="px-2 py-0.5 text-xs rounded-md bg-white/10 border border-white/20"
+                          key={r._id}
+                          className="px-2 py-0.5 text-xs rounded-md bg.white/10 border border-white/20"
                         >
-                          {route.number}
+                          {r.number || r.routeId}
                         </span>
-                      ) : null;
-                    })}
+                      ))}
                   </div>
                 )}
 
-                {/* 🚧 Stop Closed */}
                 {isClosed && (
                   <div className="mt-auto bg-red-500/20 border border-red-600/50 text-red-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
                     <AlertTriangle className="mt-0.5 flex-shrink-0 text-red-400" size={18} />
@@ -214,7 +282,6 @@ export default function StopsView() {
                   </div>
                 )}
 
-                {/* ⚠️ Diversion Warning */}
                 {!isClosed && hasDiversion && (
                   <div className="mt-auto bg-yellow-400/20 border border-yellow-500/40 text-yellow-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
                     <AlertTriangle className="mt-0.5 flex-shrink-0" size={18} />

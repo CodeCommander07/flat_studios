@@ -8,6 +8,7 @@ export default async function handler(req, res) {
   try {
     if (method === 'GET') {
       const { q } = req.query;
+
       const filter = q
         ? {
             $or: [
@@ -17,12 +18,17 @@ export default async function handler(req, res) {
             ],
           }
         : {};
+
       const stops = await BusStop.find(filter).sort({ name: 1 });
+
       return res.status(200).json({ stops });
     }
 
     if (method === 'POST') {
-      const stop = await BusStop.create(req.body);
+      const body = req.body || {};
+
+      const stop = await BusStop.create(body);
+
       return res.status(201).json({ stop });
     }
 
