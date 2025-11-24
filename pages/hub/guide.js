@@ -1,4 +1,4 @@
-'use server';
+'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';

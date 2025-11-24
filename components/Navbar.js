@@ -145,6 +145,7 @@ export default function Navbar() {
         { label: 'Manage Operators', href: '/admin/operators' },
         { label: 'Manage Routes', href: '/admin/routes' },
         { label: 'Manage Stops', href: '/admin/stops' },
+        { label: 'Newsletter Subs', href: '/admin/newsletter' },
         { label: 'Notice Control', href: '/admin/notice-control' },
         { label: 'Routes Submission', href: '/admin/ycc/routes' },
         { label: 'Staff Accounts', href: '/admin/accounts' },
