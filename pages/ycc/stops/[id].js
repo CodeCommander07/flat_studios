@@ -532,10 +532,10 @@ export default function StopDetailPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
-            {clusterMembers.length > 1 && <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20 font-mono">
+            {clusterMembers.length > 1 && <span className="px-3 py-1 rounded-full bg-[#283335] border border-white/20 font-mono">
               {clusterMembers.length} stop{clusterMembers.length !== 1 ? 's' : ''} in group
             </span>}
-            <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
+            <span className="px-3 py-1 rounded-full bg-[#283335] border border-white/20">
               {servingRoutes.length} route{servingRoutes.length !== 1 ? 's' : ''} serving
             </span>
             {clusterClosed && (
@@ -544,7 +544,7 @@ export default function StopDetailPage() {
                 Some stops closed
               </span>
             )}{groupLatestUpdate && (
-              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20 font-mono">
+              <span className="px-3 py-1 rounded-full bg-[#283335] border border-white/20 font-mono">
                 Updated: <span className="text-white/70">{formatTimeAgo(groupLatestUpdate)}</span></span>
             )}
 
@@ -569,7 +569,7 @@ export default function StopDetailPage() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isActive
                       ? 'bg-white text-black border-white'
-                      : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
+                      : 'bg-white/5 text-white/70 border-white/20 hover:bg-[#283335]'
                       }`}
                   >
                     {tab.label}
@@ -624,7 +624,7 @@ export default function StopDetailPage() {
                     <select
                       value={operatorSort}
                       onChange={(e) => setOperatorSort(e.target.value)}
-                      className="bg-white/10 border border-white/20 px-2 py-1 rounded"
+                      className="bg-[#283335] border border-white/20 px-2 py-1 rounded"
                     >
                       <option className="text-white bg-[#283335]" value="az">Name (A–Z)</option>
                       <option className="text-white bg-[#283335]" value="za">Name (Z–A)</option>
@@ -663,7 +663,7 @@ export default function StopDetailPage() {
                           className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg border text-xs sm:text-sm transition
                             ${isSelected
                               ? 'bg-blue-500/20 border-blue-400'
-                              : 'bg-white/5 border-white/15 hover:bg-white/10'
+                              : 'bg-white/5 border-white/15 hover:bg-[#283335]'
                             }`}
                         >
                           {/* LOGO */}
@@ -760,7 +760,7 @@ export default function StopDetailPage() {
                             className={`px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-2 transition-all
                               ${isActive
                                 ? 'bg-white text-black border-white/80'
-                                : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
+                                : 'bg-white/5 text-white/70 border-white/20 hover:bg-[#283335]'
                               }`}
                           >
                             <span>{route.number || route.routeId}</span>

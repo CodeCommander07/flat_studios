@@ -112,7 +112,7 @@ export default function ActivityUsersList() {
         </button>
       </div>
 
-      <table className="min-w-full rounded-xl overflow-hidden">
+      <table className="bg-[#283335] min-w-full rounded-xl overflow-hidden">
         <thead>
           <tr className="text-left text-gray-400 uppercase text-sm">
             <th className="p-4">User</th>

@@ -39,6 +39,7 @@ export default function BlogIndex() {
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-10 text-white space-y-8">
+      <div className="bg-[#283335] rounded-xl pt-2 px-4">
       <h1 className="text-4xl font-bold text-center mb-4">📰 Our Content Hub</h1>
       <p className="text-center text-white/60 mb-8">
         Explore our latest posts, guides, and news below.
@@ -50,22 +51,23 @@ export default function BlogIndex() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`relative px-4 py-2 rounded-full font-medium transition ${
+            className={`relative px-4 py-2 rounded-t-2xl font-medium transition ${
               activeTab === tab.key
-                ? 'bg-blue-600 text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                ? 'bg-white/10 text-white'
+                : 'bg-[#283335] text-white/70 hover:bg-white/20'
             }`}
           >
             {tab.label}
             {activeTab === tab.key && (
               <motion.div
                 layoutId="active-pill"
-                className="absolute inset-0 rounded-full bg-blue-600 -z-10"
+                className="absolute inset-0 rounded-2xl bg-white/10 -z-10"
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             )}
           </button>
         ))}
+      </div>
       </div>
 
       {/* Content */}
@@ -92,7 +94,7 @@ export default function BlogIndex() {
                 key={post._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md shadow-lg hover:bg-white/10 transition"
+                className="bg-[#283335] border border-white/10 rounded-2xl p-4 backdrop-blur-md shadow-lg hover:bg-[#283335]/90 transition"
               >
                 <Link href={`/content/${post.slug}`}>
                   <div>

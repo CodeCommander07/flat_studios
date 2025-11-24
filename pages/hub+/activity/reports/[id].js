@@ -73,7 +73,7 @@ export default function ReportViewer() {
   return (
     <div className="max-h-screen text-white flex flex-col">
       {/* Header */}
-      <header className="p-4 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
+      <header className="p-4 bg-[#283335] border-b border-gray-800 flex items-center justify-between">
         <h1 className="text-xl font-semibold">
           📊 Viewing: {report.filename}
         </h1>
@@ -92,7 +92,7 @@ export default function ReportViewer() {
       <main className="flex-1 overflow-x-auto p-6">
         {rows.length > 0 ? (
           <table className="min-w-full text-left border-collapse">
-            <thead className="bg-gray-800 text-gray-300 uppercase text-sm">
+            <thead className="bg-[#283335] text-gray-300 uppercase text-sm">
               <tr>
                 {rows[0].map((header, i) => (
                   <th key={i} className="p-3 border-b border-gray-700">
@@ -105,7 +105,7 @@ export default function ReportViewer() {
               {rows.slice(1).map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className="border-b border-gray-800 hover:bg-gray-800/60"
+                  className="bg-[#283335]"
                 >
                   {row.map((cell, colIndex) => (
                     <td key={colIndex} className="p-3 text-sm text-gray-200">

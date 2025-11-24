@@ -79,7 +79,7 @@ export default function NewDisciplinary() {
     return (
         <div className="text-white">
             <div className="mx-auto max-w-3xl px-6 py-10">
-                <div className="mb-8">
+                <div className="mb-8 bg-[#283335] p-6 rounded-2xl">
                     <h1 className="text-3xl font-bold">New Infraction</h1>
                     <p className="text-gray-400 mt-1">
                         Choose the staff member, select severity, and describe the infraction.
@@ -88,25 +88,25 @@ export default function NewDisciplinary() {
 
                 <form
                     onSubmit={handleSubmit}
-                    className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 shadow-sm space-y-6"
+                    className="rounded-2xl bg-[#283335] p-6 shadow-sm space-y-6"
                 >
                     {/* Staff dropdown */}
                     <div>
                         <label className="block text-sm text-gray-300 mb-1">Staff Member</label>
                         <select
                             required
-                            className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-gray-400/10 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
                             value={form.staffId}
                             onChange={(e) =>
                                 setForm((f) => ({ ...f, staffId: e.target.value }))
                             }
                             disabled={loadingStaff}
                         >
-                            <option className="text-white bg-black" value="">
+                            <option className="text-white bg-[#283335]" value="">
                                 {loadingStaff ? 'Loading staff…' : 'Select a staff member'}
                             </option>
                             {staff.map((s) => (
-                                <option className="text-white bg-black" key={s._id} value={s._id}>
+                                <option className="text-white bg-[#283335] rounded-xl" key={s._id} value={s._id}>
                                     {s.name} {s.role ? `(${s.role})` : ''}{' '}
                                     {s.email ? `– ${s.email}` : ''}
                                 </option>
@@ -119,17 +119,17 @@ export default function NewDisciplinary() {
                         <label className="block text-sm text-gray-300 mb-1">Issued By</label>
                         <input
                             readOnly
-                            className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-400"
+                            className="w-full bg-gray-400/10 rounded-xl px-3 py-2 text-white"
                             value={form.issuedBy || 'Loading…'}
                         />
                     </div>
 
                     {/* Reason */}
                     <div>
-                        <label className="block text-sm text-gray-300 mb-1">Reason</label>
+                        <label className="block text-sm text-white mb-1">Reason</label>
                         <input
                             required
-                            className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-gray-400/10 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
                             value={form.reason}
                             onChange={(e) =>
                                 setForm((f) => ({ ...f, reason: e.target.value }))
@@ -145,7 +145,7 @@ export default function NewDisciplinary() {
                         </label>
                         <textarea
                             rows={4}
-                            className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-gray-400/10 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
                             value={form.notes}
                             onChange={(e) =>
                                 setForm((f) => ({ ...f, notes: e.target.value }))
@@ -158,7 +158,7 @@ export default function NewDisciplinary() {
                     <div>
                         <label className="block text-sm text-gray-300 mb-3">Severity</label>
 
-                        <div className="relative bg-gray-950 border border-gray-800 rounded-xl py-5 px-4 overflow-hidden">
+                        <div className="relative bg-gray-400/10 rounded-xl py-5 px-4 overflow-hidden">
                             <div className="relative flex justify-between items-center font-semibold select-none">
                                 {/* Sliding token */}
                                 <motion.div
@@ -216,7 +216,7 @@ export default function NewDisciplinary() {
                         <button
                             type="button"
                             onClick={() => router.push('/hub+/disciplinaries')}
-                            className="px-4 py-2 rounded-xl border border-gray-700 hover:bg-gray-800"
+                            className="px-4 py-2 rounded-xl border border-gray-700 hover:bg-gray-400/10"
                         >
                             Cancel
                         </button>

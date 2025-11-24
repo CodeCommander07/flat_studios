@@ -64,7 +64,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
         value={question.label}
         onChange={(e) => onChange(index, { ...question, label: e.target.value })}
         placeholder="Question Label"
-        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+        className="w-full p-2 rounded-md bg-[#283335] placeholder-white/60"
       />
 
       {/* Question Info (description) */}
@@ -72,7 +72,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
         value={question.info || ''}
         onChange={(e) => onChange(index, { ...question, info: e.target.value })}
         placeholder="Additional information about this question..."
-        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 text-sm resize-none"
+        className="w-full p-2 rounded-md bg-[#283335] placeholder-white/60 text-sm resize-none"
         rows={2}
       />
 
@@ -88,7 +88,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
               e.target.value === 'radio' ? question.options || [''] : [],
           })
         }
-        className="w-full p-2 rounded-md bg-white/10 text-white"
+        className="w-full p-2 rounded-md bg-[#283335] text-white"
       >
         <option className="bg-black text-white" value="short">Short Answer</option>
         <option className="bg-black text-white" value="long">Long Answer</option>
@@ -110,7 +110,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
                 onChange(index, { ...question, options: newOptions });
               }}
               placeholder={`Option ${i + 1}`}
-              className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+              className="w-full p-2 rounded-md bg-[#283335] placeholder-white/60"
             />
           ))}
           <button
@@ -156,7 +156,7 @@ function SortableQuestion({ question, index, onRemove, onChange }) {
               )
             }
             placeholder="Accepted answers (comma-separated)"
-            className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+            className="w-full p-2 rounded-md bg-[#283335] placeholder-white/60"
           />
         )}
       </div>
@@ -312,7 +312,7 @@ export default function EditForm() {
               onChange={(e) => setTitle(e.target.value)}
               onBlur={updateTitle}
               placeholder="Enter title..."
-              className="bg-white/10 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out p-2 text-white w-[95%] focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
+              className="bg-[#283335] rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out p-2 text-white w-[95%] focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>
 
@@ -379,18 +379,18 @@ export default function EditForm() {
               placeholder="Question Label"
               value={qLabel}
               onChange={(e) => setQLabel(e.target.value)}
-              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/50"
+              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-[#283335] placeholder-white/50"
               disabled={saving}
             />
             <textarea
               value={qInfo}
               onChange={(e) => setQInfo(e.target.value)}
               placeholder="Additional information about this question..."
-              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60 text-sm resize-none"
+              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-[#283335] placeholder-white/60 text-sm resize-none"
               rows={2}
             />
             <select
-              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 text-white"
+              className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-[#283335] text-white"
               value={qType}
               onChange={(e) => setQType(e.target.value)}
               disabled={saving}
@@ -414,7 +414,7 @@ export default function EditForm() {
                         prev.map((v, idx) => (idx === i ? e.target.value : v))
                       )
                     }
-                    className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60"
+                    className="w-full p-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out bg-[#283335] placeholder-white/60"
                   />
                 ))}
                 <button
@@ -468,7 +468,7 @@ export default function EditForm() {
                 value={tempDesc}
                 onChange={(e) => setTempDesc(e.target.value)}
                 rows={6}
-                className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 mb-4"
+                className="w-full p-2 rounded-md bg-[#283335] placeholder-white/60 mb-4"
               ></textarea>
               <div className="flex justify-end gap-3">
                 <button
@@ -500,7 +500,7 @@ export default function EditForm() {
                 value={tempReq}
                 onChange={(e) => setTempReq(e.target.value)}
                 rows={6}
-                className="w-full p-2 rounded-md bg-white/10 placeholder-white/60 mb-4"
+                className="w-full p-2 rounded-md bg-[#283335] placeholder-white/60 mb-4"
               ></textarea>
               <div className="flex justify-end gap-3">
                 <button

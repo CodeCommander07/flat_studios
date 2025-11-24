@@ -269,7 +269,7 @@ export default function TaskDetailPage() {
                 {files.map((file) => (
                   <li
                     key={file._id}
-                    className="flex items-center justify-between bg-white/5 border border-white/10 p-3 rounded-lg hover:bg-white/10 transition"
+                    className="flex items-center justify-between bg-white/5 border border-white/10 p-3 rounded-lg hover:bg-[#283335] transition"
                   >
                     <div>
                       <p className="font-medium">{file.filename}</p>
@@ -438,7 +438,7 @@ export default function TaskDetailPage() {
                     setShowDeleteConfirm(false);
                     setConfirmText("");
                   }}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm"
+                  className="px-4 py-2 bg-[#283335] hover:bg-white/20 rounded-lg text-sm"
                 >
                   Cancel
                 </button>

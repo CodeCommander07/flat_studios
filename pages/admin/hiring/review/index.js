@@ -72,7 +72,7 @@ export default function AdminApps() {
 
                 <Link
                   href={`/admin/hiring/review/${app._id}`}
-                  className="block text-center bg-white/10 hover:bg-white/20 transition text-sm font-medium py-2 rounded-md"
+                  className="block text-center bg-[#283335] hover:bg-white/20 transition text-sm font-medium py-2 rounded-md"
                 >
                   Manage
                 </Link>

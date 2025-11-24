@@ -49,13 +49,13 @@ export default function ManageForms() {
               placeholder="Application Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-3 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60"
+              className="w-full p-3 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out bg-[#283335] placeholder-white/60"
             />
             <textarea
               placeholder="Short Description"
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full p-3 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out bg-white/10 placeholder-white/60 resize-none h-28"
+              className="w-full p-3 rounded-bl-md rounded-tr-md hover:rounded-br-md hover:rounded-tl-md transition-all duration-300 ease-in-out bg-[#283335] placeholder-white/60 resize-none h-28"
             />
             <button
               onClick={create}

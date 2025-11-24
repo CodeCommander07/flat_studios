@@ -102,9 +102,9 @@ export default function WebsiteReportForm() {
                                     required
                                     className="w-full border border-white/10 rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                    <option className="text-white bg-black" value="">Select...</option>
-                                    <option className="text-white bg-black" value="suggestion">Make a Suggestion</option>
-                                    <option className="text-white bg-black" value="bug">Report a Bug</option>
+                                    <option className="text-white bg-[#283335]" value="">Select...</option>
+                                    <option className="text-white bg-[#283335]" value="suggestion">Make a Suggestion</option>
+                                    <option className="text-white bg-[#283335]" value="bug">Report a Bug</option>
                                 </select>
                             </label>
 
@@ -119,11 +119,11 @@ export default function WebsiteReportForm() {
                                     required
                                     className="w-full border border-white/10 rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                    <option className="text-white bg-black" value="">Select...</option>
-                                    <option className="text-white bg-black" value="PC">PC</option>
-                                    <option className="text-white bg-black" value="Console">Console</option>
-                                    <option className="text-white bg-black" value="Tablet">Tablet</option>
-                                    <option className="text-white bg-black" value="Mobile">Mobile</option>
+                                    <option className="text-white bg-[#283335]" value="">Select...</option>
+                                    <option className="text-white bg-[#283335]" value="PC">PC</option>
+                                    <option className="text-white bg-[#283335]" value="Console">Console</option>
+                                    <option className="text-white bg-[#283335]" value="Tablet">Tablet</option>
+                                    <option className="text-white bg-[#283335]" value="Mobile">Mobile</option>
                                 </select>
                             </label>
 

@@ -28,9 +28,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const serverId = "733620693392162866"; // Replace with your guild ID
-
-    const staffRoles = [
+        const staffRoles = [
       "Owner",
       "Director of Human Resources",
       "Senior Developer",
@@ -42,7 +40,7 @@ export default async function handler(req, res) {
     ];
 
     // Fetch guild + members
-    const guild = await client.guilds.fetch(serverId);
+    const guild = await client.guilds.fetch("733620693392162866");
     const members = await guild.members.fetch();
 
     const staff = members

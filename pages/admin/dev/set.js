@@ -125,7 +125,7 @@ export default function SetTaskPage() {
                 <li
                   key={user._id}
                   onClick={() => handleSelectUser(user)}
-                  className="flex items-center gap-3 p-3 hover:bg-white/10 cursor-pointer transition"
+                  className="flex items-center gap-3 p-3 hover:bg-[#283335] cursor-pointer transition"
                 >
                   <Image
                     src={user.defaultAvatar || '/default-avatar.png'}

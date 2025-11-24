@@ -98,7 +98,7 @@ export default function BlogPostPage() {
         <motion.header
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 text-center"
+          className="mb-8 text-center bg-[#283335] p-6 rounded-2xl border border-white/10"
         >
           <Breadcrumb />
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
@@ -126,7 +126,7 @@ export default function BlogPostPage() {
 
         {/* Author */}
         {post.author?.name && (
-          <div className="flex items-center justify-center gap-3 mb-10">
+          <div className="flex items-center justify-center gap-3 mb-10 bg-[#283335] p-4 rounded-2xl border border-white/10">
             {post.author.avatar && (
               // eslint-disable-next-line @next/next/no-img-element
               <Image
@@ -145,7 +145,7 @@ export default function BlogPostPage() {
         <motion.article
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="prose prose-invert prose-lg max-w-none leading-relaxed"
+          className="prose prose-invert prose-lg max-w-none leading-relaxed bg-[#283335] p-8 rounded-2xl border border-white/10 shadow-lg"
         >
           <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
             {post.content}
@@ -158,7 +158,7 @@ export default function BlogPostPage() {
             {post.tags.map((t) => (
               <span
                 key={t}
-                className="px-3 py-1 text-sm rounded-full bg-white/10 hover:bg-white/20 transition flex items-center gap-1"
+                className="px-3 py-1 text-sm rounded-full bg-[#283335] hover:bg-white/20 transition flex items-center gap-1"
               >
                 <Tag className="w-3 h-3 text-cyan-400" /> {t}
               </span>

@@ -74,7 +74,7 @@ export default function ApplicationView() {
     return (
         <main className="max-w-7xl mx-auto px-4 py-10 text-white grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-8 min-h-[700px]">
             {/* LEFT — Details */}
-            <div className="glass p-6 rounded-2xl shadow-lg min-h-[700px] h-fit lg:sticky lg:top-8 space-y-4">
+            <div className="bg-[#283335] p-6 rounded-2xl shadow-lg min-h-[700px] h-fit lg:sticky lg:top-8 space-y-4">
                 <h1 className="text-3xl font-bold mb-2">{form.title}</h1>
                 <p className="text-gray-300">{form.description}</p>
 
@@ -100,7 +100,7 @@ export default function ApplicationView() {
             </div>
 
             {/* RIGHT — Questions Panel */}
-            <div className="glass p-6 rounded-2xl shadow-lg flex flex-col relative min-h-[700px] max-h-[700px]">
+            <div className="bg-[#283335] p-6 rounded-2xl shadow-lg flex flex-col relative min-h-[700px] max-h-[700px]">
                 <h2 className="text-xl font-bold mb-4">Application Form</h2>
 
                 {/* Scrollable Questions */}
@@ -116,14 +116,14 @@ export default function ApplicationView() {
                         onChange={(e) =>
                             setEmail(e.target.value)
                         }
-                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                        className="w-full p-2 rounded-md glass placeholder-white/60"
                         value={email}
                         required
                         placeholder="Your Email"
                     />
                     {form.questions && form.questions.length > 0 ? (
                         form.questions.map((q) => (
-                            <div key={q.id || q._id} className="space-y-2 border-b border-white/10 pb-4">
+                            <div key={q.id || q._id} className="space-y-2 border-t pt-4 border-white/10">
                                 <label className="block mb-1 font-medium text-white">
                                     {q.label}
                                     {q.type && (
@@ -141,7 +141,7 @@ export default function ApplicationView() {
                                         onChange={(e) =>
                                             handleAnswerChange(q.id || q._id, e.target.value)
                                         }
-                                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                                        className="w-full p-2 rounded-md glass placeholder-white/60"
                                         placeholder="Your answer"
                                     />
                                 )}
@@ -152,7 +152,7 @@ export default function ApplicationView() {
                                         onChange={(e) =>
                                             handleAnswerChange(q.id || q._id, e.target.value)
                                         }
-                                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                                        className="w-full p-2 rounded-md glass placeholder-white/60"
                                         placeholder="Your detailed answer"
                                     ></textarea>
                                 )}
@@ -163,7 +163,7 @@ export default function ApplicationView() {
                                         onChange={(e) =>
                                             handleAnswerChange(q.id || q._id, e.target.value)
                                         }
-                                        className="w-full p-2 rounded-md bg-white/10 placeholder-white/60"
+                                        className="w-full p-2 rounded-md glass placeholder-white/60"
                                         placeholder="Enter a number"
                                     />
                                 )}
@@ -217,7 +217,7 @@ export default function ApplicationView() {
                 </div>
 
                 {/* Fixed Submit Button */}
-                <div className="pt-4 sticky bottom-0 left-0 right-0 bg-black/30 backdrop-blur-md border-t border-white/10 mt-4">
+                <div className="pt-4 sticky bottom-0 left-0 right-0 backdrop-blur-md border-t border-white/10 mt-4">
                     <button
                         onClick={handleSubmit}
                         disabled={submitting || !form.open}

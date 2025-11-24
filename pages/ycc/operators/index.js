@@ -43,6 +43,7 @@ export default function Home() {
       )}
 
       {!loading && logos.length > 0 && (
+        <div className="w-full flex justify-center bg-[#283335] rounded-xl p-6">
         <LogoLoop
           logos={logos}
           speed={20}
@@ -52,6 +53,7 @@ export default function Home() {
           scaleOnHover
           className="max-w-7xl"
         />
+        </div>
       )}
 
       {companies.map((company, idx) => (

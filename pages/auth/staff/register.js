@@ -86,27 +86,27 @@ export default function RegisterPage() {
     <main className="p-30 flex items-center justify-center text-white">
       <form
         onSubmit={handleSubmit}
-        className="bg-white/10 backdrop-blur-md p-10 rounded-2xl max-w-3xl w-full shadow-lg border border-white/20"
+        className="bg-[#283335] backdrop-blur-md p-10 rounded-2xl max-w-3xl w-full shadow-lg border border-white/20"
       >
         <h1 className="text-3xl font-bold mb-6 text-center">Register</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label>Email (Not Editable)</label>
-            <input value={email} disabled className="w-full bg-white/10 p-2 rounded mt-1" />
+            <input value={email} disabled className="w-full bg-[#283335] p-2 rounded mt-1" />
             <label className="mt-4 block">Role (Not Editable)</label>
-            <input value={role} disabled className="w-full bg-white/10 p-2 rounded mt-1" />
+            <input value={role} disabled className="w-full bg-[#283335] p-2 rounded mt-1" />
           </div>
 
           <div>
             <label>Username</label>
             <input type="text" value={username}
-              onChange={(e) => setUsername(e.target.value)} placeholder="Set a username" className="w-full bg-white/10 p-2 rounded mt-1" />
+              onChange={(e) => setUsername(e.target.value)} placeholder="Set a username" className="w-full bg-[#283335] p-2 rounded mt-1" />
 
             <label className="mt-4 block">Password</label>
             <input
               type="password"
-              className="w-full bg-white/10 p-2 rounded mt-1"
+              className="w-full bg-[#283335] p-2 rounded mt-1"
               placeholder="Set a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -117,7 +117,7 @@ export default function RegisterPage() {
             <label className="mt-4 block">Confirm Password</label>
             <input
               type="password"
-              className="w-full bg-white/10 p-2 rounded mt-1"
+              className="w-full bg-[#283335] p-2 rounded mt-1"
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

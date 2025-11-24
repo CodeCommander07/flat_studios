@@ -183,7 +183,7 @@ export default function ProfilePage() {
                     onChange={(e) =>
                       setEditedUser({ ...editedUser, [field]: e.target.value })
                     }
-                    className="bg-white/10 px-2 py-1 rounded border border-white/30 text-white w-full mt-1"
+                    className="bg-[#283335] px-2 py-1 rounded border border-white/30 text-white w-full mt-1"
                   />
                 )}
               </div>
@@ -224,14 +224,14 @@ export default function ProfilePage() {
                 placeholder="New Password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="bg-white/10 px-4 py-2 rounded border border-white/30 text-white"
+                className="bg-[#283335] px-4 py-2 rounded border border-white/30 text-white"
               />
               <input
                 type="password"
                 placeholder="Confirm New Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="bg-white/10 px-4 py-2 rounded border border-white/30 text-white"
+                className="bg-[#283335] px-4 py-2 rounded border border-white/30 text-white"
               />
             </div>
             <button
@@ -354,7 +354,7 @@ export default function ProfilePage() {
               value={deleteInput}
               onChange={(e) => setDeleteInput(e.target.value)}
               placeholder={`Type "${user.username}"`}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:ring-2 focus:ring-red-400 outline-none"
+              className="w-full bg-[#283335] border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:ring-2 focus:ring-red-400 outline-none"
             />
 
             <button

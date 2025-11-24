@@ -85,41 +85,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Center: Newsletter */}
-        {/* <div className="max-w-3xl mx-auto text-center">
-          <h3 className="text-xl font-semibold mb-2">Subscribe to our Newsletter</h3>
-          <form
-            onSubmit={handleSubscribe}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3"
-          >
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email address"
-              className="px-4 py-2 w-full sm:w-80 rounded-md bg-white/10 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/20"
-            />
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              className="px-5 py-2 rounded-md bg-blue-600 hover:bg-blue-700 transition text-white font-medium disabled:opacity-50"
-            >
-              {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
-            </button>
-          </form>
-
-          {status === 'success' && (
-            <p className="text-green-400 text-sm mt-3">✅ You’ve successfully subscribed!</p>
-          )}
-          {status === 'error' && (
-            <p className="text-red-400 text-sm mt-3">
-              ❌ There was a problem subscribing. Please try again.
-            </p>
-          )}
-        </div> */}
-
-        {/* Right: Links */}
         <div className="flex flex-col md:flex-row gap-2 md:gap-6 text-sm text-center md:text-left">
           <Link href="/" className="hover:underline hover:text-white/80 transition">
             Home
@@ -138,6 +103,9 @@ export default function Footer() {
           </Link>
           <Link href="/privacy" className="hover:underline hover:text-white/80 transition">
             Privacy
+          </Link>
+          <Link href="/sitemap" className="hover:underline hover:text-white/80 transition">
+            Sitemap
           </Link>
         </div>
       </div>

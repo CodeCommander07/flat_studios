@@ -29,7 +29,7 @@ export default function ApplicationHistory() {
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl"
+        className="max-w-4xl mx-auto bg-[#283335] backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl"
       >
         <h1 className="text-3xl font-bold mb-6">Your Application History</h1>
 

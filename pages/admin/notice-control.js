@@ -41,7 +41,7 @@ function ModeDropdown({ value, onChange }) {
         onClick={() => setOpen(!open)}
         className="
           w-full px-4 py-2 rounded-lg border border-white/20
-          bg-white/10 text-white flex items-center justify-between
+          bg-[#283335] text-white flex items-center justify-between
           hover:bg-white/20 transition
         "
       >
@@ -79,7 +79,7 @@ function ModeDropdown({ value, onChange }) {
                   ${
                     value === opt.value
                       ? 'bg-blue-600/40 text-blue-200'
-                      : 'hover:bg-white/10 text-white/80'
+                      : 'hover:bg-[#283335] text-white/80'
                   }
                 `}
               >
@@ -248,11 +248,13 @@ export default function NoticeControlPage() {
   return (
     <AuthWrapper requiredRole="admin">
       <main className="p-8 max-w-6xl mx-auto text-white">
-        <h1 className="text-3xl font-bold mb-6">Notice & Banner Control</h1>
+        <div className="bg-[#283335] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <h1 className="text-3xl font-bold ">Notice & Banner Control</h1>
 
         {/* Top mode switch (banner vs announcements) */}
-        <div className="mb-8">
+        <div className="">
           <ModeDropdown value={mode} onChange={setMode} />
+        </div>
         </div>
 
         {mode === 'banner' && (
@@ -279,7 +281,7 @@ export default function NoticeControlPage() {
                     className={`px-3 py-1.5 ${
                       bannerConfig.displayMode === 'stack'
                         ? 'bg-blue-600 text-white'
-                        : 'text-white/70 hover:bg-white/10'
+                        : 'text-white/70 hover:bg-[#283335]'
                     }`}
                   >
                     Stack
@@ -295,7 +297,7 @@ export default function NoticeControlPage() {
                     className={`px-3 py-1.5 ${
                       bannerConfig.displayMode === 'rotate'
                         ? 'bg-blue-600 text-white'
-                        : 'text-white/70 hover:bg-white/10'
+                        : 'text-white/70 hover:bg-[#283335]'
                     }`}
                   >
                     Rotate (30s)
@@ -313,7 +315,7 @@ export default function NoticeControlPage() {
                   className={`px-4 py-2 rounded-lg text-sm border transition ${
                     activeBannerIndex === idx
                       ? 'bg-blue-600 border-blue-400 text-white'
-                      : 'bg-black/30 border-white/20 text-white/70 hover:bg-white/10'
+                      : 'bg-black/30 border-white/20 text-white/70 hover:bg-[#283335]'
                   }`}
                 >
                   {label}
@@ -331,7 +333,7 @@ export default function NoticeControlPage() {
                 Message
                 <input
                   name="message"
-                  className="w-full bg-white/10 border border-white/20 p-2 rounded-lg mt-1"
+                  className="w-full bg-[#283335] border border-white/20 p-2 rounded-lg mt-1"
                   value={current.message}
                   onChange={(e) =>
                     updateBannerField(activeBannerIndex, 'message', e.target.value)
@@ -344,7 +346,7 @@ export default function NoticeControlPage() {
                   Link Text
                   <input
                     name="linkText"
-                    className="w-full bg-white/10 border border-white/20 p-2 rounded-lg mt-1"
+                    className="w-full bg-[#283335] border border-white/20 p-2 rounded-lg mt-1"
                     value={current.linkText}
                     onChange={(e) =>
                       updateBannerField(
@@ -360,7 +362,7 @@ export default function NoticeControlPage() {
                   Link URL
                   <input
                     name="linkUrl"
-                    className="w-full bg-white/10 border border-white/20 p-2 rounded-lg mt-1"
+                    className="w-full bg-[#283335] border border-white/20 p-2 rounded-lg mt-1"
                     value={current.linkUrl}
                     onChange={(e) =>
                       updateBannerField(
@@ -380,7 +382,7 @@ export default function NoticeControlPage() {
                   <input
                     type="color"
                     name="bgColor"
-                    className="w-full h-10 bg-white/10 border border-white/20 rounded-lg mt-1"
+                    className="w-full h-10 bg-[#283335] border border-white/20 rounded-lg mt-1"
                     value={current.bgColor}
                     onChange={(e) =>
                       updateBannerField(
@@ -397,7 +399,7 @@ export default function NoticeControlPage() {
                   <input
                     type="color"
                     name="textColor"
-                    className="w-full h-10 bg-white/10 border border-white/20 rounded-lg mt-1"
+                    className="w-full h-10 bg-[#283335] border border-white/20 rounded-lg mt-1"
                     value={current.textColor}
                     onChange={(e) =>
                       updateBannerField(
@@ -415,7 +417,7 @@ export default function NoticeControlPage() {
                 <span>Icon</span>
                 <div className="flex items-center gap-4 mt-2">
                   <select
-                    className="flex-1 bg-white/10 border border-white/20 rounded p-2"
+                    className="flex-1 bg-[#283335] border border-white/20 rounded p-2"
                     value={current.icon}
                     onChange={(e) =>
                       updateBannerField(
@@ -436,7 +438,7 @@ export default function NoticeControlPage() {
                     ))}
                   </select>
 
-                  <div className="p-3 bg-white/10 border border-white/20 rounded-lg">
+                  <div className="p-3 bg-[#283335] border border-white/20 rounded-lg">
                     {(() => {
                       const Comp = ICON_OPTIONS.find(
                         (o) => o.value === current.icon
@@ -504,7 +506,7 @@ export default function NoticeControlPage() {
               >
                 <input
                   type="text"
-                  className="w-full bg-white/10 border border-white/20 rounded p-2 mb-4"
+                  className="w-full bg-[#283335] border border-white/20 rounded p-2 mb-4"
                   placeholder="Title"
                   value={announcement.title}
                   onChange={(e) =>
@@ -514,7 +516,7 @@ export default function NoticeControlPage() {
 
                 <textarea
                   rows={4}
-                  className="w-full bg-white/10 border border-white/20 rounded p-2 mb-4"
+                  className="w-full bg-[#283335] border border-white/20 rounded p-2 mb-4"
                   placeholder="Announcement text..."
                   value={announcement.content}
                   onChange={(e) =>
@@ -548,7 +550,7 @@ export default function NoticeControlPage() {
               {alerts.map((a) => (
                 <div
                   key={a._id}
-                  className="bg-white/10 border border-white/20 rounded-xl p-4 flex justify-between items-center"
+                  className="bg-[#283335] border border-white/20 rounded-xl p-4 flex justify-between items-center"
                 >
                   <div>
                     <h3 className="text-lg">{a.title}</h3>

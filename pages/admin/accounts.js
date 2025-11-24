@@ -140,7 +140,7 @@ export default function AccountsPage() {
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full pl-9 pr-3 py-2 bg-white/10 rounded-lg text-sm border border-white/20 focus:outline-none"
+                                    className="w-full pl-9 pr-3 py-2 bg-[#283335] rounded-lg text-sm border border-white/20 focus:outline-none"
                                     placeholder="Search users..."
                                 />
                             </div>
@@ -164,7 +164,7 @@ export default function AccountsPage() {
                                     onClick={() => setSelectedRole(role)}
                                     className={`w-full px-4 py-2 rounded-lg text-left text-sm transition ${selectedRole === role
                                             ? "bg-blue-600"
-                                            : "bg-white/10 hover:bg-white/20"
+                                            : "bg-[#283335] hover:bg-white/20"
                                         }`}
                                 >
                                     {role}
@@ -174,7 +174,7 @@ export default function AccountsPage() {
 
                         <button
                             onClick={() => setSortAsc(!sortAsc)}
-                            className="w-full flex items-center gap-2 bg-[#283335] border border-white/10 px-4 py-3 rounded-lg hover:bg-white/10 transition"
+                            className="w-full flex items-center gap-2 bg-[#283335] border border-white/10 px-4 py-3 rounded-lg hover:bg-[#283335] transition"
                         >
                             {sortAsc ? <SortAsc size={18} /> : <SortDesc size={18} />}
                             Sort Alphabetically
@@ -216,7 +216,7 @@ export default function AccountsPage() {
                                                     <p className="font-semibold">{user.username}</p>
                                                 </div>
 
-                                                <span className="text-xs px-2 py-1 bg-white/10 rounded-lg border border-white/20">
+                                                <span className="text-xs px-2 py-1 bg-[#283335] rounded-lg border border-white/20">
                                                     {user.role}
                                                 </span>
                                             </div>
@@ -249,7 +249,7 @@ export default function AccountsPage() {
                                                                 onChange={(e) =>
                                                                     setEditForm({ ...editForm, email: e.target.value })
                                                                 }
-                                                                className="w-full bg-white/10 p-2 rounded-lg border border-white/20 text-sm"
+                                                                className="w-full bg-[#283335] p-2 rounded-lg border border-white/20 text-sm"
                                                             />
                                                         </div>
 
@@ -261,7 +261,7 @@ export default function AccountsPage() {
                                                                 onChange={(e) =>
                                                                     setEditForm({ ...editForm, username: e.target.value })
                                                                 }
-                                                                className="w-full bg-white/10 p-2 rounded-lg border border-white/20 text-sm"
+                                                                className="w-full bg-[#283335] p-2 rounded-lg border border-white/20 text-sm"
                                                             />
                                                         </div>
 
@@ -272,7 +272,7 @@ export default function AccountsPage() {
                                                                 onChange={(e) =>
                                                                     setEditForm({ ...editForm, role: e.target.value })
                                                                 }
-                                                                className="w-full bg-white/10 p-2 rounded-lg border border-white/20 text-sm"
+                                                                className="w-full bg-[#283335] p-2 rounded-lg border border-white/20 text-sm"
                                                             >
                                                                 <option className="bg-[#283335]" value="Staff">Staff</option>
                                                                 <option className="bg-[#283335]" value="Operator">Operator</option>
@@ -332,7 +332,7 @@ export default function AccountsPage() {
 
                                                     <button
                                                         onClick={() => setEditingUserId(null)}
-                                                        className="flex-1 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm font-semibold"
+                                                        className="flex-1 bg-[#283335] hover:bg-white/20 px-3 py-2 rounded-lg text-sm font-semibold"
                                                     >
                                                         Cancel
                                                     </button>
@@ -367,7 +367,7 @@ export default function AccountsPage() {
                                     <label className="text-sm text-white/60">Email</label>
                                     <input
                                         type="email"
-                                        className="w-full bg-white/10 p-2 rounded-lg mt-1 border border-white/20"
+                                        className="w-full bg-[#283335] p-2 rounded-lg mt-1 border border-white/20"
                                         value={form.email}
                                         onChange={(e) => setForm({ ...form, email: e.target.value })}
                                         required
@@ -378,7 +378,7 @@ export default function AccountsPage() {
                                     <label className="text-sm text-white/60">Username</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-white/10 p-2 rounded-lg mt-1 border border-white/20"
+                                        className="w-full bg-[#283335] p-2 rounded-lg mt-1 border border-white/20"
                                         value={form.username}
                                         onChange={(e) => setForm({ ...form, username: e.target.value })}
                                         required
@@ -388,7 +388,7 @@ export default function AccountsPage() {
                                 <div>
                                     <label className="text-sm text-white/60">Role</label>
                                     <select
-                                        className="w-full bg-white/10 p-2 rounded-lg mt-1 border border-white/20"
+                                        className="w-full bg-[#283335] p-2 rounded-lg mt-1 border border-white/20"
                                         value={form.role}
                                         onChange={(e) => setForm({ ...form, role: e.target.value })}
                                     >
@@ -411,7 +411,7 @@ export default function AccountsPage() {
                             </form>
 
                             {inviteLink && (
-                                <div className="bg-white/10 p-3 border border-white/20 rounded-lg mt-4 text-sm">
+                                <div className="bg-[#283335] p-3 border border-white/20 rounded-lg mt-4 text-sm">
                                     <p className="font-semibold">Invite Link:</p>
                                     <p className="break-words text-blue-300 mt-1">{inviteLink}</p>
                                 </div>
@@ -440,7 +440,7 @@ export default function AccountsPage() {
                                     <label className="text-sm text-white/60">Email</label>
                                     <input
                                         type="email"
-                                        className="w-full bg-white/10 p-2 rounded-lg mt-1 border border-white/20"
+                                        className="w-full bg-[#283335] p-2 rounded-lg mt-1 border border-white/20"
                                         value={editForm.email}
                                         onChange={(e) =>
                                             setEditForm({ ...editForm, email: e.target.value })
@@ -453,7 +453,7 @@ export default function AccountsPage() {
                                     <label className="text-sm text-white/60">Username</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-white/10 p-2 rounded-lg mt-1 border border-white/20"
+                                        className="w-full bg-[#283335] p-2 rounded-lg mt-1 border border-white/20"
                                         value={editForm.username}
                                         onChange={(e) =>
                                             setEditForm({ ...editForm, username: e.target.value })
@@ -465,7 +465,7 @@ export default function AccountsPage() {
                                 <div>
                                     <label className="text-sm text-white/60">Role</label>
                                     <select
-                                        className="w-full bg-white/10 p-2 rounded-lg mt-1 border border-white/20"
+                                        className="w-full bg-[#283335] p-2 rounded-lg mt-1 border border-white/20"
                                         value={editForm.role}
                                         onChange={(e) =>
                                             setEditForm({ ...editForm, role: e.target.value })

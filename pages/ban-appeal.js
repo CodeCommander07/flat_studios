@@ -69,7 +69,7 @@ export default function BanAppealsPage() {
             <input
               type="email"
               name="email"
-              className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none transition"
+              className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none transition"
               placeholder="your@email.com"
               value={form.email}
               onChange={handleChange}
@@ -84,7 +84,7 @@ export default function BanAppealsPage() {
               <input
                 type="text"
                 name="RobloxUsername"
-                className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="RobloxUsername123"
                 value={form.RobloxUsername}
                 onChange={handleChange}
@@ -96,7 +96,7 @@ export default function BanAppealsPage() {
               <input
                 type="text"
                 name="RobloxId"
-                className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="1234567890"
                 value={form.RobloxId}
                 onChange={handleChange}
@@ -112,7 +112,7 @@ export default function BanAppealsPage() {
               <input
                 type="text"
                 name="DiscordUsername"
-                className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Username#0000"
                 value={form.DiscordUsername}
                 onChange={handleChange}
@@ -124,7 +124,7 @@ export default function BanAppealsPage() {
               <input
                 type="text"
                 name="DiscordId"
-                className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="123456789012345678"
                 value={form.DiscordId}
                 onChange={handleChange}
@@ -140,7 +140,7 @@ export default function BanAppealsPage() {
               <input
                 type="date"
                 name="banDate"
-                className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 focus:ring-1 focus:ring-blue-500 outline-none"
                 value={form.banDate}
                 onChange={handleChange}
                 required
@@ -151,7 +151,7 @@ export default function BanAppealsPage() {
               <input
                 type="text"
                 name="staffMember"
-                className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Staff Username"
                 value={form.staffMember}
                 onChange={handleChange}
@@ -167,7 +167,7 @@ export default function BanAppealsPage() {
             <textarea
               name="banReason"
               rows="5"
-              className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+              className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
               placeholder="What were you banned for?"
               value={form.banReason}
               onChange={handleChange}
@@ -179,7 +179,7 @@ export default function BanAppealsPage() {
             <textarea
               name="unbanReason"
               rows="7"
-              className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+              className="w-full px-4 py-2 rounded-md bg-[#283335] border border-white/20 placeholder-white/50 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
               placeholder="Explain your side and why you believe you should be unbanned."
               value={form.unbanReason}
               onChange={handleChange}

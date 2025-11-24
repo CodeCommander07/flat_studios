@@ -143,7 +143,7 @@ export default function ViewApplication() {
 
                   <Link
                     href={`/admin/hiring/review/${appId}/${s._id}`}
-                    className="block text-center bg-white/10 hover:bg-white/20 transition text-sm font-medium py-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out"
+                    className="block text-center bg-[#283335] hover:bg-white/20 transition text-sm font-medium py-2 rounded-bl-md rounded-tr-md hover:rounded-md focus:rounded-md transition-all duration-300 ease-in-out"
                   >
                     Manage
                   </Link>

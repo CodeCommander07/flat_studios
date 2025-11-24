@@ -9,7 +9,7 @@ export default function ApplicationSuccess() {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/10 text-center"
+        className="max-w-md w-full bg-[#283335] backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/10 text-center"
       >
         <div className="flex justify-center mb-6">
           <CheckCircle className="w-16 h-16 text-green-400" />

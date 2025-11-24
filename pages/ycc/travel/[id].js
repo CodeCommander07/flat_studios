@@ -415,7 +415,7 @@ function AffectedRoutesPanel({
                 border transition-all
                 ${isActive
                   ? "bg-white text-black border-white/80"
-                  : "bg-white/5 text-white/70 border-white/20 hover:bg-white/10"
+                  : "bg-white/5 text-white/70 border-white/20 hover:bg-[#283335]"
                 }
               `}
             >
@@ -790,7 +790,7 @@ export default function DisruptionDetailPage() {
                     {affectedOperators.map((op) => (
                       <div
                         key={op._id}
-                        className="flex items-center gap-3 px-4 py-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur shadow-sm hover:bg-white/20 transition cursor-default"
+                        className="flex items-center gap-3 px-4 py-2 rounded-2xl border border-white/20 bg-[#283335] backdrop-blur shadow-sm hover:bg-white/20 transition cursor-default"
                         style={{
                           borderLeft: `6px solid ${op.operatorColour || '#ffffff'}`,
                         }}
@@ -838,7 +838,7 @@ export default function DisruptionDetailPage() {
                         <Link
                           key={sid}
                           href={`/ycc/stops/${stop?._id || sid}`}
-                          className="px-3 py-1 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 transition text-sm"
+                          className="px-3 py-1 rounded-md bg-[#283335] border border-white/20 hover:bg-white/20 transition text-sm"
                         >
                           {label}
                         </Link>

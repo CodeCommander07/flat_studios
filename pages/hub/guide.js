@@ -128,7 +128,7 @@ export default function ScenariosPage() {
   }, [selectedId, selectedTabId]);
 
   return (
-    <main className="text-white bg-black/90 min-h-[calc(100vh-163px)] flex relative">
+    <main className="text-white bg-[#283335] min-h-[calc(100vh-163px)] flex relative">
       {/* Mobile toggle button */}
       {!sidebarOpen && (
         <button
@@ -240,13 +240,13 @@ export default function ScenariosPage() {
         {selectedId ? (
           <>
             {inTabs.length > 0 && parentTab && (
-              <div className="bg-white/10 border border-white/20 rounded-lg p-6 text-white mb-2">
+              <div className="bg-[#283335] border border-white/20 rounded-lg p-6 text-white mb-2">
                 <h2 className="text-xl font-bold mb-2">{parentTab.title}</h2>
                 <p className="text-white/80 whitespace-pre-wrap">{parentTab.desc ? parentTab.desc : null}</p>
               </div>
             )}
             {inTabs.length > 0 && (
-              <div className="mb-3 border border-white/20 rounded-lg bg-white/10 overflow-x-auto no-scrollbar">
+              <div className="mb-3 border border-white/20 rounded-lg bg-[#283335] overflow-x-auto no-scrollbar">
                 <nav className="flex flex-col sm:flex-row px-1 gap-1 sm:gap-0">
                   {inTabs.map(subTab => (
                     <Link
@@ -280,21 +280,21 @@ export default function ScenariosPage() {
               </article>
             )}
             {selectedId === "01" && (
-              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-white/10 text-white">
+              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-[#283335] text-white">
                 <p className="text-sm leading-relaxed">
                   <strong>Sterling is not on Discord for now</strong>, any enquiries to Sterling should be forwarded to <strong>Cypher</strong>, any communication/instructions from Sterling should be adhered to. Sterling is Cypher's younger brother — if there's anything Sterling observes, Cypher will be told immediately.
                 </p>
               </div>
             )}
             {selectedId === "21" && (
-              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-white/10 text-white">
+              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-[#283335] text-white">
                 <p className="text-sm leading-relaxed italic">
                   Payment is issued to staff who complete the month as "employed" by Yapton & District. Should you leave (or get fired), you won't be entitled to the month's pay. This doe not affect authorised leave.
                 </p>
               </div>
             )}
             {selectedId === "14" && (
-              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-white/10 text-white">
+              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-[#283335] text-white">
                 <p className="text-sm leading-relaxed">
                   Given the current state of the game of the game, that being collisions are turned off, admin usage may be questioned inappropriate, actions against users should only be done when no other alternative is possible and with reasonable constraint into what has been used, Trolling of players are extremely limited in what they can do in game while collisions are off. However this would be likely to change if we reconsider turning collisions back on in the future, depending on how functional the staff team is as a whole with their availability, productivity and Time scales in responding to situations both on the Discord and events and situations within the game.
                   <br /><strong>(Correct as of 19/12/2024)</strong>
@@ -303,7 +303,7 @@ export default function ScenariosPage() {
               </div>
             )}
             {selectedId === "20" && (
-              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-white/10 text-white">
+              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-[#283335] text-white">
                 <button
                   className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition"
                   onClick={() => { router.push('https://ropro.io/') }}
@@ -313,7 +313,7 @@ export default function ScenariosPage() {
               </div>
             )}
             {selectedId === "22" && (
-              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-white/10 text-white">
+              <div className="mt-3 p-4 rounded-xl border border-white/20 bg-[#283335] text-white">
                 <button
                   className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition"
                   onClick={() => { router.push('/hub/leave') }}
@@ -326,7 +326,7 @@ export default function ScenariosPage() {
               <>
                 {/* Shift Scheduled */}
                 <div
-                  className="mt-3 p-4 rounded-xl border border-white/20 bg-white/10 text-white cursor-pointer transition hover:bg-white/20"
+                  className="mt-3 p-4 rounded-xl border border-white/20 bg-[#283335] text-white cursor-pointer transition hover:bg-white/20"
                   onClick={() =>
                     navigator.clipboard.writeText(
                       ":SHIFTALERT: | SHIFT SCHEDULED\n\nHiya I'm hosting a shift (you may change this to what you want but keep it along those lines)\n\nScenario: insert here\n\nTime & Date\n\n@shifts"
@@ -361,7 +361,7 @@ export default function ScenariosPage() {
 
                 {/* Shift Starting */}
                 <div
-                  className="mt-3 p-4 rounded-xl border border-white/20 bg-white/10 text-white cursor-pointer transition hover:bg-white/20"
+                  className="mt-3 p-4 rounded-xl border border-white/20 bg-[#283335] text-white cursor-pointer transition hover:bg-white/20"
                   onClick={() =>
                     navigator.clipboard.writeText(
                       ":SHIFTALERT: | SHIFT STARTING\n\nMy shift [INSERT LINK TO ORIGINAL SHIFT ANNOUNCEMENT MESSAGE HERE] on yapton starting now! (you can change this to what you want you just need a link to your original message)\n\n[insert ropro link here]\n\n@shifts"

@@ -310,7 +310,7 @@ export default function AdminStopsPage() {
                   value={form.name}
                   required
                   onChange={handleChange}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20"
                 />
               </div>
             </div>
@@ -324,7 +324,7 @@ export default function AdminStopsPage() {
                   required
                   onChange={handleChange}
                   placeholder="e.g. Yapton"
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
@@ -334,7 +334,7 @@ export default function AdminStopsPage() {
                   value={form.postcode}
                   onChange={handleChange}
                   placeholder="Optional"
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
                 />
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function AdminStopsPage() {
                   value={form.branding}
                   onChange={handleChange}
                   placeholder="e.g. Yapton & District"
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
@@ -367,7 +367,7 @@ export default function AdminStopsPage() {
                     }))
                   }
                   placeholder="e.g. Shelter, Seating, Info Screen"
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
                 />
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function AdminStopsPage() {
                 value={form.notes}
                 onChange={handleChange}
                 placeholder="Optional notes…"
-                className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+                className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
                 rows={3}
               />
             </div>
@@ -400,7 +400,7 @@ export default function AdminStopsPage() {
                     <div
                       key={r._id}
                       onClick={() => toggleRoute(r._id)}
-                      className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-white/10 ${
+                      className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-[#283335] ${
                         form.routes.includes(r._id)
                           ? 'bg-green-600/40 border border-green-500/20'
                           : ''
@@ -425,7 +425,7 @@ export default function AdminStopsPage() {
                       name="closureReason"
                       value={form.closureReason}
                       onChange={handleChange}
-                      className="w-full p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
+                      className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
                       rows={3}
                     />
 
@@ -460,7 +460,7 @@ export default function AdminStopsPage() {
                                   }));
                                   setTempStopSearch('');
                                 }}
-                                className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${
+                                className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-[#283335] ${
                                   form.tempStopId === stop.stopId
                                     ? 'bg-yellow-600/40 border border-yellow-500/20'
                                     : ''
@@ -545,12 +545,12 @@ export default function AdminStopsPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search stops..."
-                className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500 text-sm"
+                className="p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500 text-sm"
               />
 
               <select
                 onChange={(e) => setSortType(e.target.value)}
-                className="p-2 rounded bg-white/10 border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
+                className="p-2 rounded bg-[#283335] border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
               >
                 <option className="bg-[#283335]" value="az">
                   Name (A–Z)
@@ -663,7 +663,7 @@ export default function AdminStopsPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition"
+                className="px-4 py-2 rounded-lg bg-[#283335] hover:bg-white/20 text-white text-sm font-medium transition"
               >
                 Cancel
               </button>

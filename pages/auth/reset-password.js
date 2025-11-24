@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center text-white px-4">
-      <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-lg">
+      <div className="w-full max-w-md bg-[#283335] backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-lg">
         <h1 className="text-2xl font-bold mb-4 text-center">🔐 Reset Password</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -165,7 +165,7 @@ export default function ResetPasswordPage() {
               transition={{ duration: 0.3 }}
               className="space-y-2"
             >
-              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-[#283335] rounded-full overflow-hidden">
                 <motion.div
                   className={`h-2 ${strengthColor}`}
                   initial={{ width: 0 }}

@@ -13,7 +13,7 @@ const StatusBadge = ({ status }) => {
   };
   return (
     <span
-      className={`px-2 py-0.5 text-xs rounded border ${map[status] || 'bg-white/10 text-white/70 border-white/20'
+      className={`px-2 py-0.5 text-xs rounded border ${map[status] || 'bg-[#283335] text-white/70 border-white/20'
         }`}
     >
       {status || 'Pending'}
@@ -210,7 +210,7 @@ export default function RouteRequestDetail() {
                 key={i}
                 className="bg-white/5 border border-white/10 rounded-xl mb-5 overflow-hidden"
               >
-                <div className="bg-white/10 p-3 border-b border-white/10">
+                <div className="bg-[#283335] p-3 border-b border-white/10">
                   <h3 className="text-lg font-semibold text-orange-400">
                     {pg.title}
                   </h3>

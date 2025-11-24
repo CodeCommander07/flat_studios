@@ -141,7 +141,7 @@ export default function SubmissionDetailPage() {
 
   const getNoteStyles = (note) => {
     const text = note.noteText.toLowerCase();
-    let bgColor = 'bg-white/10 border-white/20';
+    let bgColor = 'bg-[#283335] border-white/20';
     let textColor = 'text-white';
 
     if (text.includes('accepted') || text.includes('✅')) {
@@ -250,7 +250,7 @@ export default function SubmissionDetailPage() {
 
               <div className="flex gap-2 mb-4">
                 <textarea
-                  className="flex-1 px-3 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out bg-white/10 border border-white/20 text-white resize-none"
+                  className="flex-1 px-3 py-2 rounded-bl-lg rounded-tr-lg hover:rounded-lg focus:rounded-lg transition-all duration-300 ease-in-out bg-[#283335] border border-white/20 text-white resize-none"
                   rows={3}
                   placeholder="Add a note..."
                   value={newNote}
@@ -278,7 +278,7 @@ export default function SubmissionDetailPage() {
                         {staff?.defaultAvatar ? (
                           <Image width={40} height={40} src={staff.defaultAvatar || '/default-avatar.png'} alt={staff.username} className="w-8 h-8 rounded-full" />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-white/10" />
+                          <div className="w-8 h-8 rounded-full bg-[#283335]" />
                         )}
                         <div>
                           <span className="font-semibold text-blue-300">{staff?.username || 'Unknown'}</span>{' '}
@@ -307,7 +307,7 @@ export default function SubmissionDetailPage() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
+              className="bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -315,7 +315,7 @@ export default function SubmissionDetailPage() {
               <h2 className="text-xl font-semibold mb-4 text-center">Enter Deny Reason</h2>
               <textarea
                 rows={4}
-                className="w-full bg-white/10 border border-white/20 rounded-md p-2 text-white resize-none"
+                className="w-full bg-[#283335] border border-white/20 rounded-md p-2 text-white resize-none"
                 placeholder="Why is this application being denied?"
                 value={denyReason}
                 onChange={(e) => setDenyReason(e.target.value)}

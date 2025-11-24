@@ -136,7 +136,7 @@ export default function AllTasksPage() {
                   type="text"
                   value={newTask.taskName}
                   onChange={(e) => setNewTask((prev) => ({ ...prev, taskName: e.target.value }))}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 outline-none"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20 outline-none"
                   placeholder="Enter task name"
                   required
                 />
@@ -147,7 +147,7 @@ export default function AllTasksPage() {
                 <textarea
                   value={newTask.taskDescription}
                   onChange={(e) => setNewTask((prev) => ({ ...prev, taskDescription: e.target.value }))}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 outline-none min-h-[100px]"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20 outline-none min-h-[100px]"
                   placeholder="Enter description"
                   required
                 />
@@ -159,7 +159,7 @@ export default function AllTasksPage() {
                   type="date"
                   value={newTask.dueDate}
                   onChange={(e) => setNewTask((prev) => ({ ...prev, dueDate: e.target.value }))}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 outline-none"
+                  className="w-full p-2 rounded bg-[#283335] border border-white/20 outline-none"
                   required
                 />
               </div>
@@ -170,7 +170,7 @@ export default function AllTasksPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15"
+                  className="px-4 py-2 rounded-lg bg-[#283335] hover:bg-white/15"
                 >
                   Cancel
                 </button>

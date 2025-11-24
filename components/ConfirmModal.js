@@ -24,7 +24,7 @@ export default function ConfirmModal({
           onClick={onCancel}
         >
           <motion.div
-            className="bg-white/10 border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl max-w-sm w-full text-white relative"
+            className="bg-[#283335] border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl max-w-sm w-full text-white relative"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}

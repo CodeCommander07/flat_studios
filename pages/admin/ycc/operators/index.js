@@ -12,7 +12,7 @@ const StatusBadge = ({ status }) => {
     Implemented: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
   };
   return (
-    <span className={`px-2 py-0.5 text-xs rounded border ${map[status] || 'bg-white/10'}`}>
+    <span className={`px-2 py-0.5 text-xs rounded border ${map[status] || 'bg-[#283335]'}`}>
       {status || 'Pending'}
     </span>
   );
@@ -47,7 +47,7 @@ export default function OperatorRequestList() {
 
   return (
     <AuthWrapper requiredRole="admin">
-      <main className="max-w-6xl mx-auto mt-10 p-8 bg-white/10 border border-white/20 rounded-2xl text-white backdrop-blur-lg shadow-lg">
+      <main className="max-w-6xl mx-auto mt-10 p-8 bg-[#283335] border border-white/20 rounded-2xl text-white backdrop-blur-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-6">Operator Applications</h1>
 
         {requests.length === 0 ? (
@@ -58,7 +58,7 @@ export default function OperatorRequestList() {
               <Link
                 key={req._id}
                 href={`/admin/ycc/operators/${req._id}`}
-                className="block p-4 hover:bg-white/10 transition rounded-lg"
+                className="block p-4 hover:bg-[#283335] transition rounded-lg"
               >
                 <div className="flex justify-between items-center">
                   <div>

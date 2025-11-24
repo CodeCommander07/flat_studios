@@ -181,7 +181,7 @@ export default function ServerDetailPage() {
                   id="notification"
                   placeholder="Enter notification message..."
                   maxLength={100}
-                  className="w-72 bg-white/10 border border-white/10 text-sm text-gray-200 rounded-md px-3 py-[6px] focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 transition"
+                  className="w-72 bg-[#283335] border border-white/10 text-sm text-gray-200 rounded-md px-3 py-[6px] focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 transition"
                   onKeyDown={async (e) => {
                     if (e.key === "Enter") {
                       const msg = e.target.value.trim();
@@ -434,7 +434,7 @@ export default function ServerDetailPage() {
                       <li
                         key={player.playerId}
                         onClick={() => setSelectedPlayer(player)}
-                        className={`flex items-center justify-between border-b border-white/10 pb-2 cursor-pointer hover:bg-white/5 rounded-md transition ${selectedPlayer?.playerId === player.playerId ? "bg-white/10" : ""
+                        className={`flex items-center justify-between border-b border-white/10 pb-2 cursor-pointer hover:bg-white/5 rounded-md transition ${selectedPlayer?.playerId === player.playerId ? "bg-[#283335]" : ""
                           }`}
                       >
                         <div className="m-2 flex items-center gap-3">
@@ -495,7 +495,7 @@ export default function ServerDetailPage() {
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
                     placeholder="Filter messages..."
-                    className="pl-8 pr-3 py-1 text-sm rounded-md bg-white/10 border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="pl-8 pr-3 py-1 text-sm rounded-md bg-[#283335] border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
                 </div>
               </div>

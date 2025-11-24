@@ -169,7 +169,7 @@ export default function NewsletterSubscribers() {
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full pl-9 pr-3 py-2 bg-white/10 rounded-lg text-sm border border-white/20 focus:outline-none"
+                                    className="w-full pl-9 pr-3 py-2 bg-[#283335] rounded-lg text-sm border border-white/20 focus:outline-none"
                                     placeholder="Search subscribers..."
                                 />
                             </div>
@@ -208,7 +208,7 @@ export default function NewsletterSubscribers() {
                                                     );
                                                 }}
                                                 className={`w-full px-3 py-2 rounded-lg text-left text-sm transition flex justify-between items-center
-                                                        ${selected ? "bg-blue-600" : "bg-white/10 hover:bg-white/20"}
+                                                        ${selected ? "bg-blue-600" : "bg-[#283335] hover:bg-white/20"}
                                                 `}
                                             >
                                                 {src}
@@ -254,7 +254,7 @@ export default function NewsletterSubscribers() {
                                                     );
                                                 }}
                                                 className={`w-full px-3 py-2 rounded-lg text-left text-sm transition flex justify-between items-center
-                                                        ${selected ? "bg-blue-600" : "bg-white/10 hover:bg-white/20"}
+                                                        ${selected ? "bg-blue-600" : "bg-[#283335] hover:bg-white/20"}
                                                 `}
                                             >
                                                 {src}
@@ -315,7 +315,7 @@ export default function NewsletterSubscribers() {
                                                     ? "bg-blue-600"
                                                     : sub.source === "Account"
                                                         ? "bg-green-600"
-                                                        : "bg-white/10"
+                                                        : "bg-[#283335]"
                                                     }`}>
                                                     {sub.source}
                                                 </span>

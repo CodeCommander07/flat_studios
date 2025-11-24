@@ -115,7 +115,7 @@ export default function AdminContentDashboard() {
           />
           <button
             onClick={fetchPosts}
-            className="p-2 rounded-md bg-white/10 hover:bg-white/20 transition"
+            className="p-2 rounded-md bg-[#283335] hover:bg-white/20 transition"
           >
             <RefreshCw
               className={`w-4 h-4 ${refreshing ? 'animate-spin text-cyan-400' : 'text-white/70'}`}
@@ -197,7 +197,7 @@ export default function AdminContentDashboard() {
                       </button>
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="p-2 rounded-md bg-white/10 hover:bg-white/20 transition"
+                        className="p-2 rounded-md bg-[#283335] hover:bg-white/20 transition"
                         title="View"
                       >
                         <Eye className="w-4 h-4" />

@@ -477,7 +477,7 @@ export default function ServerDetailPage() {
                   id="notification"
                   placeholder="Enter notification message..."
                   maxLength={100}
-                  className="w-72 bg-white/10 border border-white/10 text-sm text-gray-200 rounded-md px-3 py-[6px] focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 transition"
+                  className="w-72 bg-[#283335] border border-white/10 text-sm text-gray-200 rounded-md px-3 py-[6px] focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 transition"
                   onKeyDown={async (e) => {
                     if (e.key === 'Enter') {
                       const msg = e.target.value.trim();
@@ -810,7 +810,7 @@ export default function ServerDetailPage() {
                               onClick={() => setSelectedPlayer(player)}
                               className={`flex items-center justify-between border-b border-white/10 pb-2 cursor-pointer hover:bg-white/5 rounded-md transition ${
                                 selectedPlayer?.playerId === player.playerId
-                                  ? 'bg-white/10'
+                                  ? 'bg-[#283335]'
                                   : ''
                               }`}
                             >
@@ -877,7 +877,7 @@ export default function ServerDetailPage() {
                       value={filter}
                       onChange={(e) => setFilter(e.target.value)}
                       placeholder="Filter messages..."
-                      className="pl-8 pr-3 py-1 text-sm rounded-md bg-white/10 border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none"
+                      className="pl-8 pr-3 py-1 text-sm rounded-md bg-[#283335] border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none"
                     />
                   </div>
                 </div>
@@ -985,7 +985,7 @@ export default function ServerDetailPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-3 mb-4">
-                        <div className="flex items-center bg-white/10 border border-white/10 rounded-md px-2 py-1 text-sm text-gray-300">
+                        <div className="flex items-center bg-[#283335] border border-white/10 rounded-md px-2 py-1 text-sm text-gray-300">
                           <label className="mr-2 text-gray-400">View:</label>
                           <select
                             value={logFilter}
@@ -1009,7 +1009,7 @@ export default function ServerDetailPage() {
                             type="date"
                             value={logDate}
                             onChange={(e) => setLogDate(e.target.value)}
-                            className="bg-white/10 border border-white/10 rounded-md px-2 py-1 text-sm text-gray-200 focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="bg-[#283335] border border-white/10 rounded-md px-2 py-1 text-sm text-gray-200 focus:ring-1 focus:ring-blue-500 outline-none"
                           />
                         )}
 
@@ -1023,7 +1023,7 @@ export default function ServerDetailPage() {
                             placeholder="Search by username or ID..."
                             value={logSearch}
                             onChange={(e) => setLogSearch(e.target.value)}
-                            className="pl-8 pr-3 py-1.5 w-full text-sm rounded-md bg-white/10 border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none placeholder-gray-400"
+                            className="pl-8 pr-3 py-1.5 w-full text-sm rounded-md bg-[#283335] border border-white/10 focus:ring-1 focus:ring-blue-500 outline-none placeholder-gray-400"
                           />
                         </div>
                       </div>
@@ -1314,7 +1314,7 @@ export default function ServerDetailPage() {
                             durationValue: e.target.value,
                           }))
                         }
-                        className="w-20 px-2 py-1 rounded bg-white/10 border border-white/30 text-sm"
+                        className="w-20 px-2 py-1 rounded bg-[#283335] border border-white/30 text-sm"
                       />
                       <select
                         value={banForm.durationUnit}
@@ -1324,7 +1324,7 @@ export default function ServerDetailPage() {
                             durationUnit: e.target.value,
                           }))
                         }
-                        className="px-2 py-1 rounded bg-white/10 border border-white/30 text-sm"
+                        className="px-2 py-1 rounded bg-[#283335] border border-white/30 text-sm"
                       >
                         <option className="bg-black" value="minutes">
                           minutes
@@ -1355,7 +1355,7 @@ export default function ServerDetailPage() {
                     setBanForm((f) => ({ ...f, reason: e.target.value }))
                   }
                   placeholder="Required. This will be stored in the audit log and (for global bans) in the Roblox restriction metadata."
-                  className="w-full bg-white/10 border border-white/30 rounded-md px-3 py-2 text-sm resize-none"
+                  className="w-full bg-[#283335] border border-white/30 rounded-md px-3 py-2 text-sm resize-none"
                 />
                 <p className="text-[11px] text-white/40 mt-1">
                   {banForm.reason.length}/250 characters

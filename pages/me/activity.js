@@ -227,7 +227,7 @@ export default function ActivityPage() {
 
   return (
     <main className="p-6 text-white">
-      <div className="flex justify-between mb-4 bg-white/10 border border-white/20 backdrop-blur-md p-3 rounded-2xl shadow-xl">
+      <div className="flex justify-between mb-4 bg-[#283335] border border-white/20 backdrop-blur-md p-3 rounded-2xl shadow-xl">
         <h2 className="text-xl font-semibold">{editingLog ? 'Edit Activity Log' : 'Activity Logs'}</h2>
         <button
           onClick={resetForm}
@@ -240,7 +240,7 @@ export default function ActivityPage() {
       <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
         {/* Logs */}
         <div className="order-2 lg:order-none">
-          <ul className="md:col-span-1 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
+          <ul className="md:col-span-1 bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
             <div className="p-4 mb-2 bg-black/95 hover:bg-black/90 border border-white/20 rounded-2xl shadow transition">
               <p className="text-lg font-medium">
                 🗓️ Your Weekly Activity: <span className="text-green-400">{weeklySummary.hours}h {weeklySummary.minutes}m</span>
@@ -274,7 +274,7 @@ export default function ActivityPage() {
         </div>
 
         {/* Form */}
-        <div className="lg:col-span-2 order-1 lg:order-none bg-white/10 border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
+        <div className="lg:col-span-2 order-1 lg:order-none bg-[#283335] border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -290,19 +290,19 @@ export default function ActivityPage() {
             <div>
               <label>Date <span className="text-red-500">*</span></label>
               <input type="date" value={form.date} onChange={(e) => handleChange('date', e.target.value)}
-                className={`w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white`} />
+                className={`w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white`} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label>Time Joined <span className="text-red-500">*</span></label>
                 <input type="time" value={form.timeJoined} onChange={(e) => handleChange('timeJoined', e.target.value)}
-                  className={`w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white`} />
+                  className={`w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white`} />
               </div>
               <div>
                 <label>Time Left <span className="text-red-500">*</span></label>
                 <input type="time" value={form.timeLeft} onChange={(e) => handleChange('timeLeft', e.target.value)}
-                  className={`w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white`} />
+                  className={`w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white`} />
               </div>
             </div>
 
@@ -322,7 +322,7 @@ export default function ActivityPage() {
                 rows={3}
                 value={form.extraNotes}
                 onChange={(e) => handleChange('extraNotes', e.target.value)}
-                className={`w-full p-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition`}
+                className={`w-full p-3 rounded-xl bg-[#283335] border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition`}
                 placeholder="Write anything notable..."
               />
             </div>
@@ -330,7 +330,7 @@ export default function ActivityPage() {
             <div>
               <label>Was this a shift?<span className="text-red-500">*</span></label>
               <select value={form.notable} onChange={(e) => handleChange('notable', e.target.value)}
-                className="w-full p-2 rounded-xl bg-white/10 border border-white/30 text-white">
+                className="w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white">
                 required
                 <option value="No" className="text-black">No</option>
                 <option value="Yes" className="text-black">Yes</option>
@@ -342,7 +342,7 @@ export default function ActivityPage() {
                 <div>
                   <label>Did you host? <span className="text-red-500">*</span></label>
                   <select value={form.host} onChange={(e) => handleChange('host', e.target.value)}
-                    className={`w-full p-2 rounded-xl bg-white/10 border text-white`}>
+                    className={`w-full p-2 rounded-xl bg-[#283335] border text-white`}>
                     <option value="">Select</option>
                     <option value="Yes" className="text-black">Yes</option>
                     <option value="No" className="text-black">No</option>
@@ -351,7 +351,7 @@ export default function ActivityPage() {
                 <div>
                   <label>Estimated Participants <span className="text-red-500">*</span></label>
                   <input type="text" value={form.participants} onChange={(e) => handleChange('participants', e.target.value)}
-                    className={`w-full p-2 rounded-xl bg-white/10 border text-white`} />
+                    className={`w-full p-2 rounded-xl bg-[#283335] border text-white`} />
                 </div>
               </>
             )}

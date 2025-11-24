@@ -116,7 +116,7 @@ export default function GameListPage() {
                               <Flag size={12} /> Flagged — {daysLeft} days left
                             </span>
                           ) : (
-                            <span className="flex items-center gap-1 text-xs text-gray-300 bg-white/10 border border-white/20 px-2 py-1 rounded-md">
+                            <span className="flex items-center gap-1 text-xs text-gray-300 bg-[#283335] border border-white/20 px-2 py-1 rounded-md">
                               <Clock size={12} /> Expires in {daysLeft} days
                             </span>
                           )}

@@ -208,7 +208,7 @@ export default function LeavePage() {
     return (
       <AuthWrapper requiredRole="hub">
         <main className="min-h-[calc(100vh-160px)] flex items-center justify-center text-white px-4">
-          <div className="bg-white/10 p-8 backdrop-blur-lg rounded-2xl border border-white/20 text-center max-w-md shadow-xl">
+          <div className="bg-[#283335] p-8 backdrop-blur-lg rounded-2xl border border-white/20 text-center max-w-md shadow-xl">
             <h1 className="text-3xl font-bold">✅ Request Submitted</h1>
             <p className="mt-2 text-white/70">Thanks for submitting your leave request!</p>
           </div>
@@ -221,7 +221,7 @@ export default function LeavePage() {
     <AuthWrapper requiredRole="hub">
       <main className="px-6 py-10 max-w-7xl mx-auto text-white grid grid-cols-1 md:grid-cols-3 gap-8 min-h-[calc(100vh-165px)]">
         {/* LOA History */}
-        <section className="md:col-span-1 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
+        <section className="md:col-span-1 bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-h-[75vh] overflow-y-auto">
           <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
             <Calendar className="text-yellow-300" /> Your LOA History
           </h2>
@@ -269,7 +269,7 @@ export default function LeavePage() {
         </section>
 
         {/* LOA Request Form */}
-        <section className="md:col-span-2 bg-white/10 border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
+        <section className="md:col-span-2 bg-[#283335] border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl">
           <h2 className="text-2xl font-semibold mb-6">📅 Submit Leave Request</h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -279,7 +279,7 @@ export default function LeavePage() {
                 name="userId"
                 value={form.userId}
                 disabled
-                className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/50"
+                className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white placeholder-white/50"
               />
             </div>
 
@@ -291,7 +291,7 @@ export default function LeavePage() {
                 onChange={handleChange}
                 required
                 rows={3}
-                className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/50 resize-none"
+                className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white placeholder-white/50 resize-none"
                 placeholder="Explain why you're taking leave..."
               />
             </div>
@@ -305,7 +305,7 @@ export default function LeavePage() {
                   value={form.startDate}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white"
+                  className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white"
                 />
               </div>
               <div className="w-1/2">
@@ -316,7 +316,7 @@ export default function LeavePage() {
                   value={form.endDate}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white"
+                  className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white"
                 />
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function LeavePage() {
               onClick={() => setShowEditModal(false)}
             >
               <motion.div
-                className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
+                className="bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}

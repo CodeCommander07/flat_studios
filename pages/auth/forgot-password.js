@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-8 text-center"
+        className="w-full max-w-md bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-8 text-center"
       >
         <AnimatePresence mode="wait">
           {!sent ? (

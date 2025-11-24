@@ -128,7 +128,7 @@ export default function AuthPage() {
         initial={{ opacity: 0, y: 40, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="relative w-full max-w-5xl bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row transition-all duration-700"
+        className="relative w-full max-w-5xl bg-[#283335] backdrop-blur-md border border-white/20 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row transition-all duration-700"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -302,7 +302,7 @@ export default function AuthPage() {
                     transition={{ duration: 0.3 }}
                     className="space-y-2"
                   >
-                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-[#283335] rounded-full overflow-hidden">
                       <motion.div
                         className={`h-2 ${strengthColor}`}
                         initial={{ width: 0 }}
@@ -453,7 +453,7 @@ export default function AuthPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.96 }}
             onClick={() => setIsSignup(!isSignup)}
-            className="rounded-full border border-white/30 px-6 py-2 text-sm font-medium text-white hover:bg-white/10 transition"
+            className="rounded-full border border-white/30 px-6 py-2 text-sm font-medium text-white hover:bg-[#283335] transition"
           >
             {isSignup ? 'Login' : 'Sign Up'}
           </motion.button>

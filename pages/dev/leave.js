@@ -279,7 +279,7 @@ export default function LeavePage() {
                 name="userId"
                 value={form.userId}
                 disabled
-                className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/50"
+                className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white placeholder-white/50"
               />
             </div>
 
@@ -291,7 +291,7 @@ export default function LeavePage() {
                 onChange={handleChange}
                 required
                 rows={10}
-                className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/50 resize-none"
+                className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white placeholder-white/50 resize-none"
                 placeholder="Explain why you're taking leave..."
               />
             </div>
@@ -305,7 +305,7 @@ export default function LeavePage() {
                   value={form.startDate}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white"
+                  className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white"
                 />
               </div>
               <div className="w-1/2">
@@ -316,7 +316,7 @@ export default function LeavePage() {
                   value={form.endDate}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 text-white"
+                  className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 text-white"
                 />
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function LeavePage() {
               onClick={() => setShowEditModal(false)}
             >
               <motion.div
-                className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
+                className="bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-md w-full text-white"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}

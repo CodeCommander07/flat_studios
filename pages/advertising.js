@@ -3,7 +3,7 @@
 export default function AdvertisingPage() {
   return (
     <main className="text-white px-6 py-12 flex justify-center items-center min-h-[calc(100vh-100px)]">
-      <div className="max-w-4xl w-full bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-8 shadow-xl text-center">
+      <div className="max-w-4xl w-full bg-[#283335] border border-white/20 backdrop-blur-md rounded-2xl p-8 shadow-xl text-center">
         <h1 className="text-4xl font-bold mb-6 text-blue-400">
           Advertising with Yapton & District
         </h1>

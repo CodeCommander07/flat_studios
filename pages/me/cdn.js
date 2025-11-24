@@ -5,14 +5,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import CountUp from '@/components/CountUp';
 import GradientText from '@/components/GradientText';
-import {
-  FileDown,
-  Trash,
-  Eye,
-  UploadCloud,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { FileDown, Trash, Eye, UploadCloud, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 
 export default function FilesPage() {
   const [user, setUser] = useState('');
@@ -43,6 +36,31 @@ export default function FilesPage() {
   useEffect(() => {
     fetchFiles();
   }, [userId]);
+
+  const handleShare = async (fileId) => {
+    const url = `${window.location.origin}/api/cdn/view?fileId=${fileId}&userId=${userId}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setError('✅ Link copied!');
+      setTimeout(() => setError(null), 2000);
+    } catch {
+      setError('Failed to copy link');
+      setTimeout(() => setError(null), 2000);
+    }
+  };
+
+  const handleDownload = (fileId, filename) => {
+    const url = `/api/cdn/view?fileId=${fileId}&userId=${userId}`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = cleanFileName(filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   const formatFileSize = (bytes) => {
     if (!bytes) return 'Unknown size';
@@ -136,7 +154,7 @@ export default function FilesPage() {
       <GradientText
         colors={['#40ffaa', '#4079ff', '#40ffaa']}
         animationSpeed={6}
-        className="rounded-2xl text-3xl font-bold text-center w-full max-w-6xl"
+        className="bg-[#283335] rounded-2xl border border-white/10 mb-4 text-3xl font-bold text-center w-full max-w-6xl"
       >
         Welcome {user.username} — You currently have{' '}
         <CountUp from={0} to={files.length} duration={1} /> images
@@ -206,16 +224,15 @@ export default function FilesPage() {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="block w-full text-sm text-white bg-white/10 border border-white/20 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 p-2"
+              className="block w-full text-sm text-white bg-[#283335] border border-white/20 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 p-2"
             />
             <button
               type="submit"
               disabled={uploading}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
-                uploading
-                  ? 'bg-blue-500/70 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${uploading
+                ? 'bg-blue-500/70 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+                }`}
             >
               {uploading ? 'Uploading...' : 'Upload'}
             </button>
@@ -244,11 +261,10 @@ export default function FilesPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className={`flex items-center gap-4 bg-white/5 border rounded-xl p-4 transition cursor-pointer ${
-                    selectedIndex === index
-                      ? 'border-2 border-blue-400 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.5)]'
-                      : 'border-white/10 hover:bg-white/10'
-                  }`}
+                  className={`flex items-center gap-4 bg-white/5 border rounded-xl p-4 transition cursor-pointer ${selectedIndex === index
+                    ? 'border-2 border-blue-400 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.5)]'
+                    : 'border-white/10 hover:bg-[#283335]'
+                    }`}
                 >
                   <div className="w-20 h-16 flex-shrink-0 overflow-hidden rounded-lg border border-white/10">
                     <img
@@ -276,16 +292,40 @@ export default function FilesPage() {
                       })}
                     </p>
                   </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShare(file._id);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 transition"
+                      title="Copy share link"
+                    >
+                      <Share2 size={18} />
+                    </button>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(file._id);
-                    }}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash size={18} />
-                  </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(file._id, file.filename);
+                      }}
+                      className="text-green-400 hover:text-green-300 transition"
+                      title="Download file"
+                    >
+                      <FileDown size={18} />
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(file._id);
+                      }}
+                      className="text-red-400 hover:text-red-300 transition"
+                      title="Delete file"
+                    >
+                      <Trash size={18} />
+                    </button>
+                  </div>
                 </motion.li>
               ))}
             </AnimatePresence>

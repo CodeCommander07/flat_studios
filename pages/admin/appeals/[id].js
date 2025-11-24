@@ -237,7 +237,7 @@ export default function AppealDetailPage() {
                                     <input
                                         type="text"
                                         placeholder="Add a note..."
-                                        className="flex-1 px-3 py-2 rounded-bl-md rounded-tr-md bg-white/10 border border-white/20 text-white"
+                                        className="flex-1 px-3 py-2 rounded-bl-md rounded-tr-md bg-[#283335] border border-white/20 text-white"
                                         value={noteText}
                                         onChange={(e) => setNoteText(e.target.value)}
                                     />
@@ -265,7 +265,7 @@ export default function AppealDetailPage() {
                                                 : isDenied
                                                     ? 'bg-red-500/20 border-red-500/30'
                                                     : isTalented
-                                                    ? 'bg-yellow-500/20 border-yellow-500/30': 'bg-white/10 border-white/20';
+                                                    ? 'bg-yellow-500/20 border-yellow-500/30': 'bg-[#283335] border-white/20';
 
                                             const textColor = isAccepted
                                                 ? 'text-green-400'
@@ -290,7 +290,7 @@ export default function AppealDetailPage() {
                                                             className="w-8 h-8 rounded-full"
                                                         />
                                                     ) : (
-                                                        <div className="w-8 h-8 rounded-full bg-white/10" />
+                                                        <div className="w-8 h-8 rounded-full bg-[#283335]" />
                                                     )}
                                                     <div>
                                                         <span className="font-semibold text-blue-300">

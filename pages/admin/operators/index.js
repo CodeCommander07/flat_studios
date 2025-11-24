@@ -325,7 +325,7 @@ export default function OperatorSubmissionsPage() {
                             }
                             className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${selected
                                 ? "bg-green-600/40 border border-green-500/20 text-white"
-                                : "hover:bg-white/10 text-gray-300"
+                                : "hover:bg-[#283335] text-gray-300"
                               }`}
                           >
                             {r.number}
@@ -440,7 +440,7 @@ export default function OperatorSubmissionsPage() {
                           className="w-12 h-12 rounded-lg object-cover border border-white/10"
                         />
                       ) : (
-                        <div className="w-12 h-12 bg-white/10 flex items-center justify-center text-xs text-gray-400 rounded-lg">
+                        <div className="w-12 h-12 bg-[#283335] flex items-center justify-center text-xs text-gray-400 rounded-lg">
                           No Logo
                         </div>
                       )}

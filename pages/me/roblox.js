@@ -30,14 +30,14 @@ export default function RobloxConnectPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center text-white px-4">
-      <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 w-full max-w-md">
+      <div className="bg-[#283335] backdrop-blur-md p-8 rounded-2xl border border-white/20 w-full max-w-md">
         <h1 className="text-2xl font-bold mb-4 text-center">Link Roblox Account</h1>
         <input
           type="text"
           placeholder="Roblox Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-2 mb-4 rounded bg-white/10 border border-white/20 text-white"
+          className="w-full p-2 mb-4 rounded bg-[#283335] border border-white/20 text-white"
         />
         <button
           onClick={handleConnect}

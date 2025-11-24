@@ -29,7 +29,7 @@ export default function Home() {
           key={idx}
           className={`flex flex-col md:flex-row ${
             idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
-          } items-center gap-10 bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
+          } items-center gap-10 bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
         >
           {/* Video */}
           <div className="w-full md:w-1/2">

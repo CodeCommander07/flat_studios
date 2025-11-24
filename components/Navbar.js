@@ -212,7 +212,7 @@ export default function Navbar() {
                     onClick={() =>
                       setOpenDropdown(openDropdown === dropdown.name ? null : dropdown.name)
                     }
-                    className="hover:bg-white/10 px-3 py-2 rounded-md text-md font-medium transition"
+                    className="hover:bg-[#283335] px-3 py-2 rounded-md text-md font-medium transition"
                   >
                     {dropdown.name}
                   </button>
@@ -238,7 +238,7 @@ export default function Navbar() {
                               key={j}
                               href={item.href}
                               onClick={() => setOpenDropdown(null)}
-                              className="block px-4 py-2 hover:bg-white/10 text-md transition"
+                              className="block px-4 py-2 hover:bg-[#283335] text-md transition"
                             >
                               {item.label}
                             </Link>
@@ -261,7 +261,7 @@ export default function Navbar() {
                 onMouseEnter={() => setNotifOpen(true)}
                 onMouseLeave={() => setNotifOpen(false)}
               >
-                <div className="relative p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                <div className="relative p-2 hover:bg-[#283335] rounded-full transition cursor-pointer">
                   <Bell className="w-5 h-5" />
                   {hasNew && (
                     <>
@@ -321,7 +321,7 @@ export default function Navbar() {
                   onClick={() =>
                     setOpenDropdown(openDropdown === 'user' ? null : 'user')
                   }
-                  className="flex items-center gap-2 hover:bg-white/10 px-3 py-2 rounded-md transition"
+                  className="flex items-center gap-2 hover:bg-[#283335] px-3 py-2 rounded-md transition"
                 >
                   <Image
                     src={user?.defaultAvatar || '/logo.png'}
@@ -343,11 +343,11 @@ export default function Navbar() {
                       className="absolute right-0 mt-1 bg-[#283335]/95 backdrop-blur-lg 
                          rounded-lg shadow-xl overflow-hidden w-44 border border-white/10 z-50"
                     >
-                      <Link href="/me" className="block px-4 py-2 hover:bg-white/10 text-md">Profile</Link>
-                      <Link href="/me/cdn" className="block px-4 py-2 hover:bg-white/10 text-md">File Sharer</Link>
-                      <Link href="/me/applications" className="block px-4 py-2 hover:bg-white/10 text-md">My Applications</Link>
-                      <Link href="/me/appeals" className="block px-4 py-2 hover:bg-white/10 text-md">My Appeals</Link>
-                      <Link href="/me/notifications" className="block px-4 py-2 hover:bg-white/10 text-md">My Notifications</Link>
+                      <Link href="/me" className="block px-4 py-2 hover:bg-[#283335] text-md">Profile</Link>
+                      <Link href="/me/cdn" className="block px-4 py-2 hover:bg-[#283335] text-md">File Sharer</Link>
+                      <Link href="/me/applications" className="block px-4 py-2 hover:bg-[#283335] text-md">My Applications</Link>
+                      <Link href="/me/appeals" className="block px-4 py-2 hover:bg-[#283335] text-md">My Appeals</Link>
+                      <Link href="/me/notifications" className="block px-4 py-2 hover:bg-[#283335] text-md">My Notifications</Link>
                       <LogoutButton />
                     </motion.div>
                   )}
@@ -368,7 +368,7 @@ export default function Navbar() {
         <div className="relative md:hidden">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 rounded-md hover:bg-white/10 transition relative"
+            className="p-2 rounded-md hover:bg-[#283335] transition relative"
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>

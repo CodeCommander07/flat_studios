@@ -17,8 +17,8 @@ export default function ReportsPage() {
       {reports.length === 0 ? (
         <p>No reports generated yet.</p>
       ) : (
-        <table className="min-w-full border border-gray-700 rounded-lg overflow-hidden">
-          <thead className="bg-gray-800 text-gray-200">
+        <table className="min-w-full border bg-[#283335] border-gray-700 rounded-lg overflow-hidden">
+          <thead className="text-gray-200">
             <tr>
               <th className="p-3 text-left">Filename</th>
               <th className="p-3 text-left">Date</th>
@@ -29,7 +29,7 @@ export default function ReportsPage() {
             {reports.map((r) => (
               <tr
                 key={r.id}
-                className="border-t border-gray-800 hover:bg-gray-900 transition"
+                className="transition"
               >
                 <td className="p-3">{r.filename}</td>
                 <td className="p-3">

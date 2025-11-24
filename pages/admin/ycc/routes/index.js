@@ -14,7 +14,7 @@ const StatusBadge = ({ status }) => {
   return (
     <span
       className={`px-2 py-0.5 text-xs font-medium rounded border ${
-        map[status] || 'bg-white/10 text-gray-300 border-white/20'
+        map[status] || 'bg-[#283335] text-gray-300 border-white/20'
       }`}
     >
       {status || 'Pending'}
@@ -66,7 +66,7 @@ export default function RouteRequestList() {
             ) : (
               <div className="grid sm:grid-cols-2 gap-4 text-sm flex-grow">
                 {/* Total */}
-                <div className="col-span-2 bg-white/10 border border-white/10 rounded-xl p-4">
+                <div className="col-span-2 bg-[#283335] border border-white/10 rounded-xl p-4">
                   <p className="text-white/60">Total Requests</p>
                   <p className="text-3xl font-bold">{requests.length}</p>
                 </div>
@@ -115,7 +115,7 @@ export default function RouteRequestList() {
               placeholder="Search by company, user, or status..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full p-2 mb-4 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+              className="w-full p-2 mb-4 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
             />
 
             <p className="text-sm text-white/60 mb-2">

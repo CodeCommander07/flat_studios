@@ -112,7 +112,7 @@ export default function DynamicYCCForm() {
           required={q.required}
           value={formData[q._id] || ''}
           onChange={(e) => handleChange(q._id, e.target.value)}
-          className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-orange-500"
+          className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-orange-500"
         >
           <option className="text-white bg-black" value="">Select...</option>
           {options.map((o, i) => {
@@ -167,7 +167,7 @@ export default function DynamicYCCForm() {
                 key={i}
                 className={`flex flex-col justify-between p-3 h-[100px] rounded-xl border cursor-pointer transition ${checked
                     ? 'bg-orange-500/20 border-orange-500 text-orange-200'
-                    : 'bg-white/5 border-white/20 text-white/80 hover:bg-white/10'
+                    : 'bg-white/5 border-white/20 text-white/80 hover:bg-[#283335]'
                   }`}
               >
                 <input
@@ -213,7 +213,7 @@ export default function DynamicYCCForm() {
             required={q.required}
             value={formData[q._id] || ''}
             onChange={(e) => handleChange(q._id, e.target.value)}
-            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-orange-500"
+            className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-orange-500"
           />
         )}
 
@@ -223,7 +223,7 @@ export default function DynamicYCCForm() {
             value={formData[q._id] || ''}
             onChange={(e) => handleChange(q._id, e.target.value)}
             rows={3}
-            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-orange-500 resize-y"
+            className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-orange-500 resize-y"
           />
         )}
 
@@ -236,7 +236,7 @@ export default function DynamicYCCForm() {
                 required={q.required}
                 value={formData[q._id] || ''}
                 onChange={(e) => handleChange(q._id, e.target.value)}
-                className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-orange-500"
               >
                 <option className="text-white bg-black" value="">Select...</option>
                 {q.options.map((opt, i) => (
@@ -307,7 +307,7 @@ export default function DynamicYCCForm() {
 
   return (
     <AuthWrapper requiredRole="ycc">
-      <main className="max-w-4xl mx-auto mt-10 p-8 bg-white/10 border border-white/20 rounded-2xl text-white backdrop-blur-lg shadow-lg">
+      <main className="max-w-4xl mx-auto mt-10 p-8 bg-[#283335] border border-white/20 rounded-2xl text-white backdrop-blur-lg shadow-lg">
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="w-full h-2 bg-white/20 rounded-full">

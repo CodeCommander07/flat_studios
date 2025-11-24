@@ -278,7 +278,7 @@ export default function AdminRoutesPage() {
                                 originSearch: '',
                               }))
                             }
-                            className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${form.origin === stop.stopId
+                            className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-[#283335] ${form.origin === stop.stopId
                               ? 'bg-green-600/40 border border-green-500/20'
                               : ''
                               }`}
@@ -345,7 +345,7 @@ export default function AdminRoutesPage() {
                                 destinationSearch: '',
                               }))
                             }
-                            className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-white/10 ${form.destination === stop.stopId
+                            className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-[#283335] ${form.destination === stop.stopId
                               ? 'bg-blue-600/40 border border-blue-500/20'
                               : ''
                               }`}
@@ -397,7 +397,7 @@ export default function AdminRoutesPage() {
                           }}
                           className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${isSelected
                             ? 'bg-green-600/40 border border-green-500/20 text-white'
-                            : 'hover:bg-white/10 text-gray-300'
+                            : 'hover:bg-[#283335] text-gray-300'
                             }`}
                         >
                           {op.operatorName}
@@ -474,7 +474,7 @@ export default function AdminRoutesPage() {
                         onClick={() => toggleStop(stop.stopId, 'forward')}
                         className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${form.stops.forward.includes(stop.stopId)
                           ? 'bg-green-600/40 border border-green-500/20 text-white'
-                          : 'hover:bg-white/10 text-gray-300'
+                          : 'hover:bg-[#283335] text-gray-300'
                           }`}
                       >
                         {getStopName(stop.stopId)}
@@ -559,7 +559,7 @@ export default function AdminRoutesPage() {
                         onClick={() => toggleStop(stop.stopId, 'backward')}
                         className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${form.stops.backward.includes(stop.stopId)
                           ? 'bg-blue-600/40 border border-blue-500/20 text-white'
-                          : 'hover:bg-white/10 text-gray-300'
+                          : 'hover:bg-[#283335] text-gray-300'
                           }`}
                       >
                         {getStopName(stop.stopId)}
@@ -686,7 +686,7 @@ export default function AdminRoutesPage() {
                               onClick={() => toggleDiversionStop(stop.stopId)}
                               className={`cursor-pointer px-3 py-1.5 rounded text-sm mb-1 transition-all ${form.diversion.stops.includes(stop.stopId)
                                 ? 'bg-yellow-600/40 border border-yellow-400/20 text-white'
-                                : 'hover:bg-white/10 text-gray-300'
+                                : 'hover:bg-[#283335] text-gray-300'
                                 }`}
                             >
                               {getStopName(stop.stopId)}
@@ -794,13 +794,13 @@ export default function AdminRoutesPage() {
         placeholder="Search routes..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="p-2 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500 text-sm"
+        className="p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500 text-sm"
       />
 
       <select
         value={sortType}
         onChange={(e) => setSortType(e.target.value)}
-        className="p-2 rounded bg-white/10 border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
+        className="p-2 rounded bg-[#283335] border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
       >
         <option className="bg-[#283335]" value="az">Route (A–Z)</option>
         <option className="bg-[#283335]" value="za">Route (Z–A)</option>
@@ -811,7 +811,7 @@ export default function AdminRoutesPage() {
       <select
         value={filterType}
         onChange={(e) => setFilterType(e.target.value)}
-        className="p-2 rounded bg-white/10 border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
+        className="p-2 rounded bg-[#283335] border border-white/20 text-sm focus:ring-2 focus:ring-green-500"
       >
         <option className="bg-[#283335]" value="all">All Routes</option>
         <option className="bg-[#283335]" value="diversion">With Diversions</option>

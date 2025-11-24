@@ -123,7 +123,7 @@ export default function DisciplinaryDetail() {
           ← Back to list
         </button>
 
-        <div className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 shadow-sm relative">
+        <div className="rounded-2xl bg-[#283335] p-6 shadow-sm relative">
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div>

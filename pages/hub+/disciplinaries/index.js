@@ -28,7 +28,7 @@ export default function DisciplinaryList() {
   return (
     <div className="text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
-        <div className="mb-8">
+        <div className="mb-8 bg-[#283335] p-6 rounded-2xl">
           <h1 className="text-3xl font-bold">Disciplinary Records</h1>
           <p className="text-gray-400 mt-1">Search, filter, and drill into details.</p>
         </div>
@@ -36,20 +36,20 @@ export default function DisciplinaryList() {
         <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between mb-6">
           <div className="flex gap-3 w-full md:w-auto">
             <input
-              className="flex-1 md:w-80 bg-gray-900/70 border border-gray-800 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 md:w-80 bg-[#283335] rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Search by name, reason, or severity…"
               value={q}
               onChange={e => setQ(e.target.value)}
             />
             <select
-              className="bg-gray-900/70 border border-gray-800 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-[#283335] rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
               value={status}
               onChange={e => setStatus(e.target.value)}
             >
-              <option className="text-white bg-black" value="">All statuses</option>
-              <option className="text-white bg-black">Active</option>
-              <option className="text-white bg-black">Appealed</option>
-              <option className="text-white bg-black">Resolved</option>
+              <option className="text-white bg-[#283335]" value="">All statuses</option>
+              <option className="text-white bg-[#283335]">Active</option>
+              <option className="text-white bg-[#283335]">Appealed</option>
+              <option className="text-white bg-[#283335]">Resolved</option>
             </select>
           </div>
 
@@ -62,9 +62,9 @@ export default function DisciplinaryList() {
         </div>
 
         {loading ? (
-          <div className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6">Loading…</div>
+          <div className="rounded-2xl bg-[#283335] p-6">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 text-gray-400">
+          <div className="rounded-2xl bg-[#283335]  p-6 text-gray-400">
             No records found.
           </div>
         ) : (
@@ -73,7 +73,7 @@ export default function DisciplinaryList() {
               <Link
                 key={d._id}
                 href={`/hub+/disciplinaries/${d._id}`}
-                className="rounded-2xl bg-gray-900/60 border border-gray-800 p-5 hover:bg-gray-900 transition shadow-sm"
+                className="rounded-2xl bg-[#283335] p-5 transition shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold">{d.staffId.username}</h3>

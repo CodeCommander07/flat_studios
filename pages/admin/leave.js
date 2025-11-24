@@ -156,7 +156,7 @@ export default function AdminLeaveDashboard() {
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`whitespace-nowrap px-4 py-2 bg-[#283335] rounded-bl-xl rounded-tr-xl hover:rounded-xl focus:rounded-xl transition-all duration-300 ease-in-out text-sm ${filter === f ? 'bg-blue-600' : 'bg-white/10 hover:bg-white/20'
+                  className={`whitespace-nowrap px-4 py-2 bg-[#283335] rounded-bl-xl rounded-tr-xl hover:rounded-xl focus:rounded-xl transition-all duration-300 ease-in-out text-sm ${filter === f ? 'bg-blue-600' : 'bg-[#283335] hover:bg-white/20'
                     }`}
                 >
                   {f}
@@ -165,7 +165,7 @@ export default function AdminLeaveDashboard() {
 
               <button
                 onClick={() => setSortAsc(!sortAsc)}
-                className="mt-auto lg:mt-4 px-3 py-2 bg-[#283335] rounded-bl-xl rounded-tr-xl hover:rounded-xl focus:rounded-xl transition-all duration-300 ease-in-out bg-white/10 hover:bg-white/20 flex items-center gap-1 text-sm"
+                className="mt-auto lg:mt-4 px-3 py-2 bg-[#283335] rounded-bl-xl rounded-tr-xl hover:rounded-xl focus:rounded-xl transition-all duration-300 ease-in-out bg-[#283335] hover:bg-white/20 flex items-center gap-1 text-sm"
                 title={sortAsc ? 'Sort Descending' : 'Sort Ascending'}
               >
                 {sortAsc ? <SortAsc size={16} /> : <SortDesc size={16} />}

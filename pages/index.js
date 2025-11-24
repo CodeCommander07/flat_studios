@@ -118,7 +118,7 @@ export default function Home() {
                 scaleOnHover={1.05}
                 displayOverlayContent={true}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-[#283335] border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-blue-300 mb-2">
                       Group Members
                     </h3>
@@ -135,7 +135,7 @@ export default function Home() {
                 scaleOnHover={1.05}
                 displayOverlayContent={true}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-[#283335] border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-green-300 mb-2">
                       Active Players
                     </h3>
@@ -152,7 +152,7 @@ export default function Home() {
                 scaleOnHover={1.05}
                 displayOverlayContent={true}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-[#283335] border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-orange-300 mb-2">
                       Total Visits
                     </h3>
@@ -185,7 +185,7 @@ export default function Home() {
                   <Link
                     key={post._id}
                     href={`/content/${post.slug}`}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md shadow-lg hover:bg-white/10 transition flex flex-col"
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md shadow-lg hover:bg-[#283335] transition flex flex-col"
                   >
                     {post.coverImage?.url && (
                       <Image
@@ -249,7 +249,7 @@ export default function Home() {
                 scaleOnHover={1.05}
                 displayOverlayContent={true}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-[#283335] border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-slate-300 mb-2">
                       Total Routes
                     </h3>
@@ -266,7 +266,7 @@ export default function Home() {
                 scaleOnHover={1.05}
                 displayOverlayContent={true}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-[#283335] border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-lime-300 mb-2">
                       Total Operators
                     </h3>
@@ -283,7 +283,7 @@ export default function Home() {
                 scaleOnHover={1.05}
                 displayOverlayContent={true}
                 overlayContent={
-                  <div className="w-full h-[160px] bg-white/10 border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
+                  <div className="w-full h-[160px] bg-[#283335] border border-white/20 rounded-xl p-6 text-center shadow-lg flex flex-col items-center justify-center">
                     <h3 className="text-xl font-semibold text-fuchsia-300 mb-2">
                       Total Stops
                     </h3>

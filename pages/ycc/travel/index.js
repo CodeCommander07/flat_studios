@@ -349,7 +349,7 @@ function LiveRouteImpactPanel({ liveRoutes, stops, lastUpdated }) {
               className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium border transition-all
               ${isActive
                   ? 'bg-white text-black border-white/80'
-                  : 'bg-white/5 text-white/70 border-white/20 hover:bg-white/10'
+                  : 'bg-white/5 text-white/70 border-white/20 hover:bg-[#283335]'
                 }`}
             >
               {rd.route.number || rd.route.routeId}{' '}
@@ -720,7 +720,7 @@ export default function TravelUpdatesPage() {
                             {d.affectedStops.length}
                           </span>
                         )}
-                        <span className="ml-2 px-3 py-1 bg-white/10 text-white/70 rounded-full border border-white/20">
+                        <span className="ml-2 px-3 py-1 bg-[#283335] text-white/70 rounded-full border border-white/20">
                           Type: {d.incidentType}
                         </span>
                       </div>

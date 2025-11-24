@@ -55,7 +55,7 @@ export default function ContactFormsPage() {
               placeholder="Search by email or subject..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full p-2 mb-4 rounded bg-white/10 border border-white/20 focus:ring-2 focus:ring-green-500"
+              className="w-full p-2 mb-4 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
             />
 
             <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 flex-grow pr-2">
@@ -75,7 +75,7 @@ export default function ContactFormsPage() {
                       onClick={() => setSelected(f)}
                       className={`w-full text-left mb-2 p-3 rounded-lg border border-white/10 transition-all ${
                         selected?._id === f._id
-                          ? 'bg-white/10 border-white/20'
+                          ? 'bg-[#283335] border-white/20'
                           : 'hover:bg-white/5'
                       }`}
                     >
@@ -107,7 +107,7 @@ export default function ContactFormsPage() {
                 </div>
 
                 <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 flex-grow pr-2">
-                  <div className="bg-white/10 p-5 rounded-xl border border-white/20 whitespace-pre-wrap text-white/90">
+                  <div className="bg-[#283335] p-5 rounded-xl border border-white/20 whitespace-pre-wrap text-white/90">
                     {selected.message ||
                       selected.body ||
                       'No message content'}

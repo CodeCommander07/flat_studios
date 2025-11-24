@@ -174,7 +174,7 @@ export default function MultiStepForm() {
                                     name="email"
                                     value={form.email}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                    className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                     placeholder="your@email.com"
                                     required
                                 />
@@ -188,7 +188,7 @@ export default function MultiStepForm() {
                                         name="robloxUsername"
                                         value={form.robloxUsername}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                        className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                         placeholder="Your Roblox username"
                                         required
                                     />
@@ -201,7 +201,7 @@ export default function MultiStepForm() {
                                         name="robloxId"
                                         value={form.robloxId}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                        className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                         placeholder="Your Roblox ID"
                                         required
                                     />
@@ -216,7 +216,7 @@ export default function MultiStepForm() {
                                         name="discordUsername"
                                         value={form.discordUsername}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                        className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                         placeholder="username#0000"
                                         required
                                     />
@@ -229,7 +229,7 @@ export default function MultiStepForm() {
                                         name="discordId"
                                         value={form.discordId}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                        className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                         placeholder="Your Discord ID"
                                         required
                                     />
@@ -249,7 +249,7 @@ export default function MultiStepForm() {
                                     name="operatorName"
                                     value={form.operatorName}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                    className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                     placeholder="Name of your operator company"
                                     required
                                 />
@@ -263,7 +263,7 @@ export default function MultiStepForm() {
                                         name="operatorDiscord"
                                         value={form.operatorDiscord}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                        className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                         placeholder="Operator Discord server/invite"
                                         required
                                     />
@@ -276,7 +276,7 @@ export default function MultiStepForm() {
                                         name="operatorRoblox"
                                         value={form.operatorRoblox}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                                        className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
                                         placeholder="Operator Roblox group/username"
                                         required
                                     />
@@ -289,7 +289,7 @@ export default function MultiStepForm() {
                                     name="operatorFleet"
                                     value={form.operatorFleet}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white resize-y"
+                                    className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white resize-y"
                                     placeholder="Describe the vehicles in your fleet, types, liveries, etc."
                                     rows={4}
                                     required
@@ -302,7 +302,7 @@ export default function MultiStepForm() {
                                     name="reason"
                                     value={form.reason}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white resize-y"
+                                    className="w-full px-4 py-2 rounded bg-[#283335] border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white resize-y"
                                     placeholder="Explain why you want to create this operator and what you plan to bring to the community"
                                     rows={4}
                                     required
@@ -320,7 +320,7 @@ export default function MultiStepForm() {
 
                             <div className="space-y-6">
                                 {/* Contact Details Section */}
-                                <div className="bg-white/10 p-6 rounded-xl border border-white/20">
+                                <div className="bg-[#283335] p-6 rounded-xl border border-white/20">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-xl font-semibold">Contact Details</h3>
                                         <button
@@ -341,7 +341,7 @@ export default function MultiStepForm() {
                                 </div>
 
                                 {/* Operator Details Section */}
-                                <div className="bg-white/10 p-6 rounded-xl border border-white/20">
+                                <div className="bg-[#283335] p-6 rounded-xl border border-white/20">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-xl font-semibold">Operator Details</h3>
                                         <button

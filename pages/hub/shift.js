@@ -62,7 +62,7 @@ export default function ScenariosPage() {
   };
 
   return (
-    <main className="text-white bg-black/50 max-h-[calc(100vh-163px)] flex relative">
+    <main className="text-white bg-[#283335] max-h-[calc(100vh-163px)] flex relative">
       {/* Mobile scenario list toggle button */}
       {!showSidebar && (
         <button
@@ -183,7 +183,7 @@ export default function ScenariosPage() {
               Scenario ID: <strong>{selectedScenario.id}</strong>
             </p>
 
-            <div className="bg-white/10 border border-white/20 p-4 rounded-xl relative group">
+            <div className="bg-[#283335] border border-white/20 p-4 rounded-xl relative group">
               {highlightScenarioTitle(selectedScenario.desc)}
 
 <button

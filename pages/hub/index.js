@@ -207,7 +207,7 @@ useEffect(() => {
               {loadingNotices ? (
                 <p className="text-white/60">Loading notices...</p>
               ) : notices.length === 0 ? (
-                <div className="border-l-4 border-r-4 rounded-md border-purple-500 p-4 bg-white/10">
+                <div className="border-l-4 border-r-4 rounded-md border-purple-500 p-4 bg-[#283335]">
                   <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
                     <Info className="w-6 h-6 text-purple-500" /> No notices available
                   </h5>
@@ -217,7 +217,7 @@ useEffect(() => {
                   {notices.map((notice) => (
                     <li
                       key={notice._id}
-                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-white/10 ${noticeColorClass(notice.type)}`}
+                      className={`border-l-4 border-r-4 pl-4 py-3 rounded-md bg-[#283335] ${noticeColorClass(notice.type)}`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <h5 className="flex items-center gap-2 font-semibold text-white text-lg">
@@ -237,7 +237,7 @@ useEffect(() => {
           </div>
 
           {/* Stats */}
-          <div className="text-center bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
+          <div className="text-center bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl">
             <SplitText
               text={`Welcome, ${user?._id === "68829ddd4ebb8e8eff6fab38" ? "Daddy " : ""}${user?.username || 'Staff'}`}
               className="text-3xl font-bold text-center"
@@ -258,7 +258,7 @@ useEffect(() => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-3">
             {/* Live Players */}
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
+            <div className="bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
                 <a href="/hub/game"><Sparkles className="w-6 h-6 text-green-300" /></a>
                 <h2 className="text-xl font-semibold">Live Players</h2>
@@ -268,7 +268,7 @@ useEffect(() => {
             </div>
 
             {/* Staff Online */}
-            {/* <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
+            {/* <div className="bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
                 <Users className="w-6 h-6 text-cyan-300" />
                 <h2 className="text-xl font-semibold">Staff Online</h2>
@@ -278,7 +278,7 @@ useEffect(() => {
             </div> */}
 
             {/* Activity Summary + Weekly */}
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
+            <div className="bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-md">
               <div className="flex items-center gap-4 mb-4">
                 <Clock className="w-6 h-6 text-yellow-300" />
                 <h2 className="text-xl font-semibold">Your Activity</h2>
@@ -294,7 +294,7 @@ useEffect(() => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3 w-full">
             {/* Shift Activity */}
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
+            <div className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
               <h2 className="text-xl font-bold mb-4 text-green-300">🕒 Your Shifts</h2>
 
               {loadingActivity ? (
@@ -326,7 +326,7 @@ useEffect(() => {
             </div>
 
             {/* Leave Requests */}
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
+            <div className="bg-[#283335] backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg transition hover:shadow-2xl">
               <h2 className="text-xl font-bold mb-4 text-yellow-300">📅 Leave Requests</h2>
 
               {loadingLeaves ? (

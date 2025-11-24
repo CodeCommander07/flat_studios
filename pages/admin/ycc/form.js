@@ -22,7 +22,7 @@ const StatusBadge = ({ status }) => {
   };
   return (
     <span
-      className={`px-2 py-0.5 text-xs rounded border ${map[status] || 'bg-white/10 text-white/70 border-white/20'}`}
+      className={`px-2 py-0.5 text-xs rounded border ${map[status] || 'bg-[#283335] text-white/70 border-white/20'}`}
     >
       {status || 'Pending'}
     </span>
@@ -236,7 +236,7 @@ export default function ManageQuestions() {
                   type="number"
                   value={form.page}
                   onChange={(e) => setForm({ ...form, page: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                  className="w-full bg-[#283335] border border-white/20 p-2 rounded"
                 />
               </div>
 
@@ -248,7 +248,7 @@ export default function ManageQuestions() {
                   onChange={(e) =>
                     setForm({ ...form, pageTitle: e.target.value })
                   }
-                  className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                  className="w-full bg-[#283335] border border-white/20 p-2 rounded"
                   placeholder="e.g. Basic Info"
                 />
               </div>
@@ -258,7 +258,7 @@ export default function ManageQuestions() {
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                  className="w-full bg-[#283335] border border-white/20 p-2 rounded"
                 >
                   <option className="bg-black text-white" value="text">Text</option>
                   <option className="bg-black text-white" value="textarea">Textarea</option>
@@ -275,7 +275,7 @@ export default function ManageQuestions() {
                   type="number"
                   value={form.order}
                   onChange={(e) => setForm({ ...form, order: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                  className="w-full bg-[#283335] border border-white/20 p-2 rounded"
                 />
               </div>
 
@@ -285,7 +285,7 @@ export default function ManageQuestions() {
                   type="text"
                   value={form.label}
                   onChange={(e) => setForm({ ...form, label: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 p-2 rounded mb-2"
+                  className="w-full bg-[#283335] border border-white/20 p-2 rounded mb-2"
                 />
                 <label className="flex items-center gap-2 text-sm">
                   <input
@@ -308,7 +308,7 @@ export default function ManageQuestions() {
                     <select
                       value={form.autoSource || 'none'}
                       onChange={(e) => setForm({ ...form, autoSource: e.target.value })}
-                      className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                      className="w-full bg-[#283335] border border-white/20 p-2 rounded"
                     >
                       <option value="none" className="bg-black text-white">
                         None (Manual Options)
@@ -330,7 +330,7 @@ export default function ManageQuestions() {
                           onChange={(e) =>
                             setForm({ ...form, options: e.target.value })
                           }
-                          className="w-full bg-white/10 border border-white/20 p-2 rounded"
+                          className="w-full bg-[#283335] border border-white/20 p-2 rounded"
                           placeholder="e.g. Option 1, Option 2, Option 3"
                         />
                       </>
@@ -390,7 +390,7 @@ export default function ManageQuestions() {
                     <Link
                       key={req._id}
                       href={`/admin/ycc/routes/${req._id}`}
-                      className="block p-3 hover:bg-white/10 transition rounded-lg"
+                      className="block p-3 hover:bg-[#283335] transition rounded-lg"
                     >
                       <div className="flex justify-between items-center">
                         <div>

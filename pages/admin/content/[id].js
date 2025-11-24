@@ -262,8 +262,6 @@ export default function EditContentPage() {
     );
 }
 
-/* ---------------------------------------------------------------------- */
-/* Shared Components */
 function Section({ icon, title, children }) {
     return (
         <motion.section
@@ -332,7 +330,7 @@ function Toolbar({ buttons }) {
                     key={i}
                     title={btn.title}
                     onClick={btn.action}
-                    className="p-2 rounded-md bg-white/10 hover:bg-white/20 transition"
+                    className="p-2 rounded-md bg-[#283335] hover:bg-white/20 transition"
                 >
                     {btn.icon}
                 </button>

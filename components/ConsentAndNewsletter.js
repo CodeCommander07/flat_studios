@@ -163,7 +163,7 @@ export default function ConsentAndNewsletter() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="w-full bg-white/10 border border-white/20 text-white p-2 rounded-lg placeholder-white/40 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              className="w-full bg-[#283335] border border-white/20 text-white p-2 rounded-lg placeholder-white/40 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
             />
 
             <input
@@ -171,7 +171,7 @@ export default function ConsentAndNewsletter() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Roblox Username"
-              className="w-full bg-white/10 border border-white/20 text-white p-2 rounded-lg placeholder-white/40 mb-3 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              className="w-full bg-[#283335] border border-white/20 text-white p-2 rounded-lg placeholder-white/40 mb-3 focus:outline-none focus:ring-1 focus:ring-blue-400"
             />
 
             {message && (
