@@ -156,7 +156,7 @@ export default function Navbar() {
       roleKey: 'dev',
       items: [
         { label: 'Dev Hub', href: '/dev/' },
-        { label: 'Authorised Leave', href: '/dev/leave' },
+        { label: 'Authorised Leave', href: '/me/leave' },
         { label: 'Tasks', href: '/dev/tasks' },
       ],
     },
