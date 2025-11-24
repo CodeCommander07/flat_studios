@@ -1,0 +1,22 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /me/
+Disallow: /account/
+Disallow: /api/
+Disallow: /staff/
+Disallow: /hub/
+Disallow: /ycc/admin/
+Disallow: /dev
+Allow: /
+
+# Prevent query spam indexing
+Disallow: /*?*
+Disallow: /*&*
+
+# Allow JS / CSS / assets (important for indexing & Ads)
+Allow: /_next/
+Allow: /cdn/
+Allow: /images/
+Allow: /assets/
+
+Sitemap: https://yapton.flatstudios.net/sitemap.xml

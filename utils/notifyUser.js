@@ -63,14 +63,11 @@ export async function notifyUser(user, notification, link = null) {
   </body>
 </html>`
 
-  const mailOptions = {
+  await mailHub.sendMail({
     from: '"Flat Studios" <notification@flatstudios.net>',
     to: u.email,
     subject: "New Notification",
     html,
-  };
-  await mailHub.sendMail(mailOptions);
-  console.log('Email sent successfully');
-
+  });
   return true;
 }
