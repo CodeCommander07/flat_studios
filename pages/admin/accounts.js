@@ -151,6 +151,7 @@ export default function AccountsPage() {
 
                             {[
                                 "All",
+                                "User",
                                 "Staff",
                                 "Operator",
                                 "Community-Director",
@@ -158,6 +159,7 @@ export default function AccountsPage() {
                                 "Operations-Manager",
                                 "Developer",
                                 "Web-Developer",
+                                "Owner",
                             ].map((role) => (
                                 <button
                                     key={role}
@@ -274,6 +276,7 @@ export default function AccountsPage() {
                                                                 }
                                                                 className="w-full bg-[#283335] p-2 rounded-lg border border-white/20 text-sm"
                                                             >
+                                                                <option className="bg-[#283335]" value="User">User</option>
                                                                 <option className="bg-[#283335]" value="Staff">Staff</option>
                                                                 <option className="bg-[#283335]" value="Operator">Operator</option>
                                                                 <option className="bg-[#283335]" value="Community-Director">Community Director</option>
@@ -281,6 +284,7 @@ export default function AccountsPage() {
                                                                 <option className="bg-[#283335]" value="Operations-Manager">Operations Manager</option>
                                                                 <option className="bg-[#283335]" value="Developer">Developer</option>
                                                                 <option className="bg-[#283335]" value="Web-Developer">Web Developer</option>
+                                                                <option className="bg-[#283335]" value="Owner">Owner</option>
                                                             </select>
                                                         </div>
 
