@@ -4,6 +4,7 @@ import { Save, X, Loader2 } from 'lucide-react';
 
 export default function AdminStopsPage() {
   const [stops, setStops] = useState([]);
+  const [searchStops, setSearchStops] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -49,16 +50,31 @@ export default function AdminStopsPage() {
   async function loadStops() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/ycc/stops${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+      const res = await fetch(`/api/ycc/stops`);
       const data = await res.json();
       const rawStops = Array.isArray(data?.stops) ? data.stops : Array.isArray(data) ? data : [];
       setStops(rawStops);
+      setSearchStops([]);
     } catch (e) {
       console.error('Failed to load stops:', e);
     } finally {
       setLoading(false);
     }
   }
+
+useEffect(() => {
+  if (!query) {
+    setSearchStops([]);
+    return;
+  }
+
+  const results = stops.filter((s) =>
+    `${s.name} ${s.town}`.toLowerCase().includes(query.toLowerCase())
+  );
+
+  setSearchStops(results);
+}, [query, stops]);
+
 
   async function loadRoutes() {
     try {
@@ -213,7 +229,7 @@ export default function AdminStopsPage() {
     return numbers.length ? numbers.join(', ') : '—';
   };
 
-  const sortedStops = [...stops]
+  const sortedStops = [...searchStops.length ? searchStops : stops]
     .filter((s) => {
       if (showAlerts) return s.closed === true;
       return true;
@@ -588,11 +604,12 @@ export default function AdminStopsPage() {
               <div className="flex items-center gap-2 text-gray-400">
                 <Loader2 className="animate-spin w-4 h-4" /> Loading stops...
               </div>
-            ) : stops.length === 0 ? (
+            ) : (query ? searchStops : sortedStops).length === 0 ? (
               <p className="text-gray-400 text-sm">No stops found.</p>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sortedStops.map((s) => (
+                {(query ? searchStops : sortedStops).map((s) => (
+
                   <div
                     key={s._id}
                     className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"

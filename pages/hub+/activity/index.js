@@ -17,19 +17,12 @@ const getStartOfWeek = () => {
   return monday;
 };
 
-
-// Helper: format float hours into h/m
-const formatTime = (hoursFloat) => {
-  const hours = Math.floor(hoursFloat);
-  const minutes = Math.round((hoursFloat - hours) * 60);
-  return `${hours}h ${minutes}m`;
-};
-
 export default function ActivityUsersList() {
   const [users, setUsers] = useState([]);
   const [weeklySummary, setWeeklySummary] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'user', direction: 'asc' });
   const router = useRouter();
 
   useEffect(() => {
@@ -65,7 +58,7 @@ export default function ActivityUsersList() {
               const logDate = new Date(log.date);
               if (logDate >= weekStart) {
                 totalWeekMinutes += mins;
-                totalShifts += 1; // ✅ count shift
+                totalShifts += 1;
               }
             }
           });
@@ -96,13 +89,67 @@ export default function ActivityUsersList() {
     fetchData();
   }, []);
 
+  const handleSort = (key) => {
+    setSortConfig((prev) =>
+      prev.key === key
+        ? { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
+        : { key, direction: 'asc' }
+    );
+  };
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return <span className="opacity-40 ml-1">↕</span>;
+    return (
+      <span className="ml-1">
+        {sortConfig.direction === 'asc' ? '↑' : '↓'}
+      </span>
+    );
+  };
+
+  const getWeekMinutesForUser = (userId) => {
+    const stats = weeklySummary[userId];
+    if (!stats?.week) return 0;
+    return stats.week.hours * 60 + stats.week.minutes;
+  };
+
+  const getShiftsForUser = (userId) => {
+    const stats = weeklySummary[userId];
+    return stats?.week?.shifts || 0;
+  };
+
+  // ✅ sort users based on sortConfig
+  const sortedUsers = [...users].sort((a, b) => {
+    if (sortConfig.key === 'user') {
+      const nameA = (a.username || '').toLowerCase();
+      const nameB = (b.username || '').toLowerCase();
+      if (nameA < nameB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (nameA > nameB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    }
+
+    if (sortConfig.key === 'time') {
+      const minsA = getWeekMinutesForUser(a.userId);
+      const minsB = getWeekMinutesForUser(b.userId);
+      return sortConfig.direction === 'asc' ? minsA - minsB : minsB - minsA;
+    }
+
+    if (sortConfig.key === 'shifts') {
+      const sA = getShiftsForUser(a.userId);
+      const sB = getShiftsForUser(b.userId);
+      return sortConfig.direction === 'asc' ? sA - sB : sB - sA;
+    }
+
+    return 0;
+  });
+
   if (loading) return <p className="text-white p-6">Loading users...</p>;
   if (error) return <p className="text-red-500 p-6">{error}</p>;
   if (!users.length) return <p className="text-white p-6">No users found.</p>;
 
   return (
     <main className="p-8 min-h-[calc(100vh-165px)] text-white">
-      <div className="flex items-center justify-between mb-6 bg-gray-800 rounded-xl p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 bg-[#283335] border border-white/10 rounded-xl p-4 shadow-md">
         <h1 className="text-3xl font-bold">Weekly In-Game Activity Overview</h1>
         <button
           onClick={() => router.push('/hub+/activity/reports')}
@@ -112,55 +159,89 @@ export default function ActivityUsersList() {
         </button>
       </div>
 
-      <table className="bg-[#283335] min-w-full rounded-xl overflow-hidden">
-        <thead>
-          <tr className="text-left text-gray-400 uppercase text-sm">
-            <th className="p-4">User</th>
-            <th className="p-4">Total In-Game Time</th>
-            <th className="p-4">Total Shifts</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => {
-            const stats = weeklySummary[user.userId] || {
-              total: { hours: 0, minutes: 0 },
-              week: { hours: 0, minutes: 0, shifts: 0 },
-            };
-
-            return (
-              <tr
-                key={user.userId}
-                onClick={() => router.push(`/hub+/activity/${user.userId}`)}
-                className="cursor-pointer border-b border-gray-700 hover:bg-gray-700 transition"
-                title={`Click to view ${user.username}'s logs`}
-              >
-                <td className="p-4 flex items-center gap-4">
-                  <Image
-                    src={user.profilePicture || '/default-avatar.png'}
-                    alt={`${user.username} avatar`}
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 rounded-full object-cover border border-gray-600"
-                  />
-                  <span className="font-semibold">
-                    {user.username} - {user.role}
-                  </span>
-                </td>
-
-                {/* Total In-Game Time */}
-                <td className="p-4 text-blue-300">
-                  {stats.week.hours}h {stats.week.minutes}m
-                </td>
-
-                {/* ✅ Total Shifts (count) */}
-                <td className="p-4 text-green-400">
-                  {stats.week.shifts ? stats.week.shifts : 0} {stats.week.shifts === 1 ? 'shift' : 'shifts'}
-                </td>
+      {/* Table wrapper */}
+      <div className="overflow-hidden border border-white/10 rounded-xl shadow-md">
+        <div className="overflow-auto max-h-[calc(100vh-230px)]">
+          <table className="min-w-full border-collapse">
+            <thead className="sticky top-0 bg-[#1F2729] text-gray-300 uppercase text-sm shadow-md z-10">
+              <tr>
+                <th
+                  className="p-4 text-left font-semibold cursor-pointer select-none"
+                  onClick={() => handleSort('user')}
+                >
+                  User {getSortIcon('user')}
+                </th>
+                <th
+                  className="p-4 text-left font-semibold cursor-pointer select-none"
+                  onClick={() => handleSort('time')}
+                >
+                  Weekly In-Game Time {getSortIcon('time')}
+                </th>
+                <th
+                  className="p-4 text-left font-semibold cursor-pointer select-none"
+                  onClick={() => handleSort('shifts')}
+                >
+                  Weekly Shifts {getSortIcon('shifts')}
+                </th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+
+            <tbody>
+              {sortedUsers.map((user, index) => {
+                const stats = weeklySummary[user.userId] || {
+                  total: { hours: 0, minutes: 0 },
+                  week: { hours: 0, minutes: 0, shifts: 0 },
+                };
+
+                return (
+                  <tr
+                    key={user.userId}
+                    onClick={() => router.push(`/hub+/activity/${user.userId}`)}
+                    className={`cursor-pointer transition-colors ${
+                      index % 2 === 0 ? 'bg-[#232C2E]' : 'bg-[#2C3A3D]'
+                    } hover:bg-[#324246]`}
+                    title={`Click to view ${user.username}'s logs`}
+                  >
+                    {/* User + avatar */}
+                    <td className="p-4 flex items-center gap-4">
+                      <Image
+                        src={user.profilePicture || '/default-avatar.png'}
+                        alt={`${user.username} avatar`}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 rounded-full object-cover border border-gray-600"
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-semibold">
+                          {user.username}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {user.role}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Weekly time */}
+                    <td className="p-4">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-blue-500 text-blue-300 bg-blue-500/10">
+                        {stats.week.hours}h {stats.week.minutes}m
+                      </span>
+                    </td>
+
+                    {/* Weekly shifts */}
+                    <td className="p-4">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-emerald-500 text-emerald-300 bg-emerald-500/10">
+                        {stats.week.shifts || 0}{' '}
+                        {stats.week.shifts === 1 ? 'shift' : 'shifts'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </main>
   );
 }
