@@ -17,14 +17,14 @@ export default function Document() {
         />
         <meta
           name="description"
-          content="FS Staff Hub - Your one-stop solution for managing staff activities and resources."
+          content="Yapton & District brought to you by FlatStudios. A fictional roblox game."
         />
         <meta name="theme-color" content="#283335" />
         <meta
           name="keywords"
           content="FS, Staff, Hub, Management, Community, Roblox"
         />
-        <meta name="author" content="FS Staff Team" />
+        <meta name="author" content="Flat Studios" />
 
         {/* GA4 Loader */}
         <Script
