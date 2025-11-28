@@ -120,11 +120,18 @@ export default function YCCIndex() {
         <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
           <h1 className="text-3xl font-bold">Yapton County Council</h1>
           <p className="text-sm text-white/60 mt-2">
-            Overview of total routes and routes per company
+            Yapton County Council is undergoing <span className='text-orange-400'>Maintenance</span>
+            {/* Overview of total routes and routes per company */}
+          </p>
+        </div>
+        <div className="text-center bg-[#283335]/95 border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-xl relative">
+          <p className="text-sm text-white/60 mt-2">
+            Estimated Completion Date: <span className='underline'>Wednesday 3rd December 2025</span>
+            {/* Overview of total routes and routes per company */}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="relative bg-[#283335]/95 backdrop-blur-md rounded-2xl shadow-lg flex flex-col justify-center p-5 overflow-hidden text-left">
             <div className="absolute left-0 top-0 h-full w-[6px] bg-gradient-to-b from-red-500 to-red-700 rounded-l-2xl" />
 
@@ -211,7 +218,7 @@ export default function YCCIndex() {
             </div>
           </div>
 
-        </div>
+        </div> */}
 
       </div>
     </main>

@@ -15,6 +15,7 @@ export default function AdminStopsPage() {
   const [showAlerts, setShowAlerts] = useState(false);
   const [operators, setOperators] = useState([]);
   const [tempStopSearch, setTempStopSearch] = useState('');
+  const [tempFacility, setTempFacility] = useState('');
 
   const [form, setForm] = useState({
     stopId: generateStopId(),
@@ -27,8 +28,9 @@ export default function AdminStopsPage() {
     routes: [],
     closed: false,
     closureReason: '',
-    tempStopId: '',
+    tempStopId: '',   // <-- SINGLE TEMP STOP ONLY
   });
+
 
   function generateStopId() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -62,18 +64,18 @@ export default function AdminStopsPage() {
     }
   }
 
-useEffect(() => {
-  if (!query) {
-    setSearchStops([]);
-    return;
-  }
+  useEffect(() => {
+    if (!query) {
+      setSearchStops([]);
+      return;
+    }
 
-  const results = stops.filter((s) =>
-    `${s.name} ${s.town}`.toLowerCase().includes(query.toLowerCase())
-  );
+    const results = stops.filter((s) =>
+      `${s.name} ${s.town}`.toLowerCase().includes(query.toLowerCase())
+    );
 
-  setSearchStops(results);
-}, [query, stops]);
+    setSearchStops(results);
+  }, [query, stops]);
 
 
   async function loadRoutes() {
@@ -193,24 +195,27 @@ useEffect(() => {
       notes: stop.notes || '',
       postcode: stop.postcode || '',
       routes: stop.routes || [],
-      closed: stop.closed || false,
+      closed: Boolean(stop.closed),
       closureReason: stop.closureReason || '',
-      tempStopId: stop.tempStopId || '',
+      tempStopId: stop.tempStopId || '',   // ONLY ONE
     });
   }
+
 
   async function handleDisruptionSave() {
     if (!editing) return;
     setSaving(true);
+
     await fetch(`/api/ycc/stops/${editing}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         closed: form.closed,
         closureReason: form.closureReason,
-        tempStopId: form.tempStopId,
+        tempStopId: form.tempStopId, // ONLY ONE
       }),
     });
+
     setSaving(false);
     alert('Disruption updated successfully.');
     await loadStops();
@@ -283,10 +288,9 @@ useEffect(() => {
                     }, 50);
                   }}
                   className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs border transition
-                    ${
-                      form.closed
-                        ? 'bg-red-500/20 border-red-500/40 text-red-300'
-                        : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300'
+                    ${form.closed
+                      ? 'bg-red-500/20 border-red-500/40 text-red-300'
+                      : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300'
                     }`}
                 >
                   {form.closed ? 'Closed / Disrupted' : 'Manage Closure'}
@@ -367,24 +371,48 @@ useEffect(() => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">
-                  Facilities (comma separated)
-                </label>
+                <label className="block text-sm mb-1">Facilities</label>
                 <input
-                  name="facilities"
-                  value={form.facilities.join(', ')}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      facilities: e.target.value
-                        .split(',')
-                        .map((x) => x.trim())
-                        .filter(Boolean),
-                    }))
-                  }
-                  placeholder="e.g. Shelter, Seating, Info Screen"
+                  value={tempFacility}
+                  onChange={(e) => setTempFacility(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                      e.preventDefault();
+                      const val = tempFacility.trim();
+                      if (!val) return;
+
+                      setForm((f) => ({
+                        ...f,
+                        facilities: [...f.facilities, val],
+                      }));
+
+                      setTempFacility('');
+                    }
+                  }}
+                  placeholder="Type and press Enter"
                   className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-green-500"
                 />
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {form.facilities.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center bg-white/10 border border-white/20 px-2 py-1 rounded-full text-sm"
+                    >
+                      {item}
+                      <button
+                        className="ml-2 text-red-400 hover:text-red-300"
+                        onClick={() =>
+                          setForm((f) => ({
+                            ...f,
+                            facilities: f.facilities.filter((_, i) => i !== idx),
+                          }))
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -406,21 +434,20 @@ useEffect(() => {
                 {routes.map((r) => {
                   const operatorNames = Array.isArray(r.operator)
                     ? r.operator
-                        .map((id) => operators.find((op) => op._id === id)?.operatorName)
-                        .filter(Boolean)
-                        .join(', ')
+                      .map((id) => operators.find((op) => op._id === id)?.operatorName)
+                      .filter(Boolean)
+                      .join(', ')
                     : operators.find((op) => op._id === r.operator)?.operatorName ||
-                      'Unknown Operator';
+                    'Unknown Operator';
 
                   return (
                     <div
                       key={r._id}
                       onClick={() => toggleRoute(r._id)}
-                      className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-[#283335] ${
-                        form.routes.includes(r._id)
-                          ? 'bg-green-600/40 border border-green-500/20'
-                          : ''
-                      }`}
+                      className={`cursor-pointer px-2 py-1 rounded text-sm hover:bg-[#283335] ${form.routes.includes(r._id)
+                        ? 'bg-green-600/40 border border-green-500/20'
+                        : ''
+                        }`}
                     >
                       {r.number} — {operatorNames}
                     </div>
@@ -430,10 +457,23 @@ useEffect(() => {
             </div>
 
             {editing && (
-              <div
-                className="mt-6 border-t border-white/10 pt-4"
-                id="disruptionSection"
-              >
+              <div className="mt-6 border-t border-white/10 pt-4" id="disruptionSection">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="closed"
+                    checked={form.closed}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        closed: e.target.checked,
+                        ...(e.target.checked ? {} : { closureReason: '', tempStopId: '' }),
+                      }))
+                    }
+                  />
+                  Mark stop as closed
+                </label>
+
                 {form.closed && (
                   <div className="mt-3 space-y-3">
                     <textarea
@@ -441,71 +481,65 @@ useEffect(() => {
                       name="closureReason"
                       value={form.closureReason}
                       onChange={handleChange}
-                      className="w-full p-2 rounded bg-[#283335] border border-white/20 focus:ring-2 focus:ring-yellow-400 text-sm"
+                      className="w-full p-2 rounded bg-[#283335] border border-white/20"
                       rows={3}
                     />
 
+                    {/* ONE TEMP STOP PICKER ONLY */}
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
-                        Temporary Replacement Stop
+                      <label className="block text-xs text-gray-400 mb-1">
+                        Replacement TEMP Stop
                       </label>
 
                       <input
                         type="text"
-                        placeholder="Search for a temporary stop..."
+                        placeholder="Search stop..."
                         value={tempStopSearch}
                         onChange={(e) => setTempStopSearch(e.target.value)}
-                        className="w-full p-3 rounded-lg bg-black/30 border border-white/15 focus:ring-2 focus:ring-yellow-400 outline-none text-sm placeholder:text-gray-500 text-white transition-all"
+                        className="w-full p-2 rounded bg-black/20 border border-white/20"
                       />
 
                       {tempStopSearch && (
-                        <div className="max-h-36 overflow-y-auto mt-2 bg-black/40 border border-white/10 rounded-lg p-2 scrollbar-thin scrollbar-thumb-white/10">
+                        <div className="mt-2 max-h-40 overflow-y-auto bg-black/30 border border-white/10 rounded-lg p-2">
                           {stops
-                            .filter((stop) =>
-                              `${stop.name}${stop.town ? ', ' + stop.town : ''}`
-                                .toLowerCase()
-                                .includes(tempStopSearch.toLowerCase())
+                            .filter((s) =>
+                              `${s.name} ${s.town}`.toLowerCase().includes(
+                                tempStopSearch.toLowerCase()
+                              )
                             )
-                            .map((stop) => (
+                            .map((s) => (
                               <div
-                                key={stop.stopId}
+                                key={s.stopId}
                                 onClick={() => {
-                                  setForm((f) => ({
-                                    ...f,
-                                    tempStopId: stop.stopId,
-                                  }));
+                                  setForm((f) => ({ ...f, tempStopId: s.stopId }));
                                   setTempStopSearch('');
                                 }}
-                                className={`cursor-pointer px-2 py-1.5 rounded text-sm hover:bg-[#283335] ${
-                                  form.tempStopId === stop.stopId
-                                    ? 'bg-yellow-600/40 border border-yellow-500/20'
-                                    : ''
-                                }`}
+                                className={`cursor-pointer px-2 py-1 rounded hover:bg-white/10 ${form.tempStopId === s.stopId ? 'bg-yellow-500/20' : ''
+                                  }`}
                               >
-                                {stop.name}
-                                {stop.town ? `, ${stop.town}` : ''}
+                                {s.name}
+                                {s.town ? `, ${s.town}` : ''}
                               </div>
                             ))}
                         </div>
                       )}
 
                       {form.tempStopId && (
-                        <div className="mt-2 bg-yellow-600/10 border border-yellow-500/30 text-yellow-300 rounded-md px-3 py-1.5 text-sm flex justify-between items-center">
-                          <span className="truncate">
+                        <div className="mt-2 bg-yellow-500/20 border border-yellow-500/40 rounded px-3 py-2 flex justify-between">
+                          <span>
                             {stops.find((s) => s.stopId === form.tempStopId)?.name}
                             {stops.find((s) => s.stopId === form.tempStopId)?.town
-                              ? `, ${
-                                  stops.find((s) => s.stopId === form.tempStopId).town
-                                }`
+                              ? `, ${stops.find((s) => s.stopId === form.tempStopId).town
+                              }`
                               : ''}
                           </span>
                           <button
-                            type="button"
                             onClick={() =>
-                              setForm((f) => ({ ...f, tempStopId: '' }))
+                              setForm((f) => ({
+                                ...f,
+                                tempStopId: '',
+                              }))
                             }
-                            className="ml-2 text-yellow-400 hover:text-red-400 transition"
-                            title="Clear temp stop"
                           >
                             ✕
                           </button>

@@ -44,28 +44,30 @@ export default function Home() {
 
       {!loading && logos.length > 0 && (
         <div className="w-full flex justify-center bg-[#283335] rounded-xl p-6">
-        <LogoLoop
-          logos={logos}
-          speed={20}
-          direction="left"
-          fadeOut
-          fadeOutColor="rgb(15,23,42)"
-          scaleOnHover
-          className="max-w-7xl"
-        />
+          <LogoLoop
+            logos={logos}
+            speed={20}
+            direction="left"
+            fadeOut
+            fadeOutColor="rgb(15,23,42)"
+            scaleOnHover
+            className="max-w-7xl"
+          />
         </div>
       )}
 
       {companies.map((company, idx) => (
         <div
           key={company._id || idx}
-          className={`flex flex-col md:flex-row ${
-            idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
-          } items-center gap-10 bg-[#283335] border border-white/20 backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
-        >
+          className={`flex flex-col md:flex-row ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
+            } items-center gap-10 bg-[#283335] border backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
+         style={{ borderColor: company.operatorColour }}>
           {/* 🖼️ Logo */}
           <div className="w-full md:w-1/2 flex justify-center">
-            <div className="w-64 h-64 bg-black/20 rounded-xl flex items-center justify-center overflow-hidden">
+            <div
+              className="w-64 h-64 bg-black/20 rounded-xl flex items-center justify-center overflow-hidden"
+             
+            >
               {company.logo ? (
                 <img
                   src={company.logo}
@@ -87,34 +89,34 @@ export default function Home() {
             {company.description && (
               <p className="text-white/80">{company.description}</p>
             )}
-<div className='grid grid-cols-3 sm:gid-cols-1 gap-2'>
+            <div className='grid grid-cols-3 sm:gid-cols-1 gap-2'>
               <a
                 href={`/ycc/operators/${company.slug}`}
                 className="text-center inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
               >
                 View Operator
               </a>
-            {company.discordInvite && (
-              <a
-              href={company.discordInvite}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-center inline-block mt-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold transition"
-              >
-                Discord
-              </a>
-            )}
+              {company.discordInvite && (
+                <a
+                  href={company.discordInvite}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-center inline-block mt-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold transition"
+                >
+                  Discord
+                </a>
+              )}
 
-            {company.robloxGroup && (
-              <a
-              href={company.robloxGroup}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-center inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
-              >
-                Roblox Group
-              </a>
-            )}
+              {company.robloxGroup && (
+                <a
+                  href={company.robloxGroup}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-center inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
+                >
+                  Roblox Group
+                </a>
+              )}
             </div>
           </div>
         </div>

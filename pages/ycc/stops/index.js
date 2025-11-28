@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Filter } from 'lucide-react';
+import AuthWrapper from '@/components/AuthWrapper';
 
 export default function StopsView() {
   const [stops, setStops] = useState([]);
@@ -136,6 +137,8 @@ export default function StopsView() {
       }));
 
   return (
+        <AuthWrapper requiredRole="devPhase">
+    
     <main className="px-6 py-10 text-white max-w-10xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <div>
@@ -273,7 +276,7 @@ export default function StopsView() {
                 )}
 
                 {isClosed && (
-                  <div className="mt-auto bg-red-500/20 border border-red-600/50 text-red-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
+                  <div className="mt-2 bg-red-500/20 border border-red-600/50 text-red-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
                     <AlertTriangle className="mt-0.5 flex-shrink-0 text-red-400" size={18} />
                     <div className="text-sm leading-snug">
                       <strong>Stop Closed:</strong>{' '}
@@ -283,7 +286,7 @@ export default function StopsView() {
                 )}
 
                 {!isClosed && hasDiversion && (
-                  <div className="mt-auto bg-yellow-400/20 border border-yellow-500/40 text-yellow-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
+                  <div className="mt-2 bg-yellow-400/20 border border-yellow-500/40 text-yellow-300 px-3 py-2 rounded-lg flex items-start gap-2 animate-pulse">
                     <AlertTriangle className="mt-0.5 flex-shrink-0" size={18} />
                     <div className="text-sm leading-snug">
                       <strong>Route Diversion Active:</strong>{' '}
@@ -303,5 +306,6 @@ export default function StopsView() {
         })}
       </div>
     </main>
+        </AuthWrapper>
   );
 }

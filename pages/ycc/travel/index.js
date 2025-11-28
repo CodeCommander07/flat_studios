@@ -14,6 +14,7 @@ import {
   MapPinPlus,
   MapPinX,
 } from 'lucide-react';
+import AuthWrapper from '@/components/AuthWrapper';
 
 // 🔍 Helper: what impact does a disruption have on this route's directions?
 function getRouteDirectionImpact(route, disruption) {
@@ -608,6 +609,7 @@ export default function TravelUpdatesPage() {
 
   // 🧭 Render
   return (
+    <AuthWrapper requiredRole="devPhase">
     <main className="text-white px-6 py-12">
       <div className="max-w-10xl mx-auto">
 
@@ -783,6 +785,6 @@ export default function TravelUpdatesPage() {
 `}</style>
 
     </main>
-
+    </AuthWrapper>
   );
 }

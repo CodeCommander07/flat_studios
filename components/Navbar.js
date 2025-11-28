@@ -100,9 +100,9 @@ export default function Navbar() {
       id:2,
       items: [
         { label: 'YCC Home', href: '/ycc/' },
-        { label: 'Travel Updates', href: '/ycc/travel' },
-        { label: 'Stops', href: '/ycc/stops/' },
-        { label: 'Routes', href: '/ycc/routes/' },
+        // { label: 'Travel Updates', href: '/ycc/travel' },
+        // { label: 'Stops', href: '/ycc/stops/' },
+        // { label: 'Routes', href: '/ycc/routes/' },
         { label: 'Route Editor', href: '/ycc/routes/request', roleKey: 'Operator' },
       ],
     },

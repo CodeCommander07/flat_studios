@@ -45,42 +45,42 @@ export default async function handler(req, res) {
     });
 
     // If disruptions exist, override
-    if (enriched.length > 0) {
-      let message;
+    // if (enriched.length > 0) {
+    //   let message;
 
-      if (enriched.length === 1) {
-        const d = enriched[0];
-        const routeCount = d.inferredRoutes.length;
-        message = `${d.incidentName} – affecting ${routeCount} route${
-          routeCount === 1 ? "" : "s"
-        }`;
-      } else {
-        const totalRoutes = new Set();
-        enriched.forEach((d) =>
-          d.inferredRoutes.forEach((r) => totalRoutes.add(r))
-        );
+    //   if (enriched.length === 1) {
+    //     const d = enriched[0];
+    //     const routeCount = d.inferredRoutes.length;
+    //     message = `${d.incidentName} – affecting ${routeCount} route${
+    //       routeCount === 1 ? "" : "s"
+    //     }`;
+    //   } else {
+    //     const totalRoutes = new Set();
+    //     enriched.forEach((d) =>
+    //       d.inferredRoutes.forEach((r) => totalRoutes.add(r))
+    //     );
 
-        message = `${enriched.length} active disruptions affecting ${totalRoutes.size} route${
-          totalRoutes.size === 1 ? "" : "s"
-        }`;
-      }
+    //     message = `${enriched.length} active disruptions affecting ${totalRoutes.size} route${
+    //       totalRoutes.size === 1 ? "" : "s"
+    //     }`;
+    //   }
 
-      return res.status(200).json({
-        mode: "single-disruption",
-        displayMode: "stack",
-        banners: [
-          {
-            active: true,
-            message,
-            icon: "octagon-alert",
-            linkText: "View updates",
-            linkUrl: "/ycc/travel",
-            bgColor: "linear-gradient(90deg, #b5121b 0%, #c41e25 100%)",
-            textColor: "#ffffff",
-          },
-        ],
-      });
-    }
+    //   return res.status(200).json({
+    //     mode: "single-disruption",
+    //     displayMode: "stack",
+    //     banners: [
+    //       {
+    //         active: true,
+    //         message,
+    //         icon: "octagon-alert",
+    //         linkText: "View updates",
+    //         linkUrl: "/ycc/travel",
+    //         bgColor: "linear-gradient(90deg, #b5121b 0%, #c41e25 100%)",
+    //         textColor: "#ffffff",
+    //       },
+    //     ],
+    //   });
+    // }
 
     // No disruption → load stored configuration
     const config = await BannerConfig.findOne();

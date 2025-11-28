@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
+import AuthWrapper from '@/components/AuthWrapper';
 
 export default function RoutesView() {
   const [routes, setRoutes] = useState([]);
@@ -171,6 +172,7 @@ export default function RoutesView() {
   };
 
   return (
+        <AuthWrapper requiredRole="devPhase">
     <main className="p-6 text-white">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <h1 className="text-3xl font-bold">Operator Routes</h1>
@@ -429,5 +431,6 @@ export default function RoutesView() {
         })}
       </div>
     </main>
+        </AuthWrapper>
   );
 }

@@ -6,501 +6,693 @@ import axios from 'axios';
 import Link from 'next/link';
 import {
   AlertTriangle,
-  MapPin,
   MapPinOff,
+  MapPin,
+  MapPinPlus,
   MapPinX,
   Route as RouteIcon,
+  ArrowLeft,
 } from 'lucide-react';
+import AuthWrapper from '@/components/AuthWrapper';
 
-function StopsListWithDiversion({
-  stopList,
-  disruption,
-  stops,
-  highlightStopId,
-  operatorBrandColorForStop
-}) {
-  const affectedStops = new Set(disruption?.affectedStops || []);
+/* ------------------- STOP LOOKUP HELPERS ------------------- */
 
-  const tempMap = {};
-  (disruption?.tempStops || []).forEach((pair) => {
-    if (pair?.closed && pair?.temp) {
-      tempMap[pair.closed] = pair.temp;
-    }
+// Build lookup maps once so we don't keep linear-searching `stops`
+function buildStopLookup(stops) {
+  const byStopId = new Map();
+  const byMongoId = new Map();
+
+  (stops || []).forEach((s) => {
+    if (s.stopId) byStopId.set(String(s.stopId), s);
+    if (s._id) byMongoId.set(String(s._id), s);
   });
 
-  const findStop = (sid) =>
-    stops.find((s) => String(s.stopId) === String(sid)) ||
-    stops.find((s) => String(s._id) === String(sid));
+  return { byStopId, byMongoId };
+}
 
-  const getStopLabel = (sid) => {
-    const s = findStop(sid);
-    if (!s) return sid;
-    return `${s.name}${s.town ? ', ' + s.town : ''}`;
-  };
+// Given "whatever ID" (stopId or _id), get the stop
+function getStopByAnyId(lookup, sid) {
+  if (!lookup || sid == null) return null;
+  const key = String(sid);
+  return lookup.byStopId.get(key) || lookup.byMongoId.get(key) || null;
+}
 
-  const rows = [];
+// Canonicalise any stop reference to its stopId string
+function canonicalStopId(lookup, sid) {
+  if (!sid) return null;
 
-  for (let idx = 0; idx < stopList.length; idx++) {
-    const stopId = stopList[idx];
-    const s = findStop(stopId);
-    const label = getStopLabel(stopId);
-    const tempStopId = tempMap[stopId];
-    const tempLabel = tempStopId ? getStopLabel(tempStopId) : null;
+  const key = String(sid);
 
-    const isClosed = s?.closed;
-    const isExplicitAffected = affectedStops.has(stopId);
-    const isHighlighted = highlightStopId && String(stopId) === String(highlightStopId);
+  // DIRECT: stopId or mongoId
+  const found =
+    lookup.byStopId.get(key) || lookup.byMongoId.get(key);
 
-    const icon = isClosed ? (
-      <MapPinOff className="w-5 h-5 text-red-400" />
-    ) : isExplicitAffected ? (
-      <MapPinX className="w-5 h-5 text-yellow-300" />
-    ) : (
-      <MapPin className="w-5 h-5 text-green-300" />
-    );
+  if (found) return String(found.stopId);
 
-    rows.push(
-      <tr
-        key={`stop-${idx}`}
-        className={`h-[38px]`}
-      >
-        <td className="relative w-[40px] p-0">
-          {idx > 0 && (
-            <div className="absolute top-0 bottom-[18px] w-[2px] bg-green-400 left-[10px]" />
-          )}
+  // 🔥 FIX: if sid is something weird (ObjectId, object, or mixed type)
+  // try resolving by ANY field
+  for (const s of lookup.byStopId.values()) {
+    if (
+      String(s._id) === key ||
+      String(s.stopId) === key ||
+      String(s.tempStopId) === key
+    ) {
+      return String(s.stopId);
+    }
+  }
 
-          <div
-            className="absolute top-1/2 -translate-y-1/2 w-[22px] h-[22px] rounded-full flex items-center justify-center"
-            style={{
-              background: operatorBrandColorForStop(s?.stopId) || '#283335'
-            }}
-          >
+  // fallback to raw
+  return key;
+}
+/* ------------------- CLOSED FLAG NORMALISER ------------------- */
 
-            {icon}
-          </div>
+function isClosedFlag(raw) {
+  // raw can be the whole stop doc or just the value
+  const value = raw && typeof raw === 'object' ? raw.closed : raw;
 
-          {idx < stopList.length - 1 && (
-            <div className="absolute top-[26px] bottom-0 w-[2px] bg-green-400 left-[10px]" />
-          )}
+  if (typeof value === 'boolean') return value;
+
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    if (['true', '1', 'yes', 'y', 'closed'].includes(v)) return true;
+    if (['false', '0', 'no', 'n', 'open'].includes(v)) return false;
+    // unknown string → treat as open by default
+    return false;
+  }
+
+  if (typeof value === 'number') {
+    return value !== 0;
+  }
+
+  // undefined / null / anything else → open
+  return false;
+}
+
+/* ------------------- DIVERSION BLOCK PIECES ------------------- */
+
+function DiversionBlockStart({ label, tempLabel, isFirst }) {
+  return (
+    <>
+      {!isFirst && (
+        <tr className="p-0 m-0 h-[0px] leading-none">
+          <td className="relative w-[40px] p-0 m-0">
+            {/* Top yellow horizontal */}
+            <div className="absolute left-[10px] top-0 w-[22px] h-[3px] bg-yellow-300" />
+            {/* Continue main route line */}
+            <div className="absolute left-[10px] top-0 bottom-0 w-[2px] bg-green-400/40" />
+          </td>
+          <td />
+        </tr>
+      )}
+
+      {/* MAIN ROW FOR FIRST CLOSED / DIVERTED STOP */}
+      <tr className="p-0 m-0 h-[38px] leading-none">
+        <td className="relative w-[40px] p-0 m-0">
+          {/* Red main line */}
+          <div className="absolute left-[10px] top-0 bottom-0 w-[2px] bg-red-400" />
+          {/* Yellow diversion vertical */}
+          <div className="absolute left-[30px] top-0 bottom-0 w-[2px] bg-yellow-300" />
+
+          {/* Closed + temp icons – bg matches panel */}
+          <MapPinOff className="absolute left-[1px] bg-[#1f2729] top-1/2 -translate-y-1/2 w-5 h-5 text-red-400 rounded-md" />
+          <MapPinPlus className="absolute left-[20px] bg-[#1f2729] top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400 rounded-md" />
         </td>
 
-        <td className={`pl-2 stop-text  ${isHighlighted ? 'bg-blue-400/10 rounded-xl' : ''}`}>
-          {s ? (
-            <Link
-              href={`/ycc/stops/${s._id}`}
-              className={`text-sm underline-offset-2 ${isClosed
-                ? 'text-gray-500 line-through opacity-60 hover:opacity-80 hover:line-through'
-                : isExplicitAffected
-                  ? 'text-yellow-200 hover:underline'
-                  : 'text-white hover:underline'
-                }`}
-            >
-              {label}
-            </Link>
-          ) : (
-            <span className="text-sm text-white/80">{label}</span>
-          )}
-
-          {tempLabel && (() => {
-            const tempStop = findStop(tempStopId);
-            return (
-              <p className="text-yellow-300 text-xs mt-1">
-                Temporary stop:{' '}
-                {tempStop ? (
-                  <Link
-                    href={`/ycc/stops/${tempStop._id}`}
-                    className="hover:text-yellow-200 hover:underline underline-offset-2"
-                  >
-                    {tempLabel}
-                  </Link>
-                ) : (
-                  tempLabel
-                )}
-              </p>
-            );
-          })()}
+        <td className="p-0 pl-2">
+          <span className="text-gray-500 text-sm line-through opacity-60">
+            {label}
+          </span>
+          <span className="ml-2 text-yellow-300 text-sm font-semibold">
+            {tempLabel}
+          </span>
         </td>
       </tr>
-    );
-  }
+    </>
+  );
+}
+
+function DiversionBlockMiddle({ label, tempLabel }) {
+  return (
+    <tr className="p-0 m-0 h-[32px] leading-none">
+      <td className="relative w-[40px] p-0 m-0">
+        <div className="absolute left-[10px] top-0 bottom-0 w-[2px] bg-red-400" />
+        <div className="absolute left-[30px] top-0 bottom-0 w-[2px] bg-yellow-300" />
+
+        <MapPinOff className="absolute left-[1px] bg-[#1f2729] top-1/2 -translate-y-1/2 w-5 h-5 text-red-400 rounded-md" />
+        <MapPinPlus className="absolute left-[21px] bg-[#1f2729] top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400 rounded-md" />
+      </td>
+
+      <td className="p-0 pl-2">
+        <div className="flex items-center gap-2">
+          <span className="text-gray-500 text-sm line-through opacity-60">
+            {label}
+          </span>
+          <span className="text-yellow-300 text-sm font-semibold">
+            {tempLabel}
+          </span>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function DiversionBlockEnd({ isLast }) {
+  if (isLast) return null;
+
+  return (
+    <tr className="p-0 m-0 h-[0px] leading-none">
+      <td className="relative w-[40px] p-0 m-0">
+        {/* Bottom yellow horizontal */}
+        <div className="absolute left-[10px] bottom-0 w-[22px] h-[3px] bg-yellow-300" />
+        {/* Restore main route line */}
+        <div className="absolute left-[10px] top-0 bottom-0 w-[2px] bg-green-400/40" />
+      </td>
+      <td />
+    </tr>
+  );
+}
+
+/* ------------------- STOPS LIST WITH DIVERSION ------------------- */
+/**
+ * disruptionForRoute shape:
+ * {
+ *   affectedStops: [stopKey, ...], // canonical stopIds
+ *   tempStops: [{ closed, temp }, ...] // closed & temp = canonical stopIds
+ * }
+ */
+function StopsListWithDiversion({ stopList, disruptionForRoute, stops, stopLookup }) {
+  const lookup = stopLookup || buildStopLookup(stops);
+  const closedId = disruptionForRoute?.affectedStops?.[0] || null;
+  const tempId = disruptionForRoute?.tempStops?.[0]?.temp || null;
 
   return (
     <table className="w-full">
-      <tbody>{rows}</tbody>
+      <tbody>
+        {stopList.map((sid, i) => {
+          const cid = canonicalStopId(lookup, sid);
+          const stop = lookup.byStopId.get(cid);
+          const label = stop ? `${stop.name}, ${stop.town}` : cid;
+
+          const isClosed = cid === closedId;
+          const replacement = tempId
+            ? lookup.byStopId.get(tempId)
+            : null;
+
+          const icon = isClosed
+            ? <MapPinOff className="w-5 h-5 text-red-400" />
+            : <MapPin className="w-5 h-5 text-green-300" />;
+
+          return (
+            <tr key={i} className="h-[38px]">
+              <td className="relative w-[40px] p-0">
+                {/* Line */}
+                {i > 0 && <div className="absolute top-0 bottom-[18px] w-[2px] bg-green-400 left-[10px]" />}
+                {i < stopList.length - 1 && <div className="absolute top-[26px] bottom-0 w-[2px] bg-green-400 left-[10px]" />}
+
+                {/* Icon bubble */}
+                <div className="absolute top-1/2 -translate-y-1/2 w-[22px] h-[22px] bg-[#1f2729] rounded-full flex items-center justify-center left-0">
+                  {icon}
+                </div>
+              </td>
+
+              <td className="pl-2 stop-text">
+                <Link
+                  href={stop ? `/ycc/stops/${stop._id}` : '#'}
+                  className={`text-sm hover:underline underline-offset-2 ${isClosed ? 'text-red-300' : 'text-white'}`}
+                >
+                  {label}
+                </Link>
+
+                {isClosed && replacement && (
+                  <p className="text-yellow-300 text-xs mt-1">
+                    Closed — temporary stop: {replacement.name}, {replacement.town}
+                  </p>
+                )}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
     </table>
   );
 }
 
-const formatTimeAgo = (date) => {
-  if (!date) return 'Unknown';
+/* ------------------- HELPERS ------------------- */
 
-  const diff = Date.now() - new Date(date).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
+function routeIsAffectedByTravel(route, disruption) {
+  if (!route || !disruption) return false;
 
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  const routeIds = [route._id, route.routeId].filter(Boolean).map(String);
 
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-};
+  const byRoute = (disruption.affectedRoutes || []).some((rid) =>
+    routeIds.includes(String(rid))
+  );
+  if (byRoute) return true;
 
+  // If disruption is by stop-only, the detail panel handles that via blocks.
+  return (disruption.affectedStops || []).length > 0;
+}
+
+/**
+ * Build per-route disruption info (travel + route.diversion)
+ * Returns { affectedStops, tempStops } with canonical stopIds.
+ */
+function buildRouteDisruptionForRoute(route, disruption, stopLookup) {
+  if (!disruption) return null;
+
+  // Only ONE affected closed stop (from the stop itself)
+  const closedCid = canonicalStopId(stopLookup, disruption.closedStopId);
+
+  // Only ONE temp stop
+  const tempCid = disruption.tempStopId
+    ? canonicalStopId(stopLookup, disruption.tempStopId)
+    : null;
+
+  // Only treat stops THAT ARE ON THIS ROUTE as affected
+  const seq = [
+    route.origin,
+    ...(route.stops?.forward || []),
+    route.destination,
+    route.destination,
+    ...(route.stops?.backward || []),
+    route.origin,
+  ]
+    .filter(Boolean)
+    .map((sid) => canonicalStopId(stopLookup, sid));
+
+  if (!seq.includes(closedCid)) return null;
+
+  const affectedStops = [closedCid];
+  const tempStops = tempCid ? [{ closed: closedCid, temp: tempCid }] : [];
+
+  return {
+    affectedStops,
+    tempStops,
+  };
+}
+
+/* ------------------- RIGHT PANEL: LIVE IMPACT (PER-ROUTE) ------------------- */
+
+function AffectedRoutesPanel({
+  disruption,
+  routes,
+  stops,
+  inferredRoutes,
+  lastUpdate,
+  selectedRouteId,
+  selectedDirection,
+}) {
+  const [activeId, setActiveId] = useState(null);
+  const stopLookup = useMemo(() => buildStopLookup(stops), [stops]);
+
+  const routeDirections = useMemo(() => {
+    if (!routes?.length || !inferredRoutes?.length) return [];
+
+    const dirs = [];
+
+    inferredRoutes.forEach((rid) => {
+      const route =
+        routes.find((r) => String(r._id) === String(rid)) ||
+        routes.find((r) => String(r.routeId) === String(rid));
+      if (!route) return;
+
+      const addDir = (direction, label) => {
+        const key = `${route._id}-${direction}`;
+
+        const seq =
+          direction === 'forward'
+            ? [
+                route.origin,
+                ...(route.stops?.forward || []),
+                route.destination,
+              ]
+            : [
+                route.destination,
+                ...(route.stops?.backward || []),
+                route.origin,
+              ];
+
+        if (!seq.length) return;
+
+        const routeDisruptionForUI = buildRouteDisruptionForRoute(
+          route,
+          disruption,
+          stopLookup
+        );
+
+        dirs.push({
+          id: key,
+          route,
+          direction,
+          label,
+          stopList: seq,
+          routeDisruptionForUI,
+        });
+      };
+
+      addDir('forward', 'Outbound');
+      addDir('backward', 'Inbound');
+    });
+
+    return dirs;
+  }, [inferredRoutes, routes, disruption, stopLookup]);
+
+  // Sync active tab with clicked route/direction
+  useEffect(() => {
+    if (!routeDirections.length || !selectedRouteId) return;
+    const dir = selectedDirection || 'forward';
+    const targetId = `${selectedRouteId}-${dir}`;
+    const exists = routeDirections.some((rd) => rd.id === targetId);
+    if (exists) setActiveId(targetId);
+  }, [routeDirections, selectedRouteId, selectedDirection]);
+
+  // Ensure active tab stays valid
+  useEffect(() => {
+    if (routeDirections.length && !activeId) {
+      setActiveId(routeDirections[0].id);
+    }
+    if (
+      routeDirections.length &&
+      activeId &&
+      !routeDirections.some((r) => r.id === activeId)
+    ) {
+      setActiveId(routeDirections[0].id);
+    }
+  }, [routeDirections, activeId]);
+
+  if (!routeDirections.length) return null;
+
+  const active =
+    routeDirections.find((r) => r.id === activeId) || routeDirections[0];
+
+  return (
+    <div className="bg-[#283335] border border-white/20 rounded-b-2xl rounded-r-2xl p-4 backdrop-blur-md shadow-lg">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-semibold">Live route impact</h2>
+        <p className="text-xs text-white/50">
+          Updated: {lastUpdate?.toLocaleTimeString()}
+        </p>
+      </div>
+
+      {/* Info line */}
+      {!disruption && !active.route.diversion?.active ? (
+        <p className="text-xs text-white/50 mb-3">
+          No live disruptions reported – showing normal routes serving this stop.
+        </p>
+      ) : (
+        <p className="text-xs text-yellow-200 mb-3 flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3" />
+          One or more routes serving this stop are currently affected by a
+          disruption.
+        </p>
+      )}
+
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {routeDirections.map((rd) => {
+          const isActive = rd.id === active.id;
+          return (
+            <button
+              key={rd.id}
+              onClick={() => setActiveId(rd.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                isActive
+                  ? 'bg-white text-black border-white/80'
+                  : 'bg-white/5 text-white/70 border-white/20 hover:bg-[#283335]'
+              }`}
+            >
+              {rd.route.number || rd.route.routeId || 'Route'}{' '}
+              <span className="opacity-70">({rd.label})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Stops list */}
+      <div className="mt-2">
+        <p className="text-xs text-white/60 mb-2">
+          Showing{' '}
+          <span className="font-semibold">
+            {active.route.number || active.route.routeId}
+          </span>{' '}
+          – {active.label}
+        </p>
+
+        <div className="relative max-h-[460px] overflow-y-auto rounded-xl scrollbar-none scroll-smooth pr-2 bg-black/20 border border-white/10 p-3">
+          <StopsListWithDiversion
+            stopList={active.stopList}
+            disruptionForRoute={active.routeDisruptionForUI}
+            stops={stops}
+            stopLookup={stopLookup}
+            direction={active.direction}
+          />
+        </div>
+      </div>
+
+      <style jsx>{`
+        .scrollbar-none::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-none {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ------------------- MAIN STOP DETAIL PAGE ------------------- */
 
 export default function StopDetailPage() {
   const router = useRouter();
   const { id } = router.query;
 
   const [stop, setStop] = useState(null);
-  const [mergeGroup, setMergeGroup] = useState([]);
   const [routes, setRoutes] = useState([]);
-  const [allStops, setAllStops] = useState([]);
+  const [stops, setStops] = useState([]);
+  const [operators, setOperators] = useState([]);
+  const [disruptions, setDisruptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mergeMeta, setMergeMeta] = useState(null);
-  const [allOperators, setAllOperators] = useState([]);
-  const [operatorSort, setOperatorSort] = useState('az');
-  const [activeOperator, setActiveOperator] = useState(null);
-  const [selectedStopId, setSelectedStopId] = useState(null); // physical stopId
-  const [activeRouteId, setActiveRouteId] = useState(null);   // route _id
-  const [activeDirection, setActiveDirection] = useState('forward'); // outbound / inbound
-  const [activeTab, setActiveTab] = useState('routes');
+  const [liveUpdatedAt, setLiveUpdatedAt] = useState(new Date());
+  const [openRouteId, setOpenRouteId] = useState(null); // which route is expanded
+  const [openDirection, setOpenDirection] = useState('forward'); // outbound/inbound for expanded + live panel
 
-  // 🧩 Fetch stop + merge group
-  const fetchStop = async () => {
+  // fetch stop + routes list + stops + disruptions + operators
+  useEffect(() => {
     if (!id) return;
-    try {
-      const res = await axios.get(`/api/ycc/stops/${id}`);
-      const stopData = res.data.stop;
-      const group = res.data.mergeGroup || [];
-      const meta = res.data.mergeMeta || null;
 
-      setStop(stopData);
-      setMergeGroup(group);
-      setMergeMeta(meta);
-      setSelectedStopId(stopData.stopId);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to fetch stop.');
-    } finally {
-      setLoading(false);
+    async function loadData() {
+      try {
+        const [stopRes, routesRes, stopListRes, disRes, opRes] =
+          await Promise.all([
+            axios.get(`/api/ycc/stops/${id}`),
+            axios.get('/api/ycc/routes'),
+            axios.get('/api/ycc/stops'),
+            axios.get('/api/ycc/travel'),
+            axios.get('/api/ycc/operators/active'),
+          ]);
+
+        setStop(stopRes.data.stop);
+        setRoutes(routesRes.data.routes || []);
+        setStops(stopListRes.data.stops || []);
+        setDisruptions(disRes.data.disruptions || []);
+        setOperators(opRes.data.submissions || []);
+      } catch (err) {
+        console.error('Error loading stop details:', err);
+        setError('Failed to load stop details.');
+      } finally {
+        setLoading(false);
+      }
     }
-  };
 
-  // 🚌 Fetch routes
-  const fetchRoutes = async () => {
-    try {
-      const res = await axios.get('/api/ycc/routes');
-      setRoutes(res.data.routes || []);
-    } catch (err) {
-      console.error('Failed to fetch routes', err);
-    }
-  };
-
-  // 🚏 Fetch ALL stops (for labels in diagram)
-  const fetchAllStops = async () => {
-    try {
-      const res = await axios.get('/api/ycc/stops');
-      setAllStops(res.data.stops || []);
-    } catch (err) {
-      console.error('Failed to fetch stops list', err);
-    }
-  };
-
-  const fetchOperators = async () => {
-    try {
-      const res = await axios.get('/api/ycc/operators/active');
-      setAllOperators(res.data.submissions || []);
-    } catch { }
-  };
-
-  useEffect(() => {
-    fetchRoutes();
-    fetchAllStops();
-    fetchOperators();
-  }, []);
-
-  useEffect(() => {
-    fetchStop();
+    loadData();
   }, [id]);
 
-  // 🔗 Cluster members (main + merged)
-  const clusterMembers = useMemo(
-    () => (stop ? [stop, ...mergeGroup] : []),
-    [stop, mergeGroup]
-  );
-
-  // Ensure we always have a selected stop once data arrives
+  // auto-refresh disruptions every 60s
   useEffect(() => {
-    if (clusterMembers.length && !selectedStopId) {
-      setSelectedStopId(clusterMembers[0].stopId);
-    }
-  }, [clusterMembers, selectedStopId]);
-
-  const clusterStopIds = useMemo(
-    () => clusterMembers.map((s) => s.stopId),
-    [clusterMembers]
-  );
-
-  const operatorBrandColorForStop = (stopId) => {
-    const route = routes.find((r) =>
-      [
-        r.origin,
-        ...(r.stops?.forward || []),
-        r.destination,
-        r.destination,
-        ...(r.stops?.backward || []),
-        r.origin,
-      ].includes(stopId)
-    );
-
-    if (!route) return null;
-
-    const op = allOperators?.find((o) =>
-      (Array.isArray(route.operator) ? route.operator : [route.operator])
-        .includes(o._id)
-    );
-
-    return op?.brandingColor || null;
-  };
-
-  const exportOperatorRoutes = (op) => {
-    const csv = [
-      'Route,Direction,Stops',
-      ...op.routes.map((r) =>
-        `${r.number},Outbound,"${r.stops.forward.join(' > ')}"`
-      )
-    ].join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${op.id}-timetable.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-
-
-  // All routes serving ANY stop in the group
-  const servingRoutes = useMemo(() => {
-    if (!clusterStopIds.length || !routes.length) return [];
-    return routes.filter((r) => {
-      const allStopsInRoute = [
-        ...(r.stops?.forward || []),
-        ...(r.stops?.backward || []),
-        r.origin,
-        r.destination,
-      ].filter(Boolean);
-      return allStopsInRoute.some((sid) => clusterStopIds.includes(sid));
-    });
-  }, [routes, clusterStopIds]);
-
-  const operatorMap = {};
-
-  servingRoutes.forEach((route) => {
-    const opIds = Array.isArray(route.operator)
-      ? route.operator
-      : [route.operator];
-
-    opIds.forEach((id) => {
-      if (!operatorMap[id]) operatorMap[id] = { id, routes: [] };
-      operatorMap[id].routes.push(route);
-    });
-  });
-
-  let sortedOperators = Object.values(operatorMap);
-
-  sortedOperators.sort((a, b) => {
-    switch (operatorSort) {
-      case 'az':
-        return (allOperators?.find(o => o._id === a.id)?.operatorName || '')
-          .localeCompare(allOperators?.find(o => o._id === b.id)?.operatorName || '');
-      case 'za':
-        return (allOperators?.find(o => o._id === b.id)?.operatorName || '')
-          .localeCompare(allOperators?.find(o => o._id === a.id)?.operatorName || '');
-      case 'routesAsc':
-        return a.routes.length - b.routes.length;
-      case 'routesDesc':
-        return b.routes.length - a.routes.length;
-      default:
-        return 0;
-    }
-  });
-
-  // All routes that serve the *selected physical stop*
-  const routesAtSelectedStop = useMemo(() => {
-    if (!selectedStopId || !servingRoutes.length) return [];
-
-    let r = servingRoutes.filter((route) => {
-      const seq = [
-        route.origin,
-        ...(route.stops?.forward || []),
-        route.destination,
-        route.destination,
-        ...(route.stops?.backward || []),
-        route.origin,
-      ].filter(Boolean);
-
-      return seq.some((sid) => String(sid) === String(selectedStopId));
-    });
-
-    if (activeOperator) {
-      r = r.filter((route) =>
-        (Array.isArray(route.operator) ? route.operator : [route.operator])
-          .includes(activeOperator)
-      );
-    }
-
-    return r;
-  }, [selectedStopId, servingRoutes, activeOperator]);
-
-
-  // Default active route – prefer one that actually stops at the selected physical stop
-  useEffect(() => {
-    if (routesAtSelectedStop.length) {
-      if (!activeRouteId || !routesAtSelectedStop.some((r) => r._id === activeRouteId)) {
-        setActiveRouteId(routesAtSelectedStop[0]._id);
+    const interval = setInterval(async () => {
+      try {
+        const res = await axios.get('/api/ycc/travel');
+        setDisruptions(res.data.disruptions || []);
+        setLiveUpdatedAt(new Date());
+      } catch (err) {
+        console.error('Auto-refresh failed:', err);
       }
-    } else if (servingRoutes.length && !activeRouteId) {
-      setActiveRouteId(servingRoutes[0]._id);
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const stopLookup = useMemo(() => buildStopLookup(stops), [stops]);
+
+  // Routes that serve this stop
+  const routesAtStop = useMemo(() => {
+    if (!stop || !routes.length) return [];
+    const idVal = String(stop.stopId);
+
+    return routes.filter((r) => {
+      const seq = [
+        r.origin,
+        ...(r.stops?.forward || []),
+        r.destination,
+        r.destination,
+        ...(r.stops?.backward || []),
+        r.origin,
+      ]
+        .filter(Boolean)
+        .map((sid) => canonicalStopId(stopLookup, sid));
+
+      return seq.includes(idVal);
+    });
+  }, [routes, stop, stopLookup]);
+
+  // Operators that serve this stop
+  const operatorsAtStop = useMemo(() => {
+    if (!routesAtStop.length || !operators.length) return [];
+
+    const opIds = new Set();
+    routesAtStop.forEach((r) => {
+      const ids = Array.isArray(r.operator) ? r.operator : [r.operator];
+      ids.filter(Boolean).forEach((id) => opIds.add(String(id)));
+    });
+
+    return operators.filter((op) => opIds.has(String(op._id)));
+  }, [routesAtStop, operators]);
+
+  // pick the "current" travel disruption affecting this stop (if any)
+const disruption = useMemo(() => {
+  if (!stop) return null;
+
+  if (!stop.closed) return null;
+
+  return {
+    closedStopId: stop.stopId,
+    tempStopId: stop.tempStopId || null,
+  };
+}, [stop]);
+
+  // stopId → Set(routeId)
+  const stopToRoutesMap = useMemo(() => {
+    const map = {};
+    routes.forEach((r) => {
+      const allStops = [
+        r.origin,
+        ...(r.stops?.forward || []),
+        r.destination,
+        r.destination,
+        ...(r.stops?.backward || []),
+        r.origin,
+      ].filter(Boolean);
+
+      allStops.forEach((sid) => {
+        const cid = canonicalStopId(stopLookup, sid);
+        const key = String(cid);
+        if (!map[key]) map[key] = new Set();
+        map[key].add(String(r._id));
+      });
+    });
+    return map;
+  }, [routes, stopLookup]);
+
+  // Inferred routes to feed the right-hand panel
+  const inferredRoutes = useMemo(() => {
+    if (!disruption) {
+      return routesAtStop.map((r) => String(r._id));
     }
-  }, [routesAtSelectedStop, servingRoutes, activeRouteId]);
 
-  const displayName = mergeMeta?.name || stop?.name;
-  const displayId = mergeMeta?.mergeId || stop?.stopId;
+    const routeIds = new Set();
 
-  // Synthesised disruption data for closures/temp stops
-  const clusterDisruption = useMemo(() => {
-    const affectedStops = clusterMembers
-      .filter((s) => s.closed)
-      .map((s) => s.stopId);
+    const normalize = (rid) => {
+      const r = routes.find(
+        (x) =>
+          String(x._id) === String(rid) ||
+          String(x.routeId) === String(rid)
+      );
+      return r ? String(r._id) : null;
+    };
 
-    const tempStops = clusterMembers
-      .filter((s) => s.tempStopId)
-      .map((s) => ({
-        closed: s.stopId,
-        temp: s.tempStopId,
+    // 1. Add manually defined affectedRoutes
+    (disruption.affectedRoutes || []).forEach((rid) => {
+      const nid = normalize(rid);
+      if (nid) routeIds.add(nid);
+    });
+
+    // 2. Add routes based on affectedStops
+    (disruption.affectedStops || []).forEach((sid) => {
+      const cid = canonicalStopId(stopLookup, sid);
+      const usedBy = stopToRoutesMap[String(cid)];
+      if (usedBy) {
+        usedBy.forEach((rid) => {
+          const nid = normalize(rid);
+          if (nid) routeIds.add(nid);
+        });
+      }
+    });
+
+    // 3. Keep only routes that actually call at this stop
+    const final = [...routeIds].filter((rid) =>
+      routesAtStop.some((r) => String(r._id) === String(rid))
+    );
+
+    return final.length ? final : routesAtStop.map((r) => String(r._id));
+  }, [routesAtStop, disruption, stopToRoutesMap, routes, stopLookup]);
+
+  const getStopDiversions = (stopId, routesList) =>
+    routesList
+      .filter(
+        (r) =>
+          r.diversion?.active &&
+          Array.isArray(r.diversion?.stops) &&
+          r.diversion.stops
+            .map((sid) => canonicalStopId(stopLookup, sid))
+            .includes(String(stopId))
+      )
+      .map((r) => ({
+        routeId: r._id,
+        routeNumber: r.number || r.routeId,
+        reason: r.diversion?.reason || '',
+        tempStops: r.diversion?.tempStops || [],
       }));
 
-    return { affectedStops, tempStops };
-  }, [clusterMembers]);
-
-  // Selected physical stop object
-  const selectedStop = useMemo(() => {
-    if (!selectedStopId) return null;
-    return clusterMembers.find((s) => s.stopId === selectedStopId) || null;
-  }, [selectedStopId, clusterMembers]);
-
-  const activeRoute =
-    servingRoutes.find((r) => r._id === activeRouteId) || null;
-
-  const forwardStopList = activeRoute
-    ? [
-      activeRoute.origin,
-      ...(activeRoute.stops?.forward || []),
-      activeRoute.destination,
-    ].filter(Boolean)
-    : [];
-
-  const backwardStopList = activeRoute
-    ? [
-      activeRoute.destination,
-      ...(activeRoute.stops?.backward || []),
-      activeRoute.origin,
-    ].filter(Boolean)
-    : [];
-
-  const activeStopList =
-    activeDirection === 'forward' ? forwardStopList : backwardStopList;
-
-  // For diagram labels
-  const stopLookupForDiagram = allStops.length ? allStops : clusterMembers;
-
-  const clusterClosed = clusterDisruption.affectedStops?.length > 0;
-
-  // Position label: "Stop X of Y • Outbound/Inbound"
-  const selectedIndexInActive = selectedStopId
-    ? activeStopList.findIndex((sid) => String(sid) === String(selectedStopId))
-    : -1;
-
-  const positionLabel =
-    selectedIndexInActive >= 0 && activeStopList.length > 0
-      ? `Stop ${selectedIndexInActive + 1} of ${activeStopList.length}`
-      : null;
-
-  const directionLabel =
-    activeDirection === 'forward' ? 'Outbound' : 'Inbound';
-
-  const groupLatestUpdate = useMemo(() => {
-    if (!clusterMembers.length) return null;
-
-    const timestamps = clusterMembers
-      .map((s) => new Date(s.updatedAt || s.createdAt || 0))
-      .filter((d) => !isNaN(d));
-
-    if (!timestamps.length) return null;
-
-    return new Date(Math.max(...timestamps));
-  }, [clusterMembers]);
-
+  const diversions = useMemo(() => {
+    if (!stop || !routes.length) return [];
+    return getStopDiversions(stop.stopId, routes);
+  }, [stop, routes, stopLookup]);
 
   if (loading) {
-    return <p className="text-white text-center mt-12">Loading stop details...</p>;
+    return (
+      <p className="text-white text-center mt-12">
+        Loading stop details…
+      </p>
+    );
   }
 
   if (error) {
-    return <p className="text-red-500 text-center mt-12">{error}</p>;
+    return (
+      <p className="text-red-500 text-center mt-12">
+        {error}
+      </p>
+    );
   }
 
   if (!stop) {
-    return <p className="text-white text-center mt-12">Stop not found.</p>;
+    return (
+      <p className="text-white text-center mt-12">
+        Stop not found.
+      </p>
+    );
   }
 
-
-  const tabs = [
-    { id: 'routes', label: 'Routes', type: "Both" },
-    { id: 'closures', label: 'Closures', type: "Both" },
-    { id: 'stops', label: 'Physical Stops', type: "Group" },
-  ];
-
-  // Helper: when clicking a stop anywhere, always jump to routes tab
-  const handleSelectStop = (stopId) => {
-    setSelectedStopId(stopId);
-    setActiveTab('routes');
-  };
-
-  // Helper: direction badges per route at selected stop
-  const getRouteDirectionBadges = (route) => {
-    const appearsForward = [
-      route.origin,
-      ...(route.stops?.forward || []),
-      route.destination,
-    ]
-      .filter(Boolean)
-      .some((sid) => String(sid) === String(selectedStopId));
-
-    const appearsBackward = [
-      route.destination,
-      ...(route.stops?.backward || []),
-      route.origin,
-    ]
-      .filter(Boolean)
-      .some((sid) => String(sid) === String(selectedStopId));
-
-    const badges = [];
-    if (appearsForward) badges.push('Outbound');
-    if (appearsBackward) badges.push('Inbound');
-    if (!badges.length) badges.push('Via other direction');
-
-    return badges;
-  };
+  // ✅ Use normaliser here too so the header pill matches icons
+  const isClosed = isClosedFlag(stop);
 
   return (
+        <AuthWrapper requiredRole="devPhase">
     <main className="text-white px-4 md:px-6 py-8 md:py-12 flex flex-col items-center">
       <div className="w-full max-w-7xl bg-[#1f2729] border border-white/15 rounded-2xl shadow-xl backdrop-blur-xl overflow-hidden">
-        {/* Header / summary bar */}
+        {/* HEADER / SUMMARY BAR */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-5 py-4 border-b border-white/10 bg-black/20">
           <div>
             <div className="mb-2">
@@ -508,431 +700,299 @@ export default function StopDetailPage() {
                 href="/ycc/stops"
                 className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <ArrowLeft size={16} />
                 Back to all stops
               </Link>
             </div>
 
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              {displayName}
+              {stop.name}
             </h1>
+
             <p className="text-sm text-white/60">
               {stop.town || 'Town unknown'} •{' '}
               <span className="font-mono text-xs">
-                Stop ID: {displayId}
+                Stop ID: {stop.stopId}
               </span>
             </p>
           </div>
+
           <div className="flex flex-wrap gap-2 text-xs">
-            {clusterMembers.length > 1 && <span className="px-3 py-1 rounded-full bg-[#283335] border border-white/20 font-mono">
-              {clusterMembers.length} stop{clusterMembers.length !== 1 ? 's' : ''} in group
-            </span>}
             <span className="px-3 py-1 rounded-full bg-[#283335] border border-white/20">
-              {servingRoutes.length} route{servingRoutes.length !== 1 ? 's' : ''} serving
+              {routesAtStop.length} route
+              {routesAtStop.length === 1 ? '' : 's'} serving
             </span>
-            {clusterClosed && (
+            <span className="px-3 py-1 rounded-full bg-[#283335] border border-white/20">
+              {operatorsAtStop.length} operator
+              {operatorsAtStop.length === 1 ? '' : 's'}
+            </span>
+            {isClosed && (
               <span className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/60 text-red-200 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
-                Some stops closed
+                Stop closed
               </span>
-            )}{groupLatestUpdate && (
-              <span className="px-3 py-1 rounded-full bg-[#283335] border border-white/20 font-mono">
-                Updated: <span className="text-white/70">{formatTimeAgo(groupLatestUpdate)}</span></span>
+            )}
+            {(disruption || diversions.length > 0) && (
+              <span className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/60 text-red-200 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                Live disruption
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* BODY: left stop info / routes, right live impact panel */}
+        <div className="p-5 grid lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] gap-8">
+          {/* LEFT: Stop summary + operators + routes */}
+          <div className="space-y-6">
+            {/* Stop info card */}
+            <div className="bg-white/5 border border-white/15 rounded-xl p-4 text-sm space-y-2">
+              <p>
+                <strong>Branding:</strong>{' '}
+                {stop.branding || 'N/A'}
+              </p>
+              <p>
+                <strong>Postcode:</strong>{' '}
+                {stop.postcode || 'N/A'}
+              </p>
+              <p>
+                <strong>Location:</strong>{' '}
+                {stop.location || 'N/A'}
+              </p>
+              {Array.isArray(stop.facilities) && stop.facilities.length > 0 && (
+                <p>
+                  <strong>Facilities:</strong>{' '}
+                  {stop.facilities.join(', ')}
+                </p>
+              )}
+              <p>
+                <strong>Notes:</strong>{' '}
+                {stop.notes || 'N/A'}
+              </p>
+            </div>
+
+            {/* Operators block */}
+            {operatorsAtStop.length > 0 && (
+              <div className="bg-[#283335] border border-white/20 rounded-xl p-4 text-sm space-y-3">
+                <p className="font-semibold text-white/70">
+                  Operators serving this stop
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {operatorsAtStop.map((op) => (
+                    <div
+                      key={op._id}
+                      className="flex items-center gap-3 px-4 py-2 rounded-2xl border border-white/20 bg-[#1f2729] backdrop-blur shadow-sm hover:bg-white/10 transition cursor-default"
+                      style={{
+                        borderLeft: `6px solid ${op.operatorColour || '#ffffff'}`,
+                      }}
+                    >
+                      {op.logo && (
+                        <div
+                          className="w-7 h-7 rounded-md flex items-center justify-center overflow-hidden"
+                          style={{
+                            backgroundColor: (op.operatorColour || '#ffffff') + '40',
+                          }}
+                        >
+                          <img
+                            src={op.logo}
+                            alt={op.operatorName}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+
+                      <span
+                        className="font-semibold"
+                        style={{ color: op.operatorColour || '#ffffff' }}
+                      >
+                        {op.operatorName}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="px-5 pt-2 pb-2 border-b border-white/10 bg-black/30">
-          <div className="flex flex-wrap gap-2">
-            {tabs
-              .filter((tab) => {
-                if (!tab.type) return true;
-                if (tab.type === 'Group') return clusterMembers.length > 1;
-                return true;
-              })
-              .map((tab) => {
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isActive
-                      ? 'bg-white text-black border-white'
-                      : 'bg-white/5 text-white/70 border-white/20 hover:bg-[#283335]'
-                      }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-
-          </div>
-        </div>
-
-        {/* Tab content */}
-        <div className="p-5">
-          {/* ROUTES TAB */}
-          {activeTab === 'routes' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Column 1: Summary + physical stops */}
-              <div className="space-y-4">
-                <div className="bg-white/5 border border-white/15 rounded-xl p-4 text-sm space-y-1">
-                  <p>
-                    <strong>Branding:</strong> {stop.branding || 'N/A'}
-                  </p>
-                  <p>
-                    <strong>Postcode:</strong> {stop.postcode || 'N/A'}
-                  </p>
-                  <p>
-                    <strong>Location:</strong> {stop.location || 'N/A'}
-                  </p>
-                  {clusterMembers.some((s) => s.facilities?.length) && (
-                    <p className="mt-2">
-                      <strong>Facilities (cluster):</strong>{' '}
-                      <span className="text-xs text-white/70">
-                        {Array.from(
-                          new Set(
-                            clusterMembers.flatMap((s) => s.facilities || [])
-                          )
-                        ).join(', ') || 'N/A'}
-                      </span>
-                    </p>
-                  )}
-                  <p>
-                    <strong>Notes:</strong> {stop.notes || 'N/A'}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="font-semibold mb-2 text-sm">
-                    Operators who serve this stop
-                  </p>
-
-                  {/* SORT + FILTER */}
-                  <div className="flex gap-2 mb-3 text-xs">
-                    <select
-                      value={operatorSort}
-                      onChange={(e) => setOperatorSort(e.target.value)}
-                      className="bg-[#283335] border border-white/20 px-2 py-1 rounded"
-                    >
-                      <option className="text-white bg-[#283335]" value="az">Name (A–Z)</option>
-                      <option className="text-white bg-[#283335]" value="za">Name (Z–A)</option>
-                      <option className="text-white bg-[#283335]" value="routesDesc">Most Routes</option>
-                      <option className="text-white bg-[#283335]" value="routesAsc">Fewest Routes</option>
-                    </select>
-
-                    {activeOperator && (
-                      <button
-                        onClick={() => {
-                          setActiveOperator(null);
-                          setActiveRouteId(null);
-                        }}
-                        className="px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
-                      >
-                        Clear Filter
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
-                    {sortedOperators.map((op) => {
-                      const isSelected = activeOperator === op.id;
-                      const submission = allOperators?.find((o) => o._id === op.id);
-
-                      return (
-                        <button
-                          key={op.id}
-                          type="button"
-                          onClick={() => {
-                            setActiveOperator(op.id);
-                            // filter activeRouteId to only that operator
-                            const r = op.routes[0];
-                            if (r) setActiveRouteId(r._id);
-                          }}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg border text-xs sm:text-sm transition
-                            ${isSelected
-                              ? 'bg-blue-500/20 border-blue-400'
-                              : 'bg-white/5 border-white/15 hover:bg-[#283335]'
-                            }`}
-                        >
-                          {/* LOGO */}
-                          <div
-                            className="w-10 h-10 rounded bg-black/30 border border-white/10 overflow-hidden flex items-center justify-center"
-                            style={{
-                              background: submission?.operatorColour || '#00000030'
-                            }}
-                          >
-                            {submission?.logo ? (
-                              <img
-                                src={submission.logo}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : (
-                              <span className="text-white/40 text-[10px]">Logo</span>
-                            )}
-                          </div>
-
-                          {/* TEXT */}
-                          <div className="flex-1 text-left">
-                            <p className="font-semibold"
-                              style={{
-                                color: submission?.operatorColour || '#00000030'
-                              }}>
-                              {submission?.operatorName || 'Unknown Operator'}
-                            </p>
-                            <p className="text-[10px] text-white/60">
-                              Updated {formatTimeAgo(submission?.updatedAt)}
-                            </p>
-                            <p className="text-[10px] text-white/70 mt-1">
-                              Routes: {op.routes.map((r) => r.number).join(', ')}
-                            </p>
-                            <Link
-                              href={`/ycc/operators/${op.slug}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-blue-300 hover:text-blue-200 underline text-[10px]"
-                            >
-                              View Operator
-                            </Link>
-
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      exportOperatorRoutes(op);
-                    }}
-                    className="text-[10px] text-green-300 hover:text-green-200 underline"
-                  >
-                    Download Timetable
-                  </button>
-                </div>
-              </div>
-
-              {/* Column 2: routes serving selected stop */}
-              <div className="space-y-3">
-                <h2 className="text-lg font-semibold mb-2">
-                  Routes at this stop
-                </h2>
-
-                {!selectedStop ? (
-                  <p className="text-sm text-white/60">
-                    Select a stop on the left to see which routes serve it.
-                  </p>
-                ) : routesAtSelectedStop.length === 0 ? (
-                  <p className="text-sm text-white/60">
-                    No routes currently stop at this stop.
-                  </p>
-                ) : (
-                  <>
-                    <p className="text-xs text-white/60 mb-1">
-                      These routes serve{' '}
-                      <span className="font-semibold">
-                        {selectedStop.name}
-                        {selectedStop.town ? `, ${selectedStop.town}` : ''}
-                      </span>
-                      .
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {routesAtSelectedStop.map((route) => {
-                        const isActive = activeRouteId === route._id;
-                        const badges = getRouteDirectionBadges(route);
-
-                        return (
-                          <button
-                            key={route._id}
-                            type="button"
-                            onClick={() => setActiveRouteId(route._id)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-2 transition-all
-                              ${isActive
-                                ? 'bg-white text-black border-white/80'
-                                : 'bg-white/5 text-white/70 border-white/20 hover:bg-[#283335]'
-                              }`}
-                          >
-                            <span>{route.number || route.routeId}</span>
-                            <span className="flex gap-1">
-                              {badges.map((b) => (
-                                <span
-                                  key={b}
-                                  className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/20 border border-white/20"
-                                >
-                                  {b}
-                                </span>
-                              ))}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {selectedStop && (
-                      <div className="bg-black/20 border border-white/10 rounded-lg p-3 text-xs space-y-1">
-                        <p className="font-semibold">
-                          Selected physical stop:
-                        </p>
-                        <p>
-                          {selectedStop.name}
-                          {selectedStop.town ? `, ${selectedStop.town}` : ''}
-                        </p>
-                        <p className="font-mono text-white/70 text-[11px]">
-                          {selectedStop.stopId}
-                        </p>
-                        {positionLabel && activeRoute && (
-                          <p className="mt-1 text-[11px] text-white/70">
-                            {positionLabel} •{' '}
-                            <span className="font-semibold">{directionLabel}</span>
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* Column 3: route diagram */}
-              <div className="space-y-3">
-                <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                  <RouteIcon className="w-5 h-5" /> Route view
-                </h2>
-
-                {!activeRoute || routesAtSelectedStop.length === 0 ? (
-                  <p className="text-sm text-white/60">
-                    Select a route to see its stop sequence and any closures / temp stops.
-                  </p>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 mb-2 text-xs">
-                      <p className="text-white/60">
-                        Showing{' '}
-                        <span className="font-semibold">
-                          {activeRoute.number || activeRoute.routeId}
-                        </span>
-                      </p>
-                      <div className="flex gap-1 ml-auto">
-                        <button
-                          type="button"
-                          onClick={() => setActiveDirection('forward')}
-                          className={`px-2 py-1 rounded-full border text-[11px] ${activeDirection === 'forward'
-                            ? 'bg-white text-black border-white'
-                            : 'bg-white/5 border-white/20 text-white/70'
-                            }`}
-                        >
-                          Outbound
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveDirection('backward')}
-                          className={`px-2 py-1 rounded-full border text-[11px] ${activeDirection === 'backward'
-                            ? 'bg-white text-black border-white'
-                            : 'bg-white/5 border-white/20 text-white/70'
-                            }`}
-                        >
-                          Inbound
-                        </button>
-                      </div>
-                    </div>
-
-                    {positionLabel && selectedStop && (
-                      <p className="text-[11px] text-white/60 mb-2">
-                        For{' '}
-                        <span className="font-semibold">
-                          {selectedStop.name}
-                          {selectedStop.town ? `, ${selectedStop.town}` : ''}
-                        </span>
-                        : {positionLabel} •{' '}
-                        <span className="font-semibold">{directionLabel}</span>
-                      </p>
-                    )}
-
-                    <div className="relative max-h-[420px] overflow-y-auto rounded-xl pr-2 bg-[#283335] border border-white/10 p-3">
-                      <StopsListWithDiversion
-                        stopList={activeStopList}
-                        disruption={clusterDisruption}
-                        stops={stopLookupForDiagram}
-                        highlightStopId={selectedStopId}
-                        operatorBrandColorForStop={operatorBrandColorForStop}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* CLOSURES TAB */}
-          {activeTab === 'closures' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-yellow-300" />
-                Closures and temporary stops
-              </h2>
-
-              {clusterDisruption.affectedStops?.length === 0 ? (
-                <p className="text-sm text-white/60">
-                  There are currently no recorded closures for stops in this group.
+            {/* Routes list with expandable panels */}
+            <div className="bg-[#283335] border border-white/20 rounded-xl p-4 text-sm space-y-3">
+              <p className="font-semibold text-white/70 flex items-center gap-2">
+                <RouteIcon className="w-4 h-4" />
+                Routes serving this stop
+              </p>
+              {routesAtStop.length === 0 ? (
+                <p className="text-xs text-white/60">
+                  No routes currently serve this stop.
                 </p>
               ) : (
-                <div className="space-y-3">
-                  {clusterMembers
-                    .filter((s) => s.closed || s.tempStopId)
-                    .map((s) => {
-                      const temp = s.tempStopId
-                        ? stopLookupForDiagram.find((x) => x.stopId === s.tempStopId)
-                        : null;
+                <div className="space-y-2">
+                  {routesAtStop.map((r) => {
+                    const impactedByTravel = disruption
+                      ? routeIsAffectedByTravel(r, disruption)
+                      : false;
+                    const impactedByRouteDiversion = !!r.diversion?.active;
+                    const impacted = impactedByTravel || impactedByRouteDiversion;
 
-                      return (
-                        <div
-                          key={s.stopId}
-                          className="bg-red-500/15 border border-red-500/50 rounded-xl p-3 text-sm"
+                    const origin =
+                      getStopByAnyId(stopLookup, r.origin);
+                    const destination =
+                      getStopByAnyId(stopLookup, r.destination);
+
+                    const originLabel = origin
+                      ? `${origin.name}${origin.town ? ', ' + origin.town : ''}`
+                      : r.origin || 'Origin';
+                    const destLabel = destination
+                      ? `${destination.name}${destination.town ? ', ' + destination.town : ''}`
+                      : r.destination || 'Destination';
+
+                    const isOpen = openRouteId === r._id;
+
+                    const forwardStopList = [
+                      r.origin,
+                      ...(r.stops?.forward || []),
+                      r.destination,
+                    ].filter(Boolean);
+
+                    const backwardStopList = [
+                      r.destination,
+                      ...(r.stops?.backward || []),
+                      r.origin,
+                    ].filter(Boolean);
+
+                    const activeStopList =
+                      openDirection === 'forward'
+                        ? forwardStopList
+                        : backwardStopList;
+
+                    const routeDisruptionForUI = buildRouteDisruptionForRoute(
+                      r,
+                      disruption,
+                      stopLookup
+                    );
+
+                    return (
+                      <div key={r._id} className="rounded-lg border border-white/15 bg-black/20">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isOpen) {
+                              setOpenRouteId(null);
+                            } else {
+                              setOpenRouteId(r._id);
+                              setOpenDirection('forward'); // default to outbound
+                            }
+                          }}
+                          className={`w-full px-3 py-2 flex items-center justify-between text-left text-xs rounded-lg transition ${
+                            isOpen
+                              ? 'bg-white/5'
+                              : 'bg-transparent hover:bg-white/5'
+                          }`}
                         >
-                          <button
-                            type="button"
-                            onClick={() => handleSelectStop(s.stopId)}
-                            className="text-left w-full"
-                          >
-                            <p className="font-semibold text-red-200">
-                              {s.name}
-                              {s.town ? `, ${s.town}` : ''}{' '}
-                              <span className="font-mono text-[11px] text-red-200/70">
-                                ({s.stopId})
-                              </span>
+                          <div>
+                            <p className="font-semibold flex items-center gap-1">
+                              {r.number || r.routeId || 'Route'}
+                              {impacted && (
+                                <span className="ml-2 px-2 py-0.5 rounded-full bg-red-500/30 text-[10px] text-red-100 flex items-center gap-1 border border-red-500/60">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Affected
+                                </span>
+                              )}
                             </p>
-                            <p className="text-xs text-red-100 mt-1">
-                              {s.closureReason || 'This stop is currently closed.'}
+                            <p className="text-[11px] text-white/70">
+                              {originLabel} → {destLabel}
                             </p>
-                            {temp && (
-                              <p className="text-xs text-yellow-200 mt-2">
-                                Temporary stop:{' '}
-                                {temp.name}
-                                {temp.town ? `, ${temp.town}` : ''}{' '}
-                                <span className="font-mono text-[11px] text-yellow-200/80">
-                                  ({temp.stopId})
+                          </div>
+
+                          <span className="text-[11px] text-white/60">
+                            {isOpen ? 'Hide' : 'View'} route
+                          </span>
+                        </button>
+
+                        {isOpen && (
+                          <div className="mt-1 mb-2 ml-4 mr-2 rounded-lg border border-white/15 bg-black/30 p-3 text-xs">
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-[11px] text-white/70">
+                                Detailed view for{' '}
+                                <span className="font-semibold">
+                                  {r.number || r.routeId || 'Route'}
                                 </span>
                               </p>
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setOpenDirection('forward')}
+                                  className={`px-2 py-1 rounded-full border text-[11px] ${
+                                    openDirection === 'forward'
+                                      ? 'bg-white text-black border-white'
+                                      : 'bg-white/5 border-white/20 text-white/70'
+                                  }`}
+                                >
+                                  Outbound
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setOpenDirection('backward')}
+                                  className={`px-2 py-1 rounded-full border text-[11px] ${
+                                    openDirection === 'backward'
+                                      ? 'bg-white text-black border-white'
+                                      : 'bg-white/5 border-white/20 text-white/70'
+                                  }`}
+                                >
+                                  Inbound
+                                </button>
+                              </div>
+                            </div>
+
+                            {activeStopList.length === 0 ? (
+                              <p className="text-[11px] text-white/60">
+                                No stop sequence available for this direction.
+                              </p>
+                            ) : (
+                              <div className="relative max-h-[260px] overflow-y-auto rounded-xl pr-2 bg-[#283335] border border-white/10 p-3">
+                                <StopsListWithDiversion
+                                  stopList={activeStopList}
+                                  disruptionForRoute={routeDisruptionForUI}
+                                  stops={stops}
+                                  stopLookup={stopLookup}
+                                  direction={openDirection}
+                                />
+                              </div>
                             )}
-                          </button>
-                        </div>
-                      );
-                    })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
-          )}
+          </div>
+
+          {/* RIGHT: Live route impact panel */}
+          <div className="hidden lg:block sticky top-8 self-start">
+            <AffectedRoutesPanel
+              disruption={disruption}
+              routes={routesAtStop}
+              stops={stops}
+              inferredRoutes={inferredRoutes}
+              lastUpdate={liveUpdatedAt}
+              selectedRouteId={openRouteId}
+              selectedDirection={openDirection}
+            />
+          </div>
         </div>
+      </div>
+
+      {/* Mobile: panel below content */}
+      <div className="w-full max-w-7xl mt-6 lg:hidden">
+        <AffectedRoutesPanel
+          disruption={disruption}
+          routes={routesAtStop}
+          stops={stops}
+          inferredRoutes={inferredRoutes}
+          lastUpdate={liveUpdatedAt}
+          selectedRouteId={openRouteId}
+          selectedDirection={openDirection}
+        />
       </div>
 
       <style jsx global>{`
@@ -943,5 +1003,6 @@ export default function StopDetailPage() {
         }
       `}</style>
     </main>
+        </AuthWrapper>
   );
 }

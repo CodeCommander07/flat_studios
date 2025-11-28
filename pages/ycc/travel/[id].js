@@ -15,6 +15,7 @@ import {
   MapPinX,
   ArrowLeft,
 } from 'lucide-react';
+import AuthWrapper from '@/components/AuthWrapper';
 
 // Helper: what impact does disruption have on this route's directions?
 function getRouteDirectionImpact(route, disruption) {
@@ -669,6 +670,7 @@ export default function DisruptionDetailPage() {
   );
 
   return (
+        <AuthWrapper requiredRole="devPhase">
     <main className="text-white px-4 sm:px-6 py-8 flex flex-col items-center">
       <div className="w-full max-w-10xl grid lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] gap-8">
         {/* LEFT: Disruption content */}
@@ -889,5 +891,6 @@ export default function DisruptionDetailPage() {
   }
 `}</style>
     </main>
+        </AuthWrapper>
   );
 }
