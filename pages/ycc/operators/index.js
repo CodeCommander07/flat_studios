@@ -22,11 +22,23 @@ export default function Home() {
     fetchCompanies();
   }, []);
 
-  // 🧩 Build logos array dynamically when companies update
+const operatorBorderGradient = useMemo(() => {
+  const colours = companies
+    .map(c => c.operatorColour)
+    .filter(Boolean);
+
+  if (!colours.length) {
+    return "linear-gradient(to right, #3b82f6, #22c55e)";
+  }
+
+  return `linear-gradient(to right, ${colours.join(", ")})`;
+}, [companies]);
+
+  // Logos
   const logos = useMemo(
     () =>
       companies
-        .filter((c) => c.logo) // only include ones with a logo
+        .filter((c) => c.logo)
         .map((c) => ({
           src: c.logo,
           alt: c.operatorName || 'Operator Logo',
@@ -36,38 +48,42 @@ export default function Home() {
 
   return (
     <main className="flex flex-col gap-16 items-center justify-center px-4 py-20 text-white max-w-7xl mx-auto">
-      {loading && <p className="text-white/50">Loading operators...</p>}
+      <div
+        className="rounded-2xl p-[2px] w-full"
+        style={{
+          background: operatorBorderGradient
+        }}
+      >
+        <div className="rounded-2xl bg-[#283335] p-6 shadow-xl border border-white/10 ">
+          <h1 className="text-3xl font-bold text-white">Our Operators</h1>
 
-      {!loading && companies.length === 0 && (
-        <p className="text-white/50">No active operators found.</p>
-      )}
-
-      {!loading && logos.length > 0 && (
-        <div className="w-full flex justify-center bg-[#283335] rounded-xl p-6">
-          <LogoLoop
-            logos={logos}
-            speed={20}
-            direction="left"
-            fadeOut
-            fadeOutColor="rgb(15,23,42)"
-            scaleOnHover
-            className="max-w-7xl"
-          />
+          {!loading && logos.length > 0 && (
+            <div className="mt-4 w-full flex justify-center bg-black/20 rounded-xl p-6">
+              <LogoLoop
+                logos={logos}
+                speed={20}
+                direction="left"
+                fadeOut
+                fadeOutColor="rgb(15,23,42)"
+                scaleOnHover
+                className="max-w-7xl"
+              />
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
+      {/* Existing operator cards below */}
       {companies.map((company, idx) => (
         <div
           key={company._id || idx}
           className={`flex flex-col md:flex-row ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''
             } items-center gap-10 bg-[#283335] border backdrop-blur-md p-6 rounded-2xl shadow-lg w-full`}
-         style={{ borderColor: company.operatorColour }}>
-          {/* 🖼️ Logo */}
+          style={{ borderColor: company.operatorColour }}
+        >
+          {/* Logo */}
           <div className="w-full md:w-1/2 flex justify-center">
-            <div
-              className="w-64 h-64 bg-black/20 rounded-xl flex items-center justify-center overflow-hidden"
-             
-            >
+            <div className="w-64 h-64 bg-black/20 rounded-xl flex items-center justify-center overflow-hidden">
               {company.logo ? (
                 <img
                   src={company.logo}
@@ -80,22 +96,24 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 🧾 Text & Links */}
+          {/* Text & Links */}
           <div className="w-full md:w-1/2 text-left space-y-4">
             <h2 className="text-3xl font-bold">{company.operatorName}</h2>
             <p className="text-white/80">
-              Owned & Operated by: {company.robloxUsername}
+              Owned &amp; Operated by: {company.robloxUsername}
             </p>
             {company.description && (
               <p className="text-white/80">{company.description}</p>
             )}
-            <div className='grid grid-cols-3 sm:gid-cols-1 gap-2'>
+
+            <div className="grid grid-cols-3 gap-2">
               <a
                 href={`/ycc/operators/${company.slug}`}
                 className="text-center inline-block mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition"
               >
                 View Operator
               </a>
+
               {company.discordInvite && (
                 <a
                   href={company.discordInvite}
