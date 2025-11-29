@@ -15,7 +15,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 't4.rbxcdn.com' },
       { protocol: 'https', hostname: '*.flatstudios.net' },
     ],
-    formats: ['image/avif', 'image/webp', 'image/png', 'image/jpeg'],
+    formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60 * 60 * 24,
     dangerouslyAllowSVG: false,
   },
