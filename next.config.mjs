@@ -3,27 +3,23 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,
-  output: 'standalone',
 
-  // ✅ Image optimization: safe to keep caching
   images: {
-    domains: [
-      'cdn.discordapp.com',
-      'www.roblox.com',
-      'tr.rbxcdn.com',
-      'yapton.vercel.app',
-      'flat-studios.vercel.app',
-      'yapton.flatstudios.net',
-      'test.flatstudios.net',
-      'dev.flatstudios.net',
-      'server.flatstudios.net',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'cdn.discordapp.com' },
+      { protocol: 'https', hostname: 'www.roblox.com' },
+      { protocol: 'https', hostname: 'tr.rbxcdn.com' },
+      { protocol: 'https', hostname: 'yapton.vercel.app' },
+      { protocol: 'https', hostname: 'flat-studios.vercel.app' },
+      { protocol: 'https', hostname: 'yapton.flatstudios.net' },
+      { protocol: 'https', hostname: 'test.flatstudios.net' },
+      { protocol: 'https', hostname: 'dev.flatstudios.net' },
+      { protocol: 'https', hostname: 'server.flatstudios.net' },
     ],
-    formats: ['image/avif', 'image/webp'],
-    // ✅ CDN image caching is fine — only images
+    formats: ['image/avif', 'image/webp', 'image/png', 'image/jpeg'],
     minimumCacheTTL: 60 * 60 * 24,
   },
 
-  // ✅ Disable caching for all dynamic content (pages + APIs)
   async headers() {
     return [
       {
@@ -34,15 +30,11 @@ const nextConfig = {
       },
       {
         source: '/api/(.*)',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store' },
-        ],
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
       },
       {
         source: '/(.*)',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store' },
-        ],
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
       },
     ];
   },
@@ -51,12 +43,8 @@ const nextConfig = {
     return [
       {
         source: '/cdn/image/:path*',
-        destination: '/:path*',
+        destination: '/api/cdn/:path*',
       },
-      //       {
-      //   source: '/cdn/image/:path*',
-      //   destination: '/api/cdn/:path*',
-      // },
       {
         source: '/files/:path*',
         destination: '/api/files/:path*',
