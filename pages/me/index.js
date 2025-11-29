@@ -70,7 +70,7 @@ export default function ProfilePage() {
   const handleRobloxConnect = () => {
     const localUser = JSON.parse(localStorage.getItem('User'));
     const userId = localUser?._id;
-    const base = process.env.BASE_URL;
+    const base = process.env.LIVE_URL;
     const redirectUri = encodeURIComponent(`https://yapton.flatstudios.net/api/user/roblox/callback`);
     const url = `https://authorize.roblox.com/?client_id=3955231950419357724` +
       `&response_type=code` +

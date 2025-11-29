@@ -40,7 +40,7 @@ export default async function handler(req, res) {
         expiresAt: Date.now() + 5 * 60 * 1000,
       });
 
-      const fileURL = `${process.env.BASE_URL}/api/cdn/temp-file?key=${tempId}`;
+      const fileURL = `${process.env.LIVE_URL}/api/cdn/temp-file?key=${tempId}`;
       const googleDocsURL = `https://docs.google.com/gview?url=${encodeURIComponent(fileURL)}&embedded=true`;
       return res.redirect(302, googleDocsURL);
     }

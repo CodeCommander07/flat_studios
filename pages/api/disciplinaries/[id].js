@@ -3,7 +3,7 @@ import Disciplinary from '@/models/Disciplinary';
 import User from '@/models/User';
 import nodemailer from 'nodemailer';
 
-const SITE = process.env.BASE_URL || 'https://yapton.flatstudios.net';
+const SITE = process.env.LIVE_URL || 'https://yapton.flatstudios.net';
 const FROM = process.env.MAIL_FROM || process.env.MAIL_USER;
 
 // ✅ Setup nodemailer transporter

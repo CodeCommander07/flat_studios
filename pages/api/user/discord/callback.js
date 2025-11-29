@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
     // 3️⃣ Update the user record
-    await axios.post(`${process.env.BASE_URL}/api/user/discord/update`, {
+    await axios.post(`${process.env.LIVE_URL}/api/user/discord/update`, {
       userId,
       discordId: discordUser.id,
       discordUsername: discordUser.username,

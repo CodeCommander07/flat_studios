@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     const avatarUrl = roblox.picture || `https://www.roblox.com/headshot-thumbnail/image?userId=${roblox.sub}&width=420&height=420&format=png`;
 
     // 3️⃣ Update user
-    await axios.post(`${process.env.BASE_URL}/api/user/roblox/update`, {
+    await axios.post(`${process.env.LIVE_URL}/api/user/roblox/update`, {
       userId,
       robloxId: roblox.sub,
       robloxUsername: roblox.name || roblox.nickname,

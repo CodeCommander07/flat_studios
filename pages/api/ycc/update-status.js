@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     await request.save();
 
     const isNewRoute = request.routeSubmissionType === 'new';
-    const baseUrl = process.env.BASE_URL || '';
+    const baseUrl = process.env.LIVE_URL || '';
     const questions = isNewRoute ? NEW_ROUTE_QUESTIONS : CHANGE_ROUTE_QUESTIONS;
 
     const allStops = await BusStops.find({});

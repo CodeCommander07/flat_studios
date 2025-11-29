@@ -14,7 +14,7 @@ export async function getRobloxClient() {
   client = new issuer.Client({
     client_id: process.env.ROBLOX_CLIENT_ID,
     client_secret: process.env.ROBLOX_CLIENT_SECRET,
-    redirect_uris: [`${process.env.BASE_URL}/api/user/roblox/callback`],
+    redirect_uris: [`${process.env.LIVE_URL}/api/user/roblox/callback`],
     response_types: ['code'],
   });
 

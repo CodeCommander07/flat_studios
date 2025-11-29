@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     user.resetExpires = Date.now() + 1000 * 60 * 30;
     await user.save();
 
-    const resetUrl = `${process.env.BASE_URL}/auth/reset-password?token=${token}`;
+    const resetUrl = `${process.env.LIVE_URL}/auth/reset-password?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
