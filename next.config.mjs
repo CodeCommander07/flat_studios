@@ -51,6 +51,7 @@ const nextConfig = {
 
   async rewrites() {
     return [
+      { source: '/cdn/image/:path*', destination: '/:path*', },
       {
         source: '/cdn/image/:path*',
         destination: '/api/cdn/:path*',
