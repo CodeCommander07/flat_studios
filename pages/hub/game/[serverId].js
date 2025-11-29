@@ -35,7 +35,7 @@ export default function ServerDetailPage() {
   })();
 
   return (
-    <AuthWrapper requiredRole="hub">
+    <AuthWrapper requiredRole="devPhase">
       <main className="flex px-6 py-4 gap-5 text-white">
 
         {/* LEFT SIDE — PLAYER LIST ALWAYS VISIBLE */}

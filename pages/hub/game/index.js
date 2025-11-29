@@ -48,7 +48,7 @@ export default function GameListPage() {
   }
 
   return (
-    <AuthWrapper requiredRole="hub">
+    <AuthWrapper requiredRole="devPhase">
       <main className="text-white px-6 py-10 space-y-10">
         <h1 className="text-3xl font-bold mb-6 text-center">Game Server Overview</h1>
 

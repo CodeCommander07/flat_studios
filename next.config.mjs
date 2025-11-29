@@ -3,21 +3,21 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,
-
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.discordapp.com' },
       { protocol: 'https', hostname: 'www.roblox.com' },
       { protocol: 'https', hostname: 'tr.rbxcdn.com' },
-      { protocol: 'https', hostname: 'yapton.vercel.app' },
-      { protocol: 'https', hostname: 'flat-studios.vercel.app' },
-      { protocol: 'https', hostname: 'yapton.flatstudios.net' },
-      { protocol: 'https', hostname: 'test.flatstudios.net' },
-      { protocol: 'https', hostname: 'dev.flatstudios.net' },
-      { protocol: 'https', hostname: 'server.flatstudios.net' },
+      { protocol: 'https', hostname: 'rbxcdn.com' },
+      { protocol: 'https', hostname: 't1.rbxcdn.com' },
+      { protocol: 'https', hostname: 't2.rbxcdn.com' },
+      { protocol: 'https', hostname: 't3.rbxcdn.com' },
+      { protocol: 'https', hostname: 't4.rbxcdn.com' },
+      { protocol: 'https', hostname: '*.flatstudios.net' },
     ],
     formats: ['image/avif', 'image/webp', 'image/png', 'image/jpeg'],
     minimumCacheTTL: 60 * 60 * 24,
+    dangerouslyAllowSVG: false,
   },
 
   async headers() {
@@ -30,11 +30,21 @@ const nextConfig = {
       },
       {
         source: '/api/(.*)',
-        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+        headers: [
+          { key: 'Cache-Control', value: 'no-store' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
       },
       {
         source: '/(.*)',
-        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+        headers: [
+          { key: 'Cache-Control', value: 'no-store' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
       },
     ];
   },
@@ -58,7 +68,11 @@ const nextConfig = {
 
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['lucide-react', 'framer-motion', 'axios'],
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      'axios',
+    ],
     webpackBuildWorker: true,
   },
 };
