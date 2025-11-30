@@ -7,7 +7,10 @@ export async function GET(req, { params }) {
   const { serverId } = params;
 
   const doc = await GameData.findOne({ serverId });
-  return NextResponse.json(doc?.chat || []);
+  if (!doc) return NextResponse.json([]);
+
+  const sorted = [...doc.audit].sort((a, b) => b.createdAt - a.createdAt);
+  return NextResponse.json(sorted);
 }
 
 export async function POST(req, { params }) {
@@ -18,8 +21,18 @@ export async function POST(req, { params }) {
   let doc = await GameData.findOne({ serverId });
   if (!doc) doc = await GameData.create({ serverId });
 
-  doc.chat.push(body);
-  await doc.save();
+  doc.audit.push({
+    action: body.action,
+    targetId: body.targetId,
+    targetName: body.targetName,
+    moderatorId: body.moderatorId,
+    moderatorName: body.moderatorName,
+    reason: body.reason,
+    scope: body.scope,
+    banType: body.banType,
+    createdAt: new Date()
+  });
 
+  await doc.save();
   return NextResponse.json({ success: true });
 }

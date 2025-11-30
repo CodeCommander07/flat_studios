@@ -4,10 +4,20 @@ import dbConnect from "@/lib/dbConnect";
 
 export async function GET(req, { params }) {
   await dbConnect();
+  const { searchParams } = new URL(req.url);
+  const filter = searchParams.get("type") || "both";
   const { serverId } = params;
 
   const doc = await GameData.findOne({ serverId });
-  return NextResponse.json(doc?.chat || []);
+  if (!doc) return NextResponse.json([]);
+
+  if (filter === "join")
+    return NextResponse.json(doc.logs.filter((l) => l.type === "join"));
+
+  if (filter === "leave")
+    return NextResponse.json(doc.logs.filter((l) => l.type === "leave"));
+
+  return NextResponse.json(doc.logs);
 }
 
 export async function POST(req, { params }) {
@@ -18,7 +28,7 @@ export async function POST(req, { params }) {
   let doc = await GameData.findOne({ serverId });
   if (!doc) doc = await GameData.create({ serverId });
 
-  doc.chat.push(body);
+  doc.logs.push(body);
   await doc.save();
 
   return NextResponse.json({ success: true });

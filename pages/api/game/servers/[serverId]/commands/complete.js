@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
 import GameData from "@/models/GameData";
 import dbConnect from "@/lib/dbConnect";
+import mongoose from "mongoose";
 
 export async function POST(req, { params }) {
   await dbConnect();
   const { serverId } = params;
-  const { flagged } = await req.json();
+  const { commandId } = await req.json();
 
-  let doc = await GameData.findOne({ serverId });
-  if (!doc) doc = await GameData.create({ serverId });
+  const doc = await GameData.findOne({ serverId });
+  if (!doc) return NextResponse.json({ success: false });
 
-  doc.flagged = flagged;
+  const cmd = doc.commands.id(commandId);
+  if (cmd) cmd.executed = true;
+
   await doc.save();
 
   return NextResponse.json({ success: true });

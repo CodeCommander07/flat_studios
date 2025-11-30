@@ -1,25 +1,13 @@
-import dbConnect from "@/utils/db";
+import { NextResponse } from "next/server";
 import GameData from "@/models/GameData";
+import dbConnect from "@/lib/dbConnect";
 
-export default async function handler(req, res) {
-  const { serverId } = req.query;
+export async function GET(req, { params }) {
   await dbConnect();
+  const { serverId } = params;
 
-  try {
-    const server = await GameData.findOne({ serverId });
-    if (!server)
-      return res.status(404).json({ error: "Server not found" });
+  const doc = await GameData.findOne({ serverId });
+  if (!doc) return NextResponse.json(null);
 
-    // ✅ Return timestamps and useful metadata
-    return res.status(200).json({
-      serverId: server.serverId,
-      players: server.players?.length || 0,
-      chats: server.chat?.length || 0,
-      createdAt: server.createdAt,
-      updatedAt: server.updatedAt,
-    });
-  } catch (err) {
-    console.error("Error fetching server:", err);
-    return res.status(500).json({ error: err.message });
-  }
+  return NextResponse.json(doc);
 }
