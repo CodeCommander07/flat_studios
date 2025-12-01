@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server";
+import dbConnect from "@/utils/db";
 import GameData from "@/models/GameData";
-import dbConnect from "@/lib/dbConnect";
 
-export async function POST(req, { params }) {
+export default async function handler(req, res) {
   await dbConnect();
-  const { serverId } = params;
-  const { flagged } = await req.json();
+  const { serverId } = req.query;
+
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Method not allowed" });
+
+  const { flagged } = req.body;
 
   let doc = await GameData.findOne({ serverId });
   if (!doc) doc = await GameData.create({ serverId });
@@ -13,5 +16,5 @@ export async function POST(req, { params }) {
   doc.flagged = flagged;
   await doc.save();
 
-  return NextResponse.json({ success: true });
+  return res.status(200).json({ success: true });
 }

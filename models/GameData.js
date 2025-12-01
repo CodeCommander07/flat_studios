@@ -4,6 +4,7 @@ const BusSchema = new mongoose.Schema({
   vehicleOwner: String,
   vehicleType: String,
   vehicleLivery: String,
+  vehicleTeam: String,
   route: String,
   destination: String,
   currentLocation: String,

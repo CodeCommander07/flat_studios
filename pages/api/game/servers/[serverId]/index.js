@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
+import dbConnect from "@/utils/db";
 import GameData from "@/models/GameData";
-import dbConnect from "@/lib/dbConnect";
 
-export async function GET(req, { params }) {
+export default async function handler(req, res) {
   await dbConnect();
-  const { serverId } = params;
+  const { serverId } = req.query;
+
+  if (req.method !== "GET")
+    return res.status(405).json({ error: "Method not allowed" });
 
   const doc = await GameData.findOne({ serverId });
-  if (!doc) return NextResponse.json(null);
-
-  return NextResponse.json(doc);
+  return res.status(200).json(doc || null);
 }

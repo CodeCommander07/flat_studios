@@ -1,25 +1,26 @@
-import { NextResponse } from "next/server";
+import dbConnect from "@/utils/db";
 import GameData from "@/models/GameData";
-import dbConnect from "@/lib/dbConnect";
 
-export async function GET(req, { params }) {
+export default async function handler(req, res) {
   await dbConnect();
-  const { serverId } = params;
+  const { serverId } = req.query;
 
-  const doc = await GameData.findOne({ serverId });
-  return NextResponse.json(doc?.chat || []);
-}
+  if (req.method === "GET") {
+    const doc = await GameData.findOne({ serverId });
+    return res.status(200).json(doc?.chat || []);
+  }
 
-export async function POST(req, { params }) {
-  await dbConnect();
-  const { serverId } = params;
-  const body = await req.json();
+  if (req.method === "POST") {
+    const body = req.body;
 
-  let doc = await GameData.findOne({ serverId });
-  if (!doc) doc = await GameData.create({ serverId });
+    let doc = await GameData.findOne({ serverId });
+    if (!doc) doc = await GameData.create({ serverId });
 
-  doc.chat.push(body);
-  await doc.save();
+    doc.chat.push(body);
+    await doc.save();
 
-  return NextResponse.json({ success: true });
+    return res.status(200).json({ success: true });
+  }
+
+  return res.status(405).json({ error: "Method not allowed" });
 }

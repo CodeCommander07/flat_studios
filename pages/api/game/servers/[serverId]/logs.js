@@ -1,35 +1,36 @@
-import { NextResponse } from "next/server";
+import dbConnect from "@/utils/db";
 import GameData from "@/models/GameData";
-import dbConnect from "@/lib/dbConnect";
 
-export async function GET(req, { params }) {
+export default async function handler(req, res) {
   await dbConnect();
-  const { searchParams } = new URL(req.url);
-  const filter = searchParams.get("type") || "both";
-  const { serverId } = params;
+  const { serverId } = req.query;
 
-  const doc = await GameData.findOne({ serverId });
-  if (!doc) return NextResponse.json([]);
+  if (req.method === "GET") {
+    const filter = req.query.type || "both";
 
-  if (filter === "join")
-    return NextResponse.json(doc.logs.filter((l) => l.type === "join"));
+    const doc = await GameData.findOne({ serverId });
+    if (!doc) return res.status(200).json([]);
 
-  if (filter === "leave")
-    return NextResponse.json(doc.logs.filter((l) => l.type === "leave"));
+    if (filter === "join")
+      return res.status(200).json(doc.logs.filter(l => l.type === "join"));
 
-  return NextResponse.json(doc.logs);
-}
+    if (filter === "leave")
+      return res.status(200).json(doc.logs.filter(l => l.type === "leave"));
 
-export async function POST(req, { params }) {
-  await dbConnect();
-  const { serverId } = params;
-  const body = await req.json();
+    return res.status(200).json(doc.logs);
+  }
 
-  let doc = await GameData.findOne({ serverId });
-  if (!doc) doc = await GameData.create({ serverId });
+  if (req.method === "POST") {
+    const body = req.body;
 
-  doc.logs.push(body);
-  await doc.save();
+    let doc = await GameData.findOne({ serverId });
+    if (!doc) doc = await GameData.create({ serverId });
 
-  return NextResponse.json({ success: true });
+    doc.logs.push(body);
+    await doc.save();
+
+    return res.status(200).json({ success: true });
+  }
+
+  return res.status(405).json({ error: "Method not allowed" });
 }

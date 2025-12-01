@@ -9,11 +9,12 @@ import PlayerList from '@/components/Server/PlayerList';
 import PlayerConsole from '@/components/Server/PlayerConsole';
 import ChatLogs from '@/components/Server/ChatLogs';
 import AuditLogs from '@/components/Server/AuditLogs';
+import NotificationModal from '@/components/Server/NotificationModal';
 
 export default function ServerDetailPage() {
   const { serverId } = useRouter().query;
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [activeTab, setActiveTab] = useState("players");
 
   const {
@@ -70,6 +71,9 @@ export default function ServerDetailPage() {
                 {t.label}
               </button>
             ))}
+            <button onClick={() => setShowNotificationModal(true)}>
+              Send Notification
+            </button>
           </div>
 
           {/* Tab content */}
@@ -91,6 +95,13 @@ export default function ServerDetailPage() {
           )}
 
         </section>
+
+        {showNotificationModal && (
+          <NotificationModal
+            serverId={serverId}
+            onClose={() => setShowNotificationModal(false)}
+          />
+        )}
       </main>
     </AuthWrapper>
   );

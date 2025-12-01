@@ -1,19 +1,22 @@
-import { NextResponse } from "next/server";
 import GameData from "@/models/GameData";
-import dbConnect from "@/lib/dbConnect";
+import dbConnect from "@/utils/db";
 
-export async function GET(req, { params }) {
+export default async function handler(req, res) {
   await dbConnect();
-  const { serverId } = params;
+  const { serverId } = req.query;
+
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
   const doc = await GameData.findOne({ serverId });
-  if (!doc) return NextResponse.json([]);
+  if (!doc) return res.status(200).json([]);
 
-  const messages = doc.chat.filter((m) => m.type === "notification");
+  const notifications = doc.chat.filter((m) => m.type === "notification");
 
-  // Clear notifications after sending
+  // Remove notifications after sending to Roblox
   doc.chat = doc.chat.filter((m) => m.type !== "notification");
   await doc.save();
 
-  return NextResponse.json(messages);
+  return res.status(200).json(notifications);
 }
