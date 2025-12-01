@@ -9,14 +9,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const doc = await GameData.findOne({ serverId });
-  if (!doc) return res.status(200).json([]);
+const doc = await GameData.findOne({ serverId });
+  if (!doc) return NextResponse.json([]);
 
-  const notifications = doc.chat.filter((m) => m.type === "notification");
+  const messages = doc.messagesForGame || [];
 
-  // Remove notifications after sending to Roblox
-  doc.chat = doc.chat.filter((m) => m.type !== "notification");
+  // Optional: clear queue after sending
+  doc.messagesForGame = [];
   await doc.save();
 
-  return res.status(200).json(notifications);
+  return res.status(200).json(messages);
 }

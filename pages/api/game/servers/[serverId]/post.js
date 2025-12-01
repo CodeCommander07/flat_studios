@@ -1,23 +1,21 @@
+import { NextResponse } from "next/server";
 import GameData from "@/models/GameData";
 import dbConnect from "@/utils/db";
 
-export default async function handler(req, res) {
+export default async function POST(req, { params }) {
   await dbConnect();
-  const { serverId } = req.query;
+  const { serverId } = params;
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  const { message, author } = await req.json();
 
-  const { message, author } = req.body;
-
-  if (!message || message.trim().length === 0) {
-    return res.status(400).json({ error: "Message required" });
+  if (!message) {
+    return NextResponse.json({ error: "Message required" }, { status: 400 });
   }
 
   let doc = await GameData.findOne({ serverId });
   if (!doc) doc = await GameData.create({ serverId });
 
+  // 1️⃣ Add to chat log (dashboard history)
   doc.chat.push({
     playerId: "WEB",
     username: author || "Dashboard",
@@ -26,7 +24,27 @@ export default async function handler(req, res) {
     time: new Date(),
   });
 
+  // 2️⃣ Add to audit logs
+  doc.audit.push({
+    action: "notification",
+    targetId: "ALL_PLAYERS",
+    targetName: "All Players",
+    moderatorId: "WEB",
+    moderatorName: author || "Dashboard",
+    reason: message,
+    scope: "server",
+    createdAt: new Date(),
+  });
+
+  // 3️⃣ Add to GAME QUEUE (this is what Roblox reads!)
+  doc.messagesForGame = doc.messagesForGame || [];
+  doc.messagesForGame.push({
+    chatMessage: message,
+    author: author || "Dashboard",
+    time: new Date(),
+  });
+
   await doc.save();
 
-  return res.status(200).json({ success: true });
+  return NextResponse.json({ success: true });
 }

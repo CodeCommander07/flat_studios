@@ -1,6 +1,6 @@
 import { MessageSquare } from 'lucide-react';
 
-export default function ChatLogs({ logs }) {
+export default function ChatLogs({ logs, onSelectUser }) {
   return (
     <div className="bg-[#283335]/80 border border-white/10 rounded-xl p-4 max-h-[600px] overflow-y-auto">
 
@@ -24,7 +24,13 @@ export default function ChatLogs({ logs }) {
               <img src={msg.icon} className="w-8 h-8 rounded-md" />
 
               <div className="flex-1">
-                <p className="text-blue-300 font-semibold">{msg.username}</p>
+                <button
+                  className={`text-blue-300 ${msg.username === "System" ? "": "hover:underline"}`}
+                  onClick={() => onSelectUser(msg.playerId)}
+                  disabled={msg.username === "System"}
+                >
+                  {msg.username}
+                </button>
                 <p className="text-gray-200">{msg.chatMessage}</p>
 
                 <p className="text-xs text-gray-500 mt-1">

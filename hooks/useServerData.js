@@ -6,6 +6,7 @@ export default function useServerData(serverId) {
   const [players, setPlayers] = useState([]);
   const [chatLogs, setChatLogs] = useState([]);
   const [modLogs, setModLogs] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const robloxCache = useRef({});
@@ -36,10 +37,11 @@ export default function useServerData(serverId) {
   async function loadAll() {
     if (!serverId) return;
 
-    const [metaRes, playersRes, chatRes] = await Promise.all([
+    const [metaRes, playersRes, chatRes, auditRes] = await Promise.all([
       axios.get(`/api/game/servers/${serverId}`),
       axios.get(`/api/game/servers/${serverId}/players`),
-      axios.get(`/api/game/servers/${serverId}/chat`)
+      axios.get(`/api/game/servers/${serverId}/chat`),
+      axios.get(`/api/game/servers/${serverId}/audit`)
     ]);
 
     setServerMeta(metaRes.data);
@@ -72,6 +74,7 @@ export default function useServerData(serverId) {
 
     setPlayers(mappedPlayers);
     setChatLogs(mappedChat);
+    setAuditLogs(auditRes.data);
   }
 
   async function loadModLogs() {
@@ -97,5 +100,5 @@ export default function useServerData(serverId) {
     return () => clearInterval(interval);
   }, [serverId]);
 
-  return { loading, serverMeta, players, chatLogs, modLogs };
+  return { loading, serverMeta, players, chatLogs, modLogs, auditLogs};
 }
