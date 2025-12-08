@@ -4,20 +4,12 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 
-
-const formatDateForInput = (dateStr) => {
-  const date = new Date(dateStr);
+const formatDateForInput = (dateInput) => {
+  const date = new Date(dateInput);
   const year = date.getFullYear();
   const month = (`0${date.getMonth() + 1}`).slice(-2);
   const day = (`0${date.getDate()}`).slice(-2);
   return `${year}-${month}-${day}`;
-};
-
-const formatTimeForInput = (timeStr) => {
-  const date = new Date(timeStr);
-  const h = `${date.getHours()}`.padStart(2, '0');
-  const m = `${date.getMinutes()}`.padStart(2, '0');
-  return `${h}:${m}`;
 };
 
 const calculateDuration = (startTime, endTime) => {
@@ -52,15 +44,39 @@ const getStartOfWeek = () => {
   return new Date(now.setDate(diff));
 };
 
+// Previous Sunday (always the one before the current week)
+// For Monday: yesterday, for Tuesday: 2 days ago, for Sunday: 7 days ago
+const getLastSunday = (base = new Date()) => {
+  const today = new Date(base);
+  const day = today.getDay(); // Sunday = 0
+  const diff = day === 0 ? 7 : day; // Sunday -> 7, Mon -> 1, Tue -> 2, ...
+  const sunday = new Date(today);
+  sunday.setDate(today.getDate() - diff);
+  sunday.setHours(0, 0, 0, 0);
+  return sunday;
+};
+
+// True if it's *this* Sunday after 20:00
+const isPastSunday8PM = (now = new Date()) => {
+  if (now.getDay() !== 0) return false; // not Sunday
+  const eightPM = new Date(now);
+  eightPM.setHours(20, 0, 0, 0);
+  return now >= eightPM;
+};
 
 export default function ActivityPage() {
   const [user, setUser] = useState(null);
   const [logs, setLogs] = useState([]);
   const [weeklySummary, setWeeklySummary] = useState({ hours: 0, minutes: 0 });
   const [form, setForm] = useState({
-    date: '', timeJoined: '', timeLeft: '',
-    extraNotes: '', notable: 'No',
-    host: '', participants: '', robloxUsername: '',
+    date: formatDateForInput(new Date()),
+    timeJoined: '',
+    timeLeft: '',
+    extraNotes: '',
+    notable: 'No',
+    host: 'No',
+    participants: '',
+    robloxUsername: '',
   });
   const [totalTime, setTotalTime] = useState(null);
   const [editingLog, setEditingLog] = useState(null);
@@ -68,6 +84,13 @@ export default function ActivityPage() {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [fallbackDuration, setFallbackDuration] = useState('');
+
+  // Compute date boundaries for the picker
+  const today = new Date();
+  const lastSunday = getLastSunday(today);
+  const allowedSunday = isPastSunday8PM(today) ? today : lastSunday;
+  const minDate = formatDateForInput(allowedSunday);
+  const maxDate = formatDateForInput(today);
 
   useEffect(() => {
     if (form.timeJoined && form.timeLeft) {
@@ -102,6 +125,7 @@ export default function ActivityPage() {
     }
   };
 
+  // (duplicate effect kept, as in your original file)
   useEffect(() => {
     if (form.timeJoined && form.timeLeft) {
       setTotalTime(calculateDuration(form.timeJoined, form.timeLeft));
@@ -115,20 +139,40 @@ export default function ActivityPage() {
     return !form[field] && form[field] !== 'No' && form[field] !== 'Yes';
   };
 
+  // UPDATED: time validation for last Sunday after 20:00
   const handleChange = (field, value) => {
+    if (field === 'timeJoined' || field === 'timeLeft') {
+      const selectedDate = new Date(form.date);
+      const strictLastSunday = getLastSunday(); // previous Sunday relative to "now"
+      const isLastSundaySelected =
+        formatDateForInput(selectedDate) === formatDateForInput(strictLastSunday);
+
+      if (isLastSundaySelected && value < '20:00') {
+        setError('Last Sunday activities must be after 20:00 (8pm).');
+        return;
+      }
+    }
+
     setForm(prev => ({ ...prev, [field]: value }));
+    setError('');
   };
 
   const resetForm = () => {
     setEditingLog(null);
     setForm({
-      date: '', timeJoined: '', timeLeft: '',
-      extraNotes: '', notable: 'No',
-      host: '', participants: '', robloxUsername: user?.robloxUsername || '',
+      date: formatDateForInput(new Date()),
+      timeJoined: '',
+      timeLeft: '',
+      extraNotes: '',
+      notable: 'No',
+      host: 'No',
+      participants: '',
+      robloxUsername: user?.robloxUsername || '',
     });
     setTotalTime(null);
     setError('');
     setSuccessMsg('');
+    setFallbackDuration('');
   };
 
   const startEditing = (log) => {
@@ -149,7 +193,6 @@ export default function ActivityPage() {
     setSuccessMsg('');
     console.log('Editing log:', log);
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -224,7 +267,6 @@ export default function ActivityPage() {
     }
   }, [logs]);
 
-
   return (
     <main className="p-6 text-white">
       <div className="flex justify-between mb-4 bg-[#283335] border border-white/20 backdrop-blur-md p-3 rounded-2xl shadow-xl">
@@ -289,20 +331,34 @@ export default function ActivityPage() {
 
             <div>
               <label>Date <span className="text-red-500">*</span></label>
-              <input type="date" value={form.date} onChange={(e) => handleChange('date', e.target.value)}
-                className={`w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white`} />
+              <input
+                type="date"
+                value={form.date}
+                onChange={(e) => handleChange('date', e.target.value)}
+                min={minDate}
+                max={maxDate}
+                className="w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label>Time Joined <span className="text-red-500">*</span></label>
-                <input type="time" value={form.timeJoined} onChange={(e) => handleChange('timeJoined', e.target.value)}
-                  className={`w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white`} />
+                <input
+                  type="time"
+                  value={form.timeJoined}
+                  onChange={(e) => handleChange('timeJoined', e.target.value)}
+                  className="w-full p-2 rounded-xl bg-[#283335] border border-white/30 text:white"
+                />
               </div>
               <div>
                 <label>Time Left <span className="text-red-500">*</span></label>
-                <input type="time" value={form.timeLeft} onChange={(e) => handleChange('timeLeft', e.target.value)}
-                  className={`w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white`} />
+                <input
+                  type="time"
+                  value={form.timeLeft}
+                  onChange={(e) => handleChange('timeLeft', e.target.value)}
+                  className="w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white"
+                />
               </div>
             </div>
 
@@ -329,11 +385,14 @@ export default function ActivityPage() {
 
             <div>
               <label>Was this a shift?<span className="text-red-500">*</span></label>
-              <select value={form.notable} onChange={(e) => handleChange('notable', e.target.value)}
-                className="w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white">
+              <select
+                value={form.notable}
+                onChange={(e) => handleChange('notable', e.target.value)}
+                className="w-full p-2 rounded-xl bg-[#283335] border border-white/30 text-white"
+              >
                 required
-                <option value="No" className="text-black">No</option>
-                <option value="Yes" className="text-black">Yes</option>
+                <option value="No" className="text-white">No</option>
+                <option value="Yes" className="text-white">Yes</option>
               </select>
             </div>
 
@@ -341,18 +400,28 @@ export default function ActivityPage() {
               <>
                 <div>
                   <label>Did you host? <span className="text-red-500">*</span></label>
-                  <select value={form.host} onChange={(e) => handleChange('host', e.target.value)}
-                    className={`w-full p-2 rounded-xl bg-[#283335] border text-white`}>
+                  <select
+                    value={form.host}
+                    onChange={(e) => handleChange('host', e.target.value)}
+                    className={`w-full p-2 rounded-xl bg-[#283335] border text-white`}
+                  >
                     <option value="">Select</option>
-                    <option value="Yes" className="text-black">Yes</option>
-                    <option value="No" className="text-black">No</option>
+                    <option value="Yes" className="text-white">Yes</option>
+                    <option value="No" className="text-white">No</option>
                   </select>
                 </div>
-                <div>
-                  <label>Estimated Participants <span className="text-red-500">*</span></label>
-                  <input type="text" value={form.participants} onChange={(e) => handleChange('participants', e.target.value)}
-                    className={`w-full p-2 rounded-xl bg-[#283335] border text-white`} />
-                </div>
+                {form.host === 'Yes' && (
+                  <div>
+                    <label>Estimated Participants <span className="text-red-500">*</span></label>
+                    <p className="text-sm text-white/60 mb-2">Hosting refers to leading or organizing the activity.</p>
+                    <input
+                      type="text"
+                      value={form.participants}
+                      onChange={(e) => handleChange('participants', e.target.value)}
+                      className={`w-full p-2 rounded-xl bg-[#283335] border text-white`}
+                    />
+                  </div>
+                )}
               </>
             )}
 
@@ -379,11 +448,13 @@ export default function ActivityPage() {
                       Discard
                     </button>
                   </div>
-
                 </>
               ) : (
-                <button type="submit" disabled={submitting}
-                  className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-900 font-semibold">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-900 font-semibold"
+                >
                   {submitting ? 'Submitting...' : 'Submit Activity'}
                 </button>
               )}

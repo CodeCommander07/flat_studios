@@ -76,6 +76,7 @@ export default function NewsletterSubscribers() {
     useEffect(() => {
         let list = [...subs];
 
+        // Search
         if (search.trim() !== "") {
             const s = search.toLowerCase();
             list = list.filter(
@@ -85,14 +86,17 @@ export default function NewsletterSubscribers() {
             );
         }
 
+        // Source filter
         if (!sourceFilter.includes("All")) {
             list = list.filter(u => sourceFilter.includes(u.source));
         }
 
+        // Date filter
         if (!dateFilter.includes("All")) {
             list = list.filter(u => dateFilter.includes(getDateBucket(u.date)));
         }
 
+        // Sorting
         list.sort((a, b) =>
             sortAsc
                 ? a.username.localeCompare(b.username)
@@ -100,7 +104,13 @@ export default function NewsletterSubscribers() {
         );
 
         setFiltered(list);
-    }, [search, sortAsc, subs]);
+    }, [
+        search,
+        sortAsc,
+        subs,
+        sourceFilter,   // ← ADD THIS
+        dateFilter      // ← ADD THIS
+    ]);
 
     async function deleteSub(email) {
         if (!confirm(`Delete ${email}?`)) return;

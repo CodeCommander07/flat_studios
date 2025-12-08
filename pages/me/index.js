@@ -63,6 +63,7 @@ export default function ProfilePage() {
     const userId = localUser?._id;
     const scopes = encodeURIComponent('identify');
     const redirect = encodeURIComponent('https://yapton.flatstudios.net/api/user/discord/callback');
+    // const redirect = encodeURIComponent('http://localhost:3000/api/user/discord/callback');
 
     window.location.href = `https://discord.com/oauth2/authorize?client_id=874668646616694824&redirect_uri=${redirect}&response_type=code&scope=${scopes}&state=${userId}`;
   };
@@ -70,8 +71,8 @@ export default function ProfilePage() {
   const handleRobloxConnect = () => {
     const localUser = JSON.parse(localStorage.getItem('User'));
     const userId = localUser?._id;
-    const base = process.env.LIVE_URL;
     const redirectUri = encodeURIComponent(`https://yapton.flatstudios.net/api/user/roblox/callback`);
+    // const redirectUri = encodeURIComponent(`http://localhost:3000/api/user/roblox/callback`);
     const url = `https://authorize.roblox.com/?client_id=3955231950419357724` +
       `&response_type=code` +
       `&redirect_uri=${redirectUri}` +

@@ -12,7 +12,11 @@ export default function ConsentAndNewsletter() {
 
   async function subscribe() {
     if (!email.trim()) {
-      setMessage("Please enter an email.");
+      setMessage("Please enter an Email.");
+      return;
+    }
+    if (!username.trim()) {
+      setMessage("Please enter a Username.");
       return;
     }
 
@@ -161,6 +165,7 @@ export default function ConsentAndNewsletter() {
             <input
               type="email"
               value={email}
+              required
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               className="w-full bg-[#283335] border border-white/20 text-white p-2 rounded-lg placeholder-white/40 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
@@ -169,6 +174,7 @@ export default function ConsentAndNewsletter() {
             <input
               type="text"
               value={username}
+              required
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Roblox Username"
               className="w-full bg-[#283335] border border-white/20 text-white p-2 rounded-lg placeholder-white/40 mb-3 focus:outline-none focus:ring-1 focus:ring-blue-400"
