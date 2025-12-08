@@ -27,24 +27,14 @@ export default async function handler(req, res) {
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
-    const roblox = profileRes.data;
-    const robloxId = roblox.sub;
 
-    // 3️⃣ Fetch avatar via official Avatar API
-    const avatarRes = await axios.get(
-      `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${robloxId}&size=420x420&format=Png&isCircular=false`
-    );
-
-    let avatarUrl =
-      avatarRes.data?.data?.[0]?.imageUrl ||
-      `https://www.roblox.com/headshot-thumbnail/image?userId=${robloxId}&width=420&height=420&format=png`;
 
     // 4️⃣ Update your DB
     await axios.post(`${process.env.LIVE_URL}/api/user/roblox/update`, {
       userId,
-      robloxId,
-      robloxUsername: roblox.name || roblox.nickname,
-      robloxAvatar: avatarUrl,
+      robloxId: profileRes.data.sub,
+      robloxUsername: profileRes.data.name,
+      robloxAvatar: profileRes.data.picture,
     });
 
     return res.redirect('/me?refresh=1');
