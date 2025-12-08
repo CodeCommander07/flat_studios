@@ -31,8 +31,6 @@ export default async function handler(req, res) {
       'https://apis.roblox.com/oauth/v1/userinfo',
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-
-    console.log('Roblox profile data:', profileRes.data);
     // 4️⃣ Update your DB
    await User.findByIdAndUpdate(
       userId,
