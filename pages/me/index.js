@@ -73,7 +73,7 @@ export default function ProfilePage() {
     const userId = localUser?._id;
     const redirectUri = encodeURIComponent(`https://yapton.flatstudios.net/api/user/roblox/callback`);
     // const redirectUri = encodeURIComponent(`http://localhost:3000/api/user/roblox/callback`);
-    const url = `https://authorize.roblox.com/?client_id=3955231950419357724` +
+    const url = `https://apis.roblox.com/oauth/v1/authorize?client_id=3955231950419357724` +
       `&response_type=code` +
       `&redirect_uri=${redirectUri}` +
       `&scope=openid+profile+group:read` +

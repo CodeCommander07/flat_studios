@@ -27,8 +27,7 @@ export default async function handler(req, res) {
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
-
-
+    console.log('Roblox profile data:', profileRes.data);
     // 4️⃣ Update your DB
     await axios.post(`${process.env.LIVE_URL}/api/user/roblox/update`, {
       userId,
