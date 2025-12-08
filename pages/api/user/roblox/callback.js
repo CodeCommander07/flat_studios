@@ -1,7 +1,12 @@
+import User from '@/models/User';
+import dbConnect from '@/utils/db';
 import axios from 'axios';
 
 export default async function handler(req, res) {
   const { code, state: userId } = req.query;
+
+
+  await dbConnect();
 
   if (!code || !userId) return res.redirect('/me');
 
@@ -29,12 +34,15 @@ export default async function handler(req, res) {
 
     console.log('Roblox profile data:', profileRes.data);
     // 4️⃣ Update your DB
-    await axios.post(`${process.env.LIVE_URL}/api/user/roblox/update`, {
+   await User.findByIdAndUpdate(
       userId,
-      robloxId: profileRes.data.sub,
-      robloxUsername: profileRes.data.name,
-      robloxAvatar: profileRes.data.picture,
-    });
+      {
+        robloxId: profileRes.data.sub,
+        robloxUsername: profileRes.data.name,
+        robloxAvatar: profileRes.data.picture,
+      },
+      { new: true }
+    )
 
     return res.redirect('/me?refresh=1');
 
