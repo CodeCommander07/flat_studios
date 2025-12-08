@@ -1,6 +1,5 @@
 import dbConnect from '@/utils/db';
 import DeveloperTasks from '@/models/DeveloperTasks';
-import User from '@/models/User';
 
 export default async function handler(req, res) {
   await dbConnect();
@@ -11,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const devTasks = await DeveloperTasks.find({})
-      .populate('user', 'username email')
+      .populate('user', 'username email robloxUsername discordUsername defaultAvatar')
       .lean();
 
     const allTasks = devTasks.flatMap(dev =>
@@ -24,6 +23,19 @@ export default async function handler(req, res) {
         priority: task.priority,
         updatedAt: task.updatedAt,
         completedAt: task.completedAt,
+
+        // REQUIRED FOR YOUR UI:
+        user: {
+          _id: dev.user?._id,
+          username: dev.user?.username,
+          email: dev.user?.email,
+          defaultAvatar: dev.user?.defaultAvatar,
+          discordUsername: dev.user?.discordUsername,
+          robloxUsername: dev.user?.robloxUsername,
+        },
+
+        // Convenience fields:
+        userId: dev.user?._id,
         userName: dev.user?.username || 'Unknown',
         userEmail: dev.user?.email || 'N/A',
       }))

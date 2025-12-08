@@ -308,12 +308,12 @@ export default function Dashboard() {
                                 className={`px-2 py-1 rounded-full text-xs font-semibold tracking-wide
                       ${task.taskStatus === "completed"
                                     ? "bg-green-500/20 text-green-300 border border-green-400/20"
-                                    : task.taskStatus === "in-progress"
+                                    : task.taskStatus === "reviewed"
                                       ? "bg-blue-500/20 text-blue-300 border border-blue-400/20"
-                                      : task.taskStatus === "review"
-                                        ? "bg-purple-500/20 text-purple-300 border border-purple-400/20"
+                                      : task.taskStatus === "developing"
+                                        ? "bg-orange-500/20 text-orange-300 border border-orange-400/20"
                                         : task.taskStatus === "not-started"
-                                          ? "bg-gray-500/20 text-gray-300 border border-gray-400/20"
+                                          ? "bg-red-500/20 text-red-300 border border-red-400/20"
                                           : "bg-purple-500/20 text-purple-300 border border-purple-400/20"
                                   }
                     `}

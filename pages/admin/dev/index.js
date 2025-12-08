@@ -90,7 +90,7 @@ export default function AdminDevTasks() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <a
-              href="/admin/dev/set"
+              href="/admin/dev/tasks"
               className="bg-[#283335] rounded-bl-2xl rounded-tr-2xl border border-white/20 backdrop-blur-md p-6 shadow-xl transition hover:shadow-2xl"
             >
               <div className="flex items-center gap-4 mb-4">
