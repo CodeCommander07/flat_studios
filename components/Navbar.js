@@ -297,7 +297,7 @@ export default function Navbar() {
                                 }`}
                             >
                               <a
-                                href={n.link ? n.link : '/me/notifications'}
+                                href={n.link ? n.link : '/me?notifications'}
                                 className="hover:underline hover:text-blue-300 transition-colors"
                               >
                                 {n.notification}
@@ -307,7 +307,7 @@ export default function Navbar() {
                         </ul>
                       )}
                       <Link
-                        href="/me/notifications"
+                        href="/me?notifications"
                         className="text-blue-400 hover:text-blue-300 text-xs mt-3 inline-block"
                       >
                         View all →
@@ -348,7 +348,7 @@ export default function Navbar() {
                       <Link href="/me/cdn" className="block px-4 py-2 hover:bg-[#283335] text-md">File Sharer</Link>
                       <Link href="/me/applications" className="block px-4 py-2 hover:bg-[#283335] text-md">My Applications</Link>
                       <Link href="/me/appeals" className="block px-4 py-2 hover:bg-[#283335] text-md">My Appeals</Link>
-                      <Link href="/me/notifications" className="block px-4 py-2 hover:bg-[#283335] text-md">My Notifications</Link>
+                      <Link href="/me?notifications" className="block px-4 py-2 hover:bg-[#283335] text-md">My Notifications</Link>
                       <LogoutButton />
                     </motion.div>
                   )}
@@ -529,7 +529,7 @@ export default function Navbar() {
                         My Appeals
                       </Link>
                       <Link
-                        href="/me/notifications"
+                        href="/me?notifications"
                         onClick={() => setMobileOpen(false)}
                         className="flex items-center justify-between text-sm text-gray-300 hover:text-blue-400"
                       >

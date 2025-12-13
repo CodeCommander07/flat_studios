@@ -87,12 +87,21 @@ export default async function handler(req, res) {
               <p style="font-size: 18px;">Hi <strong>${username}</strong>,</p>
               <p>You have successfully subscribed to our newsletter service.</p>
               <p>You can unsubscribe at any time:</p>
-              <a href="https://yapton.flatstudios.net/me/unsub">https://yapton.flatstudios.net/me/unsub</a>
+              <a href="https://yapton.flatstudios.net/me?unsubscribe">https://yapton.flatstudios.net/me?unsubscribe</a>
               <p style="margin-top: 20px;">
                 Date: ${new Date().toLocaleDateString("en-UK")}
               </p>
             </td>
-          </tr>
+          </tr><tr>
+        <td align="center" style="padding: 20px; background-color: #f4f4f9;">
+          <p style="font-size: 14px;">Regards,<br><strong>Yapton & District Admin Team</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding: 10px; background-color: #f4f4f9;">
+          <p style="font-size: 12px; color: #888;">This is an automated email. Yapton & District is a subsidiary of Flat Studios.</p>
+        </td>
+      </tr>
         </table>
       </body>
     </html>`;
@@ -124,7 +133,7 @@ export default async function handler(req, res) {
       if (!email)
         return res.status(400).json({ error: "Email is required" });
 
-        const html = `
+      const html = `
     <!DOCTYPE html>
     <html>
       <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; color: #333;">
@@ -139,30 +148,38 @@ export default async function handler(req, res) {
               <p style="font-size: 18px;">Hi <strong>${email}</strong>,</p>
               <p>You have successfully unsubscribed to our newsletter service. We are sad to see you go.</p>
               <p>You can subscribe at any time:</p>
-              <a href="https://yapton.flatstudios.net/subscribe">https://yapton.flatstudios.net/subscribe</a>
+              <a href="https://yapton.flatstudios.net/me?subscribe">https://yapton.flatstudios.net/me?subscribe</a>
               <p style="margin-top: 20px;">
                 Date: ${new Date().toLocaleDateString("en-UK")}
               </p>
             </td>
-          </tr>
+          </tr><tr>
+        <td align="center" style="padding: 20px; background-color: #f4f4f9;">
+          <p style="font-size: 14px;">Regards,<br><strong>Yapton & District Admin Team</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding: 10px; background-color: #f4f4f9;">
+          <p style="font-size: 12px; color: #888;">This is an automated email. Yapton & District is a subsidiary of Flat Studios.</p>
+        </td>
+      </tr>
         </table>
       </body>
     </html>`;
 
-        await mailHub.sendMail({
-          from: '"Flat Studios" <notification@flatstudios.net>',
-          to: email,
-          subject: "👋 Newsletter cancelled",
-          html,
-        });
-
+      await mailHub.sendMail({
+        from: '"Flat Studios" <notification@flatstudios.net>',
+        to: email,
+        subject: "👋 Newsletter cancelled",
+        html,
+      });
 
       const hash = subscriberHash(email);
 
-      await mailchimp.lists.deleteListMemberPermanent(
-        LIST_ID,
-        hash
-      );
+    await mailchimp.lists.setListMember(LIST_ID, hash, {
+      email_address: email,
+      status: "unsubscribed"
+    });
 
       return res.status(200).json({ success: true });
     }

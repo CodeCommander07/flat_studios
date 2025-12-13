@@ -38,11 +38,28 @@ export default async function handler(req, res) {
       }
 
       case 'PATCH': {
-        const { notifId } = req.body;
-        if (!notifId) return res.status(400).json({ error: 'Missing notifId' });
+        const { notifId, markAll } = req.body;
+
+        // ✅ MARK ALL AS READ
+        if (markAll === true) {
+          user.notifications.forEach(n => {
+            n.read = true;
+          });
+
+          await user.save();
+
+          return res.status(200).json({
+            message: 'All notifications marked as read',
+          });
+        }
+
+        // ✅ MARK SINGLE
+        if (!notifId)
+          return res.status(400).json({ error: 'Missing notifId' });
 
         const notif = user.notifications.id(notifId);
-        if (!notif) return res.status(404).json({ error: 'Notification not found' });
+        if (!notif)
+          return res.status(404).json({ error: 'Notification not found' });
 
         notif.read = true;
         await user.save();

@@ -201,7 +201,7 @@ export default function ActivityPage() {
 
     if (
       isInvalid('date') || isInvalid('timeJoined') || isInvalid('timeLeft') ||
-      (form.notable === 'Yes' && (isInvalid('host') || isInvalid('participants')))
+      (form.notable === 'Yes' && (isInvalid('host'))) || (form.host === 'Yes' && (isInvalid('participants')))
     ) {
       setError('Please fill all required fields.');
       return;

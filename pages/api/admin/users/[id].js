@@ -2,6 +2,7 @@ import dbConnect from '@/utils/db';
 import User from '@/models/User';
 import { generateRandomPassword, hashPassword } from '@/utils/auth';
 import { sendMail } from '@/utils/mailHub'; 
+import { notifyUser } from '@/utils/notifyUser';
 
 export default async function handler(req, res) {
   await dbConnect();
@@ -31,6 +32,19 @@ export default async function handler(req, res) {
           runValidators: true,
           context: 'query',
         }).select('-password');
+
+        let notMsg
+        if(email){
+        notMsg = `Hello, ${username} your email has been updated to ${email}. This update was done by an Admin Member.`
+        }
+        if(username){
+        notMsg = `Hello, ${username} your username has been updated. This update was done by an Admin Member.`
+        }
+        if(role){
+        notMsg = `Hello, ${username} your role has been updated to ${role}. This update was done by an Admin Member.`
+        }
+
+        notifyUser(updatedUser, notMsg, '/me/')
 
         if (!updatedUser) {
           return res.status(404).json({ message: 'User not found' });
