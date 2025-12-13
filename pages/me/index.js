@@ -380,9 +380,157 @@ export default function ProfilePage() {
         )}
       </AnimatePresence>
 
-      <div className="w-full max-w-full grid grid-cols-1 md:grid-cols-6 gap-8 md:h-[calc(100vh-7rem)]">
+      <div className="w-full max-w-full flex flex-col md:grid md:grid-cols-6 gap-8 md:h-[calc(100vh-7rem)]">
+                {/* Header + Tabs (Top on mobile, Right sidebar on md+) */}
+        <div
+          className={`
+            order-1 md:order-2
+    col-span-1
+    bg-[#283335] border border-white/10 rounded-2xl shadow-xl
+    flex flex-col
+    md:flex-col
+    md:h-[calc(100vh-7rem)]
+  `}
+        >
+          {/* ===== PROFILE HEADER ===== */}
+          <div
+            className={`
+      p-6 flex flex-col items-center gap-4
+      md:w-[280px]
+      md:border-l md:border-white/10
+      md:items-start
+    `}
+          >
+            <Image
+              src={user.defaultAvatar || '/black_logo.png'}
+              width={96}
+              height={96}
+              className="rounded-full border border-white/20 shadow-lg"
+              alt="Avatar"
+            />
+
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl font-bold">{user.username}</h1>
+              <p className="text-white/60 text-sm">
+                Joined {new Date(user.createdAt).toLocaleDateString('en-UK')}
+              </p>
+              <p className="text-white/80 text-sm mt-1">
+                <span className="font-semibold">Role:</span> {user.role}
+              </p>
+            </div>
+
+            {/* Edit / Save */}
+            <div className="w-full flex flex-col gap-2 mt-2">
+              {!editMode ? (
+                <button
+                  onClick={() => setEditMode(true)}
+                  className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 text-sm w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]"
+                >
+                  Edit Profile
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleProfileSave}
+                    className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 text-sm flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditedUser(user);
+                      setEditMode(false);
+                    }}
+                    className="bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-700 text-sm flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="text-red-300 hover:text-red-400 text-xs mt-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335] rounded"
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
+
+          {/* ===== TABS ===== */}
+          <div
+            className={`
+      flex md:flex-col
+      border-t md:border-t-0 md:border-r
+      border-white/10
+    `}
+            role="tablist"
+          >
+            {TABS.map((tab, index) => {
+              const isActive = activeTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  tabIndex={isActive ? 0 : -1}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    localStorage.setItem('profileTab', tab.id);
+                    window.history.replaceState({}, '', `/me?${tab.id}`);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                      const next = TABS[index + 1]?.id;
+                      if (next) setActiveTab(next);
+                    }
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                      const prev = TABS[index - 1]?.id;
+                      if (prev) setActiveTab(prev);
+                    }
+                  }}
+                  className={`
+            relative px-5 py-3 text-sm font-medium transition
+            flex items-center gap-2
+            ${isActive ? 'text-white' : 'text-white/55 hover:text-white'}
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
+            focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]
+          `}
+                >
+                  {tab.icon}
+                  {tab.label}
+
+                  {tab.id === 'notifications' && unreadCount > 0 && (
+                    <span className="ml-auto text-[11px] px-2 py-[2px] rounded-full bg-blue-500/30 border border-blue-400/40 text-blue-200">
+                      {unreadCount}
+                    </span>
+                  )}
+
+                  {/* Mobile underline */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="tab-underline"
+                      className="absolute left-3 right-3 bottom-0 h-[3px] md:hidden
+                bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 rounded-full"
+                    />
+                  )}
+
+                  {/* Desktop side indicator */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="tab-indicator"
+                      className="hidden md:block absolute left-0 top-2 bottom-2 w-[4px]
+                bg-gradient-to-b from-blue-400 via-cyan-300 to-blue-500 rounded-r-full"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         {/* Tab contents */}
-        <div className="col-span-1 md:col-span-5 h-full overflow-y-auto no-scrollbar">
+        <div className="order-2 md:order-1 col-span-1 md:col-span-5 h-full overflow-y-auto no-scrollbar">
           <AnimatePresence mode="wait">
             {/* ✅ FIXED: this block must be valid JSX - no `{...}` inside parentheses */}
             {!user ? (
@@ -396,7 +544,7 @@ export default function ProfilePage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.22 }}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full"
+                    className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 w-full"
                   >
                     {/* Account Information */}
                     <div className="bg-[#283335] border border-white/10 rounded-2xl p-6 shadow-xl flex flex-col gap-6">
@@ -597,130 +745,128 @@ export default function ProfilePage() {
                         Last changed:{' '}
                         {user.passwordUpdatedAt
                           ? new Date(user.passwordUpdatedAt).toLocaleDateString(
-                              'en-UK'
-                            )
+                            'en-UK'
+                          )
                           : 'Never'}
                       </div>
                     </div>
 
-                    <div className='bg-[#283335] p-6 text-white sm:grid-cols-2 lg:col-span-2 rounded-2xl border border-white/10'>
-                                              <h2 className="text-xl font-semibold pb-6">
-                          Connections
-                        </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:col-span-2">
-                      {[
-                        {
-                          name: 'Discord',
-                          avatar: user.discordAvatar || '/black_logo.png',
-                          username: user.discordUsername || 'Discord',
-                          id: user.discordId,
-                          onConnect: handleDiscordConnect,
-                          isDefault: user.defaultAvatar === user.discordAvatar,
-                          onDefault: () =>
-                            handleSetDefaultAvatar(user.discordAvatar),
-                        },
-                        {
-                          name: 'Roblox',
-                          avatar: user.robloxAvatar || '/black_logo.png',
-                          username: user.robloxUsername || 'Roblox',
-                          id: user.robloxId,
-                          onConnect: handleRobloxConnect,
-                          isDefault: user.defaultAvatar === user.robloxAvatar,
-                          onDefault: () =>
-                            handleSetDefaultAvatar(user.robloxAvatar),
-                        },
-                      ].map((svc, i) => {
-                        const connected = !!svc.id;
+                    <div className='bg-[#283335] p-6 text-white sm:grid-cols-2 lg:col-span-3 rounded-2xl border border-white/10'>
+                      <h2 className="text-xl font-semibold pb-6">
+                        Connections
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:col-span-2">
+                        {[
+                          {
+                            name: 'Discord',
+                            avatar: user.discordAvatar || '/black_logo.png',
+                            username: user.discordUsername || 'Discord',
+                            id: user.discordId,
+                            onConnect: handleDiscordConnect,
+                            isDefault: user.defaultAvatar === user.discordAvatar,
+                            onDefault: () =>
+                              handleSetDefaultAvatar(user.discordAvatar),
+                          },
+                          {
+                            name: 'Roblox',
+                            avatar: user.robloxAvatar || '/black_logo.png',
+                            username: user.robloxUsername || 'Roblox',
+                            id: user.robloxId,
+                            onConnect: handleRobloxConnect,
+                            isDefault: user.defaultAvatar === user.robloxAvatar,
+                            onDefault: () =>
+                              handleSetDefaultAvatar(user.robloxAvatar),
+                          },
+                        ].map((svc, i) => {
+                          const connected = !!svc.id;
 
-                        return (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.06, duration: 0.22 }}
-                            className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl flex gap-5 items-start"
-                          >
-                            {/* Avatar */}
-                            <Image
-                              src={svc.avatar}
-                              width={64}
-                              height={64}
-                              className="rounded-full border border-white/20 shadow-md"
-                              alt={`${svc.name} Avatar`}
-                            />
+                          return (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.06, duration: 0.22 }}
+                              className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl flex gap-5 items-start"
+                            >
+                              {/* Avatar */}
+                              <Image
+                                src={svc.avatar}
+                                width={64}
+                                height={64}
+                                className="rounded-full border border-white/20 shadow-md"
+                                alt={`${svc.name} Avatar`}
+                              />
 
-                            {/* Content */}
-                            <div className="flex flex-col flex-1 min-w-0 gap-3">
-                              {/* Header */}
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="min-w-0">
-                                  <p className="text-lg font-semibold truncate">
-                                    {svc.username}
-                                  </p>
-                                  <p className="text-xs text-white/50 truncate">
-                                    {connected
-                                      ? `ID: ${svc.id}`
-                                      : 'Not connected'}
-                                  </p>
+                              {/* Content */}
+                              <div className="flex flex-col flex-1 min-w-0 gap-3">
+                                {/* Header */}
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="min-w-0">
+                                    <p className="text-lg font-semibold truncate">
+                                      {svc.username}
+                                    </p>
+                                    <p className="text-xs text-white/50 truncate">
+                                      {connected
+                                        ? `ID: ${svc.id}`
+                                        : 'Not connected'}
+                                    </p>
+                                  </div>
+
+                                  {/* Status badge */}
+                                  <span
+                                    className={`text-xs px-2 py-[2px] rounded-full border
+                  ${connected
+                                        ? 'bg-green-500/10 border-green-400/30 text-green-300'
+                                        : 'bg-white/5 border-white/10 text-white/40'
+                                      }
+                `}
+                                  >
+                                    {connected ? 'Connected' : 'Not linked'}
+                                  </span>
                                 </div>
 
-                                {/* Status badge */}
-                                <span
-                                  className={`text-xs px-2 py-[2px] rounded-full border
-                  ${
-                    connected
-                      ? 'bg-green-500/10 border-green-400/30 text-green-300'
-                      : 'bg-white/5 border-white/10 text-white/40'
-                  }
-                `}
-                                >
-                                  {connected ? 'Connected' : 'Not linked'}
-                                </span>
-                              </div>
-
-                              {/* Actions */}
-                              <div className="flex flex-wrap gap-2 pt-1">
-                                <button
-                                  onClick={svc.onConnect}
-                                  className="bg-blue-600 px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700 transition"
-                                >
-                                  {connected ? 'Reconnect' : 'Connect'}
-                                </button>
-
-                                <button
-                                  onClick={svc.onDefault}
-                                  disabled={svc.isDefault || !connected}
-                                  className={`px-4 py-1.5 rounded-lg text-sm border transition
-                  ${
-                    svc.isDefault
-                      ? 'bg-green-600 border-green-500 text-white'
-                      : connected
-                      ? 'border-white/20 hover:bg-white/10'
-                      : 'border-white/10 text-white/40 cursor-not-allowed'
-                  }
-                `}
-                                >
-                                  {svc.isDefault
-                                    ? '✔ Default Avatar'
-                                    : 'Set as Default'}
-                                </button>
-
-                                {connected && (
+                                {/* Actions */}
+                                <div className="flex flex-wrap gap-2 pt-1">
                                   <button
-                                    onClick={() =>
-                                      setDisconnectService(svc.name)
-                                    }
-                                    className="px-4 py-1.5 rounded-lg text-sm bg-red-600/60 hover:bg-red-700 transition"
+                                    onClick={svc.onConnect}
+                                    className="bg-blue-600 px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700 transition"
                                   >
-                                    Remove
+                                    {connected ? 'Reconnect' : 'Connect'}
                                   </button>
-                                )}
+
+                                  <button
+                                    onClick={svc.onDefault}
+                                    disabled={svc.isDefault || !connected}
+                                    className={`px-4 py-1.5 rounded-lg text-sm border transition
+                  ${svc.isDefault
+                                        ? 'bg-green-600 border-green-500 text-white'
+                                        : connected
+                                          ? 'border-white/20 hover:bg-white/10'
+                                          : 'border-white/10 text-white/40 cursor-not-allowed'
+                                      }
+                `}
+                                  >
+                                    {svc.isDefault
+                                      ? '✔ Default Avatar'
+                                      : 'Set as Default'}
+                                  </button>
+
+                                  {connected && (
+                                    <button
+                                      onClick={() =>
+                                        setDisconnectService(svc.name)
+                                      }
+                                      className="px-4 py-1.5 rounded-lg text-sm bg-red-600/60 hover:bg-red-700 transition"
+                                    >
+                                      Remove
+                                    </button>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
                     </div>
 
                   </motion.div>
@@ -732,13 +878,102 @@ export default function ProfilePage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="bg-[#283335] border border-white/10 rounded-2xl p-6 shadow-xl h-full"
+                    transition={{ duration: 0.22 }}
+                    className="flex flex-col gap-8"
                   >
-                    <h2 className="text-2xl font-semibold mb-2">User Stats</h2>
-                    <p className="text-white/50 text-sm">
-                      Game stats, activity metrics and historical data will
-                      appear here.
-                    </p>
+                    {/* Header */}
+                    <div className="bg-[#283335] border border-white/10 rounded-2xl p-6 shadow-xl">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <h2 className="text-2xl font-semibold">User Statistics</h2>
+                          <p className="text-white/55 text-sm mt-1">
+                            Your activity, gameplay and development statistics
+                          </p>
+                        </div>
+
+                        <span className="text-xs px-3 py-[3px] rounded-full bg-yellow-500/10 border border-yellow-400/30 text-yellow-300">
+                          🚧 In Development
+                        </span>
+                      </div>
+
+                      <div className="h-[3px] w-32 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 rounded-full mt-4" />
+                    </div>
+
+                    {/* Stats grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {/* Activity */}
+                      <StatCard
+                        title="Leaves Taken"
+                        value="—"
+                        hint="Approved leave requests"
+                        icon={<ShieldAlert className="w-5 h-5" />}
+                      />
+
+                      <StatCard
+                        title="Shifts Completed"
+                        value="—"
+                        hint="Total in-game shifts"
+                        icon={<Wrench className="w-5 h-5" />}
+                      />
+
+                      {/* Development */}
+                      <StatCard
+                        title="Dev Tasks Completed"
+                        value="—"
+                        hint="Tasks marked as completed"
+                        icon={<CheckCircle className="w-5 h-5" />}
+                      />
+
+                      <StatCard
+                        title="Routes Completed"
+                        value="—"
+                        hint="Total routes driven"
+                        icon={<Megaphone className="w-5 h-5" />}
+                      />
+
+                      {/* Transport */}
+                      <StatCard
+                        title="Stops Visited"
+                        value="—"
+                        hint="Unique stops stopped at"
+                        icon={<Smartphone className="w-5 h-5" />}
+                      />
+
+                      <StatCard
+                        title="Favourite Bus"
+                        value="—"
+                        hint="Most driven vehicle"
+                        icon={<Wrench className="w-5 h-5" />}
+                      />
+
+                      <StatCard
+                        title="Most Driven Route"
+                        value="—"
+                        hint="Highest usage route"
+                        icon={<Megaphone className="w-5 h-5" />}
+                      />
+
+                      {/* Recent */}
+                      <StatCard
+                        title="Most Recent Bus"
+                        value="—"
+                        hint="Last vehicle used"
+                        icon={<Smartphone className="w-5 h-5" />}
+                      />
+
+                      <StatCard
+                        title="Most Recent Route"
+                        value="—"
+                        hint="Last route driven"
+                        icon={<Megaphone className="w-5 h-5" />}
+                      />
+                    </div>
+
+                    {/* Footer note */}
+                    <div className="text-xs text-white/40 border-t border-white/10 pt-4">
+                      These statistics will populate automatically as you use the platform.
+                      Some values may remain unavailable until enough data is collected.
+                    </div>
                   </motion.div>
                 )}
 
@@ -848,11 +1083,10 @@ export default function ProfilePage() {
                           <button
                             onClick={() => setShowUnreadOnly((v) => !v)}
                             className={`px-3 py-2 rounded-lg text-sm border transition
-              ${
-                showUnreadOnly
-                  ? 'bg-yellow-500/20 border-yellow-400/40 text-yellow-300'
-                  : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
-              }
+              ${showUnreadOnly
+                                ? 'bg-yellow-500/20 border-yellow-400/40 text-yellow-300'
+                                : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                              }
             `}
                           >
                             Unread only
@@ -863,11 +1097,10 @@ export default function ProfilePage() {
                             onClick={markAllNotifsRead}
                             disabled={unreadCount === 0}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition border
-              ${
-                unreadCount === 0
-                  ? 'bg-white/5 border-white/10 text-white/40 cursor-not-allowed'
-                  : 'bg-blue-600/30 border-blue-400/30 text-white hover:bg-blue-600/45'
-              }
+              ${unreadCount === 0
+                                ? 'bg-white/5 border-white/10 text-white/40 cursor-not-allowed'
+                                : 'bg-blue-600/30 border-blue-400/30 text-white hover:bg-blue-600/45'
+                              }
             `}
                             title={
                               unreadCount === 0
@@ -919,11 +1152,10 @@ export default function ProfilePage() {
                                         duration: 0.22,
                                       }}
                                       className={`relative rounded-xl p-5 border transition-all
-                        ${
-                          n.read
-                            ? 'bg-[#283335] border-white/10 hover:bg-[#2f3b3e]'
-                            : 'bg-[#283335]/40 border-blue-500/40 hover:bg-[#283335]/60'
-                        }
+                        ${n.read
+                                          ? 'bg-[#283335] border-white/10 hover:bg-[#2f3b3e]'
+                                          : 'bg-[#283335]/40 border-blue-500/40 hover:bg-[#283335]/60'
+                                        }
                       `}
                                     >
                                       {!n.read && (
@@ -958,11 +1190,10 @@ export default function ProfilePage() {
                                               : 'Mark as read'
                                           }
                                           className={`relative p-2 rounded-full transition
-                            ${
-                              n.read
-                                ? 'bg-green-700/30 text-green-400 cursor-default'
-                                : 'bg-blue-600/40 hover:bg-blue-600/60 text-yellow-300'
-                            }
+                            ${n.read
+                                              ? 'bg-green-700/30 text-green-400 cursor-default'
+                                              : 'bg-blue-600/40 hover:bg-blue-600/60 text-yellow-300'
+                                            }
                           `}
                                         >
                                           {n.read ? (
@@ -990,155 +1221,6 @@ export default function ProfilePage() {
             )}
           </AnimatePresence>
         </div>
-
-        {/* Header + Tabs (Top on mobile, Right sidebar on md+) */}
-        <div
-          className={`
-    col-span-1
-    bg-[#283335] border border-white/10 rounded-2xl shadow-xl
-    flex flex-col
-    md:flex-col
-    md:h-[calc(100vh-7rem)]
-  `}
-        >
-          {/* ===== PROFILE HEADER ===== */}
-          <div
-            className={`
-      p-6 flex flex-col items-center gap-4
-      md:w-[280px]
-      md:border-l md:border-white/10
-      md:items-start
-    `}
-          >
-            <Image
-              src={user.defaultAvatar || '/black_logo.png'}
-              width={96}
-              height={96}
-              className="rounded-full border border-white/20 shadow-lg"
-              alt="Avatar"
-            />
-
-            <div className="text-center md:text-left">
-              <h1 className="text-2xl font-bold">{user.username}</h1>
-              <p className="text-white/60 text-sm">
-                Joined {new Date(user.createdAt).toLocaleDateString('en-UK')}
-              </p>
-              <p className="text-white/80 text-sm mt-1">
-                <span className="font-semibold">Role:</span> {user.role}
-              </p>
-            </div>
-
-            {/* Edit / Save */}
-            <div className="w-full flex flex-col gap-2 mt-2">
-              {!editMode ? (
-                <button
-                  onClick={() => setEditMode(true)}
-                  className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 text-sm w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]"
-                >
-                  Edit Profile
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleProfileSave}
-                    className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 text-sm flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditedUser(user);
-                      setEditMode(false);
-                    }}
-                    className="bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-700 text-sm flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
-
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="text-red-300 hover:text-red-400 text-xs mt-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335] rounded"
-              >
-                Delete Account
-              </button>
-            </div>
-          </div>
-
-          {/* ===== TABS ===== */}
-          <div
-            className={`
-      flex md:flex-col
-      border-t md:border-t-0 md:border-r
-      border-white/10
-    `}
-            role="tablist"
-          >
-            {TABS.map((tab, index) => {
-              const isActive = activeTab === tab.id;
-
-              return (
-                <button
-                  key={tab.id}
-                  role="tab"
-                  aria-selected={isActive}
-                  tabIndex={isActive ? 0 : -1}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    localStorage.setItem('profileTab', tab.id);
-                    window.history.replaceState({}, '', `/me?${tab.id}`);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                      const next = TABS[index + 1]?.id;
-                      if (next) setActiveTab(next);
-                    }
-                    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                      const prev = TABS[index - 1]?.id;
-                      if (prev) setActiveTab(prev);
-                    }
-                  }}
-                  className={`
-            relative px-5 py-3 text-sm font-medium transition
-            flex items-center gap-2
-            ${isActive ? 'text-white' : 'text-white/55 hover:text-white'}
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
-            focus-visible:ring-offset-2 focus-visible:ring-offset-[#283335]
-          `}
-                >
-                  {tab.icon}
-                  {tab.label}
-
-                  {tab.id === 'notifications' && unreadCount > 0 && (
-                    <span className="ml-auto text-[11px] px-2 py-[2px] rounded-full bg-blue-500/30 border border-blue-400/40 text-blue-200">
-                      {unreadCount}
-                    </span>
-                  )}
-
-                  {/* Mobile underline */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="tab-underline"
-                      className="absolute left-3 right-3 bottom-0 h-[3px] md:hidden
-                bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 rounded-full"
-                    />
-                  )}
-
-                  {/* Desktop side indicator */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="tab-indicator"
-                      className="hidden md:block absolute left-0 top-2 bottom-2 w-[4px]
-                bg-gradient-to-b from-blue-400 via-cyan-300 to-blue-500 rounded-r-full"
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Disconnect modal */}
         <AnimatePresence>
           {disconnectService && (
@@ -1234,11 +1316,10 @@ export default function ProfilePage() {
 
                     setDeleteLoading(false);
                   }}
-                  className={`w-full mt-4 py-2 rounded-lg font-semibold transition ${
-                    deleteInput === user.username
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-red-900/40 cursor-not-allowed'
-                  }`}
+                  className={`w-full mt-4 py-2 rounded-lg font-semibold transition ${deleteInput === user.username
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-red-900/40 cursor-not-allowed'
+                    }`}
                 >
                   {deleteLoading ? 'Deleting…' : 'Confirm Delete'}
                 </button>
@@ -1291,10 +1372,9 @@ function PresenceCard({
       {/* Icon */}
       <div
         className={`w-12 h-12 rounded-xl flex items-center justify-center border
-          ${
-            checked
-              ? 'bg-blue-500/10 border-blue-400/30 text-blue-200'
-              : 'bg-white/5 border-white/10 text-white/70'
+          ${checked
+            ? 'bg-blue-500/10 border-blue-400/30 text-blue-200'
+            : 'bg-white/5 border-white/10 text-white/70'
           }
         `}
       >
@@ -1309,14 +1389,13 @@ function PresenceCard({
           {badge && (
             <span
               className={`text-xs px-2 py-[2px] rounded-full border
-                ${
-                  badgeType === 'ok'
-                    ? 'bg-green-500/10 border-green-400/30 text-green-300'
-                    : badgeType === 'warn'
+                ${badgeType === 'ok'
+                  ? 'bg-green-500/10 border-green-400/30 text-green-300'
+                  : badgeType === 'warn'
                     ? 'bg-yellow-500/10 border-yellow-400/30 text-yellow-300'
                     : badgeType === 'info'
-                    ? 'bg-blue-500/10 border-blue-400/30 text-blue-300'
-                    : 'bg-white/5 border-white/10 text-white/50'
+                      ? 'bg-blue-500/10 border-blue-400/30 text-blue-300'
+                      : 'bg-white/5 border-white/10 text-white/50'
                 }
               `}
             >
@@ -1332,10 +1411,9 @@ function PresenceCard({
       <button
         onClick={() => onToggle(!checked)}
         className={`relative w-12 h-6 rounded-full border transition
-          ${
-            checked
-              ? 'bg-blue-500/40 border-blue-400/40'
-              : 'bg-white/10 border-white/10'
+          ${checked
+            ? 'bg-blue-500/40 border-blue-400/40'
+            : 'bg-white/10 border-white/10'
           }
         `}
       >
@@ -1360,6 +1438,32 @@ function TabSkeleton() {
           className="h-40 rounded-2xl bg-white/5 border border-white/10"
         />
       ))}
+    </div>
+  );
+}
+
+function StatCard({ title, value, hint, icon }) {
+  return (
+    <div className="bg-[#283335] border border-white/10 rounded-2xl p-5 shadow-xl flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-white/60">{title}</p>
+        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/70">
+          {icon}
+        </div>
+      </div>
+
+      <div className="text-3xl font-bold text-white/80">
+        {value}
+      </div>
+
+      <p className="text-xs text-white/45">
+        {hint}
+      </p>
+
+      <span className="mt-auto text-[11px] px-2 py-[2px] rounded-full w-fit
+        bg-yellow-500/10 border border-yellow-400/30 text-yellow-300">
+        In Development
+      </span>
     </div>
   );
 }
