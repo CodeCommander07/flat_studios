@@ -755,7 +755,7 @@ export default function ProfilePage() {
                       <h2 className="text-xl font-semibold pb-6">
                         Connections
                       </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:col-span-2">
+                      <div className="grid grid-cols-1 gap-6 lg:col-span-2">
                         {[
                           {
                             name: 'Discord',
